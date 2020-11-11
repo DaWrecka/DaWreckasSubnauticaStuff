@@ -1,0 +1,17 @@
+{
+  "Id": "AcidProofSuit",
+  "DisplayName": "Brine-proof Suit",
+  "Author": "DaWrecka w/ MrPurple6411",
+  "Version": "1.0.0.0",
+  "Dependencies": [
+    "SMLHelper"
+  ],
+  "Game": "Subnautica",
+  "AssemblyName": "AcidProofSuit.dll",
+  "VersionDependencies": {
+    "SMLHelper": "2.9"
+  },
+  "VersionChecker": {},
+  "NexusId": {},
+  "Enable": true
+}
