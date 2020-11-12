@@ -150,9 +150,8 @@ namespace AcidProofSuit.Patches
         public static void Postfix(ref Player __instance, string slot, InventoryItem item)
         {
             Equipment equipment = Inventory.main.equipment;
-            int i = 0;
             int num = __instance.equipmentModels.Length;
-            while (i < num)
+            for(int i = 0; i < num; i++)
             {
                 Player.EquipmentType equipmentType = __instance.equipmentModels[i];
                 TechType techTypeInSlot = equipment.GetTechTypeInSlot(equipmentType.slot);
@@ -161,7 +160,7 @@ namespace AcidProofSuit.Patches
                 else if (techTypeInSlot == Main.glovesPrefab.TechType)
                     techTypeInSlot = TechType.ReinforcedGloves;
                 else
-                    continue;
+                  continue;
 
                 bool flag = false;
                 int j = 0;
@@ -185,7 +184,6 @@ namespace AcidProofSuit.Patches
             }
             MethodInfo dynMethod = __instance.GetType().GetMethod("UpdateReinforcedSuit", BindingFlags.NonPublic | BindingFlags.Instance);
             dynMethod.Invoke(__instance, null);
-            //__instance.UpdateReinforcedSuit();
         }
     }
 
