@@ -7,17 +7,11 @@ using Logger = QModManager.Utility.Logger;
 using UWE;
 using System;
 using System.Diagnostics;
+using System.Reflection;
 using Steamworks;
 
 namespace AcidProofSuit.Patches
 {
-    enum AcidState
-    {
-        None,
-        Immersed,   // Immersed in acid but should not be taking damage
-        Melting     // Immersed in acid and should be taking damage
-    }
-
     /*[HarmonyPatch(typeof(Player), nameof(Player.GetBreathPeriod))]
     internal class Player_GetBreathPeriod_Patch
     {
@@ -146,6 +140,52 @@ namespace AcidProofSuit.Patches
                 }
             }
             return damage;
+        }
+    }
+
+    [HarmonyPatch(typeof(Player), "EquipmentChanged")]
+    internal class Player_EquipmentChanged_Patch
+    {
+        [HarmonyPostfix]
+        public static void Postfix(ref Player __instance, string slot, InventoryItem item)
+        {
+            Equipment equipment = Inventory.main.equipment;
+            int i = 0;
+            int num = __instance.equipmentModels.Length;
+            while (i < num)
+            {
+                Player.EquipmentType equipmentType = __instance.equipmentModels[i];
+                TechType techTypeInSlot = equipment.GetTechTypeInSlot(equipmentType.slot);
+                if (techTypeInSlot == Main.suitPrefab.TechType)
+                    techTypeInSlot = TechType.ReinforcedDiveSuit;
+                else if (techTypeInSlot == Main.glovesPrefab.TechType)
+                    techTypeInSlot = TechType.ReinforcedGloves;
+                else
+                    continue;
+
+                bool flag = false;
+                int j = 0;
+                int num2 = equipmentType.equipment.Length;
+                while (j < num2)
+                {
+                    Player.EquipmentModel equipmentModel = equipmentType.equipment[j];
+                    bool flag2 = equipmentModel.techType == techTypeInSlot;
+                    flag = (flag || flag2);
+                    if (equipmentModel.model)
+                    {
+                        equipmentModel.model.SetActive(flag2);
+                    }
+                    j++;
+                }
+                if (equipmentType.defaultModel)
+                {
+                    equipmentType.defaultModel.SetActive(!flag);
+                }
+                i++;
+            }
+            MethodInfo dynMethod = __instance.GetType().GetMethod("UpdateReinforcedSuit", BindingFlags.NonPublic | BindingFlags.Instance);
+            dynMethod.Invoke(__instance, null);
+            //__instance.UpdateReinforcedSuit();
         }
     }
 
