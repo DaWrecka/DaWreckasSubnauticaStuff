@@ -29,9 +29,9 @@ namespace AcidProofSuit.Module
 
         public override TechType RequiredForUnlock => TechType.Workbench;
 
-        public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
+        public override CraftTree.Type FabricatorType => CraftTree.Type.None;
 
-        public override string[] StepsToFabricatorTab => new string[] { "Suits" };
+        public override string[] StepsToFabricatorTab => new string[] { "" };
 
         public override TechGroup GroupForPDA => TechGroup.Personal;
 
@@ -76,9 +76,9 @@ namespace AcidProofSuit.Module
 
         public override TechType RequiredForUnlock => TechType.Workbench;
 
-        public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
+        public override CraftTree.Type FabricatorType => CraftTree.Type.None;
 
-        public override string[] StepsToFabricatorTab => new string[] { "Suits" };
+        public override string[] StepsToFabricatorTab => new string[] { "" };
 
         public override TechGroup GroupForPDA => TechGroup.Personal;
 
@@ -140,7 +140,7 @@ namespace AcidProofSuit.Module
 
         protected override RecipeData GetBlueprintRecipe()
         {
-            return new RecipeData()
+            RecipeData recipe = new RecipeData()
             {
                 craftAmount = 1,
                 Ingredients = new List<Ingredient>(new Ingredient[6]
@@ -151,12 +151,13 @@ namespace AcidProofSuit.Module
                     new Ingredient(TechType.Lead, 2),
                     new Ingredient(TechType.CreepvinePiece, 2),
                     new Ingredient(TechType.WiringKit, 1)
-                }),
-                LinkedItems = new List<TechType>() {
-                    Main.glovesPrefab.TechType,
-                    Main.helmetPrefab.TechType
-                }
+                })
             };
+
+            recipe.LinkedItems.Add(Main.glovesPrefab.TechType);
+            recipe.LinkedItems.Add(Main.helmetPrefab.TechType);
+
+            return recipe;
         }
 
         protected override Sprite GetItemSprite()
