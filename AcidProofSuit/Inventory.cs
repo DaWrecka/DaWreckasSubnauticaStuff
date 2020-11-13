@@ -9,6 +9,8 @@ using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Utility;
 using UnityEngine;
+using SMLHelper.V2.Handlers;
+using SMLHelper.V2.Interfaces;
 
 #if SUBNAUTICA
 using RecipeData = SMLHelper.V2.Crafting.TechData;
@@ -17,17 +19,35 @@ using Sprite = Atlas.Sprite;
 
 namespace AcidProofSuit.Module
 {
-    internal class AcidGlovesPrefab : Equipable
+    abstract class LinkedEquippable : Spawnable
     {
-        public AcidGlovesPrefab() : base("AcidGloves", "Brine Gloves", "Reinforced dive gloves with an acid-resistant layer")
+        // class for equippable items which are used as LinkedItems in another item's blueprint
+        public abstract EquipmentType EquipmentType { get; }
+
+        public virtual QuickSlotType QuickSlotType => QuickSlotType.None;
+
+        internal ICraftDataHandler CDH { get; set; } = CraftDataHandler.Main;
+
+        protected void PostPatch()
         {
+            CDH.SetEquipmentType(TechType, EquipmentType);
+            CDH.SetQuickSlotType(TechType, QuickSlotType);
         }
 
+        protected LinkedEquippable(string classId, string friendlyName, string description)
+           : base(classId, friendlyName, description)
+        {
+            OnFinishedPatching = PostPatch;
+        }
+    }
+
+    internal class AcidGlovesPrefab : LinkedEquippable
+    {
         public override EquipmentType EquipmentType => EquipmentType.Gloves;
 
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
 
-        public override TechType RequiredForUnlock => TechType.Workbench;
+        /*public override TechType RequiredForUnlock => TechType.Workbench;
 
         public override CraftTree.Type FabricatorType => CraftTree.Type.None;
 
@@ -35,7 +55,7 @@ namespace AcidProofSuit.Module
 
         public override TechGroup GroupForPDA => TechGroup.Personal;
 
-        public override TechCategory CategoryForPDA => TechCategory.Equipment;
+        public override TechCategory CategoryForPDA => TechCategory.Equipment;*/
 
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
 
@@ -44,27 +64,26 @@ namespace AcidProofSuit.Module
             return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.ReinforcedGloves));
         }
 
-        protected override RecipeData GetBlueprintRecipe()
+        /*protected override RecipeData GetBlueprintRecipe()
         {
             return new RecipeData()
             {
                 craftAmount = 0,
-                Ingredients = new List<Ingredient>(/*new Ingredient[3]
-                {
-                    new Ingredient(TechType.CreepvinePiece, 1),
-                    new Ingredient(TechType.HydrochloricAcid, 1),
-                    new Ingredient(TechType.ReinforcedGloves, 1)
-                }*/)
+                Ingredients = new List<Ingredient>()
             };
-        }
+        }*/
 
         protected override Sprite GetItemSprite()
         {
             return ImageUtils.LoadSpriteFromFile($"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/Assets/{ClassID}.png");
         }
+
+        public AcidGlovesPrefab() : base("AcidGloves", "Brine Gloves", "Reinforced dive gloves with an acid-resistant layer")
+        {
+        }
     }
 
-    internal class AcidHelmetPrefab : Equipable
+    internal class AcidHelmetPrefab : LinkedEquippable
     {
         public AcidHelmetPrefab() : base("AcidHelmet", "Brine Helmet", "Rebreather treated with an acid-resistant layer")
         {
@@ -72,7 +91,7 @@ namespace AcidProofSuit.Module
 
         public override EquipmentType EquipmentType => EquipmentType.Head;
 
-        public override Vector2int SizeInInventory => new Vector2int(2, 2);
+        /*public override Vector2int SizeInInventory => new Vector2int(2, 2);
 
         public override TechType RequiredForUnlock => TechType.Workbench;
 
@@ -82,7 +101,7 @@ namespace AcidProofSuit.Module
 
         public override TechGroup GroupForPDA => TechGroup.Personal;
 
-        public override TechCategory CategoryForPDA => TechCategory.Equipment;
+        public override TechCategory CategoryForPDA => TechCategory.Equipment;*/
 
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
 
@@ -91,19 +110,14 @@ namespace AcidProofSuit.Module
             return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.Rebreather));
         }
 
-        protected override RecipeData GetBlueprintRecipe()
+        /*protected override RecipeData GetBlueprintRecipe()
         {
             return new RecipeData()
             {
                 craftAmount = 0,
-                Ingredients = new List<Ingredient>(/*new Ingredient[3]
-                {
-                    new Ingredient(TechType.CreepvinePiece, 1),
-                    new Ingredient(TechType.HydrochloricAcid, 1),
-                    new Ingredient(TechType.Rebreather, 1)
-                }*/)
+                Ingredients = new List<Ingredient>()
             };
-        }
+        }*/
 
         protected override Sprite GetItemSprite()
         {

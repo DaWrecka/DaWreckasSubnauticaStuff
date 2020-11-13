@@ -24,9 +24,9 @@ namespace AcidProofSuit
         public static void Load()
         {
             
-            suitPrefab.Patch();
             glovesPrefab.Patch();
             helmetPrefab.Patch();
+            suitPrefab.Patch();
 
             Assembly assembly = Assembly.GetExecutingAssembly();
             new Harmony($"DaWrecka_{assembly.GetName().Name}").PatchAll(assembly);
