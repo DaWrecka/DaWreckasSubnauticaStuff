@@ -9,90 +9,44 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using Steamworks;
+using SMLHelper.V2.Utility;
 
 namespace AcidProofSuit.Patches
 {
-    /*[HarmonyPatch(typeof(Player), nameof(Player.GetBreathPeriod))]
-    internal class Player_GetBreathPeriod_Patch
+
+    [HarmonyPatch(typeof(Equipment), nameof(Equipment.GetCount))]
+    internal class Equipment_GetCount_Patch
     {
-        internal static bool Prefix(ref float __result)
+        // This patch is specifically for the Rebreather; specifically the Acid Helmet.
+        // If the function requests the Rebreather, we'll also check for the Acid Helmet
+        [HarmonyPostfix]
+        public static void PostFix(ref Equipment __instance, ref int __result, TechType techType)
         {
-            if(Inventory.main.equipment.GetCount(Main.helmetPrefab.TechType) > 0)
-            {
-                __result = 3f;
-                return false;
-            }
+            //int result;
+            // FieldInfo f = __instance.GetType().GetField("equippedCount");
+            //Dictionary<TechType, int> equipCount = (Dictionary<TechType, int>)(__instance.GetPrivateField("equippedCount", BindingFlags.NonPublic | BindingFlags.Instance));
 
-            return true;
+            /*MethodInfo dynMethod = __instance.GetType().GetMethod("UpdateReinforcedSuit", BindingFlags.NonPublic | BindingFlags.Instance);
+            dynMethod.Invoke(__instance, null);*/
+
+            //this.equippedCount.TryGetValue(techType, out result);
+
+            Dictionary<TechType, int> equipCount = __instance.GetInstanceField("equippedCount", BindingFlags.NonPublic | BindingFlags.Instance) as Dictionary<TechType, int>;
+            // equipCount.TryGetValue(techType, out result);
+
+            Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch: techType = {techType.ToString()}, __result = {__result}");
+            if (techType == TechType.Rebreather)
+            {
+                int i;
+                if (equipCount.TryGetValue(Main.helmetPrefab.TechType, out i))
+                {
+                    Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch: found AcidHelmet equipped");
+                    __result++;
+                }
+            }
         }
-    }*/
+    }
 
-    /*[HarmonyPatch(typeof(Player), nameof(Player.GetOxygenPerBreath))]
-    internal class Player_GetOxygenPerBreath_Patch
-    {
-        internal static bool Prefix(Player __instance, float breathingInterval, int depthClass)
-        {
-            float num = 1f;
-            if (Inventory.main.equipment.GetCount(Main.helmetPrefab.TechType) == 0 && __instance.mode != Player.Mode.Piloting && __instance.mode != Player.Mode.LockedPiloting)
-            {
-                if (depthClass == 2)
-                {
-                    num = 1.5f;
-                }
-                else if (depthClass == 3)
-                {
-                    num = 2f;
-                }
-            }
-            float result = breathingInterval * num;
-            if (!GameModeUtils.RequiresOxygen())
-            {
-                result = 0f;
-            }
-            return result;
-        }
-    }*/
-
-    /*[HarmonyPatch(typeof(Player), nameof(Player.OnTakeDamage))]
-    internal class Player_OnTakeDamage_Patch
-    {
-        [HarmonyPrefix]
-        internal static bool Prefix(Player __instance, DamageInfo damageInfo)
-        {
-            if (Time.timeScale == 0f)
-            {
-                damageInfo.damage = 0f;
-                return false;
-            }
-            //Logger.Log(Logger.Level.Debug, $"OnTakeDamage prefixed with DamageInfo ({damageInfo.damage}, {damageInfo.type})");
-
-            float baseDamage = damageInfo.damage;
-
-            if (damageInfo.type == DamageType.Acid)
-            {
-                if (Inventory.main.equipment.GetCount(Main.suitPrefab.TechType) > 0)
-                {
-                    damageInfo.damage -= baseDamage * 0.7f;
-                    //Logger.Log(Logger.Level.Debug, $"Acid damage reduced to {damageInfo.damage}");
-                }
-
-                if (Inventory.main.equipment.GetCount(Main.glovesPrefab.TechType) > 0)
-                {
-                    damageInfo.damage -= baseDamage * 0.30f;
-                    //Logger.Log(Logger.Level.Debug, $"Acid damage reduced to {damageInfo.damage}");
-                }
-
-                //if (Inventory.main.equipment.GetCount(Main.helmetPrefab.TechType) > 0)
-                //{
-                //    damageInfo.damage -= baseDamage * 0.25f;
-                //    //Logger.Log(Logger.Level.Debug, $"Acid damage reduced to {damageInfo.damage}");
-                //}
-            }
-
-            damageInfo.damage = System.Math.Max(damageInfo.damage, 0f);
-            return true;
-        }
-    }*/
 
     [HarmonyPatch(typeof(DamageSystem), nameof(DamageSystem.CalculateDamage))]
     internal class DamageSystem_CalculateDamage_Patch
@@ -104,7 +58,6 @@ namespace AcidProofSuit.Patches
 
             if (target == Player.main.gameObject)
             {
-
                 float baseDamage = damage;
 
                 if (type == DamageType.Acid)
@@ -138,8 +91,22 @@ namespace AcidProofSuit.Patches
                     if (damage > 0f && !(Player.main.acidLoopingSound.playing))
                         Player.main.acidLoopingSound.Play();
                 }
+                else if(type == DamageType.Radiation)
+                {
+                    if (Inventory.main.equipment.GetCount(Main.suitPrefab.TechType) > 0)
+                    {
+                        damage -= baseDamage * 0.65f;
+                        //Logger.Log(Logger.Level.Debug, $"Acid damage reduced to {damage}");
+                    }
+
+                    if (Inventory.main.equipment.GetCount(Main.glovesPrefab.TechType) > 0)
+                    {
+                        damage -= baseDamage * 0.30f;
+                        //Logger.Log(Logger.Level.Debug, $"Acid damage reduced to {damage}");
+                    }
+                }
             }
-            return damage;
+            return System.Math.Max(damage, 0f);
         }
     }
 

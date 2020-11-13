@@ -11,7 +11,9 @@
   "VersionDependencies": {
     "SMLHelper": "2.9"
   },
-  "VersionChecker": {},
+  "VersionChecker": {
+    "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/AcidProofSuit/mod.json"
+  },
   "NexusId": {},
   "Enable": true
 }
