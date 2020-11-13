@@ -182,8 +182,12 @@ namespace AcidProofSuit.Patches
                 }
                 i++;
             }
-            MethodInfo dynMethod = __instance.GetType().GetMethod("UpdateReinforcedSuit", BindingFlags.NonPublic | BindingFlags.Instance);
-            dynMethod.Invoke(__instance, null);
+
+            // Actually we don't need this, since we're not doing anything that would change the outcome of UpdateReinforcedSuit.
+            // Might be useful in the future though, so it's getting commented-out instead of deleted.
+            
+            /*MethodInfo dynMethod = __instance.GetType().GetMethod("UpdateReinforcedSuit", BindingFlags.NonPublic | BindingFlags.Instance);
+            dynMethod.Invoke(__instance, null);*/
         }
     }
 

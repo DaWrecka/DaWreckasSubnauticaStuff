@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngredientsFromScan", "Ingr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FissionCells", "FissionCells\FissionCells.csproj", "{ABAF8E94-235F-496D-A38E-D183FE6E7773}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcidProofSuit", "AcidProofSuit\AcidProofSuit.csproj", "{1BBE4F59-3F5F-4498-80CE-AC0424C75BD5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrineSuit", "AcidProofSuit\BrineSuit.csproj", "{1BBE4F59-3F5F-4498-80CE-AC0424C75BD5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

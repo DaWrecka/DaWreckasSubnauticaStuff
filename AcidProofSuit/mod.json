@@ -1,5 +1,5 @@
 {
-  "Id": "AcidProofSuit",
+  "Id": "BrineSuit",
   "DisplayName": "Brine Suit",
   "Author": "DaWrecka w/ MrPurple6411",
   "Version": "1.0.0.0",
@@ -7,7 +7,7 @@
     "SMLHelper"
   ],
   "Game": "Subnautica",
-  "AssemblyName": "AcidProofSuit.dll",
+  "AssemblyName": "BrineSuit.dll",
   "VersionDependencies": {
     "SMLHelper": "2.9"
   },
