@@ -203,9 +203,28 @@ namespace AcidProofSuit.Patches
             {
                 if (Main.bInAcid)
                 {
+                    int flags = 0;
                     // Player is currently immersed in acid; if this change changes their acid immunity, start/stop playing the effects
                     Equipment e = Inventory.main.equipment;
-                    if (e.GetCount(Main.suitPrefab.TechType) > 0 && e.GetCount(Main.glovesPrefab.TechType) > 0 && e.GetCount(Main.helmetPrefab.TechType) > 0)
+                    if (e.GetCount(Main.suitPrefab.TechType) > 0)
+                    {
+                        __instance.temperatureDamage.minDamageTemperature += 9f;
+                        flags += 1;
+                    }
+
+                    if (e.GetCount(Main.glovesPrefab.TechType) > 0)
+                    {
+                        __instance.temperatureDamage.minDamageTemperature += 1f;
+                        flags += 2;
+                    }
+
+                    if (e.GetCount(Main.helmetPrefab.TechType) > 0)
+                    {
+                        __instance.temperatureDamage.minDamageTemperature += 5f;
+                        flags += 4;
+                    }
+
+                    if (flags == 7)
                     {
                         if (__instance.acidLoopingSound.playing)
                             __instance.acidLoopingSound.Stop();
