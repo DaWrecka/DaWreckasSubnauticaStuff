@@ -209,7 +209,7 @@ namespace AcidProofSuit.Module
                 {
                     new Ingredient(TechType.HydrochloricAcid, 1),
                     new Ingredient(TechType.CreepvinePiece, 2),
-                    new Ingredient(TechType.Sulphur, 2),
+                    new Ingredient(TechType.Aerogel, 1),
                     new Ingredient(TechType.AramidFibers, 3),
                     new Ingredient(TechType.Diamond, 2),
                     new Ingredient(TechType.Titanium, 2),
@@ -268,7 +268,7 @@ namespace AcidProofSuit.Module
                 {
                     new Ingredient(TechType.HydrochloricAcid, 1),
                     new Ingredient(TechType.CreepvinePiece, 2),
-                    new Ingredient(TechType.Sulphur, 2),
+                    new Ingredient(TechType.Aerogel, 1),
                     new Ingredient(TechType.RadiationGloves, 1),
                     new Ingredient(TechType.RadiationHelmet, 1),
                     new Ingredient(TechType.RadiationSuit, 1),
@@ -302,7 +302,7 @@ namespace AcidProofSuit.Module
                 {
                     new Ingredient(TechType.HydrochloricAcid, 1),
                     new Ingredient(TechType.CreepvinePiece, 2),
-                    new Ingredient(TechType.Sulphur, 2),
+                    new Ingredient(TechType.Aerogel, 1),
                     new Ingredient(TechType.RadiationGloves, 1),
                     new Ingredient(TechType.RadiationHelmet, 1),
                     new Ingredient(TechType.RadiationSuit, 1),
@@ -337,7 +337,7 @@ namespace AcidProofSuit.Module
                 {
                     new Ingredient(TechType.HydrochloricAcid, 1),
                     new Ingredient(TechType.CreepvinePiece, 2),
-                    new Ingredient(TechType.Sulphur, 2),
+                    new Ingredient(TechType.Aerogel, 1),
                     new Ingredient(TechType.Lead, 2),
                     new Ingredient(TechType.AramidFibers, 2),
                     new Ingredient(TechType.Diamond, 2),
@@ -370,7 +370,7 @@ namespace AcidProofSuit.Module
                 {
                     new Ingredient(TechType.HydrochloricAcid, 1),
                     new Ingredient(TechType.CreepvinePiece, 2),
-                    new Ingredient(TechType.Sulphur, 2),
+                    new Ingredient(TechType.Aerogel, 1),
                     new Ingredient(TechType.AramidFibers, 2),
                     new Ingredient(TechType.Lead, 2),
                     new Ingredient(TechType.ReinforcedDiveSuit, 1),
@@ -403,7 +403,7 @@ namespace AcidProofSuit.Module
                 {
                     new Ingredient(TechType.HydrochloricAcid, 1),
                     new Ingredient(TechType.CreepvinePiece, 2),
-                    new Ingredient(TechType.Sulphur, 2),
+                    new Ingredient(TechType.Aerogel, 1),
                     new Ingredient(TechType.RadiationGloves, 1),
                     new Ingredient(TechType.RadiationHelmet, 1),
                     new Ingredient(TechType.RadiationSuit, 1),
@@ -438,7 +438,7 @@ namespace AcidProofSuit.Module
                 {
                     new Ingredient(TechType.HydrochloricAcid, 1),
                     new Ingredient(TechType.CreepvinePiece, 2),
-                    new Ingredient(TechType.Sulphur, 2),
+                    new Ingredient(TechType.Aerogel, 1),
                     new Ingredient(TechType.AramidFibers, 1),
                     new Ingredient(TechType.Lead, 2),
                     new Ingredient(TechType.ReinforcedDiveSuit, 1),
@@ -471,7 +471,7 @@ namespace AcidProofSuit.Module
                 {
                     new Ingredient(TechType.HydrochloricAcid, 1),
                     new Ingredient(TechType.CreepvinePiece, 2),
-                    new Ingredient(TechType.Sulphur, 2),
+                    new Ingredient(TechType.Aerogel, 1),
                     new Ingredient(TechType.RadiationGloves, 1),
                     new Ingredient(TechType.RadiationHelmet, 1),
                     new Ingredient(TechType.RadiationSuit, 1),
