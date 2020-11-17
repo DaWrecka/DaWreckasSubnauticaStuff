@@ -1,9 +1,5 @@
-﻿//using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
 using System.Reflection;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
@@ -19,7 +15,7 @@ using Sprite = Atlas.Sprite;
 
 namespace AcidProofSuit.Module
 {
-    abstract class LinkedEquippable : Spawnable
+    /*abstract class LinkedEquippable : Spawnable
     {
         // class for equippable items which are used as LinkedItems in another item's blueprint
         public abstract EquipmentType EquipmentType { get; }
@@ -39,9 +35,9 @@ namespace AcidProofSuit.Module
         {
             OnFinishedPatching = PostPatch;
         }
-    }
+    }*/
 
-    internal class AcidGlovesPrefab : LinkedEquippable
+    internal class AcidGlovesPrefab : Equipable
     {
         public override EquipmentType EquipmentType => EquipmentType.Gloves;
 
@@ -64,14 +60,14 @@ namespace AcidProofSuit.Module
             return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.ReinforcedGloves));
         }
 
-        /*protected override RecipeData GetBlueprintRecipe()
+        protected override RecipeData GetBlueprintRecipe()
         {
             return new RecipeData()
             {
                 craftAmount = 0,
                 Ingredients = new List<Ingredient>()
             };
-        }*/
+        }
 
         protected override Sprite GetItemSprite()
         {
@@ -83,7 +79,7 @@ namespace AcidProofSuit.Module
         }
     }
 
-    internal class AcidHelmetPrefab : LinkedEquippable
+    internal class AcidHelmetPrefab : Equipable
     {
         public AcidHelmetPrefab() : base("AcidHelmet", "Brine Helmet", "Rebreather treated with an acid-resistant layer")
         {
@@ -110,14 +106,14 @@ namespace AcidProofSuit.Module
             return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.Rebreather));
         }
 
-        /*protected override RecipeData GetBlueprintRecipe()
+        protected override RecipeData GetBlueprintRecipe()
         {
             return new RecipeData()
             {
                 craftAmount = 0,
                 Ingredients = new List<Ingredient>()
             };
-        }*/
+        }
 
         protected override Sprite GetItemSprite()
         {
@@ -177,6 +173,271 @@ namespace AcidProofSuit.Module
         protected override Sprite GetItemSprite()
         {
             return ImageUtils.LoadSpriteFromFile($"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/Assets/{ClassID}.png");
+        }
+    }
+
+    abstract class bpSupplemental : Craftable
+    {
+        public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
+
+        public override string[] StepsToFabricatorTab => new string[] { "BodyMenu" };
+
+        public virtual QuickSlotType QuickSlotType => QuickSlotType.None;
+
+        public override GameObject GetGameObject()
+        {
+            return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit));
+        }
+
+        public bpSupplemental(string classId, string friendlyName, string description) : base(classId, friendlyName, description)
+        {
+            /*OnStartedPatching += () =>
+            {
+                CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "BodyMenu", "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
+            };*/
+
+            OnFinishedPatching += () =>
+            {
+                SpriteHandler.RegisterSprite(base.TechType, SpriteManager.Get(TechType.ReinforcedDiveSuit));
+            };
+        }
+    }
+
+    internal class bpSupplemental_Suits : bpSupplemental
+    {
+        // This is the recipe that allows already-crafted suits to be used; requires a full Radiation Suit, Reinforced Dive Suit, and Rebreather, plus the HCl, Creepvine and Sulphur of the base recipe.
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            RecipeData recipe = new RecipeData()
+            {
+                craftAmount = 0,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                {
+                    new Ingredient(TechType.HydrochloricAcid, 1),
+                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.Aerogel, 1),
+                    new Ingredient(TechType.RadiationGloves, 1),
+                    new Ingredient(TechType.RadiationHelmet, 1),
+                    new Ingredient(TechType.RadiationSuit, 1),
+                    new Ingredient(TechType.ReinforcedDiveSuit, 1),
+                    new Ingredient(TechType.ReinforcedGloves, 1),
+                    new Ingredient(TechType.Rebreather, 1)
+                })
+            };
+
+            recipe.LinkedItems.Add(Main.glovesPrefab.TechType);
+            recipe.LinkedItems.Add(Main.helmetPrefab.TechType);
+            recipe.LinkedItems.Add(Main.suitPrefab.TechType);
+
+            return recipe;
+        }
+
+        public bpSupplemental_Suits() : base("bpSupplemental_Suits", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
+        {
+        }
+    }
+
+    internal class bpSupplemental_OnlyRadSuit : bpSupplemental
+    {
+        // This is the recipe that uses an existing Rad Suit only.
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            RecipeData recipe = new RecipeData()
+            {
+                craftAmount = 0,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                {
+                    new Ingredient(TechType.HydrochloricAcid, 1),
+                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.Aerogel, 1),
+                    new Ingredient(TechType.RadiationGloves, 1),
+                    new Ingredient(TechType.RadiationHelmet, 1),
+                    new Ingredient(TechType.RadiationSuit, 1),
+                    new Ingredient(TechType.AramidFibers, 2),
+                    new Ingredient(TechType.Diamond, 2),
+                    new Ingredient(TechType.Titanium, 2),
+                    new Ingredient(TechType.WiringKit, 1)
+                })
+            };
+
+            recipe.LinkedItems.Add(Main.glovesPrefab.TechType);
+            recipe.LinkedItems.Add(Main.helmetPrefab.TechType);
+            recipe.LinkedItems.Add(Main.suitPrefab.TechType);
+
+            return recipe;
+        }
+
+        public bpSupplemental_OnlyRadSuit() : base("bpSupplemental_OnlyRadSuit", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
+        {
+        }
+    }
+
+    internal class bpSupplemental_OnlyRebreather : bpSupplemental
+    {
+        // This is the recipe that uses an existing Rebreather only
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            RecipeData recipe = new RecipeData()
+            {
+                craftAmount = 0,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                {
+                    new Ingredient(TechType.HydrochloricAcid, 1),
+                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.Aerogel, 1),
+                    new Ingredient(TechType.Lead, 2),
+                    new Ingredient(TechType.AramidFibers, 2),
+                    new Ingredient(TechType.Diamond, 2),
+                    new Ingredient(TechType.Titanium, 1),
+                    new Ingredient(TechType.Rebreather, 1)
+                })
+            };
+
+            recipe.LinkedItems.Add(Main.glovesPrefab.TechType);
+            recipe.LinkedItems.Add(Main.helmetPrefab.TechType);
+            recipe.LinkedItems.Add(Main.suitPrefab.TechType);
+
+            return recipe;
+        }
+
+        public bpSupplemental_OnlyRebreather() : base("bpSupplemental_OnlyRebreather", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
+        {
+        }
+    }
+
+    internal class bpSupplemental_OnlyReinforcedSuit : bpSupplemental
+    {
+        // This is the recipe that uses an existing Reinforced Dive Suit only
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            RecipeData recipe = new RecipeData()
+            {
+                craftAmount = 0,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                {
+                    new Ingredient(TechType.HydrochloricAcid, 1),
+                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.Aerogel, 1),
+                    new Ingredient(TechType.AramidFibers, 2),
+                    new Ingredient(TechType.Lead, 2),
+                    new Ingredient(TechType.ReinforcedDiveSuit, 1),
+                    new Ingredient(TechType.ReinforcedGloves, 1),
+                    new Ingredient(TechType.WiringKit, 1)
+                })
+            };
+
+            recipe.LinkedItems.Add(Main.glovesPrefab.TechType);
+            recipe.LinkedItems.Add(Main.helmetPrefab.TechType);
+            recipe.LinkedItems.Add(Main.suitPrefab.TechType);
+
+            return recipe;
+        }
+
+        public bpSupplemental_OnlyReinforcedSuit() : base("bpSupplemental_OnlyReinforcedSuit", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
+        {
+        }
+    }
+
+    internal class bpSupplemental_RebreatherRad : bpSupplemental
+    {
+        // This is the recipe that uses an existing Rebreather and Rad Suit
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            RecipeData recipe = new RecipeData()
+            {
+                craftAmount = 0,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                {
+                    new Ingredient(TechType.HydrochloricAcid, 1),
+                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.Aerogel, 1),
+                    new Ingredient(TechType.RadiationGloves, 1),
+                    new Ingredient(TechType.RadiationHelmet, 1),
+                    new Ingredient(TechType.RadiationSuit, 1),
+                    new Ingredient(TechType.AramidFibers, 2),
+                    new Ingredient(TechType.Diamond, 2),
+                    new Ingredient(TechType.Titanium, 1),
+                    new Ingredient(TechType.Rebreather, 1)
+                })
+            };
+
+            recipe.LinkedItems.Add(Main.glovesPrefab.TechType);
+            recipe.LinkedItems.Add(Main.helmetPrefab.TechType);
+            recipe.LinkedItems.Add(Main.suitPrefab.TechType);
+
+            return recipe;
+        }
+
+        public bpSupplemental_RebreatherRad() : base("bpSupplemental_RebreatherRad", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
+        {
+        }
+    }
+
+    internal class bpSupplemental_RebreatherReinforced : bpSupplemental
+    {
+        // This is the recipe that uses an existing Rebreather and Reinforced Dive Suit
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            RecipeData recipe = new RecipeData()
+            {
+                craftAmount = 0,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                {
+                    new Ingredient(TechType.HydrochloricAcid, 1),
+                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.Aerogel, 1),
+                    new Ingredient(TechType.AramidFibers, 1),
+                    new Ingredient(TechType.Lead, 2),
+                    new Ingredient(TechType.ReinforcedDiveSuit, 1),
+                    new Ingredient(TechType.ReinforcedGloves, 1),
+                    new Ingredient(TechType.Rebreather, 1)
+                })
+            };
+
+            recipe.LinkedItems.Add(Main.glovesPrefab.TechType);
+            recipe.LinkedItems.Add(Main.helmetPrefab.TechType);
+            recipe.LinkedItems.Add(Main.suitPrefab.TechType);
+
+            return recipe;
+        }
+
+        public bpSupplemental_RebreatherReinforced() : base("bpSupplemental_RebreatherReinforced", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
+        {
+        }
+    }
+
+    internal class bpSupplemental_RadReinforced : bpSupplemental
+    {
+        // This is the recipe that uses an existing Rad Suit and Reinforced Dive Suit
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            RecipeData recipe = new RecipeData()
+            {
+                craftAmount = 0,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                {
+                    new Ingredient(TechType.HydrochloricAcid, 1),
+                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.Aerogel, 1),
+                    new Ingredient(TechType.RadiationGloves, 1),
+                    new Ingredient(TechType.RadiationHelmet, 1),
+                    new Ingredient(TechType.RadiationSuit, 1),
+                    new Ingredient(TechType.ReinforcedDiveSuit, 1),
+                    new Ingredient(TechType.ReinforcedGloves, 1),
+                    new Ingredient(TechType.AramidFibers, 1),
+                    new Ingredient(TechType.WiringKit, 1)
+                })
+            };
+
+            recipe.LinkedItems.Add(Main.glovesPrefab.TechType);
+            recipe.LinkedItems.Add(Main.helmetPrefab.TechType);
+            recipe.LinkedItems.Add(Main.suitPrefab.TechType);
+
+            return recipe;
+        }
+
+        public bpSupplemental_RadReinforced() : base("bpSupplemental_RadReinforced", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
+        {
         }
     }
 }
