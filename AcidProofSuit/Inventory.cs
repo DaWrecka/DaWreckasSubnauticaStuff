@@ -15,28 +15,6 @@ using Sprite = Atlas.Sprite;
 
 namespace AcidProofSuit.Module
 {
-    /*abstract class LinkedEquippable : Spawnable
-    {
-        // class for equippable items which are used as LinkedItems in another item's blueprint
-        public abstract EquipmentType EquipmentType { get; }
-
-        public virtual QuickSlotType QuickSlotType => QuickSlotType.None;
-
-        internal ICraftDataHandler CDH { get; set; } = CraftDataHandler.Main;
-
-        protected void PostPatch()
-        {
-            CDH.SetEquipmentType(TechType, EquipmentType);
-            CDH.SetQuickSlotType(TechType, QuickSlotType);
-        }
-
-        protected LinkedEquippable(string classId, string friendlyName, string description)
-           : base(classId, friendlyName, description)
-        {
-            OnFinishedPatching = PostPatch;
-        }
-    }*/
-
     internal class AcidGlovesPrefab : Equipable
     {
         public override EquipmentType EquipmentType => EquipmentType.Gloves;
