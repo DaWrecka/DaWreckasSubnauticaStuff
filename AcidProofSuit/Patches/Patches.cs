@@ -80,13 +80,13 @@ namespace AcidProofSuit.Patches
                     Equipment equipment = Inventory.main.equipment;
                     string[] slots = new string[]
                     {
-                    "Head",
-                    "Body",
-                    "Gloves",
-                    "Foots", // Seriously? 'Foots'?
-                    "Chip1",
-                    "Chip2",
-                    "Tank"
+                        "Head",
+                        "Body",
+                        "Gloves",
+                        "Foots", // Seriously? 'Foots'?
+                        "Chip1",
+                        "Chip2",
+                        "Tank"
                     };
                     Player __instance = Player.main;
                     //int num = __instance.equipmentModels.Length;
@@ -177,7 +177,7 @@ namespace AcidProofSuit.Patches
                     __instance.temperatureDamage.minDamageTemperature += 1f;
                 }
 
-                if(Inventory.main.equipment.GetCount(Main.suitPrefab.TechType) > 0)
+                if(Inventory.main.equipment.GetCount(Main.helmetPrefab.TechType) > 0)
                 {
                     flags += 4;
                     __instance.temperatureDamage.minDamageTemperature += 5f;
