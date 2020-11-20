@@ -21,16 +21,6 @@ namespace AcidProofSuit.Module
 
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
 
-        /*public override TechType RequiredForUnlock => TechType.Workbench;
-
-        public override CraftTree.Type FabricatorType => CraftTree.Type.None;
-
-        public override string[] StepsToFabricatorTab => new string[] { "" };
-
-        public override TechGroup GroupForPDA => TechGroup.Personal;
-
-        public override TechCategory CategoryForPDA => TechCategory.Equipment;*/
-
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
 
         public override GameObject GetGameObject()
@@ -64,18 +54,6 @@ namespace AcidProofSuit.Module
         }
 
         public override EquipmentType EquipmentType => EquipmentType.Head;
-
-        /*public override Vector2int SizeInInventory => new Vector2int(2, 2);
-
-        public override TechType RequiredForUnlock => TechType.Workbench;
-
-        public override CraftTree.Type FabricatorType => CraftTree.Type.None;
-
-        public override string[] StepsToFabricatorTab => new string[] { "" };
-
-        public override TechGroup GroupForPDA => TechGroup.Personal;
-
-        public override TechCategory CategoryForPDA => TechCategory.Equipment;*/
 
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
 
@@ -131,13 +109,15 @@ namespace AcidProofSuit.Module
             RecipeData recipe = new RecipeData()
             {
                 craftAmount = 1,
-                Ingredients = new List<Ingredient>(new Ingredient[6]
+                Ingredients = new List<Ingredient>(new Ingredient[]
                 {
+                    new Ingredient(TechType.HydrochloricAcid, 1),
+                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.Aerogel, 1),
                     new Ingredient(TechType.AramidFibers, 3),
                     new Ingredient(TechType.Diamond, 2),
                     new Ingredient(TechType.Titanium, 2),
                     new Ingredient(TechType.Lead, 2),
-                    new Ingredient(TechType.CreepvinePiece, 2),
                     new Ingredient(TechType.WiringKit, 1)
                 })
             };

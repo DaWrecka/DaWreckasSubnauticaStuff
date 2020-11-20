@@ -159,8 +159,8 @@ namespace AcidProofSuit.Patches
     [HarmonyPatch(typeof(Player), "UpdateReinforcedSuit")]
     internal class UpdateReinforcedSuitPatcher
     {
-        [HarmonyPrefix]
-        public static bool Prefix(ref Player __instance)
+        [HarmonyPostfix]
+        public static void Postfix(ref Player __instance)
         {
             if (__instance != null)
             {
@@ -182,6 +182,7 @@ namespace AcidProofSuit.Patches
                     flags += 4;
                     __instance.temperatureDamage.minDamageTemperature += 5f;
                 }
+                //Logger.Log(Logger.Level.Debug, $"UpdatedReinforcedSuitPatcher.Postfix: minDamageTemperature patched to {__instance.temperatureDamage.minDamageTemperature}", null, true);
 
                 if (Main.bInAcid)
                 {
@@ -198,8 +199,6 @@ namespace AcidProofSuit.Patches
                     }
                 }
             }
-
-            return true;
         }
     }
 
