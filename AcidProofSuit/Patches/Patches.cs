@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using UnityEngine;
-using Oculus.Newtonsoft.Json;
 using Logger = QModManager.Utility.Logger;
 using UWE;
 using System;
@@ -10,7 +9,8 @@ using System.Diagnostics;
 using System.Reflection;
 using Steamworks;
 using SMLHelper.V2.Utility;
-
+using static Player;
+using System.IO;
 namespace AcidProofSuit.Patches
 {
     [HarmonyPatch(typeof(Equipment), nameof(Equipment.GetCount))]
@@ -23,10 +23,10 @@ namespace AcidProofSuit.Patches
         {
             // The key is the TT to search for, and the value is the TT to return a positive value for.
             // so for key "TechType.Rebreather" and value "TechType.AcidHelmet", if GetCount(Rebreather) is called, the function will add one if the AcidHelmet is equipped.
-            { TechType.Rebreather, Main.helmetPrefab.TechType },
-            { TechType.RadiationHelmet, Main.helmetPrefab.TechType },
-            { TechType.RadiationSuit, Main.suitPrefab.TechType },
-            { TechType.RadiationGloves, Main.glovesPrefab.TechType }
+            { TechType.Rebreather, Module.AcidHelmetPrefab.TechTypeID },
+            { TechType.RadiationHelmet, Module.AcidHelmetPrefab.TechTypeID },
+            { TechType.RadiationSuit, Module.AcidSuitPrefab.TechTypeID },
+            { TechType.RadiationGloves, Module.AcidGlovesPrefab.TechTypeID }
         };
 
         [HarmonyPostfix]
@@ -120,9 +120,9 @@ namespace AcidProofSuit.Patches
             {
                 //Player.EquipmentType equipmentType = __instance.equipmentModels[i];
                 TechType techTypeInSlot = equipment.GetTechTypeInSlot(equipmentType.slot);
-                if (techTypeInSlot == Main.suitPrefab.TechType)
+                if (techTypeInSlot == Module.AcidSuitPrefab.TechTypeID)
                     techTypeInSlot = TechType.ReinforcedDiveSuit;
-                else if (techTypeInSlot == Main.glovesPrefab.TechType)
+                else if (techTypeInSlot == Module.AcidGlovesPrefab.TechTypeID)
                     techTypeInSlot = TechType.ReinforcedGloves;
                 else
                   continue;
@@ -131,6 +131,7 @@ namespace AcidProofSuit.Patches
                 /*int j = 0;
                 int num2 = equipmentType.equipment.Length;*/
                 //while (j < num2)
+
                 foreach(Player.EquipmentModel equipmentModel in equipmentType.equipment)
                 {
                     //Player.EquipmentModel equipmentModel = equipmentType.equipment[j];
@@ -155,7 +156,6 @@ namespace AcidProofSuit.Patches
             dynMethod.Invoke(__instance, null);*/
         }
     }
-
     [HarmonyPatch(typeof(Player), "UpdateReinforcedSuit")]
     internal class UpdateReinforcedSuitPatcher
     {
@@ -165,19 +165,19 @@ namespace AcidProofSuit.Patches
             if (__instance != null)
             {
                 int flags = 0;
-                if(Inventory.main.equipment.GetCount(Main.suitPrefab.TechType) > 0)
+                if(Inventory.main.equipment.GetCount(Module.AcidSuitPrefab.TechTypeID) > 0)
                 {
                     flags += 1;
                     __instance.temperatureDamage.minDamageTemperature += 9f;
                 }
 
-                if (Inventory.main.equipment.GetCount(Main.glovesPrefab.TechType) > 0)
+                if (Inventory.main.equipment.GetCount(Module.AcidGlovesPrefab.TechTypeID) > 0)
                 {
                     flags += 2;
                     __instance.temperatureDamage.minDamageTemperature += 1f;
                 }
 
-                if(Inventory.main.equipment.GetCount(Main.helmetPrefab.TechType) > 0)
+                if(Inventory.main.equipment.GetCount(Module.AcidHelmetPrefab.TechTypeID) > 0)
                 {
                     flags += 4;
                     __instance.temperatureDamage.minDamageTemperature += 5f;
@@ -213,9 +213,9 @@ namespace AcidProofSuit.Patches
             Main.bInAcid = true;
 
             if (__instance != null
-                && Inventory.main.equipment.GetCount(Main.suitPrefab.TechType) > 0
-                && Inventory.main.equipment.GetCount(Main.glovesPrefab.TechType) > 0
-                && Inventory.main.equipment.GetCount(Main.helmetPrefab.TechType) > 0)
+                && Inventory.main.equipment.GetCount(Module.AcidSuitPrefab.TechTypeID) > 0
+                && Inventory.main.equipment.GetCount(Module.AcidGlovesPrefab.TechTypeID) > 0
+                && Inventory.main.equipment.GetCount(Module.AcidHelmetPrefab.TechTypeID) > 0)
                 return false;
 
             return true;
@@ -241,7 +241,7 @@ namespace AcidProofSuit.Patches
         [HarmonyPostfix]
         public static void Postfix(ref bool __result)
         {
-            __result = (__result || Inventory.main.equipment.GetCount(Main.suitPrefab.TechType) > 0);
+            __result = (__result || Inventory.main.equipment.GetCount(Module.AcidSuitPrefab.TechTypeID) > 0);
         }
     }
 
@@ -251,7 +251,7 @@ namespace AcidProofSuit.Patches
         [HarmonyPostfix]
         public static void Postfix(ref bool __result)
         {
-            __result = (__result || Inventory.main.equipment.GetCount(Main.glovesPrefab.TechType) > 0);
+            __result = (__result || Inventory.main.equipment.GetCount(Module.AcidGlovesPrefab.TechTypeID) > 0);
         }
     }
 
