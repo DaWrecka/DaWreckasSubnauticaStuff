@@ -1,8 +1,8 @@
-﻿using AcidProofSuit.Module;
+using AcidProofSuit.Module;
 using System.Reflection;
 using HarmonyLib;
 using QModManager.API.ModLoading;
-
+using System.IO;
 namespace AcidProofSuit
 {
     [QModCore]
@@ -10,7 +10,7 @@ namespace AcidProofSuit
     {
         public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
 
-        internal static AcidSuitPrefab suitPrefab = new AcidSuitPrefab();
+        /*internal static AcidSuitPrefab suitPrefab = new AcidSuitPrefab();
         internal static AcidGlovesPrefab glovesPrefab = new AcidGlovesPrefab();
         internal static AcidHelmetPrefab helmetPrefab = new AcidHelmetPrefab();
         internal static bpSupplemental_OnlyRadSuit bpOnlyRadSuit = new bpSupplemental_OnlyRadSuit();
@@ -19,7 +19,7 @@ namespace AcidProofSuit
         internal static bpSupplemental_Suits bpSuits = new bpSupplemental_Suits();
         internal static bpSupplemental_RebreatherRad bpRebreatherRad = new bpSupplemental_RebreatherRad();
         internal static bpSupplemental_RebreatherReinforced bpRebReinf = new bpSupplemental_RebreatherReinforced();
-        internal static bpSupplemental_RadReinforced bpRadReinf = new bpSupplemental_RadReinforced();
+        internal static bpSupplemental_RadReinforced bpRadReinf = new bpSupplemental_RadReinforced();*/
 
         // This function was stol*cough*take*cough*nicked wholesale from FCStudios
         public static object GetPrivateField<T>(this T instance, string fieldName, BindingFlags bindingFlags = BindingFlags.Default)
@@ -77,27 +77,40 @@ namespace AcidProofSuit
             }
             return damageMod;
         }
-
+        private static Assembly myAssembly = Assembly.GetExecutingAssembly();
+        private static string modPath = Path.GetDirectoryName(myAssembly.Location);
+        internal static string AssetsFolder = Path.Combine(modPath, "Assets");
         [QModPatch]
         public static void Load()
         {
             SMLHelper.V2.Handlers.CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "BodyMenu", "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
 
+            var glovesPrefab = new AcidGlovesPrefab();
             glovesPrefab.Patch();
+            var helmetPrefab = new AcidHelmetPrefab();
             helmetPrefab.Patch();
+            // The gloves and helmet are used in the Suit recipe as Linked Items, and they must be patched before the suit.
+            var suitPrefab = new AcidSuitPrefab();
             suitPrefab.Patch();
-            bpSuits.Patch();
+            var bpOnlyRadSuit = new bpSupplemental_OnlyRadSuit();
             bpOnlyRadSuit.Patch();
+            var bpOnlyRebreather = new bpSupplemental_OnlyRebreather();
             bpOnlyRebreather.Patch();
+            var bpOnlyReinforced = new bpSupplemental_OnlyReinforcedSuit();
             bpOnlyReinforced.Patch();
+            var bpSuits = new bpSupplemental_Suits();
+            bpSuits.Patch();
+            var bpRebreatherRad = new bpSupplemental_OnlyRebreather();
             bpRebreatherRad.Patch();
+            var bpRebReinf = new bpSupplemental_RebreatherReinforced();
             bpRebReinf.Patch();
+            var bpRadReinf = new bpSupplemental_RadReinforced();
             bpRadReinf.Patch();
 
             Main.DamageResistances = new DamageResistance[3] {
             // Gloves
                 new DamageResistance(
-                    Main.glovesPrefab.TechType,
+                    glovesPrefab.TechType,
                     new DamageInfo[] {
                         new DamageInfo(DamageType.Acid, -0.15f)/*,
                         new DamageInfo(DamageType.Radiation, -0.10f)*/
@@ -106,7 +119,7 @@ namespace AcidProofSuit
 
             // Helmet
                 new DamageResistance(
-                    Main.helmetPrefab.TechType,
+                    helmetPrefab.TechType,
                     new DamageInfo[] {
                         new DamageInfo(DamageType.Acid, -0.25f)/*,
                         new DamageInfo(DamageType.Radiation, -0.20f)*/
@@ -115,14 +128,13 @@ namespace AcidProofSuit
 
             // Suit
                 new DamageResistance(
-                    Main.suitPrefab.TechType,
+                    suitPrefab.TechType,
                     new DamageInfo[] {
                         new DamageInfo(DamageType.Acid, -0.6f)/*,
                         new DamageInfo(DamageType.Radiation, -0.70f)*/
                     })
-            }; 
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            new Harmony($"DaWrecka_{assembly.GetName().Name}").PatchAll(assembly);
+            };
+            Harmony.CreateAndPatchAll(myAssembly, $"DaWrecka_{myAssembly.GetName().Name}");
         }
     }
 }
