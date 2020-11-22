@@ -30,30 +30,34 @@ namespace AcidProofSuit.Module
 
         public override GameObject GetGameObject()
         {
+            // storing the Reinforced Gloves prefab
             var prefab = CraftData.GetPrefabForTechType(TechType.ReinforcedGloves);
+            // instantiating the prefab
             var obj = Object.Instantiate(prefab);
+            // Finding the shader Note: you can find all of these using Runtime Editor.
             Shader shader = Shader.Find("MarmosetUBER");
+            // getting all of the components in Renderer children
             Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
             foreach (var renderer in renderers)
             {
-                if (renderer.name == "reinforced_suit_01_gloves")
+                if (renderer.name == "reinforced_suit_01_gloves") 
                 {
-                    renderer.sharedMaterial.shader = shader;
+                    renderer.sharedMaterial.shader = shader; // setting shaders
                     renderer.material.shader = shader;
 
-                    renderer.sharedMaterial.mainTexture = texture;
+                    renderer.sharedMaterial.mainTexture = texture; // setting main texture
                     renderer.material.mainTexture = texture;
 
-                    renderer.sharedMaterial.SetTexture("_Illum", illumTexture);
+                    renderer.sharedMaterial.SetTexture("_Illum", illumTexture); // setting illum map
                     renderer.material.SetTexture("_Illum", illumTexture);
 
-                    renderer.sharedMaterial.SetTexture("_BumpMap", normalTexture);
+                    renderer.sharedMaterial.SetTexture("_BumpMap", normalTexture); // setting normal map
                     renderer.material.SetTexture("_BumpMap", normalTexture);
 
-                    renderer.sharedMaterial.SetTexture("_SpecTex", specTexture);
+                    renderer.sharedMaterial.SetTexture("_SpecTex", specTexture); // setting spec map
                     renderer.material.SetTexture("_SpecTex", specTexture);
                 }
-                else if (renderer.name == "player_02_reinforced_suit_01_arms")
+                else if (renderer.name == "player_02_reinforced_suit_01_arms") // this renderer name is for when the Gloves equipped, you may use them later but now they dont really matter.
                 {
                     renderer.sharedMaterial.shader = shader;
                     renderer.material.shader = shader;
