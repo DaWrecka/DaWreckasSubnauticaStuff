@@ -15,7 +15,7 @@ using Sprite = Atlas.Sprite;
 
 namespace AcidProofSuit.Module
 {
-    internal class AcidGlovesPrefab : Equipable
+    internal class AcidGloves : Equipable
     {
         public override EquipmentType EquipmentType => EquipmentType.Gloves;
 
@@ -42,14 +42,14 @@ namespace AcidProofSuit.Module
             return ImageUtils.LoadSpriteFromFile($"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/Assets/{ClassID}.png");
         }
 
-        public AcidGlovesPrefab() : base("AcidGloves", "Brine Gloves", "Reinforced dive gloves with an acid-resistant layer")
+        public AcidGloves() : base("AcidGloves", "Brine Gloves", "Reinforced dive gloves with an acid-resistant layer")
         {
         }
     }
 
-    internal class AcidHelmetPrefab : Equipable
+    internal class AcidHelmet : Equipable
     {
-        public AcidHelmetPrefab() : base("AcidHelmet", "Brine Helmet", "Rebreather treated with an acid-resistant layer")
+        public AcidHelmet() : base("AcidHelmet", "Brine Helmet", "Rebreather treated with an acid-resistant layer")
         {
         }
 
@@ -77,10 +77,11 @@ namespace AcidProofSuit.Module
         }
     }
 
-    internal class AcidSuitPrefab : Equipable
+    internal class AcidSuit : Equipable
     {
-        public AcidSuitPrefab() : base("AcidSuit", "Brine Suit", "Reinforced dive suit with an acid-resistant layer")
+        public AcidSuit(string classId = "AcidSuit", string friendlyName = "Brine Suit", string description = "Reinforced dive suit with an acid-resistant layer") : base(classId, friendlyName, description)
         {
+            this.crushDepth = 800f;
         }
 
         public override EquipmentType EquipmentType => EquipmentType.Body;
@@ -98,6 +99,14 @@ namespace AcidProofSuit.Module
         public override string[] StepsToFabricatorTab => new string[] { "Personal", "Equipment" };
 
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
+
+        private float _crushDepth;
+
+        public float crushDepth
+        {
+            get { return _crushDepth; }
+            set { _crushDepth = value;  }
+        }
 
         public override GameObject GetGameObject()
         {
@@ -134,7 +143,7 @@ namespace AcidProofSuit.Module
         }
     }
 
-    abstract class bpSupplemental : Craftable
+    abstract class Blueprint : Craftable
     {
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
 
@@ -142,12 +151,22 @@ namespace AcidProofSuit.Module
 
         public virtual QuickSlotType QuickSlotType => QuickSlotType.None;
 
+        //protected RecipeData myRecipe => null;
+
+        /*protected override RecipeData GetBlueprintRecipe()
+        {
+            //if (myRecipe != null)
+            return myRecipe;
+            //else
+            //    throw ();
+        }*/
+
         public override GameObject GetGameObject()
         {
             return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit));
         }
 
-        public bpSupplemental(string classId, string friendlyName, string description) : base(classId, friendlyName, description)
+        public Blueprint(string classId, string friendlyName, string description) : base(classId, friendlyName, description)
         {
             /*OnStartedPatching += () =>
             {
@@ -160,8 +179,46 @@ namespace AcidProofSuit.Module
             };
         }
     }
+    class BlueprintConstructable : Craftable
+    {
+        public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
 
-    internal class bpSupplemental_Suits : bpSupplemental
+        public override string[] StepsToFabricatorTab => new string[] { "BodyMenu" };
+
+        public virtual QuickSlotType QuickSlotType => QuickSlotType.None;
+
+        protected RecipeData myRecipe;
+
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            //if (myRecipe != null)
+            return myRecipe;
+            //else
+            //    throw ();
+        }
+
+        public override GameObject GetGameObject()
+        {
+            return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit));
+        }
+
+        public BlueprintConstructable(string classId, string friendlyName, string description, RecipeData bp) : base(classId, friendlyName, description)
+        {
+            /*OnStartedPatching += () =>
+            {
+                CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "BodyMenu", "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
+            };*/
+
+            this.myRecipe = bp;
+
+            OnFinishedPatching += () =>
+            {
+                SpriteHandler.RegisterSprite(base.TechType, SpriteManager.Get(TechType.ReinforcedDiveSuit));
+            };
+        }
+    }
+
+    internal class Blueprint_Suits : Blueprint
     {
         // This is the recipe that allows already-crafted suits to be used; requires a full Radiation Suit, Reinforced Dive Suit, and Rebreather, plus the HCl, Creepvine and Sulphur of the base recipe.
         protected override RecipeData GetBlueprintRecipe()
@@ -190,12 +247,12 @@ namespace AcidProofSuit.Module
             return recipe;
         }
 
-        public bpSupplemental_Suits() : base("bpSupplemental_Suits", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
+        public Blueprint_Suits() : base("Blueprint_Suits", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
         {
         }
     }
 
-    internal class bpSupplemental_OnlyRadSuit : bpSupplemental
+    internal class Blueprint_OnlyRadSuit : Blueprint
     {
         // This is the recipe that uses an existing Rad Suit only.
         protected override RecipeData GetBlueprintRecipe()
@@ -225,12 +282,12 @@ namespace AcidProofSuit.Module
             return recipe;
         }
 
-        public bpSupplemental_OnlyRadSuit() : base("bpSupplemental_OnlyRadSuit", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
+        public Blueprint_OnlyRadSuit() : base("Blueprint_OnlyRadSuit", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
         {
         }
     }
 
-    internal class bpSupplemental_OnlyRebreather : bpSupplemental
+    internal class Blueprint_OnlyRebreather : Blueprint
     {
         // This is the recipe that uses an existing Rebreather only
         protected override RecipeData GetBlueprintRecipe()
@@ -258,12 +315,12 @@ namespace AcidProofSuit.Module
             return recipe;
         }
 
-        public bpSupplemental_OnlyRebreather() : base("bpSupplemental_OnlyRebreather", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
+        public Blueprint_OnlyRebreather() : base("Blueprint_OnlyRebreather", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
         {
         }
     }
 
-    internal class bpSupplemental_OnlyReinforcedSuit : bpSupplemental
+    internal class Blueprint_OnlyReinforcedSuit : Blueprint
     {
         // This is the recipe that uses an existing Reinforced Dive Suit only
         protected override RecipeData GetBlueprintRecipe()
@@ -291,12 +348,12 @@ namespace AcidProofSuit.Module
             return recipe;
         }
 
-        public bpSupplemental_OnlyReinforcedSuit() : base("bpSupplemental_OnlyReinforcedSuit", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
+        public Blueprint_OnlyReinforcedSuit() : base("Blueprint_OnlyReinforcedSuit", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
         {
         }
     }
 
-    internal class bpSupplemental_RebreatherRad : bpSupplemental
+    internal class Blueprint_RebreatherRad : Blueprint
     {
         // This is the recipe that uses an existing Rebreather and Rad Suit
         protected override RecipeData GetBlueprintRecipe()
@@ -326,12 +383,12 @@ namespace AcidProofSuit.Module
             return recipe;
         }
 
-        public bpSupplemental_RebreatherRad() : base("bpSupplemental_RebreatherRad", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
+        public Blueprint_RebreatherRad() : base("Blueprint_RebreatherRad", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
         {
         }
     }
 
-    internal class bpSupplemental_RebreatherReinforced : bpSupplemental
+    internal class Blueprint_RebreatherReinforced : Blueprint
     {
         // This is the recipe that uses an existing Rebreather and Reinforced Dive Suit
         protected override RecipeData GetBlueprintRecipe()
@@ -359,12 +416,12 @@ namespace AcidProofSuit.Module
             return recipe;
         }
 
-        public bpSupplemental_RebreatherReinforced() : base("bpSupplemental_RebreatherReinforced", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
+        public Blueprint_RebreatherReinforced() : base("Blueprint_RebreatherReinforced", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
         {
         }
     }
 
-    internal class bpSupplemental_RadReinforced : bpSupplemental
+    internal class Blueprint_RadReinforced : Blueprint
     {
         // This is the recipe that uses an existing Rad Suit and Reinforced Dive Suit
         protected override RecipeData GetBlueprintRecipe()
@@ -394,7 +451,298 @@ namespace AcidProofSuit.Module
             return recipe;
         }
 
-        public bpSupplemental_RadReinforced() : base("bpSupplemental_RadReinforced", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
+        public Blueprint_RadReinforced() : base("Blueprint_RadReinforced", "Brine Suit", "Reinforced dive suit with layers of acid and radiation protection.")
+        {
+        }
+    }
+
+    internal class NitrogenBrineSuit2 : AcidSuit
+    {
+        public static string title = "Brine Suit Mk2";
+        public static string description = "Upgraded dive suit, immune to acid, heat protection up to 90C and depth protection up to 1300m";
+
+        public override string[] StepsToFabricatorTab => new string[] { "Personal", "Equipment" };
+
+        public override TechType RequiredForUnlock => Main.GetNitrogenTechtype("rivereelscale");
+
+        /*public override EquipmentType EquipmentType => EquipmentType.Body;
+
+        public override Vector2int SizeInInventory => new Vector2int(2, 2);
+
+
+        public override TechGroup GroupForPDA => TechGroup.Personal;
+
+        public override TechCategory CategoryForPDA => TechCategory.Equipment;
+
+        public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;
+
+        public override string[] StepsToFabricatorTab => new string[] { "Personal", "Equipment" };
+
+        public override GameObject GetGameObject()
+        {
+            return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit));
+        }*/
+
+        //public override float crushDepth = 1300f;
+
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            if (!Main.HasNitrogenMod())
+                return new RecipeData() { };
+
+            TechType ttEelScale = Main.GetNitrogenTechtype("rivereelscale");
+            if (ttEelScale == TechType.None)
+                return new RecipeData() { };
+
+            RecipeData recipe = new RecipeData()
+            {
+                craftAmount = 1,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                {
+                    new Ingredient(TechType.HydrochloricAcid, 1),
+                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.Aerogel, 1),
+                    new Ingredient(TechType.AramidFibers, 3),
+                    new Ingredient(TechType.Diamond, 2),
+                    new Ingredient(TechType.Titanium, 2),
+                    new Ingredient(TechType.Lead, 2),
+                    new Ingredient(TechType.WiringKit, 1),
+                    new Ingredient(TechType.AluminumOxide, 2),
+                    new Ingredient(ttEelScale, 2)
+                })
+            };
+
+            recipe.LinkedItems.Add(Main.glovesPrefab.TechType);
+            recipe.LinkedItems.Add(Main.helmetPrefab.TechType);
+
+            return recipe;
+        }
+
+        protected override Sprite GetItemSprite()
+        {
+            return ImageUtils.LoadSpriteFromFile($"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/Assets/{ClassID}.png");
+        }
+
+        public NitrogenBrineSuit2() : base("NitrogenBrineSuit2", NitrogenBrineSuit2.title, NitrogenBrineSuit2.description)
+        {
+            this.crushDepth = 1300f;
+        }
+
+    }
+
+    internal class NitrogenBrineSuit3 : AcidSuit
+    {
+        public static string title = "Brine Suit Mk3";
+        public static string description = "Upgraded dive suit, immune to acid, heat protection up to 105C and effectively-unlimited depth protection";
+
+        public override string[] StepsToFabricatorTab => new string[] { "Personal", "Equipment" };
+
+        public override TechType RequiredForUnlock => Main.GetNitrogenTechtype("lavalizardscale");
+
+
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            if (!Main.HasNitrogenMod())
+                return new RecipeData() { };
+
+            TechType ttEelScale = Main.GetNitrogenTechtype("rivereelscale");
+            TechType ttLizardScale = Main.GetNitrogenTechtype("lavalizardscale");
+
+            if (ttEelScale == TechType.None || ttLizardScale == TechType.None)
+                return new RecipeData() { };
+
+            RecipeData recipe = new RecipeData()
+            {
+                craftAmount = 1,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                {
+                    new Ingredient(TechType.HydrochloricAcid, 1),
+                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.Aerogel, 1),
+                    new Ingredient(TechType.AramidFibers, 3),
+                    new Ingredient(TechType.Diamond, 2),
+                    new Ingredient(TechType.Titanium, 2),
+                    new Ingredient(TechType.Lead, 2),
+                    new Ingredient(TechType.WiringKit, 1),
+                    new Ingredient(TechType.AluminumOxide, 2),
+                    new Ingredient(ttEelScale, 2),
+                    new Ingredient(TechType.Kyanite, 2),
+                    new Ingredient(ttLizardScale, 2)
+                })
+            };
+
+            recipe.LinkedItems.Add(Main.glovesPrefab.TechType);
+            recipe.LinkedItems.Add(Main.helmetPrefab.TechType);
+
+            return recipe;
+        }
+
+        protected override Sprite GetItemSprite()
+        {
+            return ImageUtils.LoadSpriteFromFile($"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/Assets/{ClassID}.png");
+        }
+
+        public NitrogenBrineSuit3() : base("NitrogenBrineSuit3", NitrogenBrineSuit3.title, NitrogenBrineSuit3.description)
+        {
+            this.crushDepth = 8000f;
+        }
+    }
+
+    internal class Blueprint_BrineMk1toMk2 : Blueprint
+    {
+        // This is the recipe that turns a Brine Suit into a Brine Suit Mk2
+        public override string[] StepsToFabricatorTab => new string[] { "ReinforcedSuits" };
+
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            TechType ttAnimalScale = Main.GetNitrogenTechtype("rivereelscale");
+            if (ttAnimalScale == TechType.None)
+                return new RecipeData() { };
+            RecipeData recipe = new RecipeData()
+            {
+                craftAmount = 0,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                {
+                    new Ingredient(Main.suitPrefab.TechType, 1),
+                    new Ingredient(TechType.AluminumOxide, 2),
+                    new Ingredient(ttAnimalScale, 2)
+                })
+            };
+
+            recipe.LinkedItems.Add(Main.nitroBrine2.TechType);
+
+            return recipe;
+        }
+
+        public Blueprint_BrineMk1toMk2() : base("Blueprint_BrineMk1toMk2", NitrogenBrineSuit2.title, NitrogenBrineSuit2.description)
+        {
+        }
+    }
+
+    internal class Blueprint_BrineMk2toMk3 : Blueprint
+    {
+        // This is the recipe that turns a Brine Suit Mk2 into a Brine Suit Mk3
+        public override string[] StepsToFabricatorTab => new string[] { "ReinforcedSuits" };
+
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            TechType ttEelScale = Main.GetNitrogenTechtype("rivereelscale");
+            TechType ttLizardScale = Main.GetNitrogenTechtype("lavalizardscale");
+
+            if (ttEelScale == TechType.None || ttLizardScale == TechType.None)
+                return new RecipeData() { };
+
+            RecipeData recipe = new RecipeData()
+            {
+                craftAmount = 0,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                {
+                    new Ingredient(Main.nitroBrine2.TechType, 1),
+                    new Ingredient(TechType.Kyanite, 2),
+                    new Ingredient(ttLizardScale, 2)
+                })
+            };
+
+            recipe.LinkedItems.Add(Main.nitroBrine3.TechType);
+
+            return recipe;
+        }
+
+        public Blueprint_BrineMk2toMk3() : base("Blueprint_BrineMk2toMk3", NitrogenBrineSuit3.title, NitrogenBrineSuit3.description)
+        {
+        }
+    }
+
+    internal class Blueprint_BrineMk1toMk3 : Blueprint
+    {
+        // This is the recipe that turns a Brine Suit into a Brine Suit Mk3
+        public override string[] StepsToFabricatorTab => new string[] { "ReinforcedSuits" };
+
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            TechType ttEelScale = Main.GetNitrogenTechtype("rivereelscale");
+            TechType ttLizardScale = Main.GetNitrogenTechtype("lavalizardscale");
+
+            if (ttEelScale == TechType.None || ttLizardScale == TechType.None)
+                return new RecipeData() { };
+
+            RecipeData recipe = new RecipeData()
+            {
+                craftAmount = 0,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                {
+                    new Ingredient(Main.suitPrefab.TechType, 1),
+                    new Ingredient(TechType.AluminumOxide, 2),
+                    new Ingredient(ttEelScale, 2),
+                    new Ingredient(TechType.Kyanite, 2),
+                    new Ingredient(ttLizardScale, 2)
+                })
+            };
+
+            recipe.LinkedItems.Add(Main.nitroBrine3.TechType);
+
+            return recipe;
+        }
+
+        public Blueprint_BrineMk1toMk3() : base("Blueprint_BrineMk1toMk3", NitrogenBrineSuit3.title, NitrogenBrineSuit3.description)
+        {
+        }
+    }
+
+    internal class Blueprint_ReinforcedMk2toBrineMk2 : Blueprint
+    {
+        // This is the recipe that turns a Reinforced Dive Suit Mk2 into a Brine Suit Mk2
+        public override string[] StepsToFabricatorTab => new string[] { "ReinforcedSuits" };
+
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            RecipeData recipe = new RecipeData()
+            {
+                craftAmount = 0,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                {
+                    new Ingredient(Main.GetNitrogenTechtype("ReinforcedSuit2"), 1),
+                    new Ingredient(TechType.HydrochloricAcid, 1),
+                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.Aerogel, 1)
+                })
+            };
+
+            recipe.LinkedItems.Add(Main.nitroBrine2.TechType);
+
+            return recipe;
+        }
+
+        public Blueprint_ReinforcedMk2toBrineMk2() : base("Blueprint_ReinforcedMk2toBrineMk2", NitrogenBrineSuit2.title, NitrogenBrineSuit2.description)
+        {
+        }
+    }
+
+    internal class Blueprint_ReinforcedMk3toBrineMk3 : Blueprint
+    {
+        // This is the recipe that turns a Reinforced Dive Suit Mk3 into a Brine Suit Mk3
+        public override string[] StepsToFabricatorTab => new string[] { "ReinforcedSuits" };
+
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            RecipeData recipe = new RecipeData()
+            {
+                craftAmount = 0,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                {
+                    new Ingredient(Main.GetNitrogenTechtype("ReinforcedSuit3"), 1),
+                    new Ingredient(TechType.HydrochloricAcid, 1),
+                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.Aerogel, 1)
+                })
+            };
+
+            recipe.LinkedItems.Add(Main.nitroBrine3.TechType);
+
+            return recipe;
+        }
+
+        public Blueprint_ReinforcedMk3toBrineMk3() : base("Blueprint_ReinforcedMk3toBrineMk3", NitrogenBrineSuit3.title, NitrogenBrineSuit3.description)
         {
         }
     }
