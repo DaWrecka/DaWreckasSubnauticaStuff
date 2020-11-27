@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Collections;
 using HarmonyLib;
 using QModManager.API.ModLoading;
+using System.IO;
 using System.Collections.Generic;
 using RecipeData = SMLHelper.V2.Crafting.TechData;
 using SMLHelper.V2.Crafting;
@@ -16,28 +17,17 @@ namespace AcidProofSuit
     {
         public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
 
-        internal static AcidSuit suitPrefab = new AcidSuit();
+        /*internal static AcidSuit suitPrefab = new AcidSuit();
         internal static AcidGloves glovesPrefab = new AcidGloves();
         internal static AcidHelmet helmetPrefab = new AcidHelmet();
         // We could fit these into the prefabs list, but given that we want to access them frequently, we want them as publicly-accessible types anyway.
         internal static NitrogenBrineSuit2 nitroBrine2;
-        internal static NitrogenBrineSuit3 nitroBrine3;
+        internal static NitrogenBrineSuit3 nitroBrine3;*/
+        private static Assembly myAssembly = Assembly.GetExecutingAssembly();
+        private static string modPath = Path.GetDirectoryName(myAssembly.Location);
+        internal static string AssetsFolder = Path.Combine(modPath, "Assets");
 
         public static bool bNoPatchTechtypeInSlot = false; // If true, skips any custom processing of GetTechTypeInSlot
-
-        internal static List<Craftable> Prefabs = new List<Craftable>()
-        {
-            Main.suitPrefab,
-            Main.glovesPrefab,
-            Main.helmetPrefab,
-            new Blueprint_OnlyRadSuit(),
-            new Blueprint_OnlyRebreather(),
-            new Blueprint_OnlyReinforcedSuit(),
-            new Blueprint_Suits(),
-            new Blueprint_RebreatherRad(),
-            new Blueprint_RebreatherReinforced(),
-            new Blueprint_RadReinforced()
-        };
 
         // Get total amount equipped from a list
         public static int EquipmentGetCount(Equipment e, TechType[] techTypes)
@@ -79,9 +69,9 @@ namespace AcidProofSuit
             if (bNoPatchTechtypeInSlot || slot != "Body")
                 return __result;
 
-            if (__result == suitPrefab.TechType)
+            if (__result == Module.AcidSuit.TechTypeID)
                 return TechType.ReinforcedDiveSuit;
-            else if (__result == glovesPrefab.TechType)
+            else if (__result == Module.AcidGloves.TechTypeID)
                 return TechType.ReinforcedGloves;
             else if (HasNitrogenMod())
             {
@@ -99,11 +89,11 @@ namespace AcidProofSuit
                     return __result;
                 }
 
-                if (__result == nitroBrine2.TechType)
+                if (__result == Module.NitrogenBrineSuit2.TechTypeID)
                 {
                     return suitMk2;
                 }
-                else if (__result == nitroBrine3.TechType)
+                else if (__result == Module.NitrogenBrineSuit2.TechTypeID)
                 {
                     return suitMk3;
                 }
@@ -173,6 +163,20 @@ namespace AcidProofSuit
         [QModPatch]
         public static void Load()
         {
+            List<Craftable> Prefabs = new List<Craftable>()
+            {
+                new AcidSuit(),
+                new AcidGloves(),
+                new AcidHelmet(),
+                new Blueprint_OnlyRadSuit(),
+                new Blueprint_OnlyRebreather(),
+                new Blueprint_OnlyReinforcedSuit(),
+                new Blueprint_Suits(),
+                new Blueprint_RebreatherRad(),
+                new Blueprint_RebreatherReinforced(),
+                new Blueprint_RadReinforced()
+            };
+
             // There doesn't appear to be any handler function for verifying whether a certain tab node already exists. This is relevant since I'm deliberately using a node with the same
             // name as another mod, More Modified Items, so that the non-Nitrogen suit upgrades appear in the same menu as the Reinforced Stillsuit.
             SMLHelper.V2.Handlers.CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "BodyMenu", "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
@@ -201,23 +205,22 @@ namespace AcidProofSuit
             if (HasNitrogenMod())
             {
                 Logger.Log(Logger.Level.Debug, $"Main.Load(): Found NitrogenMod, adding Nitrogen prefabs");
-                nitroBrine2 = new NitrogenBrineSuit2();
-                nitroBrine3 = new NitrogenBrineSuit3();
-                Main.Prefabs.Add(nitroBrine2);
-                Main.Prefabs.Add(nitroBrine3);
-                Main.Prefabs.Add(new Blueprint_BrineMk1toMk2());
-                Main.Prefabs.Add(new Blueprint_BrineMk2toMk3());
-                Main.Prefabs.Add(new Blueprint_BrineMk1toMk3());
-                Main.Prefabs.Add(new Blueprint_ReinforcedMk2toBrineMk2());
-                Main.Prefabs.Add(new Blueprint_ReinforcedMk3toBrineMk3());
+                //nitroBrine2 = new NitrogenBrineSuit2();
+                //nitroBrine3 = new NitrogenBrineSuit3();
+                //Prefabs.Add(nitroBrine2);
+                //Prefabs.Add(nitroBrine3);
+                Prefabs.Add(new NitrogenBrineSuit2());
+                Prefabs.Add(new NitrogenBrineSuit3());
+                Prefabs.Add(new Blueprint_BrineMk1toMk2());
+                Prefabs.Add(new Blueprint_BrineMk2toMk3());
+                Prefabs.Add(new Blueprint_BrineMk1toMk3());
+                Prefabs.Add(new Blueprint_ReinforcedMk2toBrineMk2());
+                Prefabs.Add(new Blueprint_ReinforcedMk3toBrineMk3());
                 //Patches.Equipment_GetCount_Patch.Substitutions.Add(TechType.RadiationSuit, Main.nitroBrine2.TechType);
                 //Patches.Equipment_GetCount_Patch.Substitutions.Add(TechType.RadiationSuit, Main.nitroBrine3.TechType);
-                
-                Patches.Equipment_GetCount_Patch.Substitutions.Add(new Patches.Equipment_GetCount_Patch.TechTypeSub(Main.nitroBrine2.TechType, TechType.RadiationSuit));
-                Patches.Equipment_GetCount_Patch.Substitutions.Add(new Patches.Equipment_GetCount_Patch.TechTypeSub(Main.nitroBrine3.TechType, TechType.RadiationSuit));
             }
 
-            foreach (Craftable c in Main.Prefabs)
+            foreach (Craftable c in Prefabs)
             {
                 Logger.Log(Logger.Level.Debug, $"running Patch() for prefab {c.ToString()}");
                 c.Patch();
@@ -226,7 +229,7 @@ namespace AcidProofSuit
             Main.DamageResistances = new List<DamageResistance> {
             // Gloves
                 new DamageResistance(
-                    Main.glovesPrefab.TechType,
+                    Module.AcidGloves.TechTypeID,
                     new DamageInfo[] {
                         new DamageInfo(DamageType.Acid, -0.15f)/*,
                         new DamageInfo(DamageType.Radiation, -0.10f)*/
@@ -235,7 +238,7 @@ namespace AcidProofSuit
 
             // Helmet
                 new DamageResistance(
-                    Main.helmetPrefab.TechType,
+                    Module.AcidHelmet.TechTypeID,
                     new DamageInfo[] {
                         new DamageInfo(DamageType.Acid, -0.25f)/*,
                         new DamageInfo(DamageType.Radiation, -0.20f)*/
@@ -244,7 +247,7 @@ namespace AcidProofSuit
 
             // Suit
                 new DamageResistance(
-                    Main.suitPrefab.TechType,
+                    Module.AcidSuit.TechTypeID,
                     new DamageInfo[] {
                         new DamageInfo(DamageType.Acid, -0.6f)/*,
                         new DamageInfo(DamageType.Radiation, -0.70f)*/
@@ -254,20 +257,22 @@ namespace AcidProofSuit
             if (HasNitrogenMod())
             {
                 Main.DamageResistances.Add(new DamageResistance(
-                    Main.nitroBrine2.TechType,
+                    Module.NitrogenBrineSuit2.TechTypeID,
                     new DamageInfo[] {
                         new DamageInfo(DamageType.Acid, -0.6f)/*,
                         new DamageInfo(DamageType.Radiation, -0.70f)*/
                     }));
                 Main.DamageResistances.Add(new DamageResistance(
-                    Main.nitroBrine3.TechType,
+                    Module.NitrogenBrineSuit3.TechTypeID,
                     new DamageInfo[] {
                         new DamageInfo(DamageType.Acid, -0.6f)/*,
                         new DamageInfo(DamageType.Radiation, -0.70f)*/
                     }));
+
+                Patches.Equipment_GetCount_Patch.Substitutions.Add(new Patches.Equipment_GetCount_Patch.TechTypeSub(Module.NitrogenBrineSuit2.TechTypeID, TechType.RadiationSuit));
+                Patches.Equipment_GetCount_Patch.Substitutions.Add(new Patches.Equipment_GetCount_Patch.TechTypeSub(Module.NitrogenBrineSuit3.TechTypeID, TechType.RadiationSuit));
             }
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            new Harmony($"DaWrecka_{assembly.GetName().Name}").PatchAll(assembly);
+            Harmony.CreateAndPatchAll(myAssembly, $"DaWrecka_{myAssembly.GetName().Name}");
         }
     }
 }

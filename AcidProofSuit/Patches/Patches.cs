@@ -35,18 +35,18 @@ namespace AcidProofSuit.Patches
         {
             // The key is the TT to search for, and the value is the TT to return a positive value for.
             // so for key "TechType.Rebreather" and value "TechType.AcidHelmet", if GetCount(Rebreather) is called, the function will add one if the AcidHelmet is equipped.
-            { TechType.Rebreather, Main.helmetPrefab.TechType },
-            { TechType.RadiationHelmet, Main.helmetPrefab.TechType },
-            { TechType.RadiationSuit, Main.suitPrefab.TechType },
-            { TechType.RadiationGloves, Main.glovesPrefab.TechType }
+            { TechType.Rebreather, Module.AcidHelmet.TechTypeID },
+            { TechType.RadiationHelmet, Module.AcidHelmet.TechTypeID },
+            { TechType.RadiationSuit, Module.AcidSuit.TechTypeID },
+            { TechType.RadiationGloves, Module.AcidGloves.TechTypeID }
         };*/
 
         internal static List<TechTypeSub> Substitutions = new List<TechTypeSub>
         {
-            new TechTypeSub( Main.helmetPrefab.TechType, TechType.Rebreather),
-            new TechTypeSub( Main.helmetPrefab.TechType, TechType.RadiationHelmet),
-            new TechTypeSub( Main.suitPrefab.TechType, TechType.RadiationSuit ),
-            new TechTypeSub( Main.glovesPrefab.TechType, TechType.ReinforcedGloves )
+            new TechTypeSub( Module.AcidHelmet.TechTypeID, TechType.Rebreather),
+            new TechTypeSub( Module.AcidHelmet.TechTypeID, TechType.RadiationHelmet),
+            new TechTypeSub( Module.AcidSuit.TechTypeID, TechType.RadiationSuit ),
+            new TechTypeSub( Module.AcidGloves.TechTypeID, TechType.ReinforcedGloves )
         };
 
         [HarmonyPostfix]
@@ -70,6 +70,20 @@ namespace AcidProofSuit.Patches
         }
     }
 
+    [HarmonyPatch(typeof(Equipment), nameof(Equipment.GetTechTypeInSlot))]
+    internal class Equipment_GetTechTypeInSlot_Patch
+    {
+        [HarmonyPostfix]
+        public static void Postfix(ref TechType __result, string slot)
+        {
+            if (slot == "Body")
+            {
+                Logger.Log(Logger.Level.Debug, $"Equipment_GetTechTypeInSlot_Patch.Postfix: calling Main.GetTechTypeInSlot_Patch({__result}, {slot})");
+                __result = Main.GetTechTypeInSlot_Patch(__result, slot);
+                Logger.Log(Logger.Level.Debug, $"Main.GetTechTypeInSlot_Patch() returned result {__result}");
+            }
+        }
+    }
 
     [HarmonyPatch(typeof(DamageSystem), nameof(DamageSystem.CalculateDamage))]
     internal class DamageSystem_CalculateDamage_Patch
@@ -134,14 +148,15 @@ namespace AcidProofSuit.Patches
         {
             Equipment equipment = Inventory.main.equipment;
             int num = __instance.equipmentModels.Length;
+            Main.bNoPatchTechtypeInSlot = true;
             //for(int i = 0; i < num; i++)
             foreach(Player.EquipmentType equipmentType in __instance.equipmentModels)
             {
                 //Player.EquipmentType equipmentType = __instance.equipmentModels[i];
                 TechType techTypeInSlot = equipment.GetTechTypeInSlot(equipmentType.slot);
-                if (techTypeInSlot == Main.suitPrefab.TechType)
+                if (techTypeInSlot == Module.AcidSuit.TechTypeID)
                     techTypeInSlot = TechType.ReinforcedDiveSuit;
-                else if (techTypeInSlot == Main.glovesPrefab.TechType)
+                else if (techTypeInSlot == Module.AcidGloves.TechTypeID)
                     techTypeInSlot = TechType.ReinforcedGloves;
                 else
                   continue;
@@ -165,13 +180,16 @@ namespace AcidProofSuit.Patches
                 {
                     equipmentType.defaultModel.SetActive(!flag);
                 }
+
+                // Actually we don't need this, since we're not doing anything that would change the outcome of UpdateReinforcedSuit.
+                // Might be useful in the future though, so it's getting commented-out instead of deleted.
+
+                /*MethodInfo dynMethod = __instance.GetType().GetMethod("UpdateReinforcedSuit", BindingFlags.NonPublic | BindingFlags.Instance);
+                dynMethod.Invoke(__instance, null);*/
+
+                Main.bNoPatchTechtypeInSlot = false;
             }
 
-            // Actually we don't need this, since we're not doing anything that would change the outcome of UpdateReinforcedSuit.
-            // Might be useful in the future though, so it's getting commented-out instead of deleted.
-            
-            /*MethodInfo dynMethod = __instance.GetType().GetMethod("UpdateReinforcedSuit", BindingFlags.NonPublic | BindingFlags.Instance);
-            dynMethod.Invoke(__instance, null);*/
         }
     }
 
@@ -184,20 +202,31 @@ namespace AcidProofSuit.Patches
             if (__instance != null)
             {
                 int flags = 0;
-                //if(Inventory.main.equipment.GetCount(Main.suitPrefab.TechType) > 0)
-                if(Main.EquipmentGetCount(Inventory.main.equipment, new TechType[3] { Main.suitPrefab.TechType, Main.nitroBrine2.TechType, Main.nitroBrine3.TechType }) > 0)
+                Logger.Log(Logger.Level.Debug, $"UpdateReinforcedSuitPatcher.Postfix executing");
+                //if(Inventory.main.equipment.GetCount(Module.AcidSuit.TechTypeID) > 0)
+                Logger.Log(Logger.Level.Debug, $"calling EquipmentGetCount with array:");
+                TechType[] suits = new TechType[3] { Module.AcidSuit.TechTypeID, Module.NitrogenBrineSuit2.TechTypeID, Module.NitrogenBrineSuit3.TechTypeID };
+                //foreach (TechType tt in suits)
+                for(int i = 0; i < suits.Length; i++) 
+                {
+                    Logger.Log(Logger.Level.Debug, $"{suits[i].ToString()}");
+                }
+
+                Logger.Log(Logger.Level.Debug, $"Source array should be: {Module.AcidSuit.TechTypeID}, {Module.NitrogenBrineSuit2.TechTypeID}, { Module.NitrogenBrineSuit3.TechTypeID}");
+
+                if (Main.EquipmentGetCount(Inventory.main.equipment, new TechType[3] { Module.AcidSuit.TechTypeID, Module.NitrogenBrineSuit2.TechTypeID, Module.NitrogenBrineSuit3.TechTypeID }) > 0)
                 {
                     flags += 1;
                     __instance.temperatureDamage.minDamageTemperature += 9f;
                 }
 
-                if (Inventory.main.equipment.GetCount(Main.glovesPrefab.TechType) > 0)
+                if (Inventory.main.equipment.GetCount(Module.AcidGloves.TechTypeID) > 0)
                 {
                     flags += 2;
                     __instance.temperatureDamage.minDamageTemperature += 1f;
                 }
 
-                if(Inventory.main.equipment.GetCount(Main.helmetPrefab.TechType) > 0)
+                if(Inventory.main.equipment.GetCount(Module.AcidHelmet.TechTypeID) > 0)
                 {
                     flags += 4;
                     __instance.temperatureDamage.minDamageTemperature += 5f;
@@ -218,21 +247,7 @@ namespace AcidProofSuit.Patches
                             __instance.acidLoopingSound.Play();
                     }
                 }
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(Equipment), nameof(Equipment.GetTechTypeInSlot))]
-    internal class Equipment_GetTechTypeInSlot_Patch
-    {
-        [HarmonyPostfix]
-        public static void Postfix(ref TechType __result, string slot)
-        {
-            if (slot == "Body")
-            {
-                Logger.Log(Logger.Level.Debug, $"Equipment_GetTechTypeInSlot_Patch.Postfix: calling Main.GetTechTypeInSlot_Patch({__result}, {slot})");
-                __result = Main.GetTechTypeInSlot_Patch(__result, slot);
-                Logger.Log(Logger.Level.Debug, $"Main.GetTechTypeInSlot_Patch() returned result {__result}");
+                Logger.Log(Logger.Level.Debug, $"UpdateReinforcedSuitPatcher.Postfix finished");
             }
         }
     }
@@ -248,9 +263,9 @@ namespace AcidProofSuit.Patches
             Main.bInAcid = true;
 
             if (__instance != null
-                && Main.EquipmentGetCount(Inventory.main.equipment, new TechType[3] { Main.suitPrefab.TechType, Main.nitroBrine2.TechType, Main.nitroBrine3.TechType }) > 0
-                && Inventory.main.equipment.GetCount(Main.glovesPrefab.TechType) > 0
-                && Inventory.main.equipment.GetCount(Main.helmetPrefab.TechType) > 0)
+                && Main.EquipmentGetCount(Inventory.main.equipment, new TechType[3] { Module.AcidSuit.TechTypeID, Module.NitrogenBrineSuit2.TechTypeID, Module.NitrogenBrineSuit3.TechTypeID }) > 0
+                && Inventory.main.equipment.GetCount(Module.AcidGloves.TechTypeID) > 0
+                && Inventory.main.equipment.GetCount(Module.AcidHelmet.TechTypeID) > 0)
                 return false;
 
             return true;
@@ -276,7 +291,7 @@ namespace AcidProofSuit.Patches
         [HarmonyPostfix]
         public static void Postfix(ref bool __result)
         {
-            __result = (__result || Main.EquipmentGetCount(Inventory.main.equipment, new TechType[3] { Main.suitPrefab.TechType, Main.nitroBrine2.TechType, Main.nitroBrine3.TechType }) > 0);
+            __result = (__result || Main.EquipmentGetCount(Inventory.main.equipment, new TechType[3] { Module.AcidSuit.TechTypeID, Module.NitrogenBrineSuit2.TechTypeID, Module.NitrogenBrineSuit3.TechTypeID }) > 0);
         }
     }
 
@@ -286,7 +301,7 @@ namespace AcidProofSuit.Patches
         [HarmonyPostfix]
         public static void Postfix(ref bool __result)
         {
-            __result = (__result || Inventory.main.equipment.GetCount(Main.glovesPrefab.TechType) > 0);
+            __result = (__result || Inventory.main.equipment.GetCount(Module.AcidGloves.TechTypeID) > 0);
         }
     }
 }
