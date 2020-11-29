@@ -34,9 +34,9 @@ namespace AcidProofSuit
         internal static NitrogenBrineSuit2 prefabSuitMk2;
         internal static NitrogenBrineSuit3 prefabSuitMk3;
 
-        private static Assembly myAssembly = Assembly.GetExecutingAssembly();
-        private static string modPath = Path.GetDirectoryName(myAssembly.Location);
-        internal static string AssetsFolder = Path.Combine(modPath, "Assets");
+        private static readonly Assembly myAssembly = Assembly.GetExecutingAssembly();
+        private static readonly string modPath = Path.GetDirectoryName(myAssembly.Location);
+        internal static readonly string AssetsFolder = Path.Combine(modPath, "Assets");
 
         public static bool bNoPatchTechtypeInSlot = false; // If true, skips any custom processing of GetTechTypeInSlot
 
@@ -55,7 +55,9 @@ namespace AcidProofSuit
             return count;
         }
 
+#pragma warning disable IDE0044 // Add readonly modifier
         private static Dictionary<string, TechType> NitrogenTechtypes = new Dictionary<string, TechType>();
+#pragma warning restore IDE0044 // Add readonly modifier
 
         public static TechType GetNitrogenTechtype(string name)
         {
@@ -178,9 +180,7 @@ namespace AcidProofSuit
             }
             return damageMod;
         }
-        private static Assembly myAssembly = Assembly.GetExecutingAssembly();
-        private static string modPath = Path.GetDirectoryName(myAssembly.Location);
-        internal static string AssetsFolder = Path.Combine(modPath, "Assets");
+
         [QModPatch]
         public static void Load()
         {
