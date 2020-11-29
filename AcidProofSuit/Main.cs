@@ -50,7 +50,7 @@ namespace AcidProofSuit
                     continue;
 
                 count += e.GetCount(tt);
-                Logger.Log(Logger.Level.Debug, $"EquipmentGetCount incremented return value to {count} for TechType {tt.ToString()}");
+                //Logger.Log(Logger.Level.Debug, $"EquipmentGetCount incremented return value to {count} for TechType {tt.ToString()}");
             }
             return count;
         }
@@ -78,15 +78,15 @@ namespace AcidProofSuit
         {
             if (bNoPatchTechtypeInSlot)
             {
-                Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch skipped because bNoPatchTechtypeInSlot, returning result {input.ToString()}");
+                //Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch skipped because bNoPatchTechtypeInSlot, returning result {input.ToString()}");
                 return input;
             }
             else if (slot != "Body")
             {
-                Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch skipped because slot != Body");
+                //Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch skipped because slot != Body");
                 return input;
             }
-            Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch called with values for input of {input.ToString()} and slot {slot}");
+            //Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch called with values for input of {input.ToString()} and slot {slot}");
 
             if (input == prefabSuitMk1.TechType)
                 return TechType.ReinforcedDiveSuit;
@@ -96,16 +96,16 @@ namespace AcidProofSuit
             {
                 TechType suitMk2 = GetNitrogenTechtype("reinforcedsuit2");
                 TechType suitMk3 = GetNitrogenTechtype("reinforcedsuit3");
-                Logger.Log(Logger.Level.Debug, $"Got values for TechTypes reinforcedsuit2 and reinforcedsuit3 of {suitMk2.ToString()} and {suitMk3.ToString()}");
+                //Logger.Log(Logger.Level.Debug, $"Got values for TechTypes reinforcedsuit2 and reinforcedsuit3 of {suitMk2.ToString()} and {suitMk3.ToString()}");
                 if (suitMk2 == TechType.None)
                 {
-                    Logger.Log(Logger.Level.Debug, $"Could not find reinforcedsuit2 TechType");
+                    //Logger.Log(Logger.Level.Debug, $"Could not find reinforcedsuit2 TechType");
                     return input;
                 }
 
                 if (suitMk3 == TechType.None)
                 {
-                    Logger.Log(Logger.Level.Debug, $"Could not find reinforcedsuit3 TechType");
+                    //Logger.Log(Logger.Level.Debug, $"Could not find reinforcedsuit3 TechType");
                     return input;
                 }
 
@@ -113,7 +113,7 @@ namespace AcidProofSuit
                 {
                     return suitMk2;
                 }
-                else if (Main.prefabSuitMk3 != null && input == Main.prefabSuitMk2.TechType)
+                else if (Main.prefabSuitMk3 != null && input == Main.prefabSuitMk3.TechType)
                 {
                     return suitMk3;
                 }
@@ -161,10 +161,10 @@ namespace AcidProofSuit
         {
             float baseDamage = damage;
             float damageMod = 0;
-            Logger.Log(Logger.Level.Debug, $"Main.ModifyDamage called: tt = {tt.ToString()}, damage = {damage}; DamageType = {type}");
+            //Logger.Log(Logger.Level.Debug, $"Main.ModifyDamage called: tt = {tt.ToString()}, damage = {damage}; DamageType = {type}");
             foreach (DamageResistance r in DamageResistances)
             {
-                Logger.Log(Logger.Level.Debug, $"Found DamageResistance with TechType: {r.TechType.ToString()}");
+                //Logger.Log(Logger.Level.Debug, $"Found DamageResistance with TechType: {r.TechType.ToString()}");
                 if (r.TechType == tt)
                 {
                     foreach (DamageInfo d in r.damageInfoList)
@@ -172,7 +172,7 @@ namespace AcidProofSuit
                         if (d.damageType == type)
                         {
                             damageMod += baseDamage * d.damageMult;
-                            Logger.Log(Logger.Level.Debug, $"Player has equipped armour of TechType {tt.ToString()}, base damage = {baseDamage}, type = {type}, modifying damage by {d.damageMult}x with result of {damageMod}");
+                            //Logger.Log(Logger.Level.Debug, $"Player has equipped armour of TechType {tt.ToString()}, base damage = {baseDamage}, type = {type}, modifying damage by {d.damageMult}x with result of {damageMod}");
                         }
                     }
                 }

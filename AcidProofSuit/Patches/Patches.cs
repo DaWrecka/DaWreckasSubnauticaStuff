@@ -47,17 +47,17 @@ namespace AcidProofSuit.Patches
         {
             Dictionary<TechType, int> equipCount = __instance.GetInstanceField("equippedCount", BindingFlags.NonPublic | BindingFlags.Instance) as Dictionary<TechType, int>;
 
-            Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch.PostFix: executing with parameters __result {__result.ToString()}, techType {techType.ToString()}");
+            //Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch.PostFix: executing with parameters __result {__result.ToString()}, techType {techType.ToString()}");
             foreach (TechTypeSub t in Substitutions)
             {
                 if (t.substitution == techType)
                 //if (Substitutions.TryGetValue(techType, out TechType sub))
                 {
-                    Logger.Log(Logger.Level.Debug, $"using TechTypeSub with values substituted {t.substituted}, substition {t.substitution}");
+                    //Logger.Log(Logger.Level.Debug, $"using TechTypeSub with values substituted {t.substituted}, substition {t.substitution}");
                     int i;
                     if (equipCount.TryGetValue(t.substituted, out i))
                     {
-                        Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch: found {techType.ToString()} equipped");
+                        //Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch: found {techType.ToString()} equipped");
                         __result++;
                     }
                     break;
@@ -78,7 +78,7 @@ namespace AcidProofSuit.Patches
                 if (Main.playerSlots.Contains(slot))
                 {
                     __result = __instance.GetTechTypeInSlot(slot);
-                    Logger.Log(Logger.Level.Debug, $"Equipment_GetTechTypeInSlot_Patch.Prefix running with __result {__result.ToString()}, slot = '{slot}'");
+                    //Logger.Log(Logger.Level.Debug, $"Equipment_GetTechTypeInSlot_Patch.Prefix running with __result {__result.ToString()}, slot = '{slot}'");
                 }
                 Main.bNoPatchTechtypeInSlot = false;
             }
@@ -93,9 +93,9 @@ namespace AcidProofSuit.Patches
             {
                 if (slot == "Body") // This could be changed to an array or list easily-enough if we need to patch other slots.
                 {
-                    Logger.Log(Logger.Level.Debug, $"Equipment_GetTechTypeInSlot_Patch.Postfix: calling Main.GetTechTypeInSlot_Patch({__result}, {slot})");
+                    //Logger.Log(Logger.Level.Debug, $"Equipment_GetTechTypeInSlot_Patch.Postfix: calling Main.GetTechTypeInSlot_Patch({__result}, {slot})");
                     __result = Main.GetTechTypeInSlot_Patch(__result, slot);
-                    Logger.Log(Logger.Level.Debug, $"Main.GetTechTypeInSlot_Patch() returned result {__result}");
+                    //Logger.Log(Logger.Level.Debug, $"Main.GetTechTypeInSlot_Patch() returned result {__result}");
                 }
             }
 
@@ -225,15 +225,15 @@ namespace AcidProofSuit.Patches
         [HarmonyPrefix]
         public static void Prefix(ref Player __instance)
         {
-            Logger.Log(Logger.Level.Debug, $"UpdateReinforcedSuitPatcher.Prefix begin:");
+            //Logger.Log(Logger.Level.Debug, $"UpdateReinforcedSuitPatcher.Prefix begin:");
             foreach (string s in Main.playerSlots)
             {
                 Main.bNoPatchTechtypeInSlot = true;
                 TechType tt = Inventory.main.equipment.GetTechTypeInSlot(s);
-                Logger.Log(Logger.Level.Debug, $"Found TechType {tt.ToString()} in slot {s}");
+                //Logger.Log(Logger.Level.Debug, $"Found TechType {tt.ToString()} in slot {s}");
                 Main.bNoPatchTechtypeInSlot = false;
                 tt = Inventory.main.equipment.GetTechTypeInSlot(s);
-                Logger.Log(Logger.Level.Debug, $"Found patched TechType {tt.ToString()} in slot {s}");
+                //Logger.Log(Logger.Level.Debug, $"Found patched TechType {tt.ToString()} in slot {s}");
             }
         }
 
@@ -243,17 +243,16 @@ namespace AcidProofSuit.Patches
             if (__instance != null)
             {
                 int flags = 0;
-                Logger.Log(Logger.Level.Debug, $"UpdateReinforcedSuitPatcher.Postfix executing");
-                //if(Inventory.main.equipment.GetCount(Main.prefabSuitMk1.TechType) > 0)
-                Logger.Log(Logger.Level.Debug, $"calling EquipmentGetCount with array:");
+                //Logger.Log(Logger.Level.Debug, $"UpdateReinforcedSuitPatcher.Postfix executing");
+                //Logger.Log(Logger.Level.Debug, $"calling EquipmentGetCount with array:");
                 TechType[] suits = new TechType[3] { Main.prefabSuitMk1.TechType, Main.prefabSuitMk2.TechType, Main.prefabSuitMk3.TechType };
-                //foreach (TechType tt in suits)
-                for(int i = 0; i < suits.Length; i++) 
+                /*foreach (TechType tt in suits)*/
+                /*for(int i = 0; i < suits.Length; i++) 
                 {
                     Logger.Log(Logger.Level.Debug, $"{suits[i].ToString()}");
-                }
+                }*/
 
-                Logger.Log(Logger.Level.Debug, $"Source array should be: {Main.prefabSuitMk1.TechType}, {Main.prefabSuitMk2.TechType}, { Main.prefabSuitMk3.TechType}");
+                //Logger.Log(Logger.Level.Debug, $"Source array should be: {Main.prefabSuitMk1.TechType}, {Main.prefabSuitMk2.TechType}, { Main.prefabSuitMk3.TechType}");
 
                 if (Main.EquipmentGetCount(Inventory.main.equipment, new TechType[3] { Main.prefabSuitMk1.TechType, Main.prefabSuitMk2.TechType, Main.prefabSuitMk3.TechType }) > 0)
                 {
@@ -288,7 +287,7 @@ namespace AcidProofSuit.Patches
                             __instance.acidLoopingSound.Play();
                     }
                 }
-                Logger.Log(Logger.Level.Debug, $"UpdateReinforcedSuitPatcher.Postfix finished");
+                //Logger.Log(Logger.Level.Debug, $"UpdateReinforcedSuitPatcher.Postfix finished");
             }
         }
     }
