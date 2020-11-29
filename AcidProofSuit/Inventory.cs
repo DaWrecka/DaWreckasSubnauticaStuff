@@ -743,4 +743,41 @@ namespace AcidProofSuit.Module
         {
         }
     }
+
+    internal class Blueprint_ReinforcedMk2toBrineMk3 : Blueprint
+    {
+        // This is the recipe that turns a Reinforced Dive Suit Mk2 into a Brine Suit Mk3
+        public override string[] StepsToFabricatorTab => new string[] { "ReinforcedSuits" };
+
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            TechType ttLizardScale = Main.GetNitrogenTechtype("lavalizardscale");
+
+            if (ttLizardScale == TechType.None)
+                return new RecipeData() { };
+
+
+            RecipeData recipe = new RecipeData()
+            {
+                craftAmount = 0,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                {
+                    new Ingredient(Main.GetNitrogenTechtype("ReinforcedSuit2"), 1),
+                    new Ingredient(TechType.HydrochloricAcid, 1),
+                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.Aerogel, 1),
+                    new Ingredient(TechType.Kyanite, 2),
+                    new Ingredient(ttLizardScale, 2)
+                })
+            };
+
+            recipe.LinkedItems.Add(Main.prefabSuitMk3.TechType);
+
+            return recipe;
+        }
+
+        public Blueprint_ReinforcedMk2toBrineMk3() : base("Blueprint_ReinforcedMk2toBrineMk3", NitrogenBrineSuit3.title, NitrogenBrineSuit3.description)
+        {
+        }
+    }
 }
