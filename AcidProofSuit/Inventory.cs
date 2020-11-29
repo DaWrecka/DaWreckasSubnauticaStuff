@@ -56,10 +56,6 @@ namespace AcidProofSuit.Module
                 specTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesspec.png"));
                 normalTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesnormal.png"));
             };
-            OnFinishedPatching += () =>
-            {
-                TechTypeID = this.TechType;
-            };
         }
     }
 
@@ -68,10 +64,6 @@ namespace AcidProofSuit.Module
         public static TechType TechTypeID { get; protected set; }
         public AcidHelmet() : base("AcidHelmet", "Brine Helmet", "Rebreather treated with an acid-resistant layer")
         {
-            OnFinishedPatching += () =>
-            {
-                TechTypeID = this.TechType;
-            };
         }
 
         public override EquipmentType EquipmentType => EquipmentType.Head;
@@ -103,11 +95,6 @@ namespace AcidProofSuit.Module
         public static TechType TechTypeID { get; protected set; }
         public AcidSuit(string classId = "AcidSuit", string friendlyName = "Brine Suit", string description = "Reinforced dive suit with an acid-resistant layer") : base(classId, friendlyName, description)
         {
-            OnFinishedPatching += () =>
-            {
-                TechTypeID = this.TechType;
-            };
-            //this.crushDepth = 800f;
         }
 
         public override EquipmentType EquipmentType => EquipmentType.Body;
@@ -125,14 +112,6 @@ namespace AcidProofSuit.Module
         public override string[] StepsToFabricatorTab => new string[] { "Personal", "Equipment" };
 
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
-
-        private float _crushDepth;
-
-        public float crushDepth
-        {
-            get { return _crushDepth; }
-            set { _crushDepth = value;  }
-        }
 
         public override GameObject GetGameObject()
         {
@@ -157,8 +136,8 @@ namespace AcidProofSuit.Module
                 })
             };
 
-            recipe.LinkedItems.Add(AcidGloves.TechTypeID);
-            recipe.LinkedItems.Add(AcidHelmet.TechTypeID);
+            recipe.LinkedItems.Add(Main.prefabGloves.TechType);
+            recipe.LinkedItems.Add(Main.prefabHelmet.TechType);
 
             return recipe;
         }
@@ -177,16 +156,6 @@ namespace AcidProofSuit.Module
 
         public virtual QuickSlotType QuickSlotType => QuickSlotType.None;
 
-        //protected RecipeData myRecipe => null;
-
-        /*protected override RecipeData GetBlueprintRecipe()
-        {
-            //if (myRecipe != null)
-            return myRecipe;
-            //else
-            //    throw ();
-        }*/
-
         public override GameObject GetGameObject()
         {
             return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit));
@@ -194,49 +163,6 @@ namespace AcidProofSuit.Module
 
         public Blueprint(string classId, string friendlyName, string description) : base(classId, friendlyName, description)
         {
-            /*OnStartedPatching += () =>
-            {
-                CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "BodyMenu", "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
-            };*/
-
-            OnFinishedPatching += () =>
-            {
-                SpriteHandler.RegisterSprite(base.TechType, SpriteManager.Get(TechType.ReinforcedDiveSuit));
-            };
-        }
-    }
-    class BlueprintConstructable : Craftable
-    {
-        public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
-
-        public override string[] StepsToFabricatorTab => new string[] { "BodyMenu" };
-
-        public virtual QuickSlotType QuickSlotType => QuickSlotType.None;
-
-        protected RecipeData myRecipe;
-
-        protected override RecipeData GetBlueprintRecipe()
-        {
-            //if (myRecipe != null)
-            return myRecipe;
-            //else
-            //    throw ();
-        }
-
-        public override GameObject GetGameObject()
-        {
-            return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit));
-        }
-
-        public BlueprintConstructable(string classId, string friendlyName, string description, RecipeData bp) : base(classId, friendlyName, description)
-        {
-            /*OnStartedPatching += () =>
-            {
-                CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "BodyMenu", "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
-            };*/
-
-            this.myRecipe = bp;
-
             OnFinishedPatching += () =>
             {
                 SpriteHandler.RegisterSprite(base.TechType, SpriteManager.Get(TechType.ReinforcedDiveSuit));
@@ -266,9 +192,9 @@ namespace AcidProofSuit.Module
                 })
             };
 
-            recipe.LinkedItems.Add(AcidGloves.TechTypeID);
-            recipe.LinkedItems.Add(AcidHelmet.TechTypeID);
-            recipe.LinkedItems.Add(AcidSuit.TechTypeID);
+            recipe.LinkedItems.Add(Main.prefabGloves.TechType);
+            recipe.LinkedItems.Add(Main.prefabHelmet.TechType);
+            recipe.LinkedItems.Add(Main.prefabSuitMk1.TechType);
 
             return recipe;
         }
@@ -301,9 +227,9 @@ namespace AcidProofSuit.Module
                 })
             };
 
-            recipe.LinkedItems.Add(AcidGloves.TechTypeID);
-            recipe.LinkedItems.Add(AcidHelmet.TechTypeID);
-            recipe.LinkedItems.Add(AcidSuit.TechTypeID);
+            recipe.LinkedItems.Add(Main.prefabGloves.TechType);
+            recipe.LinkedItems.Add(Main.prefabHelmet.TechType);
+            recipe.LinkedItems.Add(Main.prefabSuitMk1.TechType);
 
             return recipe;
         }
@@ -334,9 +260,9 @@ namespace AcidProofSuit.Module
                 })
             };
 
-            recipe.LinkedItems.Add(AcidGloves.TechTypeID);
-            recipe.LinkedItems.Add(AcidHelmet.TechTypeID);
-            recipe.LinkedItems.Add(AcidSuit.TechTypeID);
+            recipe.LinkedItems.Add(Main.prefabGloves.TechType);
+            recipe.LinkedItems.Add(Main.prefabHelmet.TechType);
+            recipe.LinkedItems.Add(Main.prefabSuitMk1.TechType);
 
             return recipe;
         }
@@ -367,9 +293,9 @@ namespace AcidProofSuit.Module
                 })
             };
 
-            recipe.LinkedItems.Add(AcidGloves.TechTypeID);
-            recipe.LinkedItems.Add(AcidHelmet.TechTypeID);
-            recipe.LinkedItems.Add(AcidSuit.TechTypeID);
+            recipe.LinkedItems.Add(Main.prefabGloves.TechType);
+            recipe.LinkedItems.Add(Main.prefabHelmet.TechType);
+            recipe.LinkedItems.Add(Main.prefabSuitMk1.TechType);
 
             return recipe;
         }
@@ -402,9 +328,9 @@ namespace AcidProofSuit.Module
                 })
             };
 
-            recipe.LinkedItems.Add(AcidGloves.TechTypeID);
-            recipe.LinkedItems.Add(AcidHelmet.TechTypeID);
-            recipe.LinkedItems.Add(AcidSuit.TechTypeID);
+            recipe.LinkedItems.Add(Main.prefabGloves.TechType);
+            recipe.LinkedItems.Add(Main.prefabHelmet.TechType);
+            recipe.LinkedItems.Add(Main.prefabSuitMk1.TechType);
 
             return recipe;
         }
@@ -435,9 +361,9 @@ namespace AcidProofSuit.Module
                 })
             };
 
-            recipe.LinkedItems.Add(AcidGloves.TechTypeID);
-            recipe.LinkedItems.Add(AcidHelmet.TechTypeID);
-            recipe.LinkedItems.Add(AcidSuit.TechTypeID);
+            recipe.LinkedItems.Add(Main.prefabGloves.TechType);
+            recipe.LinkedItems.Add(Main.prefabHelmet.TechType);
+            recipe.LinkedItems.Add(Main.prefabSuitMk1.TechType);
 
             return recipe;
         }
@@ -470,9 +396,9 @@ namespace AcidProofSuit.Module
                 })
             };
 
-            recipe.LinkedItems.Add(AcidGloves.TechTypeID);
-            recipe.LinkedItems.Add(AcidHelmet.TechTypeID);
-            recipe.LinkedItems.Add(AcidSuit.TechTypeID);
+            recipe.LinkedItems.Add(Main.prefabGloves.TechType);
+            recipe.LinkedItems.Add(Main.prefabHelmet.TechType);
+            recipe.LinkedItems.Add(Main.prefabSuitMk1.TechType);
 
             return recipe;
         }
@@ -484,32 +410,14 @@ namespace AcidProofSuit.Module
 
     internal class NitrogenBrineSuit2 : AcidSuit
     {
+        public static new TechType TechTypeID { get; protected set; }
+
         public static string title = "Brine Suit Mk2";
         public static string description = "Upgraded dive suit, immune to acid, heat protection up to 90C and depth protection up to 1300m";
 
         public override string[] StepsToFabricatorTab => new string[] { "Personal", "Equipment" };
 
         public override TechType RequiredForUnlock => Main.GetNitrogenTechtype("rivereelscale");
-
-        /*public override EquipmentType EquipmentType => EquipmentType.Body;
-
-        public override Vector2int SizeInInventory => new Vector2int(2, 2);
-
-
-        public override TechGroup GroupForPDA => TechGroup.Personal;
-
-        public override TechCategory CategoryForPDA => TechCategory.Equipment;
-
-        public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;
-
-        public override string[] StepsToFabricatorTab => new string[] { "Personal", "Equipment" };
-
-        public override GameObject GetGameObject()
-        {
-            return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit));
-        }*/
-
-        //public override float crushDepth = 1300f;
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -538,8 +446,8 @@ namespace AcidProofSuit.Module
                 })
             };
 
-            recipe.LinkedItems.Add(AcidGloves.TechTypeID);
-            recipe.LinkedItems.Add(AcidHelmet.TechTypeID);
+            recipe.LinkedItems.Add(Main.prefabGloves.TechType);
+            recipe.LinkedItems.Add(Main.prefabHelmet.TechType);
 
             return recipe;
         }
@@ -551,17 +459,13 @@ namespace AcidProofSuit.Module
 
         public NitrogenBrineSuit2() : base("NitrogenBrineSuit2", title, description)
         {
-            OnFinishedPatching += () =>
-            {
-                TechTypeID = this.TechType;
-            };
-            this.crushDepth = 1300f;
         }
-
     }
 
     internal class NitrogenBrineSuit3 : AcidSuit
     {
+        public static new TechType TechTypeID { get; protected set; }
+
         public static string title = "Brine Suit Mk3";
         public static string description = "Upgraded dive suit, immune to acid, heat protection up to 105C and effectively-unlimited depth protection";
 
@@ -601,8 +505,8 @@ namespace AcidProofSuit.Module
                 })
             };
 
-            recipe.LinkedItems.Add(AcidGloves.TechTypeID);
-            recipe.LinkedItems.Add(AcidHelmet.TechTypeID);
+            recipe.LinkedItems.Add(Main.prefabGloves.TechType);
+            recipe.LinkedItems.Add(Main.prefabHelmet.TechType);
 
             return recipe;
         }
@@ -614,10 +518,10 @@ namespace AcidProofSuit.Module
 
         public NitrogenBrineSuit3() : base("NitrogenBrineSuit3", title, description)
         {
-            OnFinishedPatching += () =>
+            /*OnFinishedPatching += () =>
             {
                 TechTypeID = this.TechType;
-            };
+            };*/
         }
     }
 
@@ -636,13 +540,13 @@ namespace AcidProofSuit.Module
                 craftAmount = 0,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                 {
-                    new Ingredient(AcidSuit.TechTypeID, 1),
+                    new Ingredient(Main.prefabSuitMk1.TechType, 1),
                     new Ingredient(TechType.AluminumOxide, 2),
                     new Ingredient(ttAnimalScale, 2)
                 })
             };
 
-            recipe.LinkedItems.Add(NitrogenBrineSuit2.TechTypeID);
+            recipe.LinkedItems.Add(Main.prefabSuitMk2.TechType);
 
             return recipe;
         }
@@ -670,13 +574,13 @@ namespace AcidProofSuit.Module
                 craftAmount = 0,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                 {
-                    new Ingredient(NitrogenBrineSuit2.TechTypeID, 1),
+                    new Ingredient(Main.prefabSuitMk2.TechType, 1),
                     new Ingredient(TechType.Kyanite, 2),
                     new Ingredient(ttLizardScale, 2)
                 })
             };
 
-            recipe.LinkedItems.Add(NitrogenBrineSuit3.TechTypeID);
+            recipe.LinkedItems.Add(Main.prefabSuitMk3.TechType);
 
             return recipe;
         }
@@ -704,7 +608,7 @@ namespace AcidProofSuit.Module
                 craftAmount = 0,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                 {
-                    new Ingredient(AcidSuit.TechTypeID, 1),
+                    new Ingredient(Main.prefabSuitMk1.TechType, 1),
                     new Ingredient(TechType.AluminumOxide, 2),
                     new Ingredient(ttEelScale, 2),
                     new Ingredient(TechType.Kyanite, 2),
@@ -712,7 +616,7 @@ namespace AcidProofSuit.Module
                 })
             };
 
-            recipe.LinkedItems.Add(NitrogenBrineSuit3.TechTypeID);
+            recipe.LinkedItems.Add(Main.prefabSuitMk3.TechType);
 
             return recipe;
         }
@@ -741,7 +645,7 @@ namespace AcidProofSuit.Module
                 })
             };
 
-            recipe.LinkedItems.Add(NitrogenBrineSuit2.TechTypeID);
+            recipe.LinkedItems.Add(Main.prefabSuitMk2.TechType);
 
             return recipe;
         }
@@ -770,7 +674,7 @@ namespace AcidProofSuit.Module
                 })
             };
 
-            recipe.LinkedItems.Add(NitrogenBrineSuit3.TechTypeID);
+            recipe.LinkedItems.Add(Main.prefabSuitMk3.TechType);
 
             return recipe;
         }
