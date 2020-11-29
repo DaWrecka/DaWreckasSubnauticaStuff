@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using UnityEngine;
-using Oculus.Newtonsoft.Json;
 using Logger = QModManager.Utility.Logger;
 using UWE;
 using System;
@@ -10,7 +9,8 @@ using System.Diagnostics;
 using System.Reflection;
 using Steamworks;
 using SMLHelper.V2.Utility;
-
+using static Player;
+using System.IO;
 namespace AcidProofSuit.Patches
 {
     [HarmonyPatch(typeof(Equipment), nameof(Equipment.GetCount))]
@@ -191,6 +191,7 @@ namespace AcidProofSuit.Patches
                 /*int j = 0;
                 int num2 = equipmentType.equipment.Length;*/
                 //while (j < num2)
+
                 foreach(Player.EquipmentModel equipmentModel in equipmentType.equipment)
                 {
                     //Player.EquipmentModel equipmentModel = equipmentType.equipment[j];
@@ -218,7 +219,6 @@ namespace AcidProofSuit.Patches
 
         }
     }
-
     [HarmonyPatch(typeof(Player), "UpdateReinforcedSuit")]
     internal class UpdateReinforcedSuitPatcher
     {
@@ -245,7 +245,7 @@ namespace AcidProofSuit.Patches
                 int flags = 0;
                 //Logger.Log(Logger.Level.Debug, $"UpdateReinforcedSuitPatcher.Postfix executing");
                 //Logger.Log(Logger.Level.Debug, $"calling EquipmentGetCount with array:");
-                TechType[] suits = new TechType[3] { Main.prefabSuitMk1.TechType, Main.prefabSuitMk2.TechType, Main.prefabSuitMk3.TechType };
+                //TechType[] suits = new TechType[3] { Main.prefabSuitMk1.TechType, Main.prefabSuitMk2.TechType, Main.prefabSuitMk3.TechType };
                 /*foreach (TechType tt in suits)*/
                 /*for(int i = 0; i < suits.Length; i++) 
                 {

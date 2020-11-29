@@ -1,16 +1,18 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Utility;
 using UnityEngine;
+using System;
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Interfaces;
 
 #if SUBNAUTICA
 using RecipeData = SMLHelper.V2.Crafting.TechData;
 using Sprite = Atlas.Sprite;
+using Object = UnityEngine.Object;
 #endif
 
 namespace AcidProofSuit.Module
@@ -30,7 +32,49 @@ namespace AcidProofSuit.Module
 
         public override GameObject GetGameObject()
         {
-            return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.ReinforcedGloves));
+            var prefab = CraftData.GetPrefabForTechType(TechType.ReinforcedGloves);
+            var obj = Object.Instantiate(prefab);
+            Shader shader = Shader.Find("MarmosetUBER");
+            GameObject playerModel = Player.main.gameObject;
+            Renderer reinforcedGloves = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_glove_geo").gameObject.GetComponent<Renderer>();
+            Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
+            foreach (var renderer in renderers)
+            {
+                if (renderer.name == "reinforced_suit_01_gloves")
+                {
+                    renderer.sharedMaterial.shader = shader;
+                    renderer.material.shader = shader;
+
+                    renderer.sharedMaterial.mainTexture = texture;
+                    renderer.material.mainTexture = texture;
+
+                    renderer.sharedMaterial.SetTexture("_Illum", illumTexture);
+                    renderer.material.SetTexture("_Illum", illumTexture);
+
+                    renderer.sharedMaterial.SetTexture("_BumpMap", normalTexture);
+                    renderer.material.SetTexture("_BumpMap", normalTexture);
+
+                    renderer.sharedMaterial.SetTexture("_SpecTex", specTexture);
+                    renderer.material.SetTexture("_SpecTex", specTexture);
+                }
+                else if (renderer.name == "player_02_reinforced_suit_01_arms")
+                {
+                    renderer.material = reinforcedGloves.material;
+
+                    renderer.sharedMaterial.mainTexture = texture;
+                    renderer.material.mainTexture = texture;
+
+                    renderer.sharedMaterial.SetTexture("_Illum", illumTexture);
+                    renderer.material.SetTexture("_Illum", illumTexture);
+
+                    renderer.sharedMaterial.SetTexture("_BumpMap", normalTexture);
+                    renderer.material.SetTexture("_BumpMap", normalTexture);
+
+                    renderer.sharedMaterial.SetTexture("_SpecTex", specTexture);
+                    renderer.material.SetTexture("_SpecTex", specTexture);
+                }
+            }
+            return obj;
         }
 
         protected override RecipeData GetBlueprintRecipe()
@@ -56,14 +100,24 @@ namespace AcidProofSuit.Module
                 specTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesspec.png"));
                 normalTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesnormal.png"));
             };
+            OnFinishedPatching += () =>
+            {
+                TechTypeID = this.TechType;
+            };
         }
     }
 
     internal class AcidHelmet : Equipable
     {
         public static TechType TechTypeID { get; protected set; }
+
         public AcidHelmet() : base("AcidHelmet", "Brine Helmet", "Rebreather treated with an acid-resistant layer")
+
         {
+            OnFinishedPatching += () =>
+            {
+                TechTypeID = this.TechType;
+            };
         }
 
         public override EquipmentType EquipmentType => EquipmentType.Head;
@@ -95,6 +149,10 @@ namespace AcidProofSuit.Module
         public static TechType TechTypeID { get; protected set; }
         public AcidSuit(string classId = "AcidSuit", string friendlyName = "Brine Suit", string description = "Reinforced dive suit with an acid-resistant layer") : base(classId, friendlyName, description)
         {
+            OnFinishedPatching += () =>
+            {
+                TechTypeID = this.TechType;
+            };
         }
 
         public override EquipmentType EquipmentType => EquipmentType.Body;
@@ -136,6 +194,8 @@ namespace AcidProofSuit.Module
                 })
             };
 
+            //recipe.LinkedItems.Add(AcidGlovesPrefab.TechTypeID);
+            //recipe.LinkedItems.Add(AcidHelmetPrefab.TechTypeID);
             recipe.LinkedItems.Add(Main.prefabGloves.TechType);
             recipe.LinkedItems.Add(Main.prefabHelmet.TechType);
 

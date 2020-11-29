@@ -1,4 +1,4 @@
-﻿using AcidProofSuit.Module;
+using AcidProofSuit.Module;
 using System.Reflection;
 using System.Collections;
 using HarmonyLib;
@@ -122,7 +122,6 @@ namespace AcidProofSuit
             return input;
         }
 
-
         // This function was stol*cough*take*cough*nicked wholesale from FCStudios
         public static object GetPrivateField<T>(this T instance, string fieldName, BindingFlags bindingFlags = BindingFlags.Default)
         {
@@ -179,7 +178,9 @@ namespace AcidProofSuit
             }
             return damageMod;
         }
-
+        private static Assembly myAssembly = Assembly.GetExecutingAssembly();
+        private static string modPath = Path.GetDirectoryName(myAssembly.Location);
+        internal static string AssetsFolder = Path.Combine(modPath, "Assets");
         [QModPatch]
         public static void Load()
         {
@@ -204,16 +205,6 @@ namespace AcidProofSuit
             // name as another mod, More Modified Items, so that the non-Nitrogen suit upgrades appear in the same menu as the Reinforced Stillsuit.
             SMLHelper.V2.Handlers.CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "BodyMenu", "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
 
-            /*glovesPrefab.Patch();
-            helmetPrefab.Patch();
-            suitPrefab.Patch();*/
-            /*bpSuits.Patch();
-            bpOnlyRadSuit.Patch();
-            bpOnlyRebreather.Patch();
-            bpOnlyReinforced.Patch();
-            bpRebreatherRad.Patch();
-            bpRebReinf.Patch();
-            bpRadReinf.Patch();*/
             foreach (string sTechType in new List<string> { "reinforcedsuit2", "reinforcedsuit3", "rivereelscale", "lavalizardscale", "thermophilesample" } )
             {
                 if (SMLHelper.V2.Handlers.TechTypeHandler.TryGetModdedTechType(sTechType, out TechType tt))
