@@ -11,6 +11,7 @@ using Steamworks;
 using SMLHelper.V2.Utility;
 using static Player;
 using System.IO;
+
 namespace AcidProofSuit.Patches
 {
     [HarmonyPatch(typeof(Equipment), nameof(Equipment.GetCount))]
@@ -18,41 +19,70 @@ namespace AcidProofSuit.Patches
     {
         // This patch allows for "substitutions", as it were; Specifically, it allows the modder to set up certain TechTypes to return results for both itself and another type.
         // For example, the initial purpose was to allow requests for the Rebreather to return a positive result if the Acid Helmet were worn.
+        private struct TechTypeSub
+        {
+            public TechType substituted { get; } // If this is equipped...
+            public TechType substitution { get; } // ...return a positive for this search.
 
-        internal static Dictionary<TechType, TechType> Substitutions = new Dictionary<TechType, TechType>
+            public TechTypeSub(TechType substituted, TechType substitution)
+            {
+                this.substituted = substituted;
+                this.substitution = substitution;
+            }
+        }; // We can't use a Dictionary as-is; one way or another we need either a struct or an array, because one TechType - or key - might have multiple substitutions.
+        // For example, the Brine Suit needs to be recognised as both a Radiation Suit and a Reinforced Dive Suit.
+
+        /*internal static Dictionary<TechType, TechType> Substitutions = new Dictionary<TechType, TechType>
         {
             // The key is the TT to search for, and the value is the TT to return a positive value for.
             // so for key "TechType.Rebreather" and value "TechType.AcidHelmet", if GetCount(Rebreather) is called, the function will add one if the AcidHelmet is equipped.
-            { TechType.Rebreather, Module.AcidHelmetPrefab.TechTypeID },
-            { TechType.RadiationHelmet, Module.AcidHelmetPrefab.TechTypeID },
-            { TechType.RadiationSuit, Module.AcidSuitPrefab.TechTypeID },
-            { TechType.RadiationGloves, Module.AcidGlovesPrefab.TechTypeID }
-        };
+            { TechType.Rebreather, Main.prefabHelmet.TechType },
+            { TechType.RadiationHelmet, Main.prefabHelmet.TechType },
+            { TechType.RadiationSuit, Main.prefabSuitMk1.TechType },
+            { TechType.RadiationGloves, Main.prefabGloves.TechType }
+        };*/
+
+        private static List<TechTypeSub> Substitutions = new List<TechTypeSub>();
+
+        // We use this as a cache; if PostFix receives a call for which substitutionTargets.Contains(techType) is false, we know nothing has requested to substitute this TechType, so we can ignore it.
+        private static List<TechType> substitutionTargets = new List<TechType>();
+
+        public static void AddSubstitution(TechType substituted, TechType substitution)
+        {
+            Substitutions.Add(new TechTypeSub(substituted, substitution));
+            substitutionTargets.Add(substitution);
+            Logger.Log(Logger.Level.Debug, $"AddSubstitution: Added sub with substituted {substituted.ToString()} and substitution {substitution.ToString()}, new count {Substitutions.Count}");
+        }
 
         [HarmonyPostfix]
         public static void PostFix(ref Equipment __instance, ref int __result, TechType techType)
         {
+            if (!substitutionTargets.Contains(techType))
+                return; // No need to do anything more.
             Dictionary<TechType, int> equipCount = __instance.GetInstanceField("equippedCount", BindingFlags.NonPublic | BindingFlags.Instance) as Dictionary<TechType, int>;
             // equipCount.TryGetValue(techType, out result);
 
-            //Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch: techType = {techType.ToString()}, __result = {__result}");
-            //if (techType == TechType.Rebreather)
-            if (Substitutions.TryGetValue(techType, out TechType sub))
-            //foreach (KeyValuePair<TechType, TechType> sub in Substitutions)
+            Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch.PostFix: executing with parameters __result {__result.ToString()}, techType {techType.ToString()}");
+            //foreach (TechTypeSub t in Substitutions)
+            int count = Substitutions.Count;
+            for (int i = 0; i < count; i++)
             {
-                //if (techType == sub.Key)
-                //{
-                int i;
-                if (equipCount.TryGetValue(sub, out i))
+                TechTypeSub t = Substitutions[i];
+                Logger.Log(Logger.Level.Debug, $"using TechTypeSub at index {i} of {count} with values substituted {t.substituted}, substition {t.substitution}");
+                if (t.substitution == techType)
                 {
-                    //Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch: found {techType.ToString()} equipped");
-                    __result++;
+                    int c;
+                    if (equipCount.TryGetValue(t.substituted, out c))
+                    {
+                        Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch: found {techType.ToString()} equipped");
+                        __result++;
+                        break;
+                    }
                 }
                 //}
             }
         }
     }
-
 
     [HarmonyPatch(typeof(DamageSystem), nameof(DamageSystem.CalculateDamage))]
     internal class DamageSystem_CalculateDamage_Patch
@@ -78,20 +108,8 @@ namespace AcidProofSuit.Patches
                     }
 
                     Equipment equipment = Inventory.main.equipment;
-                    string[] slots = new string[]
-                    {
-                        "Head",
-                        "Body",
-                        "Gloves",
-                        "Foots", // Seriously? 'Foots'?
-                        "Chip1",
-                        "Chip2",
-                        "Tank"
-                    };
                     Player __instance = Player.main;
-                    //int num = __instance.equipmentModels.Length;
-                    //for (int i = 0; i < num; i++)
-                    foreach (string s in slots)
+                    foreach (string s in Main.playerSlots)
                     {
                         //Player.EquipmentType equipmentType = __instance.equipmentModels[i];
                         //TechType techTypeInSlot = equipment.GetTechTypeInSlot(equipmentType.slot);
@@ -113,9 +131,13 @@ namespace AcidProofSuit.Patches
         [HarmonyPostfix]
         public static void Postfix(ref Player __instance, string slot, InventoryItem item)
         {
+            if (!Main.playerSlots.Contains(slot))
+                return;
             Texture2D glovesTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesskin.png"));
             Texture2D suitTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitskin.png"));
             Equipment equipment = Inventory.main.equipment;
+            int num = __instance.equipmentModels.Length;
+            //for(int i = 0; i < num; i++)
             foreach(Player.EquipmentType equipmentType in __instance.equipmentModels)
             {
                 TechType techTypeInSlot = equipment.GetTechTypeInSlot(equipmentType.slot);
@@ -131,6 +153,7 @@ namespace AcidProofSuit.Patches
                 foreach(Player.EquipmentModel equipmentModel in equipmentType.equipment)
                 {
                     //Player.EquipmentModel equipmentModel = equipmentType.equipment[j];
+                    bool flag2 = equipmentModel.techType == techTypeInSlot;
                     bool equipmentVisibility = equipmentModel.techType == techTypeInSlot;
                     Shader shader = Shader.Find("MarmosetUBER");
                     GameObject playerModel = Player.main.gameObject;
@@ -138,7 +161,7 @@ namespace AcidProofSuit.Patches
                     Renderer reinforcedGloves = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_glove_geo").gameObject.GetComponent<Renderer>();
                     // find the suit material and get it's renderer
                     Renderer reinforcedSuit = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_body_geo").gameObject.GetComponent<Renderer>();
-                    flag = (flag || equipmentVisibility);
+                    flag = (flag || equipmentVisibility); flag = (flag || flag2);
                     if (equipmentModel.model)
                     {
                         // if the gloves shader is null, add the shader
@@ -172,6 +195,19 @@ namespace AcidProofSuit.Patches
     [HarmonyPatch(typeof(Player), "UpdateReinforcedSuit")]
     internal class UpdateReinforcedSuitPatcher
     {
+        [HarmonyPrefix]
+        public static void Prefix(ref Player __instance)
+        {
+            //Logger.Log(Logger.Level.Debug, $"UpdateReinforcedSuitPatcher.Prefix begin:");
+            foreach (string s in Main.playerSlots)
+            {
+                TechType tt = Inventory.main.equipment.GetTechTypeInSlot(s);
+                //Logger.Log(Logger.Level.Debug, $"Found TechType {tt.ToString()} in slot {s}");
+                tt = Inventory.main.equipment.GetTechTypeInSlot(s);
+                //Logger.Log(Logger.Level.Debug, $"Found patched TechType {tt.ToString()} in slot {s}");
+            }
+        }
+
         [HarmonyPostfix]
         public static void Postfix(ref Player __instance)
         {
