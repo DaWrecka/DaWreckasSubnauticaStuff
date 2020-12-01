@@ -44,7 +44,7 @@ namespace AcidProofSuit.Patches
 
         private static List<TechTypeSub> Substitutions = new List<TechTypeSub>();
 
-        // We use this as a cache; if PostFix receives a call for which substitutionTargets.Contains(techType) is false, we know immediately there's no need to do any more.
+        // We use this as a cache; if PostFix receives a call for which substitutionTargets.Contains(techType) is false, we know nothing has requested to substitute this TechType, so we can ignore it.
         private static List<TechType> substitutionTargets = new List<TechType>();
 
         public static void AddSubstitution(TechType substituted, TechType substitution)
@@ -58,7 +58,7 @@ namespace AcidProofSuit.Patches
         public static void PostFix(ref Equipment __instance, ref int __result, TechType techType)
         {
             if (!substitutionTargets.Contains(techType))
-                return; // Nothing has requested to substitute this TechType, so we can ignore it.
+                return; // No need to do anything more.
             Dictionary<TechType, int> equipCount = __instance.GetInstanceField("equippedCount", BindingFlags.NonPublic | BindingFlags.Instance) as Dictionary<TechType, int>;
 
             Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch.PostFix: executing with parameters __result {__result.ToString()}, techType {techType.ToString()}");
@@ -147,9 +147,10 @@ namespace AcidProofSuit.Patches
         {
             if (!Main.playerSlots.Contains(slot))
                 return;
+            Texture2D glovesTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesskin.png"));
+            Texture2D suitTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitskin.png"));
             Equipment equipment = Inventory.main.equipment;
             int num = __instance.equipmentModels.Length;
-            Main.bNoPatchTechtypeInSlot = true;
             //for(int i = 0; i < num; i++)
             foreach(Player.EquipmentType equipmentType in __instance.equipmentModels)
             {
@@ -171,10 +172,29 @@ namespace AcidProofSuit.Patches
                 {
                     //Player.EquipmentModel equipmentModel = equipmentType.equipment[j];
                     bool flag2 = equipmentModel.techType == techTypeInSlot;
-                    flag = (flag || flag2);
+                    bool equipmentVisibility = equipmentModel.techType == techTypeInSlot;
+                    Shader shader = Shader.Find("MarmosetUBER");
+                    GameObject playerModel = Player.main.gameObject;
+                    // find the gloves material and get it's renderer
+                    Renderer reinforcedGloves = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_glove_geo").gameObject.GetComponent<Renderer>();
+                    // find the suit material and get it's renderer
+                    Renderer reinforcedSuit = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_body_geo").gameObject.GetComponent<Renderer>();
+                    flag = (flag || equipmentVisibility); flag = (flag || flag2);
                     if (equipmentModel.model)
                     {
-                        equipmentModel.model.SetActive(flag2);
+                        // if the gloves shader is null, add the shader
+                        if (reinforcedGloves.material.shader == null)
+                            reinforcedGloves.material.shader = shader;
+                        // if the suit's shader is null, add the shader
+                        if (reinforcedSuit.material.shader == null)
+                            reinforcedSuit.material.shader = shader;
+                        // add the gloves main Texture when equipped
+                        reinforcedGloves.material.mainTexture = glovesTexture;
+                        // add the suit main Texture when equipped
+                        reinforcedSuit.material.mainTexture = suitTexture;
+                        // add the suit's arms main Texture when equipped
+                        reinforcedSuit.materials[1].mainTexture = suitTexture;
+                        equipmentModel.model.SetActive(equipmentVisibility);
                     }
                     //j++;
                 }
@@ -188,8 +208,6 @@ namespace AcidProofSuit.Patches
 
                 /*MethodInfo dynMethod = __instance.GetType().GetMethod("UpdateReinforcedSuit", BindingFlags.NonPublic | BindingFlags.Instance);
                 dynMethod.Invoke(__instance, null);*/
-
-                Main.bNoPatchTechtypeInSlot = false;
             }
 
         }
@@ -203,10 +221,8 @@ namespace AcidProofSuit.Patches
             //Logger.Log(Logger.Level.Debug, $"UpdateReinforcedSuitPatcher.Prefix begin:");
             foreach (string s in Main.playerSlots)
             {
-                Main.bNoPatchTechtypeInSlot = true;
                 TechType tt = Inventory.main.equipment.GetTechTypeInSlot(s);
                 //Logger.Log(Logger.Level.Debug, $"Found TechType {tt.ToString()} in slot {s}");
-                Main.bNoPatchTechtypeInSlot = false;
                 tt = Inventory.main.equipment.GetTechTypeInSlot(s);
                 //Logger.Log(Logger.Level.Debug, $"Found patched TechType {tt.ToString()} in slot {s}");
             }

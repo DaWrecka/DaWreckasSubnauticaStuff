@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
 using SMLHelper.V2.Assets;
@@ -109,14 +110,15 @@ namespace AcidProofSuit.Module
 
     internal class AcidHelmet : Equipable
     {
-        public static TechType TechTypeID { get; protected set; }
+        public static Texture2D texture;
+        public static Texture2D specTexture;
 
         public AcidHelmet() : base("AcidHelmet", "Brine Helmet", "Rebreather treated with an acid-resistant layer")
-
         {
-            OnFinishedPatching += () =>
+            OnStartedPatching += () =>
             {
-                TechTypeID = this.TechType;
+                texture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetskin.png"));
+                specTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetspec.png"));
             };
         }
 
@@ -126,7 +128,20 @@ namespace AcidProofSuit.Module
 
         public override GameObject GetGameObject()
         {
-            return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.Rebreather));
+            var prefab = CraftData.GetPrefabForTechType(TechType.Rebreather);
+            var obj = Object.Instantiate(prefab);
+            Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
+            Shader shader = Shader.Find("MarmosetUBER");
+            foreach (var renderer in renderers)
+            {
+                foreach (Material material in renderer.materials)
+                {
+                    material.shader = shader; // apply the shader
+                    material.mainTexture = texture; // apply the main texture
+                    material.SetTexture("_SpecTex", specTexture); // apply the spec texture
+                }
+            }
+            return obj;
         }
 
         protected override RecipeData GetBlueprintRecipe()
@@ -146,12 +161,15 @@ namespace AcidProofSuit.Module
 
     internal class AcidSuit : Equipable
     {
-        public static TechType TechTypeID { get; protected set; }
+        public static Texture2D texture;
+        public static Texture2D specTexture;
+        
         public AcidSuit(string classId = "AcidSuit", string friendlyName = "Brine Suit", string description = "Reinforced dive suit with an acid-resistant layer") : base(classId, friendlyName, description)
         {
-            OnFinishedPatching += () =>
+            OnStartedPatching += () =>
             {
-                TechTypeID = this.TechType;
+                texture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitskin.png"));
+                specTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitspec.png"));
             };
         }
 
@@ -173,7 +191,28 @@ namespace AcidProofSuit.Module
 
         public override GameObject GetGameObject()
         {
-            return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit));
+            var prefab = CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit);
+            var obj = Object.Instantiate(prefab);
+            Shader shader = Shader.Find("MarmosetUBER");
+            Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
+            foreach (var renderer in renderers)
+            {
+                if (renderer.name == "reinforced_suit_01")
+                {
+                    // apply the shader
+                    renderer.sharedMaterial.shader = shader;
+                    renderer.material.shader = shader;
+
+                    // apply the main texture
+                    renderer.sharedMaterial.mainTexture = texture;
+                    renderer.material.mainTexture = texture;
+
+                    //apply the spec map
+                    renderer.sharedMaterial.SetTexture("_SpecTex", specTexture);
+                    renderer.material.SetTexture("_SpecTex", specTexture);
+                }
+            }
+            return obj;
         }
 
         protected override RecipeData GetBlueprintRecipe()
@@ -470,8 +509,6 @@ namespace AcidProofSuit.Module
 
     internal class NitrogenBrineSuit2 : AcidSuit
     {
-        public static new TechType TechTypeID { get; protected set; }
-
         public static string title = "Brine Suit Mk2";
         public static string description = "Upgraded dive suit, immune to acid, heat protection up to 90C and depth protection up to 1300m";
 
@@ -524,8 +561,6 @@ namespace AcidProofSuit.Module
 
     internal class NitrogenBrineSuit3 : AcidSuit
     {
-        public static new TechType TechTypeID { get; protected set; }
-
         public static string title = "Brine Suit Mk3";
         public static string description = "Upgraded dive suit, immune to acid, heat protection up to 105C and effectively-unlimited depth protection";
 
