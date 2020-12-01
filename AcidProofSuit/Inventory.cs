@@ -36,8 +36,6 @@ namespace AcidProofSuit.Module
             var prefab = CraftData.GetPrefabForTechType(TechType.ReinforcedGloves);
             var obj = Object.Instantiate(prefab);
             Shader shader = Shader.Find("MarmosetUBER");
-            GameObject playerModel = Player.main.gameObject;
-            Renderer reinforcedGloves = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_glove_geo").gameObject.GetComponent<Renderer>();
             Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
             foreach (var renderer in renderers)
             {
@@ -45,22 +43,6 @@ namespace AcidProofSuit.Module
                 {
                     renderer.sharedMaterial.shader = shader;
                     renderer.material.shader = shader;
-
-                    renderer.sharedMaterial.mainTexture = texture;
-                    renderer.material.mainTexture = texture;
-
-                    renderer.sharedMaterial.SetTexture("_Illum", illumTexture);
-                    renderer.material.SetTexture("_Illum", illumTexture);
-
-                    renderer.sharedMaterial.SetTexture("_BumpMap", normalTexture);
-                    renderer.material.SetTexture("_BumpMap", normalTexture);
-
-                    renderer.sharedMaterial.SetTexture("_SpecTex", specTexture);
-                    renderer.material.SetTexture("_SpecTex", specTexture);
-                }
-                else if (renderer.name == "player_02_reinforced_suit_01_arms")
-                {
-                    renderer.material = reinforcedGloves.material;
 
                     renderer.sharedMaterial.mainTexture = texture;
                     renderer.material.mainTexture = texture;

@@ -10,6 +10,9 @@ using RecipeData = SMLHelper.V2.Crafting.TechData;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Assets;
 using Logger = QModManager.Utility.Logger;
+using UnityEngine;
+using UWE;
+using SMLHelper.V2.Utility;
 
 namespace AcidProofSuit
 {
@@ -38,8 +41,11 @@ namespace AcidProofSuit
         private static readonly Assembly myAssembly = Assembly.GetExecutingAssembly();
         private static readonly string modPath = Path.GetDirectoryName(myAssembly.Location);
         internal static readonly string AssetsFolder = Path.Combine(modPath, "Assets");
+
         private static readonly Type NitrogenMain = Type.GetType("NitrogenMod.Main, NitrogenMod", false, false);
         private static readonly MethodInfo NitroAddDiveSuit = NitrogenMain?.GetMethod("AddDiveSuit", BindingFlags.Public | BindingFlags.Static);
+        public static readonly Texture2D glovesTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesskin.png"));
+        public static readonly Texture2D suitTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitskin.png"));
 
         public static bool bUseNitrogenAPI; // If true, use the Nitrogen API instead of patching GetTechTypeInSlot. Overrides bNoPatchTechTypeInSlot.
 
@@ -112,7 +118,8 @@ namespace AcidProofSuit
         // This particular system is not that useful, but it could be expanded to allow any sort of equipment type to reduce damage.
         // For example, you could add a chip that projects a sort of shield that protects from environmental damage, such as Acid, Radiation, Heat, Poison, or others.
         // Although the system would need to be extended to allow, say, a shield that drains a battery when resisting damage.
-        internal static DamageResistance[] DamageResistances;
+        //Interfaces would be the way I think, but I've not yet wrapped my brain around that.
+        internal static List<DamageResistance> DamageResistances;
         public static float ModifyDamage(TechType tt, float damage, DamageType type)
         {
             float baseDamage = damage;
@@ -135,12 +142,27 @@ namespace AcidProofSuit
             }
             return damageMod;
         }
-        private static Assembly myAssembly = Assembly.GetExecutingAssembly();
-        private static string modPath = Path.GetDirectoryName(myAssembly.Location);
-        internal static string AssetsFolder = Path.Combine(modPath, "Assets");
         [QModPatch]
         public static void Load()
         {
+            bool bHasN2 = HasNitrogenMod();
+
+            List<Craftable> Prefabs = new List<Craftable>()
+            {
+                prefabGloves,
+                prefabHelmet,
+                prefabSuitMk1,
+                new Blueprint_OnlyRadSuit(),
+                new Blueprint_OnlyRebreather(),
+                new Blueprint_OnlyReinforcedSuit(),
+                new Blueprint_Suits(),
+                new Blueprint_RebreatherRad(),
+                new Blueprint_RebreatherReinforced(),
+                new Blueprint_RadReinforced()
+            };
+
+            // There doesn't appear to be any handler function for verifying whether a certain tab node already exists. This is relevant since I'm deliberately using a node with the same
+            // name as another mod, More Modified Items, so that the non-Nitrogen suit upgrades appear in the same menu as the Reinforced Stillsuit.
             SMLHelper.V2.Handlers.CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "BodyMenu", "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
 
             foreach (string sTechType in new List<string> { "reinforcedsuit2", "reinforcedsuit3", "rivereelscale", "lavalizardscale" } )
@@ -187,7 +209,7 @@ namespace AcidProofSuit
             Main.DamageResistances = new List<DamageResistance> {
             // Gloves
                 new DamageResistance(
-                    glovesPrefab.TechType,
+                    prefabGloves.TechType,
                     new DamageInfo[] {
                         new DamageInfo(DamageType.Acid, -0.15f)/*,
                         new DamageInfo(DamageType.Radiation, -0.10f)*/
@@ -196,7 +218,7 @@ namespace AcidProofSuit
 
             // Helmet
                 new DamageResistance(
-                    helmetPrefab.TechType,
+                    prefabHelmet.TechType,
                     new DamageInfo[] {
                         new DamageInfo(DamageType.Acid, -0.25f)/*,
                         new DamageInfo(DamageType.Radiation, -0.20f)*/
@@ -205,7 +227,7 @@ namespace AcidProofSuit
 
             // Suit
                 new DamageResistance(
-                    suitPrefab.TechType,
+                    prefabSuitMk1.TechType,
                     new DamageInfo[] {
                         new DamageInfo(DamageType.Acid, -0.6f)/*,
                         new DamageInfo(DamageType.Radiation, -0.70f)*/

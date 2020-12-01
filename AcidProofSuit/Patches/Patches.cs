@@ -133,17 +133,18 @@ namespace AcidProofSuit.Patches
         {
             if (!Main.playerSlots.Contains(slot))
                 return;
-            Texture2D glovesTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesskin.png"));
-            Texture2D suitTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitskin.png"));
+            //Texture2D glovesTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesskin.png"));
+            //Texture2D suitTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitskin.png"));
+            bool bUseCustomTex = (Main.suitTexture != null && Main.glovesTexture != null);
             Equipment equipment = Inventory.main.equipment;
             int num = __instance.equipmentModels.Length;
             //for(int i = 0; i < num; i++)
             foreach(Player.EquipmentType equipmentType in __instance.equipmentModels)
             {
                 TechType techTypeInSlot = equipment.GetTechTypeInSlot(equipmentType.slot);
-                if (techTypeInSlot == Module.AcidSuitPrefab.TechTypeID)
+                if (techTypeInSlot == Main.prefabSuitMk1.TechType || techTypeInSlot == Main.prefabSuitMk2.TechType || techTypeInSlot == Main.prefabSuitMk3.TechType)
                     techTypeInSlot = TechType.ReinforcedDiveSuit;
-                else if (techTypeInSlot == Module.AcidGlovesPrefab.TechTypeID)
+                else if (techTypeInSlot == Main.prefabGloves.TechType)
                     techTypeInSlot = TechType.ReinforcedGloves;
                 else
                   continue;
@@ -154,28 +155,39 @@ namespace AcidProofSuit.Patches
                 {
                     //Player.EquipmentModel equipmentModel = equipmentType.equipment[j];
                     bool flag2 = equipmentModel.techType == techTypeInSlot;
-                    bool equipmentVisibility = equipmentModel.techType == techTypeInSlot;
-                    Shader shader = Shader.Find("MarmosetUBER");
-                    GameObject playerModel = Player.main.gameObject;
-                    // find the gloves material and get it's renderer
-                    Renderer reinforcedGloves = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_glove_geo").gameObject.GetComponent<Renderer>();
-                    // find the suit material and get it's renderer
-                    Renderer reinforcedSuit = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_body_geo").gameObject.GetComponent<Renderer>();
+                    bool equipmentVisibility = (equipmentModel.techType == techTypeInSlot);
+                    Renderer reinforcedGloves = null;
+                    Renderer reinforcedSuit = null;
+                    Shader shader = null;
+                    if (bUseCustomTex)
+                    {
+                        shader = Shader.Find("MarmosetUBER");
+                        GameObject playerModel = Player.main.gameObject;
+                        // find the gloves material and get it's renderer
+                        reinforcedGloves = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_glove_geo").gameObject.GetComponent<Renderer>();
+                        // find the suit material and get it's renderer
+                        reinforcedSuit = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_body_geo").gameObject.GetComponent<Renderer>();
+                    }
+
                     flag = (flag || equipmentVisibility); flag = (flag || flag2);
                     if (equipmentModel.model)
                     {
-                        // if the gloves shader is null, add the shader
-                        if (reinforcedGloves.material.shader == null)
-                            reinforcedGloves.material.shader = shader;
-                        // if the suit's shader is null, add the shader
-                        if (reinforcedSuit.material.shader == null)
-                            reinforcedSuit.material.shader = shader;
-                        // add the gloves main Texture when equipped
-                        reinforcedGloves.material.mainTexture = glovesTexture;
-                        // add the suit main Texture when equipped
-                        reinforcedSuit.material.mainTexture = suitTexture;
-                        // add the suit's arms main Texture when equipped
-                        reinforcedSuit.materials[1].mainTexture = suitTexture;
+                        if (bUseCustomTex)
+                        {
+                            // if the gloves shader is null, add the shader
+                            if (reinforcedGloves.material.shader == null)
+                                reinforcedGloves.material.shader = shader;
+                            // if the suit's shader is null, add the shader
+                            if (reinforcedSuit.material.shader == null)
+                                reinforcedSuit.material.shader = shader;
+                            // add the gloves main Texture when equipped
+                            reinforcedGloves.material.mainTexture = Main.glovesTexture;
+                            // add the suit main Texture when equipped
+                            reinforcedSuit.material.mainTexture = Main.suitTexture;
+                            // add the suit's arms main Texture when equipped
+                            reinforcedSuit.materials[1].mainTexture = Main.suitTexture;
+                        }
+
                         equipmentModel.model.SetActive(equipmentVisibility);
                     }
                 }
@@ -214,19 +226,19 @@ namespace AcidProofSuit.Patches
             if (__instance != null)
             {
                 int flags = 0;
-                if(Inventory.main.equipment.GetCount(Module.AcidSuitPrefab.TechTypeID) > 0)
+                if(Inventory.main.equipment.GetCount(Main.prefabSuitMk1.TechType) > 0)
                 {
                     flags += 1;
                     __instance.temperatureDamage.minDamageTemperature += 9f;
                 }
 
-                if (Inventory.main.equipment.GetCount(Module.AcidGlovesPrefab.TechTypeID) > 0)
+                if (Inventory.main.equipment.GetCount(Main.prefabGloves.TechType) > 0)
                 {
                     flags += 2;
                     __instance.temperatureDamage.minDamageTemperature += 1f;
                 }
 
-                if(Inventory.main.equipment.GetCount(Module.AcidHelmetPrefab.TechTypeID) > 0)
+                if(Inventory.main.equipment.GetCount(Main.prefabHelmet.TechType) > 0)
                 {
                     flags += 4;
                     __instance.temperatureDamage.minDamageTemperature += 5f;
@@ -262,9 +274,9 @@ namespace AcidProofSuit.Patches
             Main.bInAcid = true;
 
             if (__instance != null
-                && Inventory.main.equipment.GetCount(Module.AcidSuitPrefab.TechTypeID) > 0
-                && Inventory.main.equipment.GetCount(Module.AcidGlovesPrefab.TechTypeID) > 0
-                && Inventory.main.equipment.GetCount(Module.AcidHelmetPrefab.TechTypeID) > 0)
+                && Inventory.main.equipment.GetCount(Main.prefabSuitMk1.TechType) > 0
+                && Inventory.main.equipment.GetCount(Main.prefabGloves.TechType) > 0
+                && Inventory.main.equipment.GetCount(Main.prefabHelmet.TechType) > 0)
                 return false;
 
             return true;
@@ -290,7 +302,7 @@ namespace AcidProofSuit.Patches
         [HarmonyPostfix]
         public static void Postfix(ref bool __result)
         {
-            __result = (__result || Inventory.main.equipment.GetCount(Module.AcidSuitPrefab.TechTypeID) > 0);
+            __result = (__result || Inventory.main.equipment.GetCount(Main.prefabSuitMk1.TechType) > 0);
         }
     }
 
@@ -300,7 +312,7 @@ namespace AcidProofSuit.Patches
         [HarmonyPostfix]
         public static void Postfix(ref bool __result)
         {
-            __result = (__result || Inventory.main.equipment.GetCount(Module.AcidGlovesPrefab.TechTypeID) > 0);
+            __result = (__result || Inventory.main.equipment.GetCount(Main.prefabGloves.TechType) > 0);
         }
     }
 
