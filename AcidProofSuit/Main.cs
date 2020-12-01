@@ -3,7 +3,9 @@ using System.Reflection;
 using System.Collections;
 using HarmonyLib;
 using QModManager.API.ModLoading;
+using System;
 using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 using RecipeData = SMLHelper.V2.Crafting.TechData;
 using SMLHelper.V2.Crafting;
@@ -37,8 +39,10 @@ namespace AcidProofSuit
         private static readonly Assembly myAssembly = Assembly.GetExecutingAssembly();
         private static readonly string modPath = Path.GetDirectoryName(myAssembly.Location);
         internal static readonly string AssetsFolder = Path.Combine(modPath, "Assets");
+        private static readonly Type NitrogenMain = Type.GetType("NitrogenMod.Main, NitrogenMod", false, false);
+        private static readonly MethodInfo NitroAddDiveSuit = NitrogenMain?.GetMethod("AddDiveSuit", BindingFlags.Public | BindingFlags.Static);
 
-        public static bool bNoPatchTechtypeInSlot = false; // If true, skips any custom processing of GetTechTypeInSlot
+        public static bool bUseNitrogenAPI; // If true, use the Nitrogen API instead of patching GetTechTypeInSlot. Overrides bNoPatchTechTypeInSlot.
 
         // Get total amount equipped from a list
         public static int EquipmentGetCount(Equipment e, TechType[] techTypes)
@@ -50,7 +54,7 @@ namespace AcidProofSuit
                     continue;
 
                 count += e.GetCount(tt);
-                //Logger.Log(Logger.Level.Debug, $"EquipmentGetCount incremented return value to {count} for TechType {tt.ToString()}");
+                Logger.Log(Logger.Level.Debug, $"EquipmentGetCount incremented return value to {count} for TechType {tt.ToString()}");
             }
             return count;
         }
@@ -74,54 +78,6 @@ namespace AcidProofSuit
         public static bool HasNitrogenMod()
         {
             return (NitrogenTechtypes.Count > 0);
-        }
-
-        public static TechType GetTechTypeInSlot_Patch(TechType input, string slot)
-        {
-            if (bNoPatchTechtypeInSlot)
-            {
-                //Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch skipped because bNoPatchTechtypeInSlot, returning result {input.ToString()}");
-                return input;
-            }
-            else if (slot != "Body")
-            {
-                //Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch skipped because slot != Body");
-                return input;
-            }
-            //Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch called with values for input of {input.ToString()} and slot {slot}");
-
-            if (input == prefabSuitMk1.TechType)
-                return TechType.ReinforcedDiveSuit;
-            else if (input == prefabGloves.TechType)
-                return TechType.ReinforcedGloves;
-            else if (HasNitrogenMod())
-            {
-                TechType suitMk2 = GetNitrogenTechtype("reinforcedsuit2");
-                TechType suitMk3 = GetNitrogenTechtype("reinforcedsuit3");
-                //Logger.Log(Logger.Level.Debug, $"Got values for TechTypes reinforcedsuit2 and reinforcedsuit3 of {suitMk2.ToString()} and {suitMk3.ToString()}");
-                if (suitMk2 == TechType.None)
-                {
-                    //Logger.Log(Logger.Level.Debug, $"Could not find reinforcedsuit2 TechType");
-                    return input;
-                }
-
-                if (suitMk3 == TechType.None)
-                {
-                    //Logger.Log(Logger.Level.Debug, $"Could not find reinforcedsuit3 TechType");
-                    return input;
-                }
-
-                if (Main.prefabSuitMk2 != null && input == Main.prefabSuitMk2.TechType)
-                {
-                    return suitMk2;
-                }
-                else if (Main.prefabSuitMk3 != null && input == Main.prefabSuitMk3.TechType)
-                {
-                    return suitMk3;
-                }
-            }
-
-            return input;
         }
 
         // This function was stol*cough*take*cough*nicked wholesale from FCStudios
@@ -205,7 +161,7 @@ namespace AcidProofSuit
             // name as another mod, More Modified Items, so that the non-Nitrogen suit upgrades appear in the same menu as the Reinforced Stillsuit.
             SMLHelper.V2.Handlers.CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "BodyMenu", "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
 
-            foreach (string sTechType in new List<string> { "reinforcedsuit2", "reinforcedsuit3", "rivereelscale", "lavalizardscale", "thermophilesample" } )
+            foreach (string sTechType in new List<string> { "reinforcedsuit2", "reinforcedsuit3", "rivereelscale", "lavalizardscale" } )
             {
                 if (SMLHelper.V2.Handlers.TechTypeHandler.TryGetModdedTechType(sTechType, out TechType tt))
                 {
@@ -237,17 +193,15 @@ namespace AcidProofSuit
                 c.Patch();
             }
 
-            /*prefabGloves.TechType = cAcidGloves.TechType;
-            prefabHelmet.TechType = cAcidHelmet.TechType;
-            prefabSuitMk1.TechType = cSuitMk1.TechType;*/
-            Patches.Equipment_GetCount_Patch.Substitutions = new List<Patches.Equipment_GetCount_Patch.TechTypeSub>
-            {
-                new Patches.Equipment_GetCount_Patch.TechTypeSub( prefabHelmet.TechType,TechType.Rebreather),
-                new Patches.Equipment_GetCount_Patch.TechTypeSub( prefabHelmet.TechType, TechType.RadiationHelmet),
-                new Patches.Equipment_GetCount_Patch.TechTypeSub( prefabSuitMk1.TechType, TechType.RadiationSuit ),
-                new Patches.Equipment_GetCount_Patch.TechTypeSub( prefabGloves.TechType, TechType.ReinforcedGloves )
-            };
+            Logger.Log(Logger.Level.Debug, $"Adding basic EquipmentGetCount substitutions");
+            Patches.Equipment_GetCount_Patch.AddSubstitution(prefabHelmet.TechType, TechType.Rebreather);
+            Patches.Equipment_GetCount_Patch.AddSubstitution(prefabHelmet.TechType, TechType.RadiationHelmet);
+            Patches.Equipment_GetCount_Patch.AddSubstitution(prefabSuitMk1.TechType, TechType.RadiationSuit);
+            Patches.Equipment_GetCount_Patch.AddSubstitution(prefabGloves.TechType, TechType.RadiationGloves);
+            Patches.Equipment_GetCount_Patch.AddSubstitution(prefabGloves.TechType, TechType.ReinforcedGloves);
+            Patches.Equipment_GetCount_Patch.AddSubstitution(prefabSuitMk1.TechType, TechType.ReinforcedDiveSuit);
 
+            Logger.Log(Logger.Level.Debug, $"Setting up DamageResistances list");
             Main.DamageResistances = new List<DamageResistance> {
             // Gloves
                 new DamageResistance(
@@ -278,35 +232,42 @@ namespace AcidProofSuit
 
             if (bHasN2)
             {
+                Logger.Log(Logger.Level.Debug, $"Setting up Nitrogen suit TechTypes");
                 if (prefabSuitMk2.TechType != TechType.None)
                 {
-                    //prefabSuitMk2.TechType = cSuitMk2.TechType;
                     Main.DamageResistances.Add(new DamageResistance(
-                        //cSuitMk2.TechType,
                         prefabSuitMk2.TechType,
                         new DamageInfo[] {
                             new DamageInfo(DamageType.Acid, -0.6f)/*,
                             new DamageInfo(DamageType.Radiation, -0.70f)*/
                         }));
 
-                    Patches.Equipment_GetCount_Patch.Substitutions.Add(new Patches.Equipment_GetCount_Patch.TechTypeSub(prefabSuitMk2.TechType, TechType.RadiationSuit));
+                    Patches.Equipment_GetCount_Patch.AddSubstitution(prefabSuitMk2.TechType, TechType.RadiationSuit);
+                    Patches.Equipment_GetCount_Patch.AddSubstitution(prefabSuitMk2.TechType, TechType.ReinforcedDiveSuit);
                 }
                 else
                     Logger.Log(Logger.Level.Error, $"NitrogenBrinesuit2 techtype could not be found");
 
                 if (prefabSuitMk3.TechType != TechType.None)
                 {
-                    //prefabSuitMk3.TechType = cSuitMk3.TechType;
-                    Patches.Equipment_GetCount_Patch.Substitutions.Add(new Patches.Equipment_GetCount_Patch.TechTypeSub(prefabSuitMk3.TechType, TechType.RadiationSuit));
                     Main.DamageResistances.Add(new DamageResistance(
                         prefabSuitMk3.TechType,
                         new DamageInfo[] {
                             new DamageInfo(DamageType.Acid, -0.6f)/*,
                             new DamageInfo(DamageType.Radiation, -0.70f)*/
                         }));
+                    Patches.Equipment_GetCount_Patch.AddSubstitution(prefabSuitMk3.TechType, TechType.RadiationSuit);
+                    Patches.Equipment_GetCount_Patch.AddSubstitution(prefabSuitMk3.TechType, TechType.ReinforcedDiveSuit);
                 }
                 else
                     Logger.Log(Logger.Level.Error, $"NitrogenBrinesuit3 techtype could not be found");
+            }
+            if (NitroAddDiveSuit != null)
+            {
+                Logger.Log(Logger.Level.Debug, $"Found Nitrogen API, adding dive suits.");
+                NitroAddDiveSuit.Invoke(null, new object[] { prefabSuitMk1.TechType, 800f, 0.85f, 15f });
+                NitroAddDiveSuit.Invoke(null, new object[] { prefabSuitMk2.TechType, 1300f, 0.75f, 20f });
+                NitroAddDiveSuit.Invoke(null, new object[] { prefabSuitMk3.TechType, 8000f, 0.55f, 35f });
             }
             Harmony.CreateAndPatchAll(myAssembly, $"DaWrecka_{myAssembly.GetName().Name}");
         }

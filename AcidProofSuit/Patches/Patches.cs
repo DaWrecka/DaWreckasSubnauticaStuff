@@ -11,6 +11,7 @@ using Steamworks;
 using SMLHelper.V2.Utility;
 using static Player;
 using System.IO;
+
 namespace AcidProofSuit.Patches
 {
     [HarmonyPatch(typeof(Equipment), nameof(Equipment.GetCount))]
@@ -18,7 +19,7 @@ namespace AcidProofSuit.Patches
     {
         // This patch allows for "substitutions", as it were; Specifically, it allows the modder to set up certain TechTypes to return results for both itself and another type.
         // For example, the initial purpose was to allow requests for the Rebreather to return a positive result if the Acid Helmet were worn.
-        public struct TechTypeSub
+        private struct TechTypeSub
         {
             public TechType substituted { get; } // If this is equipped...
             public TechType substitution { get; } // ...return a positive for this search.
@@ -28,7 +29,8 @@ namespace AcidProofSuit.Patches
                 this.substituted = substituted;
                 this.substitution = substitution;
             }
-        };
+        }; // We can't use a Dictionary as-is; one way or another we need either a struct or an array, because one TechType - or key - might have multiple substitutions.
+        // For example, the Brine Suit needs to be recognised as both a Radiation Suit and a Reinforced Dive Suit.
 
         /*internal static Dictionary<TechType, TechType> Substitutions = new Dictionary<TechType, TechType>
         {
@@ -40,66 +42,43 @@ namespace AcidProofSuit.Patches
             { TechType.RadiationGloves, Main.prefabGloves.TechType }
         };*/
 
-        internal static List<TechTypeSub> Substitutions;
+        private static List<TechTypeSub> Substitutions = new List<TechTypeSub>();
+
+        // We use this as a cache; if PostFix receives a call for which substitutionTargets.Contains(techType) is false, we know immediately there's no need to do any more.
+        private static List<TechType> substitutionTargets = new List<TechType>();
+
+        public static void AddSubstitution(TechType substituted, TechType substitution)
+        {
+            Substitutions.Add(new TechTypeSub(substituted, substitution));
+            substitutionTargets.Add(substitution);
+            Logger.Log(Logger.Level.Debug, $"AddSubstitution: Added sub with substituted {substituted.ToString()} and substitution {substitution.ToString()}, new count {Substitutions.Count}");
+        }
 
         [HarmonyPostfix]
         public static void PostFix(ref Equipment __instance, ref int __result, TechType techType)
         {
+            if (!substitutionTargets.Contains(techType))
+                return; // Nothing has requested to substitute this TechType, so we can ignore it.
             Dictionary<TechType, int> equipCount = __instance.GetInstanceField("equippedCount", BindingFlags.NonPublic | BindingFlags.Instance) as Dictionary<TechType, int>;
 
-            //Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch.PostFix: executing with parameters __result {__result.ToString()}, techType {techType.ToString()}");
-            foreach (TechTypeSub t in Substitutions)
+            Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch.PostFix: executing with parameters __result {__result.ToString()}, techType {techType.ToString()}");
+            //foreach (TechTypeSub t in Substitutions)
+            int count = Substitutions.Count;
+            for (int i = 0; i < count; i++)
             {
+                TechTypeSub t = Substitutions[i];
+                Logger.Log(Logger.Level.Debug, $"using TechTypeSub at index {i} of {count} with values substituted {t.substituted}, substition {t.substitution}");
                 if (t.substitution == techType)
-                //if (Substitutions.TryGetValue(techType, out TechType sub))
                 {
-                    //Logger.Log(Logger.Level.Debug, $"using TechTypeSub with values substituted {t.substituted}, substition {t.substitution}");
-                    int i;
-                    if (equipCount.TryGetValue(t.substituted, out i))
+                    int c;
+                    if (equipCount.TryGetValue(t.substituted, out c))
                     {
-                        //Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch: found {techType.ToString()} equipped");
+                        Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch: found {techType.ToString()} equipped");
                         __result++;
+                        break;
                     }
-                    break;
                 }
             }
-        }
-    }
-
-    [HarmonyPatch(typeof(Equipment), nameof(Equipment.GetTechTypeInSlot))]
-    internal class Equipment_GetTechTypeInSlot_Patch
-    {
-        [HarmonyPrefix]
-        public static bool Prefix(ref Equipment __instance, ref TechType __result, string slot)
-        {
-            if (!Main.bNoPatchTechtypeInSlot)
-            {
-                Main.bNoPatchTechtypeInSlot = true;
-                if (Main.playerSlots.Contains(slot))
-                {
-                    __result = __instance.GetTechTypeInSlot(slot);
-                    //Logger.Log(Logger.Level.Debug, $"Equipment_GetTechTypeInSlot_Patch.Prefix running with __result {__result.ToString()}, slot = '{slot}'");
-                }
-                Main.bNoPatchTechtypeInSlot = false;
-            }
-
-            return true;
-        }
-
-        [HarmonyPostfix]
-        public static TechType Postfix(TechType __result, ref Equipment __instance, string slot)
-        {
-            if (!Main.bNoPatchTechtypeInSlot)
-            {
-                if (slot == "Body") // This could be changed to an array or list easily-enough if we need to patch other slots.
-                {
-                    //Logger.Log(Logger.Level.Debug, $"Equipment_GetTechTypeInSlot_Patch.Postfix: calling Main.GetTechTypeInSlot_Patch({__result}, {slot})");
-                    __result = Main.GetTechTypeInSlot_Patch(__result, slot);
-                    //Logger.Log(Logger.Level.Debug, $"Main.GetTechTypeInSlot_Patch() returned result {__result}");
-                }
-            }
-
-            return __result;
         }
     }
 
@@ -139,9 +118,6 @@ namespace AcidProofSuit.Patches
                         "Tank"
                     };*/
                     Player __instance = Player.main;
-                    //int num = __instance.equipmentModels.Length;
-                    //for (int i = 0; i < num; i++)
-                    Main.bNoPatchTechtypeInSlot = true;
                     foreach (string s in Main.playerSlots)
                     {
                         //Player.EquipmentType equipmentType = __instance.equipmentModels[i];
@@ -156,7 +132,6 @@ namespace AcidProofSuit.Patches
                         newDamage += Main.ModifyDamage(techTypeInSlot, baseDamage, type);
                         if (bDoLog) Logger.Log(Logger.Level.Debug, $"Found techTypeInSlot {techTypeInSlot.ToString()}; damage altered to {damage}");
                     }
-                    Main.bNoPatchTechtypeInSlot = false;
                 }
             }
             
