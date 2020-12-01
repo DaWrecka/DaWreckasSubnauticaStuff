@@ -21,10 +21,6 @@ namespace AcidProofSuit.Module
     internal class AcidGloves : Equipable
     {
         public static TechType TechTypeID { get; protected set; }
-        private static Texture2D texture;
-        private static Texture2D illumTexture;
-        private static Texture2D specTexture;
-        private static Texture2D normalTexture;
         public override EquipmentType EquipmentType => EquipmentType.Gloves;
 
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
@@ -44,17 +40,14 @@ namespace AcidProofSuit.Module
                     renderer.sharedMaterial.shader = shader;
                     renderer.material.shader = shader;
 
-                    renderer.sharedMaterial.mainTexture = texture;
-                    renderer.material.mainTexture = texture;
+                    renderer.sharedMaterial.mainTexture = Main.glovesTexture;
+                    renderer.material.mainTexture = Main.glovesTexture;
 
-                    renderer.sharedMaterial.SetTexture("_Illum", illumTexture);
-                    renderer.material.SetTexture("_Illum", illumTexture);
-
-                    renderer.sharedMaterial.SetTexture("_BumpMap", normalTexture);
-                    renderer.material.SetTexture("_BumpMap", normalTexture);
-
-                    renderer.sharedMaterial.SetTexture("_SpecTex", specTexture);
-                    renderer.material.SetTexture("_SpecTex", specTexture);
+                    renderer.sharedMaterial.SetTexture("_Illum", Main.glovesIllumTexture);
+                    renderer.material.SetTexture("_Illum", Main.glovesIllumTexture);
+                    
+                    renderer.sharedMaterial.SetTexture("_SpecTex", Main.glovesTexture);
+                    renderer.material.SetTexture("_SpecTex", Main.glovesTexture);
                 }
             }
             return obj;
@@ -76,13 +69,6 @@ namespace AcidProofSuit.Module
 
         public AcidGloves() : base("AcidGloves", "Brine Gloves", "Reinforced dive gloves with an acid-resistant layer")
         {
-            OnStartedPatching += () =>
-            {
-                texture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesskin.png"));
-                illumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesillum.png"));
-                specTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesspec.png"));
-                normalTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesnormal.png"));
-            };
             OnFinishedPatching += () =>
             {
                 TechTypeID = this.TechType;
@@ -94,6 +80,7 @@ namespace AcidProofSuit.Module
     {
         public static Texture2D texture;
         public static Texture2D specTexture;
+        public static Texture2D illumTexture;
 
         public AcidHelmet() : base("AcidHelmet", "Brine Helmet", "Rebreather treated with an acid-resistant layer")
         {
@@ -101,6 +88,7 @@ namespace AcidProofSuit.Module
             {
                 texture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetskin.png"));
                 specTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetspec.png"));
+                illumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetillum.png"));
             };
         }
 
@@ -120,6 +108,7 @@ namespace AcidProofSuit.Module
                 {
                     material.shader = shader; // apply the shader
                     material.mainTexture = texture; // apply the main texture
+                    material.SetTexture(ShaderPropertyID._Illum, illumTexture); // apply the illum texture
                     material.SetTexture("_SpecTex", specTexture); // apply the spec texture
                 }
             }
@@ -142,17 +131,10 @@ namespace AcidProofSuit.Module
     }
 
     internal class AcidSuit : Equipable
-    {
-        public static Texture2D texture;
-        public static Texture2D specTexture;
-        
+    {      
         public AcidSuit(string classId = "AcidSuit", string friendlyName = "Brine Suit", string description = "Reinforced dive suit with an acid-resistant layer") : base(classId, friendlyName, description)
         {
-            OnStartedPatching += () =>
-            {
-                texture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitskin.png"));
-                specTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitspec.png"));
-            };
+        
         }
 
         public override EquipmentType EquipmentType => EquipmentType.Body;
@@ -186,12 +168,16 @@ namespace AcidProofSuit.Module
                     renderer.material.shader = shader;
 
                     // apply the main texture
-                    renderer.sharedMaterial.mainTexture = texture;
-                    renderer.material.mainTexture = texture;
+                    renderer.sharedMaterial.mainTexture = Main.suitTexture;
+                    renderer.material.mainTexture = Main.suitTexture;
 
-                    //apply the spec map
-                    renderer.sharedMaterial.SetTexture("_SpecTex", specTexture);
-                    renderer.material.SetTexture("_SpecTex", specTexture);
+                    // apply the spec map
+                    renderer.sharedMaterial.SetTexture("_SpecTex", Main.suitTexture);
+                    renderer.material.SetTexture("_SpecTex", Main.suitTexture);
+                    
+                    // apply the illum map
+                    renderer.sharedMaterial.SetTexture(ShaderPropertyID._Illum, Main.suitIllumTexture);
+                    renderer.material.SetTexture(ShaderPropertyID._Illum, Main.suitIllumTexture);
                 }
             }
             return obj;
