@@ -1,6 +1,5 @@
 using AcidProofSuit.Module;
 using System.Reflection;
-using System.Collections;
 using HarmonyLib;
 using QModManager.API.ModLoading;
 using System;
@@ -113,7 +112,7 @@ namespace AcidProofSuit
         // This particular system is not that useful, but it could be expanded to allow any sort of equipment type to reduce damage.
         // For example, you could add a chip that projects a sort of shield that protects from environmental damage, such as Acid, Radiation, Heat, Poison, or others.
         // Although the system would need to be extended to allow, say, a shield that drains a battery when resisting damage.
-        internal static List<DamageResistance> DamageResistances;
+        internal static DamageResistance[] DamageResistances;
         public static float ModifyDamage(TechType tt, float damage, DamageType type)
         {
             float baseDamage = damage;
@@ -136,29 +135,12 @@ namespace AcidProofSuit
             }
             return damageMod;
         }
-
+        private static Assembly myAssembly = Assembly.GetExecutingAssembly();
+        private static string modPath = Path.GetDirectoryName(myAssembly.Location);
+        internal static string AssetsFolder = Path.Combine(modPath, "Assets");
         [QModPatch]
         public static void Load()
         {
-            bool bHasN2 = HasNitrogenMod();
-
-
-            List<Craftable> Prefabs = new List<Craftable>()
-            {
-                prefabGloves,
-                prefabHelmet,
-                prefabSuitMk1,
-                new Blueprint_OnlyRadSuit(),
-                new Blueprint_OnlyRebreather(),
-                new Blueprint_OnlyReinforcedSuit(),
-                new Blueprint_Suits(),
-                new Blueprint_RebreatherRad(),
-                new Blueprint_RebreatherReinforced(),
-                new Blueprint_RadReinforced()
-            };
-
-            // There doesn't appear to be any handler function for verifying whether a certain tab node already exists. This is relevant since I'm deliberately using a node with the same
-            // name as another mod, More Modified Items, so that the non-Nitrogen suit upgrades appear in the same menu as the Reinforced Stillsuit.
             SMLHelper.V2.Handlers.CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "BodyMenu", "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
 
             foreach (string sTechType in new List<string> { "reinforcedsuit2", "reinforcedsuit3", "rivereelscale", "lavalizardscale" } )
@@ -205,7 +187,7 @@ namespace AcidProofSuit
             Main.DamageResistances = new List<DamageResistance> {
             // Gloves
                 new DamageResistance(
-                    prefabGloves.TechType,
+                    glovesPrefab.TechType,
                     new DamageInfo[] {
                         new DamageInfo(DamageType.Acid, -0.15f)/*,
                         new DamageInfo(DamageType.Radiation, -0.10f)*/
@@ -214,7 +196,7 @@ namespace AcidProofSuit
 
             // Helmet
                 new DamageResistance(
-                    prefabHelmet.TechType,
+                    helmetPrefab.TechType,
                     new DamageInfo[] {
                         new DamageInfo(DamageType.Acid, -0.25f)/*,
                         new DamageInfo(DamageType.Radiation, -0.20f)*/
@@ -223,7 +205,7 @@ namespace AcidProofSuit
 
             // Suit
                 new DamageResistance(
-                    prefabSuitMk1.TechType,
+                    suitPrefab.TechType,
                     new DamageInfo[] {
                         new DamageInfo(DamageType.Acid, -0.6f)/*,
                         new DamageInfo(DamageType.Radiation, -0.70f)*/
