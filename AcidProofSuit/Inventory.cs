@@ -20,7 +20,6 @@ namespace AcidProofSuit.Module
 {
     internal class AcidGloves : Equipable
     {
-        public static TechType TechTypeID { get; protected set; }
         public override EquipmentType EquipmentType => EquipmentType.Gloves;
 
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
@@ -69,10 +68,7 @@ namespace AcidProofSuit.Module
 
         public AcidGloves() : base("AcidGloves", "Brine Gloves", "Reinforced dive gloves with an acid-resistant layer")
         {
-            OnFinishedPatching += () =>
-            {
-                TechTypeID = this.TechType;
-            };
+        
         }
     }
 
