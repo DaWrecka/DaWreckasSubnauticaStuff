@@ -174,11 +174,11 @@ namespace AcidProofSuit.Patches
                     {
                         if (bUseCustomTex)
                         {
-                            // if the gloves shader is null, add the shader
-                            if (reinforcedGloves.material.shader == null)
+                            // if the gloves shader isn't null, add the shader
+                            if (reinforcedGloves.material.shader != null)
                                 reinforcedGloves.material.shader = shader;
-                            // if the suit's shader is null, add the shader
-                            if (reinforcedSuit.material.shader == null)
+                            // if the suit's shader isn't null, add the shader
+                            if (reinforcedSuit.material.shader != null)
                                 reinforcedSuit.material.shader = shader;
                             // add the gloves main Texture when equipped
                             reinforcedGloves.material.mainTexture = Main.glovesTexture;
