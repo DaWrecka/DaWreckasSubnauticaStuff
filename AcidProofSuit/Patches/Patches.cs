@@ -154,7 +154,6 @@ namespace AcidProofSuit.Patches
                 foreach(Player.EquipmentModel equipmentModel in equipmentType.equipment)
                 {
                     //Player.EquipmentModel equipmentModel = equipmentType.equipment[j];
-                    bool flag2 = equipmentModel.techType == techTypeInSlot;
                     bool equipmentVisibility = (equipmentModel.techType == techTypeInSlot);
                     Renderer reinforcedGloves = null;
                     Renderer reinforcedSuit = null;
@@ -169,7 +168,7 @@ namespace AcidProofSuit.Patches
                         reinforcedSuit = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_body_geo").gameObject.GetComponent<Renderer>();
                     }
 
-                    flag = (flag || equipmentVisibility); flag = (flag || flag2);
+                    flag = (flag || equipmentVisibility)
                     if (equipmentModel.model)
                     {
                         if (bUseCustomTex)
