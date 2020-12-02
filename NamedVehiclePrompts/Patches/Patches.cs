@@ -78,55 +78,6 @@ namespace NamedVehiclePrompts.Patches
             }
         }*/
 
-        /*[HarmonyPatch(typeof(UseableDiveHatch), nameof(UseableDiveHatch.OnHandHover))]
-        public static class UseableDiveHatch_OnHandHover_Patch
-        {
-            static int timer = 0;
-
-            [HarmonyPrefix]
-            public static bool Prefix(ref UseableDiveHatch __instance, GUIHand hand)
-            {
-                if (timer > 0)
-                {
-                    timer--;
-                }
-                else
-                {
-                    Logger.Log(Logger.Level.Debug, $"UseableDiveHatch_OnHandHover_Patch.Prefix() executing", null, true);
-                    timer = 30;
-                }
-
-                if(!__instance.enabled)
-                {
-                    return false;
-                }
-                string interactText = (Player.main.IsInsideWalkable() && Player.main.currentWaterPark == null) ? __instance.exitCustomText : __instance.enterCustomText;
-                if (__instance.enterOnly)
-                {
-                    interactText = __instance.enterCustomText;
-                }
-                string result = "";
-                SubRoot currentSub = Player.main.GetCurrentSub();
-                string subName = "";
-                if(currentSub != null)
-                {
-                    subName = currentSub.GetSubName();
-                    if (Main.TryGetVehiclePrompt(interactText, Language.main.GetCurrentLanguage(), subName, out result))
-                    {
-                        interactText = result;
-                    }
-                    else if (timer == 30)
-                    {
-                        Logger.Log(Logger.Level.Debug, $"Couldn't retrieve text value for key {interactText}", null, true);
-                    }
-                }
-                HandReticle.main.SetInteractText(interactText);
-                HandReticle.main.SetIcon(HandReticle.IconType.Hand, 1f);
-
-                return false;
-            }
-        }*/
-
         [HarmonyPatch(typeof(Vehicle), nameof(Vehicle.OnHandHover))]
         public static class Vehicle_OnHandHover_Patch
         {
@@ -154,7 +105,7 @@ namespace NamedVehiclePrompts.Patches
                 }
                 if (success)
                 {
-                    if (!__instance.GetPilotingMode() /*&& __instance.GetEnabled()*/)
+                    if (!__instance.GetPilotingMode() && __instance.enabled /*&& __instance.GetEnabled()*/)
                     {
                         HandReticle.main.SetIcon(HandReticle.IconType.Hand, 1f);
                         HandReticle.main.SetInteractText(result);

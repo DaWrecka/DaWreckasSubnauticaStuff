@@ -44,16 +44,71 @@ namespace AcidProofSuit
 
         private static readonly Type NitrogenMain = Type.GetType("NitrogenMod.Main, NitrogenMod", false, false);
         private static readonly MethodInfo NitroAddDiveSuit = NitrogenMain?.GetMethod("AddDiveSuit", BindingFlags.Public | BindingFlags.Static);
-        private static readonly Texture2D glovesTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesskin.png"));
-        private static readonly Texture2D suitTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitskin.png"));
-        private static readonly Texture2D glovesIllumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesillum.png"));
-        private static readonly Texture2D suitIllumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitillum.png"));
+        internal static readonly Texture2D glovesTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesskin.png"));
+        internal static readonly Texture2D suitTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitskin.png"));
+        internal static readonly Texture2D glovesIllumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesillum.png"));
+        internal static readonly Texture2D suitIllumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitillum.png"));
 
         public static bool bUseNitrogenAPI; // If true, use the Nitrogen API instead of patching GetTechTypeInSlot. Overrides bNoPatchTechTypeInSlot.
+        public static bool bNoPatchTechtypeInSlot = false; // If true, skips any custom processing of GetTechTypeInSlot
+        public static TechType GetTechTypeInSlot_Patch(TechType input, string slot)
+        {
+            // This is a horrible, horrible, HORRIBLE hack and I will kill it as soon as I'm able.
+            if (bUseNitrogenAPI)
+            {
+                Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch: Skipping execution because Nitrogen API is available.");
+                return input;
+            }
+
+            if (bNoPatchTechtypeInSlot)
+            {
+                Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch skipped because bNoPatchTechtypeInSlot, returning result {input.ToString()}");	
+                return input;
+            }
+
+            if (slot != "Body")
+            {
+                Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch skipped because slot != Body");	
+                return input;
+            }
+            Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch called with values for input of {input.ToString()} and slot {slot}");	
+            if (input == prefabSuitMk1.TechType || input == prefabSuitMk2.TechType || input == prefabSuitMk3.TechType)
+                return TechType.ReinforcedDiveSuit;
+            else if (input == prefabGloves.TechType)
+                return TechType.ReinforcedGloves;
+            else if (HasNitrogenMod())
+            {
+                TechType suitMk2 = GetNitrogenTechtype("reinforcedsuit2");
+                TechType suitMk3 = GetNitrogenTechtype("reinforcedsuit3");
+                if (suitMk2 == TechType.None)
+                {
+                    Logger.Log(Logger.Level.Debug, $"Could not find reinforcedsuit2 TechType");
+                    return input;
+                }
+
+                if (suitMk3 == TechType.None)
+                {
+                    Logger.Log(Logger.Level.Debug, $"Could not find reinforcedsuit3 TechType");
+                    return input;
+                }
+
+                if (input == prefabSuitMk2.TechType)
+                {
+                    return suitMk2;
+                }
+                else if (input == prefabSuitMk3.TechType)
+                {
+                    return suitMk3;
+                }
+            }
+
+            return input;
+        }
+
 
         // Get total amount equipped from a list
         public static int EquipmentGetCount(Equipment e, TechType[] techTypes)
-        {
+            {
             int count = 0;
             foreach (TechType tt in techTypes)
             {
