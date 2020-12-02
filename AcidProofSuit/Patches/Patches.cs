@@ -154,7 +154,6 @@ namespace AcidProofSuit.Patches
                 foreach(Player.EquipmentModel equipmentModel in equipmentType.equipment)
                 {
                     //Player.EquipmentModel equipmentModel = equipmentType.equipment[j];
-                    bool flag2 = equipmentModel.techType == techTypeInSlot;
                     bool equipmentVisibility = (equipmentModel.techType == techTypeInSlot);
                     Renderer reinforcedGloves = null;
                     Renderer reinforcedSuit = null;
@@ -169,23 +168,35 @@ namespace AcidProofSuit.Patches
                         reinforcedSuit = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_body_geo").gameObject.GetComponent<Renderer>();
                     }
 
-                    flag = (flag || equipmentVisibility); flag = (flag || flag2);
+                    flag = (flag || equipmentVisibility)
                     if (equipmentModel.model)
                     {
                         if (bUseCustomTex)
                         {
-                            // if the gloves shader is null, add the shader
-                            if (reinforcedGloves.material.shader == null)
+                            // if the gloves shader isn't null, add the shader
+                            if (reinforcedGloves.material.shader != null)
                                 reinforcedGloves.material.shader = shader;
-                            // if the suit's shader is null, add the shader
-                            if (reinforcedSuit.material.shader == null)
+                            // if the suit's shader isn't null, add the shader
+                            if (reinforcedSuit.material.shader != null)
                                 reinforcedSuit.material.shader = shader;
                             // add the gloves main Texture when equipped
                             reinforcedGloves.material.mainTexture = Main.glovesTexture;
+                            // add  the gloves illum texture when equipped
+                            reinforcedGloves.material.SetTexture(ShaderPropertyID._Illum, Main.glovesIllumTexture);
+                            // add  the gloves spec texture when equipped
+                            reinforcedGloves.material.SetTexture(ShaderPropertyID._SpecTex, Main.glovesTexture);
                             // add the suit main Texture when equipped
                             reinforcedSuit.material.mainTexture = Main.suitTexture;
+                            // add the suit spec texture when equipped
+                            reinforcedSuit.material.SetTexture(ShaderPropertyID._SpecTex, Main.suitTexture);
+                            // add  the suit illum Texture when equipped
+                            reinforcedSuit.material.SetTexture(ShaderPropertyID._Illum, Main.suitIllumTexture);
                             // add the suit's arms main Texture when equipped
-                            reinforcedSuit.materials[1].mainTexture = Main.suitTexture;
+                            reinforcedSuit.materials[1].mainTexture = Main.glovesTexture;
+                            // add the suit's arms spec Texture when equipped
+                            reinforcedSuit.materials[1].SetTexture(ShaderPropertyID._SpecTex, Main.glovesTexture);
+                            // add the suit's arms illum texture when equipped
+                            reinforcedSuit.materials[1].SetTexture(ShaderPropertyID._Illum, Main.glovesIllumTexture);
                         }
 
                         equipmentModel.model.SetActive(equipmentVisibility);
