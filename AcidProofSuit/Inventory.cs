@@ -75,7 +75,6 @@ namespace AcidProofSuit.Module
     internal class AcidHelmet : Equipable
     {
         public static Texture2D texture;
-        public static Texture2D specTexture;
         public static Texture2D illumTexture;
 
         public AcidHelmet() : base("AcidHelmet", "Brine Helmet", "Rebreather treated with an acid-resistant layer")
@@ -83,7 +82,6 @@ namespace AcidProofSuit.Module
             OnStartedPatching += () =>
             {
                 texture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetskin.png"));
-                specTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetspec.png"));
                 illumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetillum.png"));
             };
         }
@@ -105,7 +103,7 @@ namespace AcidProofSuit.Module
                     material.shader = shader; // apply the shader
                     material.mainTexture = texture; // apply the main texture
                     material.SetTexture(ShaderPropertyID._Illum, illumTexture); // apply the illum texture
-                    material.SetTexture("_SpecTex", specTexture); // apply the spec texture
+                    material.SetTexture("_SpecTex", texture); // apply the spec texture
                 }
             }
             return obj;
