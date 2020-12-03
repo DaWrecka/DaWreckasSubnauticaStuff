@@ -203,12 +203,12 @@ namespace AcidProofSuit.Patches
                         }
                         else if (reinforcedGloves == null)
                         {
-                            Logger.Log(Logger.Level.Debug, $"Shader is null, custom texture disabled");
+                            Logger.Log(Logger.Level.Debug, $"reinforcedGloves is null, custom texture disabled");
                             bUseCustomTex = false;
                         }
-                        else if (reinforcedGloves == null)
+                        else if (reinforcedSuit == null)
                         {
-                            Logger.Log(Logger.Level.Debug, $"Shader is null, custom texture disabled");
+                            Logger.Log(Logger.Level.Debug, $"reinforcedSuit is null, custom texture disabled");
                             bUseCustomTex = false;
                         }
                     }
