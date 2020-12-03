@@ -2,7 +2,7 @@
     "Id": "BrineSuit",
     "DisplayName": "Brine Suit",
     "Author": "DaWrecka w/ MrPurple6411",
-    "Version": "1.2.0.0",
+    "Version": "1.2.0.1",
     "Dependencies": [
         "SMLHelper"
     ],

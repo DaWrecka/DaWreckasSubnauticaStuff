@@ -159,8 +159,6 @@ namespace AcidProofSuit.Patches
         {
             if (!Main.playerSlots.Contains(slot))
                 return;
-            //Texture2D glovesTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesskin.png"));
-            //Texture2D suitTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitskin.png"));
             bool bUseCustomTex = (Main.suitTexture != null && Main.glovesTexture != null);
             Logger.Log(Logger.Level.Debug, $"Player_EquipmentChanged_Patch.Postfix: slot = {slot}");
             Equipment equipment = Inventory.main.equipment;
@@ -214,7 +212,7 @@ namespace AcidProofSuit.Patches
                     }
 
                     flag = (flag || equipmentVisibility);
-                    if (equipmentModel.model)
+                    if (equipmentModel.model != null)
                     {
                         if (bUseCustomTex)
                         {
@@ -262,7 +260,7 @@ namespace AcidProofSuit.Patches
                         equipmentModel.model.SetActive(equipmentVisibility);
                     }
                 }
-                if (equipmentType.defaultModel)
+                if (equipmentType.defaultModel != null)
                 {
                     equipmentType.defaultModel.SetActive(!flag);
                 }
