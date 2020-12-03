@@ -55,15 +55,15 @@ namespace AcidProofSuit
         {
             // This is a horrible, horrible, HORRIBLE hack and I will kill it as soon as I'm able.
 
-            if (!HasNitrogenMod())
-            {
-                Logger.Log(Logger.Level.Debug, "GetTechTypeInSlot_Patch: Nitrogen mod not installed, function not required.");
-                return input;
-            }
-
             if (bUseNitrogenAPI)
             {
                 Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch: Skipping execution because Nitrogen API is available.");
+                return input;
+            }
+
+            if (!HasNitrogenMod())
+            {
+                Logger.Log(Logger.Level.Debug, "GetTechTypeInSlot_Patch: Nitrogen mod not installed, function not required.");
                 return input;
             }
 

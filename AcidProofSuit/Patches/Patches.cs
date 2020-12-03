@@ -143,12 +143,25 @@ namespace AcidProofSuit.Patches
                 Logger.Log(Logger.Level.Error, $"Failed to get Equipment instance");
                 return;
             }
+            if(__instance == null)
+            {
+                Logger.Log(Logger.Level.Error, $"Failed to get Player instance");
+                return;
+            }
 
             Logger.Log(Logger.Level.Debug, "3");
+            if (__instance.equipmentModels == null)
+            {
+                Logger.Log(Logger.Level.Error, $"Failed to get equipmentModels member of Player instance");
+                return;
+            }
+
             foreach (Player.EquipmentType equipmentType in __instance.equipmentModels)
             {
                 TechType techTypeInSlot = equipment.GetTechTypeInSlot(equipmentType.slot);
-                if (techTypeInSlot == Main.prefabSuitMk1.TechType || techTypeInSlot == Main.prefabSuitMk2.TechType || techTypeInSlot == Main.prefabSuitMk3.TechType)
+                if (techTypeInSlot == Main.prefabSuitMk1.TechType
+                    || techTypeInSlot == (Main.prefabSuitMk2 != null ? Main.prefabSuitMk2.TechType : TechType.None)
+                    || techTypeInSlot == (Main.prefabSuitMk3 != null ? Main.prefabSuitMk3.TechType : TechType.None))
                     techTypeInSlot = TechType.ReinforcedDiveSuit;
                 else if (techTypeInSlot == Main.prefabGloves.TechType)
                     techTypeInSlot = TechType.ReinforcedGloves;
