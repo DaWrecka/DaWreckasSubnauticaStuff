@@ -54,6 +54,13 @@ namespace AcidProofSuit
         public static TechType GetTechTypeInSlot_Patch(TechType input, string slot)
         {
             // This is a horrible, horrible, HORRIBLE hack and I will kill it as soon as I'm able.
+
+            if (!Main.HasNitrogenMod())
+            {
+                Logger.Log(Logger.Level.Debug, "GetTechTypeInSlot_Patch: Nitrogen mod not installed, function not required.");
+                return input;
+            }
+
             if (bUseNitrogenAPI)
             {
                 Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch: Skipping execution because Nitrogen API is available.");
@@ -72,9 +79,9 @@ namespace AcidProofSuit
                 return input;
             }
             Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch called with values for input of {input.ToString()} and slot {slot}");	
-            if (input == prefabSuitMk1.TechType || input == prefabSuitMk2.TechType || input == prefabSuitMk3.TechType)
+            if (input == prefabSuitMk1?.TechType || input == prefabSuitMk2?.TechType || input == prefabSuitMk3?.TechType)
                 return TechType.ReinforcedDiveSuit;
-            else if (input == prefabGloves.TechType)
+            else if (input == prefabGloves?.TechType)
                 return TechType.ReinforcedGloves;
             else if (HasNitrogenMod())
             {

@@ -21,6 +21,12 @@ namespace AcidProofSuit.Patches
         [HarmonyPostfix]
         public static TechType Postfix(TechType __result, ref Equipment __instance, string slot)
         {
+            if (!Main.HasNitrogenMod())
+            {
+                Logger.Log(Logger.Level.Debug, "Equipment_GetTechTypeInSlot_Patch: Nitrogen mod not installed, function not required.");
+                return __result;
+            }
+
             if (!Main.bNoPatchTechtypeInSlot)
             {
                 if (slot == "Body") // This could be changed to an array or list easily-enough if we need to patch other slots.	
