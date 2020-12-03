@@ -14,32 +14,6 @@ using System.IO;
 
 namespace AcidProofSuit.Patches
 {
-    // Horrible hack, destroy ASAP
-    [HarmonyPatch(typeof(Equipment), nameof(Equipment.GetTechTypeInSlot))]
-    internal class Equipment_GetTechTypeInSlot_Patch
-    {
-        [HarmonyPostfix]
-        public static TechType Postfix(TechType __result, ref Equipment __instance, string slot)
-        {
-            if (!Main.HasNitrogenMod())
-            {
-                Logger.Log(Logger.Level.Debug, "Equipment_GetTechTypeInSlot_Patch: Nitrogen mod not installed, function not required.");
-                return __result;
-            }
-
-            if (!Main.bNoPatchTechtypeInSlot)
-            {
-                if (slot == "Body") // This could be changed to an array or list easily-enough if we need to patch other slots.	
-                {
-                    //Logger.Log(Logger.Level.Debug, $"Equipment_GetTechTypeInSlot_Patch.Postfix: calling Main.GetTechTypeInSlot_Patch({__result}, {slot})");	
-                    __result = Main.GetTechTypeInSlot_Patch(__result, slot);
-                    //Logger.Log(Logger.Level.Debug, $"Main.GetTechTypeInSlot_Patch() returned result {__result}");	
-                }
-            }
-            return __result;
-        }
-    }
-
     [HarmonyPatch(typeof(Equipment), nameof(Equipment.GetCount))]
     internal class Equipment_GetCount_Patch
     {
@@ -157,14 +131,21 @@ namespace AcidProofSuit.Patches
         [HarmonyPostfix]
         public static void Postfix(ref Player __instance, string slot, InventoryItem item)
         {
+            Logger.Log(Logger.Level.Debug, "1");
             if (!Main.playerSlots.Contains(slot))
                 return;
             bool bUseCustomTex = (Main.suitTexture != null && Main.glovesTexture != null);
-            Logger.Log(Logger.Level.Debug, $"Player_EquipmentChanged_Patch.Postfix: slot = {slot}");
+            Logger.Log(Logger.Level.Debug, $"Player_EquipmentChanged_Patch.Postfix: slot = {slot}. Custom textures enabled: {bUseCustomTex}");
+            Logger.Log(Logger.Level.Debug, "2");
             Equipment equipment = Inventory.main.equipment;
-            int num = __instance.equipmentModels.Length;
-            //for(int i = 0; i < num; i++)
-            foreach(Player.EquipmentType equipmentType in __instance.equipmentModels)
+            if(equipment == null)
+            {
+                Logger.Log(Logger.Level.Error, $"Failed to get Equipment instance");
+                return;
+            }
+
+            Logger.Log(Logger.Level.Debug, "3");
+            foreach (Player.EquipmentType equipmentType in __instance.equipmentModels)
             {
                 TechType techTypeInSlot = equipment.GetTechTypeInSlot(equipmentType.slot);
                 if (techTypeInSlot == Main.prefabSuitMk1.TechType || techTypeInSlot == Main.prefabSuitMk2.TechType || techTypeInSlot == Main.prefabSuitMk3.TechType)
