@@ -20,6 +20,7 @@ namespace AcidProofSuit
     [QModCore]
     public static class Main
     {
+        public const string version = "1.2.0.2";
         public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
         public static List<string> playerSlots = new List<string>()
         {
