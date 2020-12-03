@@ -160,8 +160,8 @@ namespace AcidProofSuit.Patches
             {
                 TechType techTypeInSlot = equipment.GetTechTypeInSlot(equipmentType.slot);
                 if (techTypeInSlot == Main.prefabSuitMk1.TechType
-                    || techTypeInSlot == (Main.prefabSuitMk2 != null ? Main.prefabSuitMk2.TechType : TechType.None)
-                    || techTypeInSlot == (Main.prefabSuitMk3 != null ? Main.prefabSuitMk3.TechType : TechType.None))
+                    || (Main.prefabSuitMk2 != null && techTypeInSlot == Main.prefabSuitMk2.TechType)
+                    || (Main.prefabSuitMk3 != null && techTypeInSlot == Main.prefabSuitMk3.TechType))
                     techTypeInSlot = TechType.ReinforcedDiveSuit;
                 else if (techTypeInSlot == Main.prefabGloves.TechType)
                     techTypeInSlot = TechType.ReinforcedGloves;
@@ -182,10 +182,10 @@ namespace AcidProofSuit.Patches
                         shader = Shader.Find("MarmosetUBER");
                         GameObject playerModel = Player.main.gameObject;
                         // find the gloves material and get it's renderer
-                        Logger.Log(Logger.Level.Debug, $"find the gloves material and get it's renderer");
+                        //Logger.Log(Logger.Level.Debug, $"find the gloves material and get it's renderer");
                         reinforcedGloves = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_glove_geo").gameObject.GetComponent<Renderer>();
                         // find the suit material and get it's renderer
-                        Logger.Log(Logger.Level.Debug, $"find the suit material and get it's renderer");
+                        //Logger.Log(Logger.Level.Debug, $"find the suit material and get it's renderer");
                         reinforcedSuit = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_body_geo").gameObject.GetComponent<Renderer>();
                         //bUseCustomTex = (shader != null && reinforcedGloves != null && reinforcedSuit != null);
                         if (shader == null)
@@ -217,13 +217,13 @@ namespace AcidProofSuit.Patches
                                 if (reinforcedGloves.material.shader != null)
                                     reinforcedGloves.material.shader = shader;
                                 // add the gloves main Texture when equipped
-                                Logger.Log(Logger.Level.Debug, $"add the gloves main Texture when equipped");
+                                //Logger.Log(Logger.Level.Debug, $"add the gloves main Texture when equipped");
                                 reinforcedGloves.material.mainTexture = Main.glovesTexture;
                                 // add  the gloves illum texture when equipped
-                                Logger.Log(Logger.Level.Debug, $"add  the gloves illum texture when equipped"); 
+                                //Logger.Log(Logger.Level.Debug, $"add  the gloves illum texture when equipped"); 
                                 reinforcedGloves.material.SetTexture(ShaderPropertyID._Illum, Main.glovesIllumTexture);
                                 // add  the gloves spec texture when equipped
-                                Logger.Log(Logger.Level.Debug, $"add  the gloves spec texture when equipped"); 
+                                //Logger.Log(Logger.Level.Debug, $"add  the gloves spec texture when equipped"); 
                                 reinforcedGloves.material.SetTexture(ShaderPropertyID._SpecTex, Main.glovesTexture);
                                 // add the suit main Texture when equipped
                                 // if the suit's shader isn't null, add the shader
@@ -234,19 +234,19 @@ namespace AcidProofSuit.Patches
                                 reinforcedSuit.material.shader = shader;
                                 reinforcedSuit.material.mainTexture = Main.suitTexture;
                                 // add the suit spec texture when equipped
-                                Logger.Log(Logger.Level.Debug, $"add the suit spec texture when equipped");
+                                //Logger.Log(Logger.Level.Debug, $"add the suit spec texture when equipped");
                                 reinforcedSuit.material.SetTexture(ShaderPropertyID._SpecTex, Main.suitTexture);
                                 // add  the suit illum Texture when equipped
-                                Logger.Log(Logger.Level.Debug, $"add  the suit illum Texture when equipped");
+                                //Logger.Log(Logger.Level.Debug, $"add  the suit illum Texture when equipped");
                                 reinforcedSuit.material.SetTexture(ShaderPropertyID._Illum, Main.suitIllumTexture);
                                 // add the suit's arms main Texture when equipped
-                                Logger.Log(Logger.Level.Debug, $"add the suit's arms main Texture when equipped");
+                                //Logger.Log(Logger.Level.Debug, $"add the suit's arms main Texture when equipped");
                                 reinforcedSuit.materials[1].mainTexture = Main.glovesTexture;
                                 // add the suit's arms spec Texture when equipped
-                                Logger.Log(Logger.Level.Debug, $"add the suit's arms spec Texture when equipped");
+                                //Logger.Log(Logger.Level.Debug, $"add the suit's arms spec Texture when equipped");
                                 reinforcedSuit.materials[1].SetTexture(ShaderPropertyID._SpecTex, Main.glovesTexture);
                                 // add the suit's arms illum texture when equipped
-                                Logger.Log(Logger.Level.Debug, $"add the suit's arms illum texture when equipped");
+                                //Logger.Log(Logger.Level.Debug, $"add the suit's arms illum texture when equipped");
                                 reinforcedSuit.materials[1].SetTexture(ShaderPropertyID._Illum, Main.glovesIllumTexture);
                             }
                         }

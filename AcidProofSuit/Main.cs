@@ -1,6 +1,7 @@
 using AcidProofSuit.Module;
 using System.Reflection;
 using HarmonyLib;
+using QModManager.API;
 using QModManager.API.ModLoading;
 using System;
 using System.IO;
@@ -209,7 +210,10 @@ namespace AcidProofSuit
         [QModPatch]
         public static void Load()
         {
-            bool bHasN2 = HasNitrogenMod();
+            Logger.Log(Logger.Level.Debug, "Checking for Nitrogen mod");
+            bool bHasN2 = QModServices.Main.ModPresent("seraphimrisen.nitrogenmod.mod");
+            string sStatus = "Nitrogen mod " + (bHasN2 ? "" : "not ") + "present";
+            Logger.Log(Logger.Level.Debug, sStatus);
 
             List<Craftable> Prefabs = new List<Craftable>()
             {
@@ -229,21 +233,21 @@ namespace AcidProofSuit
             // name as another mod, More Modified Items, so that the non-Nitrogen suit upgrades appear in the same menu as the Reinforced Stillsuit.
             SMLHelper.V2.Handlers.CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "BodyMenu", "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
 
-            foreach (string sTechType in new List<string> { "reinforcedsuit2", "reinforcedsuit3", "rivereelscale", "lavalizardscale" } )
-            {
-                if (SMLHelper.V2.Handlers.TechTypeHandler.TryGetModdedTechType(sTechType, out TechType tt))
-                {
-                    NitrogenTechtypes.Add(sTechType, tt);
-                    bHasN2 = true;
-                }
-                else
-                {
-                    Logger.Log(Logger.Level.Debug, $"Load(): Could not find TechType for Nitrogen class ID {sTechType}");
-                }
-            }
             if (bHasN2)
             {
                 Logger.Log(Logger.Level.Debug, $"Main.Load(): Found NitrogenMod, adding Nitrogen prefabs");
+                foreach (string sTechType in new List<string> { "reinforcedsuit2", "reinforcedsuit3", "rivereelscale", "lavalizardscale" })
+                {
+                    if (SMLHelper.V2.Handlers.TechTypeHandler.TryGetModdedTechType(sTechType, out TechType tt))
+                    {
+                        NitrogenTechtypes.Add(sTechType, tt);
+                        bHasN2 = true;
+                    }
+                    else
+                    {
+                        Logger.Log(Logger.Level.Debug, $"Load(): Could not find TechType for Nitrogen class ID {sTechType}");
+                    }
+                }
                 prefabSuitMk2 = new NitrogenBrineSuit2();
                 prefabSuitMk3 = new NitrogenBrineSuit3();
                 Prefabs.Add(prefabSuitMk2);
@@ -329,13 +333,13 @@ namespace AcidProofSuit
                 }
                 else
                     Logger.Log(Logger.Level.Error, $"NitrogenBrinesuit3 techtype could not be found");
-            }
-            if (NitroAddDiveSuit != null)
-            {
-                Logger.Log(Logger.Level.Debug, $"Found Nitrogen API, adding dive suits.");
-                NitroAddDiveSuit.Invoke(null, new object[] { prefabSuitMk1.TechType, 800f, 0.85f, 15f });
-                NitroAddDiveSuit.Invoke(null, new object[] { prefabSuitMk2.TechType, 1300f, 0.75f, 20f });
-                NitroAddDiveSuit.Invoke(null, new object[] { prefabSuitMk3.TechType, 8000f, 0.55f, 35f });
+                if (NitroAddDiveSuit != null)
+                {
+                    Logger.Log(Logger.Level.Debug, $"Found Nitrogen API, adding dive suits.");
+                    NitroAddDiveSuit.Invoke(null, new object[] { prefabSuitMk1.TechType, 800f, 0.85f, 15f });
+                    NitroAddDiveSuit.Invoke(null, new object[] { prefabSuitMk2.TechType, 1300f, 0.75f, 20f });
+                    NitroAddDiveSuit.Invoke(null, new object[] { prefabSuitMk3.TechType, 8000f, 0.55f, 35f });
+                }
             }
             Harmony.CreateAndPatchAll(myAssembly, $"DaWrecka_{myAssembly.GetName().Name}");
         }
