@@ -212,7 +212,7 @@ namespace AcidProofSuit
         public static void Load()
         {
             Logger.Log(Logger.Level.Debug, "Checking for Nitrogen mod");
-            bool bHasN2 = QModServices.Main.ModPresent("seraphimrisen.nitrogenmod.mod");
+            bool bHasN2 = QModServices.Main.ModPresent("NitrogenMod");
             string sStatus = "Nitrogen mod " + (bHasN2 ? "" : "not ") + "present";
             Logger.Log(Logger.Level.Debug, sStatus);
 
