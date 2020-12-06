@@ -9,12 +9,12 @@
   "Version": "1.0.0.0",
   "Enable": true,
   "NexusId": {
-    "Subnautica": "597"
+    "Subnautica": "610"
   },
   "Game": "Subnautica",
-  "VersionChecker": {
-    "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/AcidProofSuit/mod.json"
-  },
+    "VersionChecker": {
+        "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/ConsoleBatchFiles/mod.json"
+    },
   "Dependencies": [
     "SMLHelper"
   ]
