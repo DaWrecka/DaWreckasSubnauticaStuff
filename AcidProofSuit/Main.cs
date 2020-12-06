@@ -1,26 +1,22 @@
 using AcidProofSuit.Module;
-using System.Reflection;
 using HarmonyLib;
 using QModManager.API;
 using QModManager.API.ModLoading;
-using System;
-using System.IO;
-using System.Linq;
-using System.Collections.Generic;
-using RecipeData = SMLHelper.V2.Crafting.TechData;
-using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Assets;
-using Logger = QModManager.Utility.Logger;
-using UnityEngine;
-using UWE;
 using SMLHelper.V2.Utility;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using UnityEngine;
+using Logger = QModManager.Utility.Logger;
 
 namespace AcidProofSuit
 {
     [QModCore]
     public static class Main
     {
-        public const string version = "1.2.0.2";
+        public const string version = "1.2.0.3";
         public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
         public static List<string> playerSlots = new List<string>()
         {
@@ -52,72 +48,10 @@ namespace AcidProofSuit
         internal static readonly Texture2D suitIllumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitillum.png"));
 
         public static bool bUseNitrogenAPI; // If true, use the Nitrogen API instead of patching GetTechTypeInSlot. Overrides bNoPatchTechTypeInSlot.
-        public static bool bNoPatchTechtypeInSlot = false; // If true, skips any custom processing of GetTechTypeInSlot
-        public static TechType GetTechTypeInSlot_Patch(TechType input, string slot)
-        {
-            // This is a horrible, horrible, HORRIBLE hack and I will kill it as soon as I'm able.
-
-            if (bUseNitrogenAPI)
-            {
-                Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch: Skipping execution because Nitrogen API is available.");
-                return input;
-            }
-
-            if (!HasNitrogenMod())
-            {
-                Logger.Log(Logger.Level.Debug, "GetTechTypeInSlot_Patch: Nitrogen mod not installed, function not required.");
-                return input;
-            }
-
-            if (bNoPatchTechtypeInSlot)
-            {
-                Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch skipped because bNoPatchTechtypeInSlot, returning result {input.ToString()}");	
-                return input;
-            }
-
-            if (slot != "Body")
-            {
-                Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch skipped because slot != Body");	
-                return input;
-            }
-            Logger.Log(Logger.Level.Debug, $"GetTechTypeInSlot_Patch called with values for input of {input.ToString()} and slot {slot}");	
-            if (input == prefabSuitMk1?.TechType || input == prefabSuitMk2?.TechType || input == prefabSuitMk3?.TechType)
-                return TechType.ReinforcedDiveSuit;
-            else if (input == prefabGloves?.TechType)
-                return TechType.ReinforcedGloves;
-            else if (HasNitrogenMod())
-            {
-                TechType suitMk2 = GetNitrogenTechtype("reinforcedsuit2");
-                TechType suitMk3 = GetNitrogenTechtype("reinforcedsuit3");
-                if (suitMk2 == TechType.None)
-                {
-                    Logger.Log(Logger.Level.Debug, $"Could not find reinforcedsuit2 TechType");
-                    return input;
-                }
-
-                if (suitMk3 == TechType.None)
-                {
-                    Logger.Log(Logger.Level.Debug, $"Could not find reinforcedsuit3 TechType");
-                    return input;
-                }
-
-                if (input == prefabSuitMk2.TechType)
-                {
-                    return suitMk2;
-                }
-                else if (input == prefabSuitMk3.TechType)
-                {
-                    return suitMk3;
-                }
-            }
-
-            return input;
-        }
-
 
         // Get total amount equipped from a list
         public static int EquipmentGetCount(Equipment e, TechType[] techTypes)
-            {
+        {
             int count = 0;
             foreach (TechType tt in techTypes)
             {
@@ -125,7 +59,7 @@ namespace AcidProofSuit
                     continue;
 
                 count += e.GetCount(tt);
-                Logger.Log(Logger.Level.Debug, $"EquipmentGetCount incremented return value to {count} for TechType {tt.ToString()}");
+                //Logger.Log(Logger.Level.Debug, $"EquipmentGetCount incremented return value to {count} for TechType {tt.ToString()}");
             }
             return count;
         }

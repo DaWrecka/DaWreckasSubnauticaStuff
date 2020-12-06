@@ -55,19 +55,19 @@ namespace AcidProofSuit.Patches
             Dictionary<TechType, int> equipCount = __instance.GetInstanceField("equippedCount", BindingFlags.NonPublic | BindingFlags.Instance) as Dictionary<TechType, int>;
             // equipCount.TryGetValue(techType, out result);
 
-            //Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch.PostFix: executing with parameters __result {__result.ToString()}, techType {techType.ToString()}");
+            Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch.PostFix: executing with parameters __result {__result.ToString()}, techType {techType.ToString()}");
             //foreach (TechTypeSub t in Substitutions)
             int count = Substitutions.Count;
             for (int i = 0; i < count; i++)
             {
                 TechTypeSub t = Substitutions[i];
-                //Logger.Log(Logger.Level.Debug, $"using TechTypeSub at index {i} of {count} with values substituted {t.substituted}, substition {t.substitution}");
+                Logger.Log(Logger.Level.Debug, $"using TechTypeSub at index {i} of {count} with values substituted {t.substituted}, substition {t.substitution}");
                 if (t.substitution == techType)
                 {
                     int c;
                     if (equipCount.TryGetValue(t.substituted, out c))
                     {
-                        //Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch: found {techType.ToString()} equipped");
+                        Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch: found {techType.ToString()} equipped");
                         __result++;
                         break;
                     }
@@ -187,21 +187,14 @@ namespace AcidProofSuit.Patches
                 return;
             }
 
-            GameObject playerModel = Player.main.gameObject;
             foreach (Player.EquipmentType equipmentType in __instance.equipmentModels)
             {
-                Renderer reinforcedGloves = null;
-                Renderer reinforcedSuit = null;
                 bool bChangeTex = false;
                 bUseCustomTex = (Main.suitTexture != null && Main.glovesTexture != null);
                 string activeSlot = equipmentType.slot;
                 TechType techTypeInSlot = equipment.GetTechTypeInSlot(activeSlot);
                 if (activeSlot == "Body")
                 {
-                    reinforcedSuit = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_body_geo").gameObject.GetComponent<Renderer>();
-                    // Save a copy of the original material, for use later
-                    if (defaultSuitMaterial == null && reinforcedSuit != null)
-                        defaultSuitMaterial = new Material(reinforcedSuit.material);
                     bChangeTex = (techTypeInSlot != lastBodyTechType);
                     lastBodyTechType = techTypeInSlot;
                     if (techTypeInSlot == Main.prefabSuitMk1.TechType
@@ -221,12 +214,6 @@ namespace AcidProofSuit.Patches
                     lastGlovesTechType = techTypeInSlot;
                     if (techTypeInSlot == Main.prefabGloves.TechType)
                         techTypeInSlot = TechType.ReinforcedGloves;
-                    reinforcedGloves = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_glove_geo").gameObject.GetComponent<Renderer>();
-                    if (defaultGloveMaterial == null && reinforcedGloves != null)
-                    {
-                        // Save a copy of the original material, for use later
-                        defaultGloveMaterial = new Material(reinforcedGloves.material);
-                    }
                 }
                 else
                     continue;
@@ -237,6 +224,8 @@ namespace AcidProofSuit.Patches
                 {
                     //Player.EquipmentModel equipmentModel = equipmentType.equipment[j];
                     bool equipmentVisibility = (equipmentModel.techType == techTypeInSlot);
+                    Renderer reinforcedGloves = null;
+                    Renderer reinforcedSuit = null;
                     Shader shader = null;
                     if (bChangeTex)
                     {
@@ -244,6 +233,7 @@ namespace AcidProofSuit.Patches
                         if (bUseCustomTex)
                         {
                             shader = Shader.Find("MarmosetUBER");
+                            GameObject playerModel = Player.main.gameObject;
                             // find the gloves material and get it's renderer
                             //Logger.Log(Logger.Level.Debug, $"find the gloves material and get it's renderer");
                             if (activeSlot == "Gloves")

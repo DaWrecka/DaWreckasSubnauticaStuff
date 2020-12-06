@@ -1,0 +1,21 @@
+{
+    "Game": "Subnautica",
+    "Version": "1.0",
+    "NexusId": {
+        "Subnautica": "597"
+    },
+    "Enable": true,
+    "DisplayName": "Console Batch Commands",
+    "VersionDependencies": {
+        "SMLHelper": "2.9"
+    },
+    "Author": "DaWrecka",
+    "Dependencies": [
+        "SMLHelper"
+    ],
+    "AssemblyName": "ConsoleBatchFiles.dll",
+    "VersionChecker": {
+        "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/AcidProofSuit/mod.json"
+    },
+    "Id": "ConsoleBatchFiles"
+}

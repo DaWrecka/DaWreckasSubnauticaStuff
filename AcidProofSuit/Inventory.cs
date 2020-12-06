@@ -1,14 +1,11 @@
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Utility;
 using UnityEngine;
-using System;
 using SMLHelper.V2.Handlers;
-using SMLHelper.V2.Interfaces;
 
 #if SUBNAUTICA
 using RecipeData = SMLHelper.V2.Crafting.TechData;
@@ -44,7 +41,7 @@ namespace AcidProofSuit.Module
 
                     renderer.sharedMaterial.SetTexture("_Illum", Main.glovesIllumTexture);
                     renderer.material.SetTexture("_Illum", Main.glovesIllumTexture);
-                    
+
                     renderer.sharedMaterial.SetTexture("_SpecTex", Main.glovesTexture);
                     renderer.material.SetTexture("_SpecTex", Main.glovesTexture);
                 }
@@ -68,7 +65,7 @@ namespace AcidProofSuit.Module
 
         public AcidGloves() : base("AcidGloves", "Brine Gloves", "Reinforced dive gloves with an acid-resistant layer")
         {
-        
+
         }
     }
 
@@ -125,10 +122,10 @@ namespace AcidProofSuit.Module
     }
 
     internal class AcidSuit : Equipable
-    {      
+    {
         public AcidSuit(string classId = "AcidSuit", string friendlyName = "Brine Suit", string description = "Reinforced dive suit with an acid-resistant layer") : base(classId, friendlyName, description)
         {
-        
+
         }
 
         public override EquipmentType EquipmentType => EquipmentType.Body;
@@ -168,7 +165,7 @@ namespace AcidProofSuit.Module
                     // apply the spec map
                     renderer.sharedMaterial.SetTexture("_SpecTex", Main.suitTexture);
                     renderer.material.SetTexture("_SpecTex", Main.suitTexture);
-                    
+
                     // apply the illum map
                     renderer.sharedMaterial.SetTexture(ShaderPropertyID._Illum, Main.suitIllumTexture);
                     renderer.material.SetTexture(ShaderPropertyID._Illum, Main.suitIllumTexture);

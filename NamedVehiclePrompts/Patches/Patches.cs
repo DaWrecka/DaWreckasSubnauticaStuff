@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HarmonyLib;
-using UnityEngine;
-using Oculus.Newtonsoft.Json;
-using Logger = QModManager.Utility.Logger;
+﻿using HarmonyLib;
 
 namespace NamedVehiclePrompts.Patches
 {
@@ -92,7 +84,8 @@ namespace NamedVehiclePrompts.Patches
                 string result = "";
                 bool success = Main.TryGetVehiclePrompt(vehicleClass, Language.main.GetCurrentLanguage(), vehicleName, out result);
                 //Language.main.TryGet(vehicleClass, out result);
-                
+
+                /*
                 if (timer == 0)
                 {
                     timer = 15;
@@ -103,6 +96,7 @@ namespace NamedVehiclePrompts.Patches
                 {
                     timer--;
                 }
+                */
                 if (success)
                 {
                     if (!__instance.GetPilotingMode() && __instance.enabled /*&& __instance.GetEnabled()*/)

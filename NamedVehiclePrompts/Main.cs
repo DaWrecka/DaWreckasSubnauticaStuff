@@ -1,18 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using HarmonyLib;
 using QModManager.API.ModLoading;
-using SMLHelper.V2.Json;
 //using SMLHelper.V2.Crafting;
-using SMLHelper.V2.Handlers;
 using System.Reflection;
 #if SUBNAUTICA_STABLE
-using Oculus.Newtonsoft.Json;
-using Oculus.Newtonsoft.Json.Converters;
 #elif BZ || SUBNAUTICA_EXP
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
