@@ -245,6 +245,8 @@ namespace AcidProofSuit.Patches
                     lastGlovesTechType = techTypeInSlot;
                     if (techTypeInSlot == Main.prefabGloves.TechType)
                         techTypeInSlot = TechType.ReinforcedGloves;
+                    else
+                        bUseCustomTex = false;
                 }
                 else
                     continue;
@@ -257,7 +259,7 @@ namespace AcidProofSuit.Patches
                     bool equipmentVisibility = (equipmentModel.techType == techTypeInSlot);
                     if (bChangeTex)
                     {
-                        Logger.Log(Logger.Level.Debug, "Equipment changed, setting custom textures");
+                        Logger.Log(Logger.Level.Debug, "Equipment changed, changing textures");
                         if (bUseCustomTex)
                         {
                             // find the gloves material and get it's renderer
@@ -388,9 +390,13 @@ namespace AcidProofSuit.Patches
                                     {
                                         if (defaultSuitMaterial != null)
                                             reinforcedSuit.material = defaultSuitMaterial;
+                                        else
+                                            Logger.Log(Logger.Level.Debug, "Could not restore default suit arms material; Default glove material not found");
 
                                         if (defaultGloveMaterial != null)
                                             reinforcedSuit.materials[1] = defaultGloveMaterial;
+                                        else
+                                            Logger.Log(Logger.Level.Debug, "Could not restore default suit material; Default suit material not found");
                                     }
                                 }
                                 else if (activeSlot == "Gloves")
@@ -399,6 +405,8 @@ namespace AcidProofSuit.Patches
                                     {
                                         if (defaultGloveMaterial != null)
                                             reinforcedGloves.material = defaultGloveMaterial;
+                                        else
+                                            Logger.Log(Logger.Level.Debug, "Could not restore default glove material; Default glove material not found");
                                     }
                                 }
                             }
