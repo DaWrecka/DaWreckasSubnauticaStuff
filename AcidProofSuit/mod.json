@@ -1,24 +1,24 @@
 {
-  "VersionDependencies": {
-    "SMLHelper": "2.9"
-  },
-  "AssemblyName": "BrineSuit.dll",
-  "DisplayName": "Brine Suit",
-  "Dependencies": [
-    "SMLHelper"
-  ],
-  "Version": "1.2.0.4",
   "LoadAfter": [
     "NitrogenMod"
   ],
+  "Enable": true,
   "Game": "Subnautica",
-  "Author": "DaWrecka w/ MrPurple6411",
-  "NexusId": {
-    "Subnautica": "597"
-  },
   "VersionChecker": {
     "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/AcidProofSuit/mod.json"
   },
   "Id": "BrineSuit",
-  "Enable": true
+  "VersionDependencies": {
+    "SMLHelper": "2.9"
+  },
+  "Dependencies": [
+    "SMLHelper"
+  ],
+  "AssemblyName": "BrineSuit.dll",
+  "Author": "DaWrecka w/ MrPurple6411",
+  "NexusId": {
+    "Subnautica": "597"
+  },
+  "Version": "1.2.0.4",
+  "DisplayName": "Brine Suit"
 }

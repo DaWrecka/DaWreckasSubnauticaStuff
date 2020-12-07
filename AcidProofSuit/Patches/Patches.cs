@@ -124,41 +124,39 @@ namespace AcidProofSuit.Patches
         // Original, unmodified materials.
         private static Material defaultGloveMaterial;
         private static Material defaultSuitMaterial;
+        private static Material defaultArmsMaterial;
         private static Material brineGloveMaterial;
         private static Material brineSuitMaterial;
+        private static Material brineArmsMaterial;
         private static TechType lastBodyTechType = TechType.None;
         private static TechType lastGlovesTechType = TechType.None;
 
         // The gloves texture is used for the suit as well, on the arms, so we need to do something about that.
         // The block that generates the glove texture is sizable, so it's made into a function here.
-        private static Material GetGloveMaterial(Renderer reinforcedGloves, Shader shader, Material OriginalMaterial)
+        private static Material GetGloveMaterial(Shader shader, Material OriginalMaterial)
         {
             // if the gloves shader isn't null, add the shader
-            if (reinforcedGloves != null // This shouldn't be necessary but I'm taking no chances
-                && reinforcedGloves.material != null)
+            //Logger.Log(Logger.Level.Debug, "Creating new brineGloveMaterial");
+            if (OriginalMaterial != null)
             {
-                Logger.Log(Logger.Level.Debug, "Creating new brineGloveMaterial");
-                if (OriginalMaterial != null)
-                {
-                    Material newMat = new Material(OriginalMaterial);
-                    // if the suit's shader isn't null, add the shader
-                    if (OriginalMaterial.shader != null)
-                        newMat.shader = shader;
-                    // add the gloves main Texture when equipped
-                    //Logger.Log(Logger.Level.Debug, $"add the gloves main Texture when equipped");
-                    newMat.mainTexture = Main.glovesTexture;
-                    // add  the gloves illum texture when equipped
-                    //Logger.Log(Logger.Level.Debug, $"add  the gloves illum texture when equipped"); 
-                    newMat.SetTexture(ShaderPropertyID._Illum, Main.glovesIllumTexture);
-                    // add  the gloves spec texture when equipped
-                    //Logger.Log(Logger.Level.Debug, $"add  the gloves spec texture when equipped"); 
-                    newMat.SetTexture(ShaderPropertyID._SpecTex, Main.glovesTexture);
-                    // add the suit main Texture when equipped
-                    return newMat;
-                }
-                else
-                    Logger.Log(Logger.Level.Debug, "Default material not found while trying to create new brineGloveMaterial");
+                Material newMat = new Material(OriginalMaterial);
+                // if the suit's shader isn't null, add the shader
+                if (OriginalMaterial.shader != null)
+                    newMat.shader = shader;
+                // add the gloves main Texture when equipped
+                //Logger.Log(Logger.Level.Debug, $"add the gloves main Texture when equipped");
+                newMat.mainTexture = Main.glovesTexture;
+                // add  the gloves illum texture when equipped
+                //Logger.Log(Logger.Level.Debug, $"add  the gloves illum texture when equipped"); 
+                newMat.SetTexture(ShaderPropertyID._Illum, Main.glovesIllumTexture);
+                // add  the gloves spec texture when equipped
+                //Logger.Log(Logger.Level.Debug, $"add  the gloves spec texture when equipped"); 
+                newMat.SetTexture(ShaderPropertyID._SpecTex, Main.glovesTexture);
+
+                return newMat;
             }
+            else
+                Logger.Log(Logger.Level.Debug, "Default material not found while trying to create new brineGloveMaterial");
 
             return null;
         }
@@ -172,7 +170,7 @@ namespace AcidProofSuit.Patches
                 return;
             bool bUseCustomTex = (Main.suitTexture != null && Main.glovesTexture != null);
             Logger.Log(Logger.Level.Debug, $"Player_EquipmentChanged_Patch.Postfix: slot = {slot}. Custom textures enabled: {bUseCustomTex}");
-            Logger.Log(Logger.Level.Debug, "2");
+            //Logger.Log(Logger.Level.Debug, "2");
             Equipment equipment = Inventory.main.equipment;
             if (equipment == null)
             {
@@ -185,7 +183,7 @@ namespace AcidProofSuit.Patches
                 return;
             }
 
-            Logger.Log(Logger.Level.Debug, "3");
+            //Logger.Log(Logger.Level.Debug, "3");
             if (__instance.equipmentModels == null)
             {
                 Logger.Log(Logger.Level.Error, $"Failed to get equipmentModels member of Player instance");
@@ -218,6 +216,18 @@ namespace AcidProofSuit.Patches
                 else
                     Logger.Log(Logger.Level.Debug, "ReinforcedSuit renderer not found while attempting to copy default material");
             }
+            if(defaultArmsMaterial == null)
+            {
+                if (reinforcedSuit != null)
+                {
+                    // Save a copy of the original material, for use later
+                    Logger.Log(Logger.Level.Debug, "Found Reinforced Suit shader and copying default arm material");
+                    defaultArmsMaterial = new Material(reinforcedSuit.materials[1]);
+                }
+                else
+                    Logger.Log(Logger.Level.Debug, "ReinforcedSuit renderer not found while attempting to copy default material");
+            }
+
             foreach (Player.EquipmentType equipmentType in __instance.equipmentModels)
             {
                 bool bChangeTex = false;
@@ -262,32 +272,6 @@ namespace AcidProofSuit.Patches
                         Logger.Log(Logger.Level.Debug, "Equipment changed, changing textures");
                         if (bUseCustomTex)
                         {
-                            // find the gloves material and get it's renderer
-                            //Logger.Log(Logger.Level.Debug, $"find the gloves material and get it's renderer");
-                            
-                            /*
-                            if (activeSlot == "Gloves")
-                            {
-                                reinforcedGloves = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_glove_geo").gameObject.GetComponent<Renderer>();
-                                if (defaultGloveMaterial == null && reinforcedGloves != null)
-                                {
-                                    // Save a copy of the original material, for use later
-                                    defaultGloveMaterial = new Material(reinforcedGloves.material);
-                                }
-                            }
-                            // find the suit material and get it's renderer
-                            //Logger.Log(Logger.Level.Debug, $"find the suit material and get it's renderer");
-                            else
-                            {
-                                reinforcedSuit = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_body_geo").gameObject.GetComponent<Renderer>();
-                                // Save a copy of the original material, for use later
-                                if (defaultSuitMaterial == null && reinforcedSuit != null)
-                                    defaultSuitMaterial = new Material(reinforcedSuit.material);
-                            }
-                            */
-                            
-
-                            //bUseCustomTex = (shader != null && reinforcedGloves != null && reinforcedSuit != null);
                             if (shader == null)
                             {
                                 Logger.Log(Logger.Level.Debug, $"Shader is null, custom texture disabled");
@@ -321,7 +305,7 @@ namespace AcidProofSuit.Patches
                                         && reinforcedGloves.material != null)
                                     {
                                         if (brineGloveMaterial == null)
-                                            brineGloveMaterial = GetGloveMaterial(reinforcedGloves, shader, defaultGloveMaterial);
+                                            brineGloveMaterial = GetGloveMaterial(shader, defaultGloveMaterial);
 
                                         if (brineGloveMaterial != null)
                                             reinforcedGloves.material = brineGloveMaterial;
@@ -337,6 +321,39 @@ namespace AcidProofSuit.Patches
                                         && reinforcedSuit.material != null
                                         && reinforcedSuit.material.shader != null)
                                     {
+                                        if (brineArmsMaterial == null)
+                                        {
+                                            Logger.Log(Logger.Level.Debug, "Creating new brineArmsMaterial");
+                                            if (defaultArmsMaterial != null)
+                                            {
+                                                //brineArmsMaterial = GetGloveMaterial(shader, defaultArmsMaterial);
+                                                brineArmsMaterial = new Material(defaultArmsMaterial);
+                                                // add the suit's arms main Texture when equipped
+                                                //Logger.Log(Logger.Level.Debug, $"add the suit's arms main Texture when equipped");
+                                                brineArmsMaterial.mainTexture = Main.glovesTexture;
+                                                // add the suit's arms spec Texture when equipped
+                                                //Logger.Log(Logger.Level.Debug, $"add the suit's arms spec Texture when equipped");
+                                                brineArmsMaterial.SetTexture(ShaderPropertyID._SpecTex, Main.glovesTexture);
+                                                // add the suit's arms illum texture when equipped
+                                                //Logger.Log(Logger.Level.Debug, $"add the suit's arms illum texture when equipped");
+                                                brineArmsMaterial.SetTexture(ShaderPropertyID._Illum, Main.glovesIllumTexture);
+
+                                            }
+                                            else
+                                                Logger.Log(Logger.Level.Debug, "defaultArmsMaterial not set while trying to create new brineArmsMaterial");
+                                        }
+
+                                        if (brineArmsMaterial != null)
+                                        {
+                                            Logger.Log(Logger.Level.Debug, "Applying brineArmsMaterial");
+                                            reinforcedSuit.materials[1] = brineArmsMaterial; 
+                                        }
+                                        else
+                                        {
+                                            Logger.Log(Logger.Level.Debug, "Error generating brineArmsMaterial");
+                                        }
+
+
                                         if (brineSuitMaterial == null)
                                         {
                                             Logger.Log(Logger.Level.Debug, "Creating new brineSuitMaterial");
@@ -372,9 +389,6 @@ namespace AcidProofSuit.Patches
                                         if (brineSuitMaterial != null)
                                         {
                                             Logger.Log(Logger.Level.Debug, "Applying brineSuitMaterial");
-                                            if (brineGloveMaterial == null)
-                                                brineGloveMaterial = GetGloveMaterial(reinforcedGloves, shader, defaultGloveMaterial);
-                                            reinforcedSuit.materials[1] = brineGloveMaterial;
                                             reinforcedSuit.material = brineSuitMaterial;
                                         }
                                         else
