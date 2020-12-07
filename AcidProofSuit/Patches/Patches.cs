@@ -205,28 +205,23 @@ namespace AcidProofSuit.Patches
                     Logger.Log(Logger.Level.Debug, "ReinforcedGloves renderer not found while attempting to copy default material");
             }
             Renderer reinforcedSuit = playerModel.transform.Find("body/player_view/male_geo/reinforcedSuit/reinforced_suit_01_body_geo").gameObject.GetComponent<Renderer>();
-            if (defaultSuitMaterial == null)
+            if (reinforcedSuit != null)
             {
-                if (reinforcedSuit != null)
+                if (defaultSuitMaterial == null)
                 {
                     // Save a copy of the original material, for use later
-                    Logger.Log(Logger.Level.Debug, "Found Reinforced Suit shader and copying default material"); 
+                    Logger.Log(Logger.Level.Debug, "Found Reinforced Suit shader and copying default material");
                     defaultSuitMaterial = new Material(reinforcedSuit.material);
                 }
-                else
-                    Logger.Log(Logger.Level.Debug, "ReinforcedSuit renderer not found while attempting to copy default material");
-            }
-            if(defaultArmsMaterial == null)
-            {
-                if (reinforcedSuit != null)
+                if (defaultArmsMaterial == null)
                 {
                     // Save a copy of the original material, for use later
                     Logger.Log(Logger.Level.Debug, "Found Reinforced Suit shader and copying default arm material");
                     defaultArmsMaterial = new Material(reinforcedSuit.materials[1]);
                 }
-                else
-                    Logger.Log(Logger.Level.Debug, "ReinforcedSuit renderer not found while attempting to copy default material");
             }
+            else
+                Logger.Log(Logger.Level.Debug, "ReinforcedSuit renderer not found while attempting to copy default materials");
 
             foreach (Player.EquipmentType equipmentType in __instance.equipmentModels)
             {
@@ -405,12 +400,12 @@ namespace AcidProofSuit.Patches
                                         if (defaultSuitMaterial != null)
                                             reinforcedSuit.material = defaultSuitMaterial;
                                         else
-                                            Logger.Log(Logger.Level.Debug, "Could not restore default suit arms material; Default glove material not found");
-
-                                        if (defaultGloveMaterial != null)
-                                            reinforcedSuit.materials[1] = defaultGloveMaterial;
-                                        else
                                             Logger.Log(Logger.Level.Debug, "Could not restore default suit material; Default suit material not found");
+
+                                        if (defaultArmsMaterial != null)
+                                            reinforcedSuit.materials[1] = defaultArmsMaterial;
+                                        else
+                                            Logger.Log(Logger.Level.Debug, "Could not restore default arms material; Default arms material not found");
                                     }
                                 }
                                 else if (activeSlot == "Gloves")
