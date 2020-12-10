@@ -123,7 +123,7 @@ namespace AcidProofSuit
         public static float ModifyDamage(TechType tt, float damage, DamageType type)
         {
             float baseDamage = damage;
-            float damageMod = 0;
+            float damageMod = 0f;
             //Logger.Log(Logger.Level.Debug, $"Main.ModifyDamage called: tt = {tt.ToString()}, damage = {damage}; DamageType = {type}");
             foreach (DamageResistance r in DamageResistances)
             {
