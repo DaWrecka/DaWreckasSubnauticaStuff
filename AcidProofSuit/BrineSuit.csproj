@@ -120,7 +120,6 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="Inventory.cs" />
-    <None Include="Patches\Patches.backupcs" />
     <Compile Include="Patches\Patches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

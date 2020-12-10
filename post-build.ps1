@@ -22,7 +22,7 @@ if(!Test-Path $TargetPath)
 	Exit
 }
 
-$modJson = Get-Content $jsonPath | ConvertFrom-Json -AsHashtable
+$modJson = Get-Content $jsonPath | ConvertFrom-Json
 $dllItem = Get-Item -Path $TargetPath
 $dllVersion = $dllItem.VersionInfo.FileVersion
 Write-Host Updating mod.json with new version $dllVersion

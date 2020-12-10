@@ -344,9 +344,7 @@ namespace AcidProofSuit.Patches
                                             reinforcedSuit.materials[1] = brineArmsMaterial; 
                                         }
                                         else
-                                        {
                                             Logger.Log(Logger.Level.Debug, "Error generating brineArmsMaterial");
-                                        }
 
 
                                         if (brineSuitMaterial == null)
@@ -461,7 +459,7 @@ namespace AcidProofSuit.Patches
             if (__instance != null)
             {
                 int flags = 0;
-                if (Inventory.main.equipment.GetCount(Main.prefabSuitMk1.TechType) > 0)
+                if (Main.EquipmentGetCount(Inventory.main.equipment, new TechType[] { Main.prefabSuitMk1.TechType, Main.prefabSuitMk2.TechType, Main.prefabSuitMk3.TechType }) > 0)
                 {
                     flags += 1;
                     __instance.temperatureDamage.minDamageTemperature += 9f;
@@ -509,7 +507,7 @@ namespace AcidProofSuit.Patches
             Main.bInAcid = true;
 
             if (__instance != null
-                && Inventory.main.equipment.GetCount(Main.prefabSuitMk1.TechType) > 0
+                && Main.EquipmentGetCount(Inventory.main.equipment, new TechType[] { Main.prefabSuitMk1.TechType, Main.prefabSuitMk2.TechType, Main.prefabSuitMk3.TechType }) > 0
                 && Inventory.main.equipment.GetCount(Main.prefabGloves.TechType) > 0
                 && Inventory.main.equipment.GetCount(Main.prefabHelmet.TechType) > 0)
                 return false;
