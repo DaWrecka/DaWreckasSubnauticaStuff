@@ -419,6 +419,23 @@ namespace IngredientsFromScanning.Configuration
                             new StringIngredient("PlasteelIngot", 3),
                             new StringIngredient("Lead", 1)
                         }
+                    ),
+                    new RecipeOverride(
+                        "ThermalPlantFragment", new List<StringIngredient>()
+                        {
+                            new StringIngredient("Aerogel", 1),
+                            new StringIngredient("Titanium", 5),
+                            new StringIngredient("Magnetite", 1)
+                        }
+                    ),
+                    new RecipeOverride(
+                        "BaseMapRoomFragment", new List<StringIngredient>()
+                        {
+                            new StringIngredient("Titanium", 5),
+                            new StringIngredient("Copper", 2),
+                            new StringIngredient("Gold", 1),
+                            new StringIngredient("JeweledDiskPiece", 1)
+                        }
                     )
                 };
                 return true;

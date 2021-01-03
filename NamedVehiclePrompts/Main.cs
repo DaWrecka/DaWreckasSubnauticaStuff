@@ -36,7 +36,7 @@ namespace NamedVehiclePrompts
         }
 
         // Attempt to get the text for a vehicle prompt.
-        // VehicleClass should be "Seamoth", "Exosuit" or "Cyclops". Any other value will return false.
+        // VehicleName should be "Seamoth", "Exosuit" or "Cyclops". Any other value will return false.
         public static bool TryGetVehiclePrompt(string initialKey, string Language, string VehicleName, out string prompt)
         {
             string targetKey = Language + initialKey;

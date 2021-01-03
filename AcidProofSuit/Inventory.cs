@@ -87,6 +87,8 @@ namespace AcidProofSuit.Module
 
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
 
+        public override Vector2int SizeInInventory => new Vector2int(2, 2);
+
         public override GameObject GetGameObject()
         {
             var prefab = CraftData.GetPrefabForTechType(TechType.Rebreather);
@@ -161,14 +163,17 @@ namespace AcidProofSuit.Module
                     // apply the main texture
                     renderer.sharedMaterial.mainTexture = Main.suitTexture;
                     renderer.material.mainTexture = Main.suitTexture;
+                    renderer.materials[1].mainTexture = Main.suitTexture;
 
                     // apply the spec map
                     renderer.sharedMaterial.SetTexture("_SpecTex", Main.suitTexture);
                     renderer.material.SetTexture("_SpecTex", Main.suitTexture);
+                    renderer.materials[1].SetTexture("_SpecTex", Main.suitTexture);
 
                     // apply the illum map
                     renderer.sharedMaterial.SetTexture(ShaderPropertyID._Illum, Main.suitIllumTexture);
                     renderer.material.SetTexture(ShaderPropertyID._Illum, Main.suitIllumTexture);
+                    renderer.materials[1].SetTexture(ShaderPropertyID._Illum, Main.suitIllumTexture);
                 }
             }
             return obj;

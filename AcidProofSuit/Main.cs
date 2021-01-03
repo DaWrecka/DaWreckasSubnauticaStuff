@@ -82,7 +82,7 @@ namespace AcidProofSuit
 
         public static bool HasNitrogenMod()
         {
-            return (NitrogenTechtypes.Count > 0);
+            return QModServices.Main.ModPresent("NitrogenMod");
         }
 
         // This function was stol*cough*take*cough*nicked wholesale from FCStudios
@@ -142,6 +142,7 @@ namespace AcidProofSuit
             }
             return damageMod;
         }
+
         [QModPatch]
         public static void Load()
         {

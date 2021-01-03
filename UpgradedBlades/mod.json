@@ -1,0 +1,21 @@
+{
+    "Author": "DaWrecka",
+    "DisplayName": "Upgraded Blades",
+    "VersionDependencies": {
+        "SMLHelper": "2.9"
+    },
+    "Id": "UpgradedBlades",
+    "AssemblyName": "UpgradedBlades.dll",
+    "Version": "1.0.0.0",
+    "Enable": true,
+    "NexusId": {
+        "Subnautica": "666"
+    },
+    "Game": "Subnautica",
+    "VersionChecker": {
+        "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/UpgradedBlades/mod.json"
+    },
+    "Dependencies": [
+        "SMLHelper"
+    ]
+}
