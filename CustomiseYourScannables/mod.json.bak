@@ -1,0 +1,21 @@
+{
+    "Id": "CustomiseYourScannables",
+    "DisplayName": "CustomiseYourScannables",
+    "Author": "DaWrecka",
+    "Version": "0.1.0.0",
+    "Dependencies": [
+        "SMLHelper"
+    ],
+    "Game": "Subnautica",
+    "AssemblyName": "CustomiseYourScannables.dll",
+    "VersionDependencies": {
+        "SMLHelper": "2.9"
+    },
+    "VersionChecker": {
+        "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/CustomiseYourScannables/master/mod.json"
+    },
+    "NexusId": {
+        "Subnautica": "559"
+    },
+    "Enable": true
+}

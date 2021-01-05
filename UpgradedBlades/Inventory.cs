@@ -46,7 +46,7 @@ namespace UpgradedBlades
             Knife component = obj.EnsureComponent<Knife>();
             if (component != null)
             {
-                component.damage = 55f;
+                component.damage = 50f;
                 component.attackDist = 2f;
                 component.socket = PlayerTool.Socket.RightHand;
                 component.ikAimRightArm = true;

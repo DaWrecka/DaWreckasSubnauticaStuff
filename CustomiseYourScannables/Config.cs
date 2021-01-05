@@ -30,5 +30,33 @@ namespace CustomiseYourScannables
         {
             TechType.Wreck
         };
+
+        internal void Init()
+        {
+            if (NewScannables == null)
+            {
+                Logger.Log(Logger.Level.Debug, $"NewScannables list is null, initialising defaults");
+                NewScannables = new List<TechType>() // List of TechTypes to add ResourceTrackers to, if they don't have one already.
+                {
+                    TechType.BasaltChunk,
+                    TechType.BaseFiltrationMachine,
+                    TechType.BatteryChargerFragment,
+                    TechType.Bleeder,
+                    TechType.Crabsnake,
+                    TechType.CrabSquid,
+                    TechType.SeaCrown,
+                    TechType.Warper
+                };
+            }
+
+            if (NonScannables == null)
+            {
+                Logger.Log(Logger.Level.Debug, $"NonScannables list is null, initialising defaults");
+                NonScannables = new List<TechType>() // For any object whose TechType is on this list, its ResourceTracker, if it has one, should be removed.
+                {
+                    TechType.Wreck
+                };
+            }
+        }
     }
 }
