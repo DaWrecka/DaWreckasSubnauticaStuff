@@ -237,8 +237,13 @@ namespace AcidProofSuit
                         new DamageInfo(DamageType.Radiation, -0.70f)*/
                     })
             };
+            Harmony.CreateAndPatchAll(myAssembly, $"DaWrecka_{myAssembly.GetName().Name}");
+        }
 
-            if (bHasN2)
+        [QModPostPatch]
+        public static void PostPatch()
+        {
+            if (HasNitrogenMod())
             {
                 Logger.Log(Logger.Level.Debug, $"Setting up Nitrogen suit TechTypes");
                 if (prefabSuitMk2.TechType != TechType.None)
@@ -277,7 +282,6 @@ namespace AcidProofSuit
                     NitroAddDiveSuit.Invoke(null, new object[] { prefabSuitMk3.TechType, 8000f, 0.55f, 35f });
                 }
             }
-            Harmony.CreateAndPatchAll(myAssembly, $"DaWrecka_{myAssembly.GetName().Name}");
         }
     }
 }

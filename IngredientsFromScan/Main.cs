@@ -14,6 +14,8 @@ namespace IngredientsFromScanning
     [QModCore]
     public static class Main
     {
+        internal const string version = "1.2.0.0";
+
         internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
 
         [QModPatch]

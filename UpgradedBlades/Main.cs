@@ -14,7 +14,7 @@ namespace UpgradedBlades
     [QModCore]
     public class Main
     {
-        public const string version = "1.0.0.0";
+        public const string version = "0.1.0.0";
 
         internal static Vibroblade prefabBlade1 = new Vibroblade();
 
@@ -25,6 +25,7 @@ namespace UpgradedBlades
         [QModPatch]
         public static void Load()
         {
+            (new DiamondBladeRecipe()).Patch();
             prefabBlade1.Patch();
 
             var assembly = Assembly.GetExecutingAssembly();

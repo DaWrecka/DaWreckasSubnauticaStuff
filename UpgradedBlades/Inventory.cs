@@ -16,9 +16,50 @@ using Object = UnityEngine.Object;
 
 namespace UpgradedBlades
 {
+    internal class DiamondBladeRecipe : Craftable
+    {
+        public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
+        public override string[] StepsToFabricatorTab => new string[] { "KnifeMenu" };
+        public virtual QuickSlotType QuickSlotType => QuickSlotType.Selectable;
+        public override TechType RequiredForUnlock => TechType.Workbench;
+        public override TechGroup GroupForPDA => TechGroup.Personal;
+        public override TechCategory CategoryForPDA => TechCategory.Tools;
+
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            RecipeData recipe = new RecipeData()
+            {
+                craftAmount = 0,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                {
+                    new Ingredient(TechType.Knife, 1),
+                    new Ingredient(TechType.Diamond, 1)
+
+                })
+            };
+
+            recipe.LinkedItems.Add(TechType.DiamondBlade);
+
+            return recipe;
+        }
+
+        public override GameObject GetGameObject()
+        {
+            return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.DiamondBlade));
+        }
+
+        public DiamondBladeRecipe(string classId = "DiamondBladeRecipe", string friendlyName = "Hardened Blade", string description = "Diamond-hardened blade delivers higher damage") : base(classId, friendlyName, description)
+        {
+            OnFinishedPatching += () =>
+            {
+                SpriteHandler.RegisterSprite(base.TechType, SpriteManager.Get(TechType.DiamondBlade));
+            };
+        }
+    }
+
     internal class Vibroblade : Equipable
     {
-        public Vibroblade(string classId = "Vibroblade", string friendlyName = "Vibroblade", string description = "Survival knife with high-frequency oscillator inflicts horrific damage with even glancing blows") : base(classId, friendlyName, description)
+        public Vibroblade(string classId = "Vibroblade", string friendlyName = "Vibroblade", string description = "Hardened survival blade with high-frequency oscillator inflicts horrific damage with even glancing blows") : base(classId, friendlyName, description)
         {
 
         }
@@ -30,7 +71,7 @@ namespace UpgradedBlades
         public override TechCategory CategoryForPDA => TechCategory.Tools;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
         public override string[] StepsToFabricatorTab => new string[] { "KnifeMenu" };
-        public override QuickSlotType QuickSlotType => QuickSlotType.Selectable;
+        public override QuickSlotType QuickSlotType => QuickSlotType.None;
         public override float CraftingTime => base.CraftingTime*2;
 
         public override GameObject GetGameObject()
@@ -43,7 +84,7 @@ namespace UpgradedBlades
                 return null;
             }
 
-            Knife component = obj.EnsureComponent<Knife>();
+            /*Knife component = obj.EnsureComponent<Knife>();
             if (component != null)
             {
                 component.damage = 50f;
@@ -52,7 +93,7 @@ namespace UpgradedBlades
                 component.ikAimRightArm = true;
             }
             else
-                Logger.Log(Logger.Level.Debug, $"Could not ensure Knife component in Vibroblade prefab");
+                Logger.Log(Logger.Level.Debug, $"Could not ensure Knife component in Vibroblade prefab");*/
             return obj;
         }
 
@@ -63,8 +104,8 @@ namespace UpgradedBlades
                 craftAmount = 1,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                 {
-                    new Ingredient(TechType.Knife, 1),
-                    new Ingredient(TechType.Diamond, 2),
+                    new Ingredient(TechType.DiamondBlade, 1),
+                    new Ingredient(TechType.Diamond, 1),
                     new Ingredient(TechType.Quartz, 1),
                     new Ingredient(TechType.Aerogel, 1),
                     new Ingredient(TechType.Magnetite, 1),

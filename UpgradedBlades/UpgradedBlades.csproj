@@ -89,4 +89,8 @@
     <None Include="mod.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>pwsh "$(SolutionDir)post-build.ps1" -ProjectDir "$(ProjectDir)\" -TargetPath "$(TargetPath)" -ProjectName "$(ProjectName)"
+</PostBuildEvent>
+  </PropertyGroup>
 </Project>
