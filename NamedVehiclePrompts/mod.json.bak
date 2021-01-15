@@ -1,0 +1,20 @@
+﻿{
+    "Id": "VehiclePrompts",
+    "DisplayName": "Named Vehicle Prompts",
+    "Author": "DaWrecka",
+    "Version": "1.0.0.0",
+    "Dependencies": [
+        "SMLHelper"
+    ],
+    "Game": "Subnautica",
+    "AssemblyName": "NamedVehiclePrompts.dll",
+    "VersionDependencies": {
+        "SMLHelper": "2.9"
+    },
+    "VersionChecker": {
+         "LatestVersionUrl": ""
+   },
+    "NexusId": {
+    },
+    "Enable": true
+}

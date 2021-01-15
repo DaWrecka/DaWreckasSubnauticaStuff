@@ -16,44 +16,26 @@ using Object = UnityEngine.Object;
 
 namespace UpgradedBlades
 {
-    internal class DiamondBladeRecipe : Craftable
+    public class VibrobladeBehaviour : Knife
     {
-        public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
-        public override string[] StepsToFabricatorTab => new string[] { "KnifeMenu" };
-        public virtual QuickSlotType QuickSlotType => QuickSlotType.Selectable;
-        public override TechType RequiredForUnlock => TechType.Workbench;
-        public override TechGroup GroupForPDA => TechGroup.Personal;
-        public override TechCategory CategoryForPDA => TechCategory.Tools;
+        public VFXController fxControl;
+        public override string animToolName => TechType.Knife.AsString(true);
 
-        protected override RecipeData GetBlueprintRecipe()
+        protected override int GetUsesPerHit()
         {
-            RecipeData recipe = new RecipeData()
-            {
-                craftAmount = 0,
-                Ingredients = new List<Ingredient>(new Ingredient[]
-                {
-                    new Ingredient(TechType.Knife, 1),
-                    new Ingredient(TechType.Diamond, 1)
-
-                })
-            };
-
-            recipe.LinkedItems.Add(TechType.DiamondBlade);
-
-            return recipe;
+            return 3;
         }
 
-        public override GameObject GetGameObject()
+        public override void Awake()
         {
-            return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.DiamondBlade));
-        }
+            Logger.Log(Logger.Level.Debug, "VibrobladeBehaviour.Awake() executing");
 
-        public DiamondBladeRecipe(string classId = "DiamondBladeRecipe", string friendlyName = "Hardened Blade", string description = "Diamond-hardened blade delivers higher damage") : base(classId, friendlyName, description)
-        {
-            OnFinishedPatching += () =>
-            {
-                SpriteHandler.RegisterSprite(base.TechType, SpriteManager.Get(TechType.DiamondBlade));
-            };
+            this.attackDist = 2f;
+            this.bleederDamage = 90f;
+            this.damage = 90f;
+            this.damageType = DamageType.Normal;
+            this.socket = PlayerTool.Socket.RightHand;
+            this.ikAimRightArm = true;
         }
     }
 
@@ -71,7 +53,7 @@ namespace UpgradedBlades
         public override TechCategory CategoryForPDA => TechCategory.Tools;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
         public override string[] StepsToFabricatorTab => new string[] { "KnifeMenu" };
-        public override QuickSlotType QuickSlotType => QuickSlotType.None;
+        public override QuickSlotType QuickSlotType => QuickSlotType.Selectable;
         public override float CraftingTime => base.CraftingTime*2;
 
         public override GameObject GetGameObject()
@@ -84,16 +66,27 @@ namespace UpgradedBlades
                 return null;
             }
 
-            /*Knife component = obj.EnsureComponent<Knife>();
-            if (component != null)
+            var component = obj.GetComponent<Knife>();
+            if(component != null)
+                Object.Destroy(component);
+
+            VibrobladeBehaviour blade = obj.EnsureComponent<VibrobladeBehaviour>();
+            if (blade != null)
             {
-                component.damage = 50f;
-                component.attackDist = 2f;
-                component.socket = PlayerTool.Socket.RightHand;
-                component.ikAimRightArm = true;
+                HeatBlade hb = Resources.Load<GameObject>("WorldEntities/Tools/Heatblade").GetComponent<HeatBlade>();
+
+                if (hb != null)
+                    blade.fxControl = Object.Instantiate(hb.fxControl, obj.transform);
+                blade.attackDist = 2f;
+                blade.bleederDamage = 90f;
+                blade.damage = 90f;
+                blade.damageType = DamageType.Normal;
+                blade.socket = PlayerTool.Socket.RightHand;
+                blade.ikAimRightArm = true;
             }
             else
-                Logger.Log(Logger.Level.Debug, $"Could not ensure Knife component in Vibroblade prefab");*/
+                Logger.Log(Logger.Level.Debug, $"Could not ensure VibrobladeBehaviour component in Vibroblade prefab");
+
             return obj;
         }
 
@@ -105,6 +98,7 @@ namespace UpgradedBlades
                 Ingredients = new List<Ingredient>(new Ingredient[]
                 {
                     new Ingredient(TechType.DiamondBlade, 1),
+                    new Ingredient(TechType.Battery, 1),
                     new Ingredient(TechType.Diamond, 1),
                     new Ingredient(TechType.Quartz, 1),
                     new Ingredient(TechType.Aerogel, 1),

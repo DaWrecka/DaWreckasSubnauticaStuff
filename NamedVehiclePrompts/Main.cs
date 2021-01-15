@@ -20,6 +20,7 @@ namespace NamedVehiclePrompts
     [QModCore]
     public class Main
     {
+        internal const string version = "1.0.0.1";
         internal static string ModPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         internal static string languageFile = ModPath + "/Assets/language.json";
         internal static Dictionary<string, string> vehiclePromptDict = new Dictionary<string, string>();
@@ -36,17 +37,23 @@ namespace NamedVehiclePrompts
         }
 
         // Attempt to get the text for a vehicle prompt.
-        // VehicleName should be "Seamoth", "Exosuit" or "Cyclops". Any other value will return false.
-        public static bool TryGetVehiclePrompt(string initialKey, string Language, string VehicleName, out string prompt)
+        // initialKey should be "Enter", "Exit" or "Leave", followed by "Seamoth", "Exosuit" or "Cyclops". Any other value will return false.
+        public static bool TryGetVehiclePrompt(string initialKey, string targetLanguage, string VehicleName, out string prompt)
         {
-            string targetKey = Language + initialKey;
-            bool result = vehiclePromptDict.TryGetValue(targetKey, out prompt);
-            if (result)
+            string targetKey = targetLanguage + initialKey;
+            bool result;
+            if (string.IsNullOrEmpty(VehicleName))
             {
-                prompt = prompt.Replace("<vehicle>", VehicleName);
+                prompt = Language.main.Get(initialKey);
+                return true;
             }
+            else
+            {
+                result = vehiclePromptDict.TryGetValue(targetKey, out prompt);
+                prompt = prompt.Replace("<vehicle>", VehicleName);
 
-            Logger.Log(Logger.Level.Debug, $"Main.TryGetVehiclePrompt: got prompt value of {prompt} with key {targetKey}");
+                Logger.Log(Logger.Level.Debug, $"Main.TryGetVehiclePrompt: got prompt value of {prompt} with key {targetKey}");
+            }
 
             //return vehiclePromptDict.TryGetValue(targetKey, out prompt);
             return result;

@@ -2,6 +2,8 @@
 using QModManager.API;
 using QModManager.API.ModLoading;
 using SMLHelper.V2.Assets;
+using SMLHelper.V2.Crafting;
+using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
 using System;
 using System.Collections.Generic;
@@ -14,7 +16,7 @@ namespace UpgradedBlades
     [QModCore]
     public class Main
     {
-        public const string version = "0.1.0.0";
+        public const string version = "0.1.0.1";
 
         internal static Vibroblade prefabBlade1 = new Vibroblade();
 
@@ -25,9 +27,20 @@ namespace UpgradedBlades
         [QModPatch]
         public static void Load()
         {
-            (new DiamondBladeRecipe()).Patch();
-            prefabBlade1.Patch();
+            //(new DiamondBladeRecipe()).Patch();
+            var diamondBlade = new TechData()
+            {
+                craftAmount = 1,
+                Ingredients = new List<Ingredient>()
+                    {
+                        new Ingredient(TechType.Knife, 1),
+                        new Ingredient(TechType.Diamond, 1)
+                    }
+                };
+            CraftDataHandler.SetTechData(TechType.DiamondBlade, diamondBlade);
+            CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.DiamondBlade, new string[] { "KnifeMenu" });
 
+            prefabBlade1.Patch();
             var assembly = Assembly.GetExecutingAssembly();
             new Harmony($"DaWrecka_{assembly.GetName().Name}").PatchAll(assembly);
         }

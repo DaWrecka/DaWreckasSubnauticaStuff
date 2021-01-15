@@ -6,7 +6,7 @@
   },
   "Id": "UpgradedBlades",
   "AssemblyName": "UpgradedBlades.dll",
-  "Version": "0.1.0.0",
+  "Version": "0.1.0.1",
   "Enable": true,
   "NexusId": {
     "Subnautica": "666"
