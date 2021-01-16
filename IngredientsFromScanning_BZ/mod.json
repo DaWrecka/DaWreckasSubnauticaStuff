@@ -1,0 +1,21 @@
+{
+    "Id": "IngredientsFromScanning_BZ",
+    "DisplayName": "Ingredients From Scanning BZ",
+    "Author": "DaWrecka w/ MrPurple6411",
+    "Version": "1.2.0.0",
+    "Dependencies": [
+        "SMLHelper"
+    ],
+    "Game": "BelowZero",
+    "AssemblyName": "IngredientsFromScan_BZ.dll",
+    "VersionDependencies": {
+        "SMLHelper": "2.9"
+    },
+    "VersionChecker": {
+        "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/IngredientsFromScanning/master/mod.json"
+    },
+    "NexusId": {
+        "Subnautica": "559"
+    },
+    "Enable": true
+}

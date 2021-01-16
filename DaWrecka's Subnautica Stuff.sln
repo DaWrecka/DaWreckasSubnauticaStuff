@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpgradedBlades", "UpgradedB
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomiseYourScannables", "CustomiseYourScannables\CustomiseYourScannables.csproj", "{95FC40B2-EE19-4532-A4A4-93F9F5466252}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngredientsFromScanning_BZ", "IngredientsFromScanning_BZ\IngredientsFromScanning_BZ.csproj", "{D05216E9-CCF3-4037-8C2F-36B571ACB323}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -96,6 +98,14 @@ Global
 		{95FC40B2-EE19-4532-A4A4-93F9F5466252}.Release|Any CPU.Build.0 = Release|Any CPU
 		{95FC40B2-EE19-4532-A4A4-93F9F5466252}.Release|x64.ActiveCfg = Release|Any CPU
 		{95FC40B2-EE19-4532-A4A4-93F9F5466252}.Release|x64.Build.0 = Release|Any CPU
+		{D05216E9-CCF3-4037-8C2F-36B571ACB323}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D05216E9-CCF3-4037-8C2F-36B571ACB323}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D05216E9-CCF3-4037-8C2F-36B571ACB323}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D05216E9-CCF3-4037-8C2F-36B571ACB323}.Debug|x64.Build.0 = Debug|Any CPU
+		{D05216E9-CCF3-4037-8C2F-36B571ACB323}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D05216E9-CCF3-4037-8C2F-36B571ACB323}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D05216E9-CCF3-4037-8C2F-36B571ACB323}.Release|x64.ActiveCfg = Release|Any CPU
+		{D05216E9-CCF3-4037-8C2F-36B571ACB323}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
