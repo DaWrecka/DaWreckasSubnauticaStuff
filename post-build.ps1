@@ -27,5 +27,5 @@ $dllItem = Get-Item -Path $TargetPath
 $dllVersion = $dllItem.VersionInfo.FileVersion
 Write-Host Updating mod.json with new version $dllVersion
 $modJson.Version = $dllItem.VersionInfo.FileVersion
-Rename-Item -Path $jsonPath -NewName "mod.json.bak" # Back up old Json, just in case
+Copy-Item -Path $jsonPath -Destination "mod.json.bak" -Force # Back up old Json, just in case
 $modJson | ConvertTo-Json | Out-File $jsonPath

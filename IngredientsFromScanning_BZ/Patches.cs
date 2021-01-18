@@ -62,7 +62,7 @@ namespace IngredientsFromScanning_BZ.Patches
             Vehicle thisVehicle = Player.main.GetVehicle();
             if (thisVehicle != null)
             {
-                GameObject gameObject = CraftData.InstantiateFromPrefab(techType, false);
+                GameObject gameObject = CraftData.InstantiateFromPrefab(null, techType, false);
                 Pickupable component = gameObject.GetComponent<Pickupable>();
 
                 if (thisVehicle.GetType().Equals(typeof(Exosuit)))
