@@ -1,13 +1,13 @@
 {
-  "Id": "PartsFromScanningBZ",
-  "DisplayName": "Parts From Scanning BZ",
-  "Author": "DaWrecka w/ MrPurple6411",
+  "Id": "BuilderSpeed",
+  "DisplayName": "Habitat Builder Speed Modifier",
+  "Author": "DaWrecka",
   "Version": "0.1.0.0",
   "Dependencies": [
     "SMLHelper"
   ],
   "Game": "BelowZero",
-  "AssemblyName": "PartsFromScanningBZ.dll",
+  "AssemblyName": "HabitatBuilderSpeed.dll",
   "VersionDependencies": {
     "SMLHelper": "2.9"
   },

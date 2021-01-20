@@ -28,7 +28,7 @@ namespace IngredientsFromScanning_BZ.Configuration
         public int maxComponents = 2; // Maximum number
 
         [Toggle("Show all fragments in Map Room")]
-        public bool bOverrideMapRoomScanner = true;
+        public bool bOverrideMapRoom = true;
 
         private void OnSliderChange(SliderChangedEventArgs e)
         {
@@ -239,6 +239,7 @@ namespace IngredientsFromScanning_BZ.Configuration
                     { "HydrogenOld", 0f },
                     { "Lodestone", 0f },
                     { "SandLoot", 0f },
+                    { "Battery", 0.5f },
                     { "BatteryAcidOld", 0f },
                     { "TitaniumIngot", 0.5f },
                     { "AdvancedWiringKit", 0.5f },
@@ -467,6 +468,12 @@ namespace IngredientsFromScanning_BZ.Configuration
                         "TitaniumIngot",
                         new List<StringIngredient>{
                             new StringIngredient("ScrapMetal", 2)
+                        }
+                    ),
+                    new SSubstitutionEntry(
+                        "PowerCell",
+                        new List<StringIngredient>{
+                            new StringIngredient("Copper", 2)
                         }
                     )
                 };

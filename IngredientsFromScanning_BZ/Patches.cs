@@ -12,13 +12,14 @@ using Logger = QModManager.Utility.Logger;
 
 namespace IngredientsFromScanning_BZ.Patches
 {
+#if !BELOWZERO
     [HarmonyPatch(typeof(PDAScanner), nameof(PDAScanner.CanScan), new Type[] { typeof(GameObject) })]
     internal class PDAScanner_CanScan_Patch
     {
         [HarmonyPrefix]
         private static bool Prefix(ref bool __result, GameObject go)
         {
-            if (!IngredientsFromScanning_BZ.Main.config.bOverrideMapRoomScanner)
+            if (!Main.config.bOverrideMapRoom)
             {
                 return true;
             }
@@ -40,6 +41,7 @@ namespace IngredientsFromScanning_BZ.Patches
             return false;
         }
     }
+#endif
 
     [HarmonyPatch(typeof(CraftData), nameof(CraftData.AddToInventory))]
     internal class CraftData_AddToInventory_Patch
@@ -58,7 +60,12 @@ namespace IngredientsFromScanning_BZ.Patches
 
         private static void AddInventory(TechType techType, int count = 1, bool bNoMessage = false, bool bSpawnIfCantAdd = true)
         {
-            // Ripped<cough>based upon MrPurple6411's method Deconstruct_Patch from the BuilderModule mod
+            if (Player.main.IsPilotingSeatruck())
+            {
+
+            }
+
+            // Ripped<cough>based upon MrPurple6411's method Deconstruct_Patch from the BuilderModule mo
             Vehicle thisVehicle = Player.main.GetVehicle();
             if (thisVehicle != null)
             {
@@ -75,14 +82,14 @@ namespace IngredientsFromScanning_BZ.Patches
                         ErrorMessage.AddMessage(Language.main.GetFormat("VehicleAddedToStorage", name));
 
                         uGUI_IconNotifier.main.Play(component.GetTechType(), uGUI_IconNotifier.AnimationType.From, null);
-                            component.Initialize();
+                        component.Initialize();
                         var item = new InventoryItem(component);
                         storageContainer.container.UnsafeAdd(item);
                         component.PlayPickupSound();
                         return;
                     }
                 }
-                else
+                else if ((SeaMoth)thisVehicle != null)
                 {
                     var seamoth = (SeaMoth)thisVehicle;
                     bool storageCheck = false;
@@ -98,7 +105,7 @@ namespace IngredientsFromScanning_BZ.Patches
 
                                 uGUI_IconNotifier.main.Play(component.GetTechType(), uGUI_IconNotifier.AnimationType.From, null);
 
-                                    component.Initialize();
+                                component.Initialize();
                                 var item = new InventoryItem(component);
                                 storage.UnsafeAdd(item);
                                 component.PlayPickupSound();

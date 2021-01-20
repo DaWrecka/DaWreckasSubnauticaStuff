@@ -4,33 +4,25 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D05216E9-CCF3-4037-8C2F-36B571ACB323}</ProjectGuid>
+    <ProjectGuid>{8D0989F2-9427-454C-AF7A-E24E73EA9D44}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>IngredientsFromScanning_BZ</RootNamespace>
-    <AssemblyName>IngredientsFromScanning_BZ</AssemblyName>
+    <RootNamespace>HabitatBuilderSpeed</RootNamespace>
+    <AssemblyName>HabitatBuilderSpeed</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BZ|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;BELOWZERO</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -42,14 +34,8 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>..\..\..\SubnauticaZero\SubnauticaZero_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\SubnauticaZero\SubnauticaZero_Data\Managed\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="QModInstaller">
       <HintPath>..\..\..\SubnauticaZero\BepInEx\plugins\QModManager\QModInstaller.dll</HintPath>
-    </Reference>
-    <Reference Include="QModManager.QMMLoader">
-      <HintPath>..\..\..\SubnauticaZero\BepInEx\plugins\QModManager\QModManager.QMMLoader.dll</HintPath>
     </Reference>
     <Reference Include="SMLHelper">
       <HintPath>..\..\..\SubnauticaZero\QMods\SMLHelper_BZ\SMLHelper.dll</HintPath>
@@ -62,12 +48,6 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnityEngine">
-      <HintPath>..\..\..\SubnauticaZero\SubnauticaZero_Data\Managed\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\..\SubnauticaZero\SubnauticaZero_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
@@ -76,11 +56,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="mod.json" />
+    <None Include="mod_BZ.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>pwsh "$(SolutionDir)post-build.ps1" -ProjectDir "$(ProjectDir)\" -TargetPath "$(TargetPath)" -ProjectName "$(ProjectName)"
+    <PostBuildEvent>pwsh "$(SolutionDir)post-build.ps1" -Config $(ConfigurationName) -ProjectDir "$(ProjectDir)\" -TargetPath "$(TargetPath)" -ProjectName "$(ProjectName)" -SolutionDir "$(SolutionDir)\"
 </PostBuildEvent>
   </PropertyGroup>
 </Project>
