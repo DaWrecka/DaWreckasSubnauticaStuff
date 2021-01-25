@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PartsFromScanning_BZ", "Ing
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HabitatBuilderSpeed", "HabitatBuilderSpeed\HabitatBuilderSpeed.csproj", "{8D0989F2-9427-454C-AF7A-E24E73EA9D44}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomiseYourStorage_BZ", "CustomiseYourStorage_BZ\CustomiseYourStorage_BZ.csproj", "{854262EB-F44F-4D6B-9B32-4103AE9F4253}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		BZ|Any CPU = BZ|Any CPU
@@ -114,6 +116,14 @@ Global
 		{8D0989F2-9427-454C-AF7A-E24E73EA9D44}.SN1|Any CPU.ActiveCfg = BZ|Any CPU
 		{8D0989F2-9427-454C-AF7A-E24E73EA9D44}.SN1|x64.ActiveCfg = BZ|Any CPU
 		{8D0989F2-9427-454C-AF7A-E24E73EA9D44}.SN1|x64.Build.0 = BZ|Any CPU
+		{854262EB-F44F-4D6B-9B32-4103AE9F4253}.BZ|Any CPU.ActiveCfg = BZ|Any CPU
+		{854262EB-F44F-4D6B-9B32-4103AE9F4253}.BZ|Any CPU.Build.0 = BZ|Any CPU
+		{854262EB-F44F-4D6B-9B32-4103AE9F4253}.BZ|x64.ActiveCfg = BZ|Any CPU
+		{854262EB-F44F-4D6B-9B32-4103AE9F4253}.BZ|x64.Build.0 = BZ|Any CPU
+		{854262EB-F44F-4D6B-9B32-4103AE9F4253}.SN1|Any CPU.ActiveCfg = BZ|Any CPU
+		{854262EB-F44F-4D6B-9B32-4103AE9F4253}.SN1|Any CPU.Build.0 = BZ|Any CPU
+		{854262EB-F44F-4D6B-9B32-4103AE9F4253}.SN1|x64.ActiveCfg = BZ|Any CPU
+		{854262EB-F44F-4D6B-9B32-4103AE9F4253}.SN1|x64.Build.0 = BZ|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,21 @@
+{
+  "Id": "PartsFromScanningBZ",
+  "DisplayName": "Parts From Scanning BZ",
+  "Author": "DaWrecka w/ MrPurple6411",
+  "Version": "0.5.0.0",
+  "Dependencies": [
+    "SMLHelper"
+  ],
+  "Game": "BelowZero",
+  "AssemblyName": "PartsFromScanning_BZ.dll",
+  "VersionDependencies": {
+    "SMLHelper": "2.9"
+  },
+  "VersionChecker": {
+    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/IngredientsFromScanning_BZ/mod_BZ.json"
+  },
+  "NexusId": {
+    "Subnautica": "559"
+  },
+  "Enable": true
+}

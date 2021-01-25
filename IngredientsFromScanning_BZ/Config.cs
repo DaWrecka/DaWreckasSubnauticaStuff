@@ -471,6 +471,12 @@ namespace IngredientsFromScanning_BZ.Configuration
                         }
                     ),
                     new SSubstitutionEntry(
+                        "Battery",
+                        new List<StringIngredient>{
+                            new StringIngredient("Copper", 1)
+                        }
+                    ),
+                    new SSubstitutionEntry(
                         "PowerCell",
                         new List<StringIngredient>{
                             new StringIngredient("Copper", 2)
