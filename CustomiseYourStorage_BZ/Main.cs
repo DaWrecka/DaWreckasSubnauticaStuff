@@ -22,14 +22,16 @@ namespace CustomiseYourStorage_BZ
         // The values *could* likely be changed, certainly decreased, but if the result is more than 8 slots, hello Mr Null Reference.
         // Similarly, we exclude the planters because they, too, have visuals associated with them that are likely to go ka-ka if we expand the storage.
         {
+#if BELOWZERO
+            TechType.SeaTruckAquariumModule,
+#endif
             TechType.Aquarium,
             TechType.FarmingTray,
             TechType.PlanterBox,
             TechType.PlanterPot,
             TechType.PlanterPot2,
             TechType.PlanterPot3,
-            TechType.PlanterShelf,
-            TechType.SeaTruckAquariumModule
+            TechType.PlanterShelf
         };
 
         [QModPatch]
@@ -38,8 +40,12 @@ namespace CustomiseYourStorage_BZ
             var assembly = Assembly.GetExecutingAssembly();
             new Harmony($"DaWrecka_{assembly.GetName().Name}").PatchAll(assembly);
             config.Init();
+        }
 
-            // Enable the Storage Module. It's only useful for the Exosuit, but it can turn the Exosuit's storage locker from "useless" to "useful", so I don't know why UWE disabled it.
+        [QModPostPatch]
+        public void PostPatch()
+        {
+            // Enable the Storage Module. It's only useful for the Exosuit, but it still works, and it can turn the Exosuit's storage locker from "useless" to "useful", so I don't know why UWE disabled it.
             var storageModuleData = new RecipeData()
             {
                 craftAmount = 1,
@@ -51,10 +57,11 @@ namespace CustomiseYourStorage_BZ
             };
 
             LanguageHandler.SetTechTypeName(TechType.VehicleStorageModule, "Vehicle Storage Module");
-            LanguageHandler.SetTechTypeTooltip(TechType.VehicleStorageModule, "A small storage locker. Exosuit compatible.");
+            LanguageHandler.SetTechTypeTooltip(TechType.VehicleStorageModule, "A small storage locker. Expands Exosuit storage capacity.");
             CraftDataHandler.SetTechData(TechType.VehicleStorageModule, storageModuleData);
             CraftTreeHandler.AddCraftingNode(CraftTree.Type.SeamothUpgrades, TechType.VehicleStorageModule, new string[] { "ExosuitModules" });
             CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.VehicleStorageModule, new string[] { "Upgrades", "ExosuitUpgrades" });
+            KnownTechHandler.SetAnalysisTechEntry(TechType.Exosuit, new TechType[] { TechType.VehicleStorageModule });
         }
     }
 }

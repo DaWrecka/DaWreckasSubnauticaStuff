@@ -11,7 +11,7 @@ namespace HabitatBuilderSpeed.Patches
         public static void Postfix(ref float __result)
         {
             if (__result >= 1f)
-                __result *= Main.config.builderMultiplier;
+                __result *= Main.config._builderMultiplier;
             //Logger.Log(Logger.Level.Debug, $"Patching GetConstructInterval using multiplier of {multiplier}, with result of {__result}");
         }
 	}

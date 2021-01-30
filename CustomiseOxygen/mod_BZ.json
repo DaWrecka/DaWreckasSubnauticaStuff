@@ -1,0 +1,21 @@
+{
+  "Id": "CustomiseOxygen",
+  "DisplayName": "Customise Your Oxygen",
+  "Author": "DaWrecka",
+  "Version": "1.0.0.0",
+  "Dependencies": [
+    "SMLHelper"
+  ],
+  "Game": "BelowZero",
+  "AssemblyName": "CustomiseOxygen.dll",
+  "VersionDependencies": {
+    "SMLHelper": "2.9"
+  },
+  "VersionChecker": {
+    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/CustomiseOxygen/mod_BZ.json"
+  },
+  "NexusId": {
+    "Subnautica": "559"
+  },
+  "Enable": true
+}

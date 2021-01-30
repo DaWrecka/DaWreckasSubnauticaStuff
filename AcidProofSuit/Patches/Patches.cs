@@ -25,16 +25,6 @@ namespace AcidProofSuit.Patches
         }; // We can't use a Dictionary as-is; one way or another we need either a struct or an array, because one TechType - or key - might have multiple substitutions.
         // For example, the Brine Suit needs to be recognised as both a Radiation Suit and a Reinforced Dive Suit.
 
-        /*internal static Dictionary<TechType, TechType> Substitutions = new Dictionary<TechType, TechType>
-        {
-            // The key is the TT to search for, and the value is the TT to return a positive value for.
-            // so for key "TechType.Rebreather" and value "TechType.AcidHelmet", if GetCount(Rebreather) is called, the function will add one if the AcidHelmet is equipped.
-            { TechType.Rebreather, Main.prefabHelmet.TechType },
-            { TechType.RadiationHelmet, Main.prefabHelmet.TechType },
-            { TechType.RadiationSuit, Main.prefabSuitMk1.TechType },
-            { TechType.RadiationGloves, Main.prefabGloves.TechType }
-        };*/
-
         private static List<TechTypeSub> Substitutions = new List<TechTypeSub>();
 
         // We use this as a cache; if PostFix receives a call for which substitutionTargets.Contains(techType) is false, we know nothing has requested to substitute this TechType, so we can ignore it.
@@ -261,7 +251,7 @@ namespace AcidProofSuit.Patches
                 //    continue;
 
                 bool flag = false;
-                if (bLog) Logger.Log(Logger.Level.Debug, $"checking equipmentModels for TechType {techTypeInSlot.ToString()}");
+                if (bLog) Logger.Log(Logger.Level.Debug, $"checking equipmentModels for TechType {techTypeInSlot.AsString(false)}");
                 foreach (Player.EquipmentModel equipmentModel in equipmentType.equipment)
                 {
                     //Player.EquipmentModel equipmentModel = equipmentType.equipment[j];
@@ -346,7 +336,7 @@ namespace AcidProofSuit.Patches
                                         if (brineArmsMaterial != null)
                                         {
                                             if (bLog) Logger.Log(Logger.Level.Debug, "Applying brineArmsMaterial");
-                                            reinforcedSuit.materials[1] = brineArmsMaterial; 
+                                            reinforcedSuit.materials[1] = brineArmsMaterial;
                                         }
                                         else
                                             if (bLog) Logger.Log(Logger.Level.Error, "Error generating brineArmsMaterial");

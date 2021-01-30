@@ -1,0 +1,21 @@
+{
+  "Id": "RecyclotronModSupport",
+  "DisplayName": "RecyclotronModSupport",
+  "Author": "DaWrecka w/ MrPurple6411",
+  "Version": "0.5.0.0",
+  "Dependencies": [
+    "SMLHelper"
+  ],
+  "Game": "BelowZero",
+  "AssemblyName": "RecyclotronModSupport.dll",
+  "VersionDependencies": {
+    "SMLHelper": "2.9"
+  },
+  "VersionChecker": {
+    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/RecyclotronModSupport/mod_BZ.json"
+  },
+  "NexusId": {
+    "Subnautica": "559"
+  },
+  "Enable": true
+}

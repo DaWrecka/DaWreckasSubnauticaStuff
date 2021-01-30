@@ -16,9 +16,6 @@ namespace CustomiseYourStorage_BZ.Configuration
             { "quantumlocker.storagecontainer", new Vector2int(4, 4) },
             { "smalllocker.smalllocker", new Vector2int(5, 6) },
             { "locker.locker", new Vector2int(6, 8) },
-            { "recyclotron.recyclotron", new Vector2int(6, 4) },
-            { "coffeevendingmachine.coffeevendingmachine", new Vector2int(2, 1) },
-            { "fridge.fridge", new Vector2int(5, 7) },
             { "labtrashcan.labtrashcan", new Vector2int(3, 4) },
             { "trashcans.trashcans", new Vector2int(4, 5) },
             //{ "planterpot.planterpot", new Vector2int(2, 2) },
@@ -30,13 +27,19 @@ namespace CustomiseYourStorage_BZ.Configuration
             //{ "exosuit.storage", new Vector2int(6, 2) },
             //{ "seatruckaquariummodule.useable", new Vector2int(2, 4) },
             { "vehiclestoragemodule.seamothstoragemodule", new Vector2int(4, 4) },
+#if BELOWZERO
+            { "recyclotron.recyclotron", new Vector2int(6, 4) },
+            { "coffeevendingmachine.coffeevendingmachine", new Vector2int(2, 1) },
+            { "fridge.fridge", new Vector2int(5, 7) },
             { "seatruckfabricatormodule.storagecontainer (1)", new Vector2int(6, 2) },
             { "seatruckstoragemodule.storagecontainer", new Vector2int(3, 5) },
             { "seatruckstoragemodule.storagecontainer (1)", new Vector2int(6, 3) },
             { "seatruckstoragemodule.storagecontainer (2)", new Vector2int(4, 3) },
             { "seatruckstoragemodule.storagecontainer (3)", new Vector2int(4, 3) },
             { "seatruckstoragemodule.storagecontainer (4)", new Vector2int(3, 5) },
-            { "spypenguin.inventory", new Vector2int(2, 2) }
+            { "spypenguin.inventory", new Vector2int(2, 2) },
+#endif
+            { "smallstorage.storagecontainer", new Vector2int(4, 4) }
         };
 
         private Vector2int defaultLifepodLockerSize = new Vector2int(6, 8);
