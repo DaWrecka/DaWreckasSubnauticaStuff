@@ -35,7 +35,9 @@ namespace CustomiseYourScannables
         {
             if (NewScannables == null)
             {
-                Logger.Log(Logger.Level.Debug, $"NewScannables list is null, initialising defaults");
+#if !RELEASE
+                Logger.Log(Logger.Level.Debug, $"NewScannables list is null, initialising defaults"); 
+#endif
                 NewScannables = new List<TechType>() // List of TechTypes to add ResourceTrackers to, if they don't have one already.
                 {
                     TechType.BasaltChunk,
@@ -51,7 +53,9 @@ namespace CustomiseYourScannables
 
             if (NonScannables == null)
             {
-                Logger.Log(Logger.Level.Debug, $"NonScannables list is null, initialising defaults");
+#if !RELEASE
+                Logger.Log(Logger.Level.Debug, $"NonScannables list is null, initialising defaults"); 
+#endif
                 NonScannables = new List<TechType>() // For any object whose TechType is on this list, its ResourceTracker, if it has one, should be removed.
                 {
                     TechType.Wreck

@@ -65,9 +65,9 @@ namespace IngredientsFromScanning.Patches
                 GameObject gameObject = CraftData.InstantiateFromPrefab(techType, false);
                 Pickupable component = gameObject.GetComponent<Pickupable>();
 
-                if (thisVehicle.GetType().Equals(typeof(Exosuit)))
+                if (thisVehicle is Exosuit exosuit)
                 {
-                    StorageContainer storageContainer = ((Exosuit)thisVehicle).storageContainer;
+                    StorageContainer storageContainer = exosuit.storageContainer;
 
                     if (storageContainer.container.HasRoomFor(component))
                     {
@@ -134,12 +134,16 @@ namespace IngredientsFromScanning.Patches
             if (techType == TechType.Titanium && num == 2 && !noMessage && spawnIfCantAdd)
             {
                 TechType scannedFragment = PDAScanner.scanTarget.techType;
-                Logger.Log(Logger.Level.Debug, $"Intercepting scan of fragment {scannedFragment.ToString()}");
+#if !RELEASE
+                Logger.Log(Logger.Level.Debug, $"Intercepting scan of fragment {scannedFragment.ToString()}"); 
+#endif
 
                 TechData recipe; // "Variable declaration can be inlined" says Visual Studio, but I'm not sure if it would remain in-scope further down the function if it is.
                 if (IngredientsFromScanning.Main.config.TryOverrideRecipe(scannedFragment, out recipe))
                 {
-                    Logger.Log(Logger.Level.Debug, $"Using OverrideRecipe: {JsonConvert.SerializeObject(recipe, Oculus.Newtonsoft.Json.Formatting.Indented)}");
+#if !RELEASE
+                    Logger.Log(Logger.Level.Debug, $"Using OverrideRecipe: {JsonConvert.SerializeObject(recipe, Oculus.Newtonsoft.Json.Formatting.Indented)}"); 
+#endif
                 }
                 else if ((int)scannedFragment > 1112 && (int)scannedFragment < 1117)
                 {
@@ -170,20 +174,26 @@ namespace IngredientsFromScanning.Patches
                     }
                     recipe.Ingredients.Add(new Ingredient(TechType.Lead, 1));
                     recipe.Ingredients.Add(new Ingredient(TechType.PlasteelIngot, 1));
-                    Logger.Log(Logger.Level.Debug, $"Using recipe from manual override: {JsonConvert.SerializeObject(recipe, Oculus.Newtonsoft.Json.Formatting.Indented)}");
+#if !RELEASE
+                    Logger.Log(Logger.Level.Debug, $"Using recipe from manual override: {JsonConvert.SerializeObject(recipe, Oculus.Newtonsoft.Json.Formatting.Indented)}"); 
+#endif
                 }
                 else
                 {
                     PDAScanner.EntryData entryData = PDAScanner.GetEntryData(scannedFragment);
                     if (entryData == null) // Sanity check; this should always be true
                     {
-                        Logger.Log(Logger.Level.Debug, $"Failed to find EntryData for fragment");
+#if !RELEASE
+                        Logger.Log(Logger.Level.Debug, $"Failed to find EntryData for fragment"); 
+#endif
                         /*CraftData.AddToInventory(TechType.Titanium);
                         CraftData.AddToInventory(TechType.Titanium); // Adding them one-by-one so as to prevent it being caught by this very routine.*/
                         return true;
                     }
                     //Logger.Log(Logger.Level.Debug, $"Found entryData {entryData.ToString()}");
-                    Logger.Log(Logger.Level.Debug, $"Found entryData {JsonConvert.SerializeObject(entryData, Oculus.Newtonsoft.Json.Formatting.Indented)}");
+#if !RELEASE
+                    Logger.Log(Logger.Level.Debug, $"Found entryData {JsonConvert.SerializeObject(entryData, Oculus.Newtonsoft.Json.Formatting.Indented)}"); 
+#endif
 
 
                     //CraftData.AddToInventory(TechType.Titanium);
@@ -191,13 +201,17 @@ namespace IngredientsFromScanning.Patches
                     recipe = CraftDataHandler.GetTechData(entryData.blueprint);
                     if (recipe == null)
                     {
-                        Logger.Log(Logger.Level.Debug, $"Failed to find blueprint for EntryData");
+#if !RELEASE
+                        Logger.Log(Logger.Level.Debug, $"Failed to find blueprint for EntryData"); 
+#endif
                         /*CraftData.AddToInventory(TechType.Titanium);
                         CraftData.AddToInventory(TechType.Titanium); // One-by-one again, as above.*/
                         return true;
                     }
                     //Logger.Log(Logger.Level.Debug, $"Found recipe {recipe.ToString()}");
-                    Logger.Log(Logger.Level.Debug, $"Using recipe from EntryData: {JsonConvert.SerializeObject(recipe, Oculus.Newtonsoft.Json.Formatting.Indented)}");
+#if !RELEASE
+                    Logger.Log(Logger.Level.Debug, $"Using recipe from EntryData: {JsonConvert.SerializeObject(recipe, Oculus.Newtonsoft.Json.Formatting.Indented)}"); 
+#endif
                 }
 
                 for (int i = 0; i < recipe.Ingredients.Count; i++)
@@ -229,14 +243,18 @@ namespace IngredientsFromScanning.Patches
                     float thisWeight = IngredientsFromScanning.Main.config.GetWeightForTechType(bp[i]);
                     TotalWeight += thisWeight;
                     WeightedItem thisWeightedItem = new WeightedItem(TotalWeight, bp[i]);
-                    Logger.Log(Logger.Level.Debug, $"Adding item to drop list, TechType = {thisWeightedItem.tech.ToString()},   this weight = {thisWeight}, cumulative weight = {thisWeightedItem.Weight}");
+#if !RELEASE
+                    Logger.Log(Logger.Level.Debug, $"Adding item to drop list, TechType = {thisWeightedItem.tech.ToString()},   this weight = {thisWeight}, cumulative weight = {thisWeightedItem.Weight}"); 
+#endif
                     BlueprintPairs.Add(thisWeightedItem);
                 }
 
                 // Now we should be able to pick a few random numbers between 0 and the list's total weight, and add those. We want to remove that entry afterwards, but that's not a big ask.
                 System.Random rng = new System.Random();
                 int numIngredients = Math.Min(IngredientsFromScanning.Main.config.GenerateGiftValue(), BlueprintPairs.Count);
-                Logger.Log(Logger.Level.Debug, $"Generated a value for this scan of {numIngredients} components.");
+#if !RELEASE
+                Logger.Log(Logger.Level.Debug, $"Generated a value for this scan of {numIngredients} components."); 
+#endif
 
                 int awards = 0;
                 double r;
@@ -250,7 +268,9 @@ namespace IngredientsFromScanning.Patches
                         //                                  /                                                          \
                         if (r < BlueprintPairs[j].Weight || ((j + 1) == BlueprintPairs.Count && awards < numIngredients))
                         {
-                            Logger.Log(Logger.Level.Debug, $"With randomised weight of {r}, adding tech {BlueprintPairs[j].tech} to player inventory");
+#if !RELEASE
+                            Logger.Log(Logger.Level.Debug, $"With randomised weight of {r}, adding tech {BlueprintPairs[j].tech} to player inventory"); 
+#endif
                             AddInventory(BlueprintPairs[j].tech, 1, false, true);
                             //CraftData.AddToInventory(BlueprintPairs[j].tech, 1, false, true);
                             awards++;

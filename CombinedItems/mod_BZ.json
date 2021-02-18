@@ -1,0 +1,24 @@
+{
+  "Author": "DaWrecka",
+  "DisplayName": "Combined Items",
+  "VersionDependencies": {
+    "SMLHelper": "2.9.3"
+  },
+  "Id": "CombinedItems",
+  "AssemblyName": "CombinedItems.dll",
+  "Version": "0.8.0.1",
+  "Enable": true,
+  "NexusId": {
+    "Subnautica": "610"
+  },
+  "Game": "BelowZero",
+  "LoadAfter": [
+    "CustomiseOxygen"
+  ],
+  "VersionChecker": {
+    "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/ConsoleBatchFiles/mod_BZ.json"
+  },
+  "Dependencies": [
+    "SMLHelper"
+  ]
+}

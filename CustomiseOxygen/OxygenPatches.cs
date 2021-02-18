@@ -17,7 +17,9 @@ namespace CustomiseOxygen.Patches
         public void OnCraftEnd(TechType techType)
         {
             this.techType = techType;
-            this.oxygen.oxygenAvailable = this.oxygen.oxygenCapacity;
+            this.oxygen = base.GetComponent<Oxygen>();
+            if (!Main.config.bAllowAutoRefill)
+                this.oxygen.oxygenAvailable = this.oxygen.oxygenCapacity;
         }
 
         private void Awake()
@@ -28,52 +30,49 @@ namespace CustomiseOxygen.Patches
             this.oxygen = base.GetComponent<Oxygen>();
             if (this.oxygen == null)
             {
-                Logger.Log(Logger.Level.Debug, "CustomOxy: Failed to find Oxygen component in parent");
+#if !RELEASE
+                Logger.Log(Logger.Level.Debug, "CustomOxy: Failed to find Oxygen component in parent"); 
+#endif
                 return;
             }
 
             if (!this.oxygen.isPlayer)
             {
-                float capacityOverride = Main.config.GetCapacityOverride(this.techType);
-                if (capacityOverride > 0)
-                    this.oxygen.oxygenCapacity = capacityOverride;
-                else
+                if (Main.config.GetCapacityOverride(this.techType, out float capacityOverride, out float capacityMultiplier))
                 {
-                    Main.config.SetCapacityOverride(this.techType, this.oxygen.oxygenCapacity, false, true);
-                    this.oxygen.oxygenCapacity *= Main.config.baseOxyMultiplier;
-                    if (!Main.config.bAllowAutoRefill)
-                        this.oxygen.oxygenCapacity *= Main.config.refillableMultiplier;
+                    Logger.Log(Logger.Level.Debug, $"CustomiseOxygen.Main.GetCapacityOverride returned true with values of capacityOverride={capacityOverride}, capacityMultiplier={capacityMultiplier}");
+                    if (capacityOverride > 0)
+                        this.oxygen.oxygenCapacity = capacityOverride;
+                    else
+                    {
+                        Main.config.SetCapacityOverride(this.techType, this.oxygen.oxygenCapacity, false, true);
+                        this.oxygen.oxygenCapacity *= capacityMultiplier;
+                    }
                 }
             }
         }
     }
 
-    [HarmonyPatch(typeof(Oxygen), "Awake")]
-    class OxygenPatches
+    [HarmonyPatch]
+    public class OxygenPatches
     {
         [HarmonyPrefix]
+        [HarmonyPatch(typeof(Oxygen), "Awake")]
         public static bool Prefix(ref Oxygen __instance)
         {
-            //return (__instance.isPlayer || Main.config.bAllowAutoRefill);
             if (!__instance.isPlayer)
             {
-                __instance.gameObject.AddComponent<CustomOxy>();
+                if (__instance.gameObject.GetComponent<CustomOxy>() == null)
+                {
+                    Logger.Log(Logger.Level.Debug, $"Adding CustomOxy component to instance {__instance.ToString()}");
+                    __instance.gameObject.EnsureComponent<CustomOxy>();
+                }
+                else
+                    Logger.Log(Logger.Level.Debug, $"CustomOxy already present on instance {__instance.ToString()}");
                 return false;
             }
 
             return true;
         }
-
-        /*[HarmonyPostfix]
-        public static void Postfix(ref Oxygen __instance)
-        {
-            if (__instance.isPlayer)
-                return;
-
-            __instance.oxygenCapacity *= Main.config.baseOxyMultiplier;
-            if (Main.config.bAllowAutoRefill)
-                return;
-            __instance.oxygenCapacity *= Main.config.refillableMultiplier;
-        }*/
     }
 }

@@ -34,7 +34,9 @@ namespace AcidProofSuit.Patches
         {
             Substitutions.Add(new TechTypeSub(substituted, substitution));
             substitutionTargets.Add(substitution);
-            Logger.Log(Logger.Level.Debug, $"AddSubstitution: Added sub with substituted {substituted.ToString()} and substitution {substitution.ToString()}, new count {Substitutions.Count}");
+#if !RELEASE
+            Logger.Log(Logger.Level.Debug, $"AddSubstitution: Added sub with substituted {substituted.ToString()} and substitution {substitution.ToString()}, new count {Substitutions.Count}"); 
+#endif
         }
 
         [HarmonyPostfix]
@@ -149,7 +151,11 @@ namespace AcidProofSuit.Patches
                 return newMat;
             }
             else
-                Logger.Log(Logger.Level.Debug, "Default material not found while trying to create new brineGloveMaterial");
+            {
+#if !RELEASE
+                Logger.Log(Logger.Level.Debug, "Default material not found while trying to create new brineGloveMaterial"); 
+#endif
+            }
 
             return null;
         }
@@ -446,9 +452,13 @@ namespace AcidProofSuit.Patches
             foreach (string s in Main.playerSlots)
             {
                 TechType tt = Inventory.main.equipment.GetTechTypeInSlot(s);
-                Logger.Log(Logger.Level.Debug, $"Found TechType {tt.ToString()} in slot {s}");
+#if !RELEASE
+                Logger.Log(Logger.Level.Debug, $"Found TechType {tt.ToString()} in slot {s}"); 
+#endif
                 tt = Inventory.main.equipment.GetTechTypeInSlot(s);
-                Logger.Log(Logger.Level.Debug, $"Found patched TechType {tt.ToString()} in slot {s}");
+#if !RELEASE
+                Logger.Log(Logger.Level.Debug, $"Found patched TechType {tt.ToString()} in slot {s}"); 
+#endif
             }
         }
         */

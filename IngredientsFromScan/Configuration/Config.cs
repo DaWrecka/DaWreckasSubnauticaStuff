@@ -59,7 +59,9 @@ namespace IngredientsFromScanning.Configuration
             // Sanity-check the values; the UI won't let them be set outside a 1-10 inclusive range, but they might be set that way in the JSON by a cheeky user.
             maxComponents = Clamp(maxComponents, MIN_PRIZE, MAX_PRIZE);
             minComponents = Clamp(minComponents, MIN_PRIZE, maxComponents);
-            Logger.Log(Logger.Level.Debug, $"Generating prize value between {minComponents} and {maxComponents}");
+#if !RELEASE
+            Logger.Log(Logger.Level.Debug, $"Generating prize value between {minComponents} and {maxComponents}"); 
+#endif
             // maxComponents is intended to be inclusive, but Random.Next(1, X) will always return an integer less than X. So we need to add 1 to maxComponents here to get the results we want.
             return rng.Next(minComponents, maxComponents + 1);
         }
@@ -137,7 +139,9 @@ namespace IngredientsFromScanning.Configuration
                         }
                         else
                         {
-                            Logger.Log(Logger.Level.Error, $"Could not parse {s.techType} as TechType; check the spelling and/or case");
+#if !RELEASE
+                            Logger.Log(Logger.Level.Error, $"Could not parse {s.techType} as TechType; check the spelling and/or case"); 
+#endif
                             outRecipe = null;
                             return false;
                         }
@@ -194,7 +198,9 @@ namespace IngredientsFromScanning.Configuration
                         }
                         else
                         {
-                            Logger.Log(Logger.Level.Error, $"Failed to parse string '{si.techType}' as TechType; check to make sure the entry is spelled correctly, and using the correct case");
+#if !RELEASE
+                            Logger.Log(Logger.Level.Error, $"Failed to parse string '{si.techType}' as TechType; check to make sure the entry is spelled correctly, and using the correct case"); 
+#endif
                         }
                     }
                     //Substitutes = SubstitutionList[i].replacements;
@@ -212,18 +218,26 @@ namespace IngredientsFromScanning.Configuration
             // Using the | operator instead of || because we want all three functions to run regardless
             if (InitWeights() | InitRecipeOverrides() | InitSubstitutions())
             {
-                Logger.Log(Logger.Level.Info, "Some configuration settings have been reset to defaults.");
+#if !RELEASE
+                Logger.Log(Logger.Level.Info, "Some configuration settings have been reset to defaults."); 
+#endif
                 Save();
             }
             else
-                Logger.Log(Logger.Level.Debug, "All values present and correct");
+            {
+#if !RELEASE
+                Logger.Log(Logger.Level.Debug, "All values present and correct"); 
+#endif
+            }
         }
 
         public bool InitWeights()
         {
             if (TechWeights == null)
             {
-                Logger.Log(Logger.Level.Warn, "No TechWeights found, setting default values");
+#if !RELEASE
+                Logger.Log(Logger.Level.Warn, "No TechWeights found, setting default values"); 
+#endif
                 TechWeights = new Dictionary<string, float>() {
                     { "None", 0f },
                     { "CalciteOld", 0f },
@@ -387,7 +401,9 @@ namespace IngredientsFromScanning.Configuration
         {
             if (RecipeOverrides == null)
             {
-                Logger.Log(Logger.Level.Warn, "No RecipeOverrides found, setting default values");
+#if !RELEASE
+                Logger.Log(Logger.Level.Warn, "No RecipeOverrides found, setting default values"); 
+#endif
                 RecipeOverrides = new List<RecipeOverride>() {
                     new RecipeOverride(
                         "CyclopsHullFragment", new List<StringIngredient>()
@@ -447,7 +463,9 @@ namespace IngredientsFromScanning.Configuration
         {
             if (SubstitutionList == null)
             {
-                Logger.Log(Logger.Level.Warn, "No SubstitutionList found, setting default values");
+#if !RELEASE
+                Logger.Log(Logger.Level.Warn, "No SubstitutionList found, setting default values"); 
+#endif
                 SubstitutionList = new List<SSubstitutionEntry>() {
                     new SSubstitutionEntry(
                         "AdvancedWiringKit",

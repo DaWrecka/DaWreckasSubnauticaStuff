@@ -18,14 +18,6 @@ namespace CustomiseYourStorage_BZ.Configuration
             { "locker.locker", new Vector2int(6, 8) },
             { "labtrashcan.labtrashcan", new Vector2int(3, 4) },
             { "trashcans.trashcans", new Vector2int(4, 5) },
-            //{ "planterpot.planterpot", new Vector2int(2, 2) },
-            //{ "planterpot2.planterpot2", new Vector2int(2, 2) },
-            //{ "planterpot3.planterpot3", new Vector2int(2, 2) },
-            //{ "plantershelf.plantershelf", new Vector2int(1, 1) },
-            //{ "farmingtray.farmingtray", new Vector2int(4, 6) },
-            //{ "planterbox.planterbox", new Vector2int(4, 4) },
-            //{ "exosuit.storage", new Vector2int(6, 2) },
-            //{ "seatruckaquariummodule.useable", new Vector2int(2, 4) },
             { "vehiclestoragemodule.seamothstoragemodule", new Vector2int(4, 4) },
 #if BELOWZERO
             { "recyclotron.recyclotron", new Vector2int(6, 4) },
@@ -38,6 +30,8 @@ namespace CustomiseYourStorage_BZ.Configuration
             { "seatruckstoragemodule.storagecontainer (3)", new Vector2int(4, 3) },
             { "seatruckstoragemodule.storagecontainer (4)", new Vector2int(3, 5) },
             { "spypenguin.inventory", new Vector2int(2, 2) },
+            { "exchanger.exchanger", new Vector2int(3, 2) },
+            { "supplydrop.supplydrop", new Vector2int(8, 8) },
 #endif
             { "smallstorage.storagecontainer", new Vector2int(4, 4) }
         };
@@ -140,7 +134,9 @@ namespace CustomiseYourStorage_BZ.Configuration
 
             if (bUpdated)
                 base.Save();
-            Logger.Log(Logger.Level.Debug, (bUpdated ? "Some values reset to defaults" : "All values present and correct"));
+#if !RELEASE
+            Logger.Log(Logger.Level.Debug, (bUpdated ? "Some values reset to defaults" : "All values present and correct")); 
+#endif
         }
 
         public bool TryGetModSize(string Identifier, out Vector2int newSize)
@@ -150,7 +146,9 @@ namespace CustomiseYourStorage_BZ.Configuration
             bool bHasDefault = defaultStorageSizes.TryGetValue(Identifier, out defaultSize);
             if (bHasDefault)
             {
-                Logger.Log(Logger.Level.Debug, $"Found default values for ID {Identifier} using TryGetValue");
+#if !RELEASE
+                Logger.Log(Logger.Level.Debug, $"Found default values for ID {Identifier} using TryGetValue"); 
+#endif
             }
             else
             {
@@ -164,7 +162,9 @@ namespace CustomiseYourStorage_BZ.Configuration
                     {
                         bHasDefault = true;
                         defaultSize = kvp.Value;
-                        Logger.Log(Logger.Level.Debug, $"Found default values for ID {Identifier} on manual review that were not found with TryGetValue");
+#if !RELEASE
+                        Logger.Log(Logger.Level.Debug, $"Found default values for ID {Identifier} on manual review that were not found with TryGetValue"); 
+#endif
                         break;
                     }
                 }
@@ -173,7 +173,9 @@ namespace CustomiseYourStorage_BZ.Configuration
             newSize = new Vector2int(0, 0);
             if (StorageSizes.TryGetValue(Identifier, out newSize))
             {
-                Logger.Log(Logger.Level.Debug, $"Found configured values for ID {Identifier} using TryGetValue");
+#if !RELEASE
+                Logger.Log(Logger.Level.Debug, $"Found configured values for ID {Identifier} using TryGetValue"); 
+#endif
                 if (bHasDefault)
                 {
                     // Return a value of true if the new value is different from default, and false if it's equal
@@ -189,7 +191,9 @@ namespace CustomiseYourStorage_BZ.Configuration
                     if (lowID == kvp.Key.ToLower())
                     {
                         newSize = kvp.Value;
-                        Logger.Log(Logger.Level.Debug, $"Found configured values for ID {Identifier} on manual review that were not found with TryGetValue");
+#if !RELEASE
+                        Logger.Log(Logger.Level.Debug, $"Found configured values for ID {Identifier} on manual review that were not found with TryGetValue"); 
+#endif
                         if (bHasDefault)
                             return !(newSize.Equals(defaultSize));
                         else
@@ -199,7 +203,9 @@ namespace CustomiseYourStorage_BZ.Configuration
             }
 
             // Couldn't find a value for this identifier, so:
-            Logger.Log(Logger.Level.Debug, "Could not find " + (bHasDefault ? "" : "default or ") + "configured values for the identifier " + Identifier);
+#if !RELEASE
+            Logger.Log(Logger.Level.Debug, "Could not find " + (bHasDefault ? "" : "default or ") + "configured values for the identifier " + Identifier); 
+#endif
             return false;
         }
 

@@ -21,8 +21,39 @@ namespace CustomiseOxygen
     {
         internal const string AssemblyTitle = "CustomiseOxygen";
         internal const string AssemblyProduct = "CustomiseOxygen";
-
         internal const string AssemblyVersion = "1.0.0.0";
+
+        // Exclusions which can be added by external mods, such as CombinedItems.
+        internal enum ExclusionType
+        {
+            None = 0,
+            Multipliers = 1,    // Don't multiply capacity, but allow CapacityOverrides to override the capacity.
+            Override = 2,       // Don't allow CapacityOverrides, but apply multipliers
+            Both = 3           // Don't apply CapacityOverrides or multipliers
+        }
+
+        internal static Dictionary<TechType, ExclusionType> Exclusions = new Dictionary<TechType, ExclusionType>();
+
+        public static void AddExclusion(TechType excludedTank, bool bExcludeMultipliers, bool bExcludeOverride)
+        {
+
+            ExclusionType newExclusion = (ExclusionType)((bExcludeMultipliers ? 1 : 0) + (bExcludeOverride ? 2 : 0));
+            if (Exclusions.ContainsKey(excludedTank))
+            {
+                Logger.Log(Logger.Level.Debug, $"Modifying exclusion for TechType.{excludedTank} to {newExclusion.ToString()}");
+                Exclusions[excludedTank] = (ExclusionType)newExclusion;
+                return;
+            }
+
+            Logger.Log(Logger.Level.Debug, $"Assigning new exclusion for TechType.{excludedTank} as {newExclusion.ToString()}");
+            Exclusions.Add(excludedTank, (ExclusionType)newExclusion);
+        }
+
+        public static void AddTank(TechType tank, float capacity)
+        {
+            Logger.Log(Logger.Level.Debug, $"Registering new tank TechType.{tank.AsString()} with capacity {capacity}");
+            TankTypes.AddTank(tank, capacity);
+        }
 
         public struct TankType
         {
@@ -33,6 +64,7 @@ namespace CustomiseOxygen
 
             public TankType(TechType tank, float baseO2capacity)
             {
+                Logger.Log(Logger.Level.Debug, $"Registering tank TechType.{tank.AsString()}");
                 this.sprite = SpriteManager.Get(tank);
                 this.tankTechType = tank;
                 string tankName = Language.main.Get(tank);
@@ -57,18 +89,26 @@ namespace CustomiseOxygen
                 });
                 if (TechData.GetCraftTime(this.tankTechType, out float craftTime))
                 {
-                    Logger.Log(Logger.Level.Debug, $"Setting crafting time of {craftTime} for TechType.{this.refillTechType.AsString()}");
+#if !RELEASE
+                    Logger.Log(Logger.Level.Debug, $"Setting crafting time of {craftTime} for TechType.{this.refillTechType.AsString()}"); 
+#endif
                     CraftDataHandler.SetCraftingTime(this.refillTechType, craftTime);
                 }
                 else
-                    Logger.Log(Logger.Level.Debug, $"Couldn't find crafting time for TechType.{this.tankTechType}");
+                {
+#if !RELEASE
+                    Logger.Log(Logger.Level.Debug, $"Couldn't find crafting time for TechType.{this.tankTechType}"); 
+#endif
+                }
 
                 this.BaseO2Capacity = baseO2capacity;
             }
 
             public void UpdateCapacity(float newCapacity)
             {
-                Logger.Log(Logger.Level.Debug, $"UpdateCapacity() called for TechType '{this.tankTechType.AsString()}' with value of {newCapacity}");
+#if !RELEASE
+                Logger.Log(Logger.Level.Debug, $"UpdateCapacity() called for TechType '{this.tankTechType.AsString()}' with value of {newCapacity}"); 
+#endif
                 this.BaseO2Capacity = newCapacity;
             }
         }
@@ -88,14 +128,18 @@ namespace CustomiseOxygen
                     {
                         if (bUpdate)
                         {
-                            Logger.Log(Logger.Level.Debug, $"Updating tank type for TechType '{tank.AsString()}' with value {baseCapacity}");
+#if !RELEASE
+                            Logger.Log(Logger.Level.Debug, $"Updating tank type for TechType '{tank.AsString()}' with value {baseCapacity}"); 
+#endif
                             TankTypes[i].UpdateCapacity(baseCapacity);
                         }
                         return false;
                     }
                 }
+#if !RELEASE
 
-                Logger.Log(Logger.Level.Debug, $"Adding Tank '{tank.AsString()}' with capacity of {baseCapacity}");
+                Logger.Log(Logger.Level.Debug, $"Adding Tank '{tank.AsString()}' with capacity of {baseCapacity}"); 
+#endif
                 TankTypes.Add(new TankType(tank, baseCapacity));
                 return true;
             }
@@ -130,11 +174,16 @@ namespace CustomiseOxygen
             // Calling these in the main Patch() routine is too early, as the sprite atlases have not yet finished loading.
             CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "Refill", "Tank Refills", SpriteManager.Get(TechType.DoubleTank), new string[] { "Personal" });
 
-            TankTypes.AddTank(TechType.Tank, -30f);
-            TankTypes.AddTank(TechType.DoubleTank, -90f);
-            TankTypes.AddTank(TechType.SuitBoosterTank, -90f);
-            TankTypes.AddTank(TechType.PlasteelTank, -90f);
-            TankTypes.AddTank(TechType.HighCapacityTank, -180f);
+            /*AddTank(TechType.Tank, -30f);
+            AddTank(TechType.DoubleTank, -90f);
+            AddTank(TechType.SuitBoosterTank, -90f);
+            AddTank(TechType.PlasteelTank, -90f);
+            AddTank(TechType.HighCapacityTank, -180f);*/
+            foreach (TechType tt in new TechType[] { TechType.Tank, TechType.DoubleTank, TechType.SuitBoosterTank, TechType.PlasteelTank, TechType.HighCapacityTank })
+            {
+                Logger.Log(Logger.Level.Debug, $"Initial processing, TechType.{tt.AsString()}");
+                AddTank(tt, -1f);
+            }
         }
     }
 }

@@ -6,7 +6,7 @@ using QModManager.API.ModLoading;
 //using SMLHelper.V2.Crafting;
 using System.Reflection;
 #if SUBNAUTICA_STABLE
-#elif BZ || SUBNAUTICA_EXP
+#elif BELOWZERO || SUBNAUTICA_EXP
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -30,7 +30,9 @@ namespace NamedVehiclePrompts
         {
             if (!LoadLanguageFile())
             {
-                Logger.Log(Logger.Level.Error, $"Failed loading language file {languageFile}");
+#if !RELEASE
+                Logger.Log(Logger.Level.Error, $"Failed loading language file {languageFile}"); 
+#endif
             }
             var assembly = Assembly.GetExecutingAssembly();
             new Harmony($"DaWrecka_{assembly.GetName().Name}").PatchAll(assembly);
@@ -51,8 +53,10 @@ namespace NamedVehiclePrompts
             {
                 result = vehiclePromptDict.TryGetValue(targetKey, out prompt);
                 prompt = prompt.Replace("<vehicle>", VehicleName);
+#if !RELEASE
 
-                Logger.Log(Logger.Level.Debug, $"Main.TryGetVehiclePrompt: got prompt value of {prompt} with key {targetKey}");
+                Logger.Log(Logger.Level.Debug, $"Main.TryGetVehiclePrompt: got prompt value of {prompt} with key {targetKey}"); 
+#endif
             }
 
             //return vehiclePromptDict.TryGetValue(targetKey, out prompt);
@@ -63,7 +67,9 @@ namespace NamedVehiclePrompts
         {
             if (!File.Exists(languageFile))
             {
-                Logger.Log(Logger.Level.Error, "File does not exist");
+#if !RELEASE
+                Logger.Log(Logger.Level.Error, "File does not exist"); 
+#endif
                 return false;
             }
 

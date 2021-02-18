@@ -8,9 +8,9 @@
   ],
   "Game": "Subnautica",
   "AssemblyName": "CustomiseYourScannables.dll",
-  "VersionDependencies": {
-    "SMLHelper": "2.9"
-  },
+    "VersionDependencies": {
+        "SMLHelper": "2.9"
+    },
   "VersionChecker": {
     "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/CustomiseYourScannables/master/mod.json"
   },

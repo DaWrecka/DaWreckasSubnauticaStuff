@@ -8,9 +8,9 @@
   ],
   "Game": "Subnautica",
   "AssemblyName": "NamedVehiclePrompts.dll",
-  "VersionDependencies": {
-    "SMLHelper": "2.9"
-  },
+    "VersionDependencies": {
+        "SMLHelper": "2.9"
+    },
   "VersionChecker": {
     "LatestVersionUrl": ""
   },

@@ -4,6 +4,8 @@ using SMLHelper.V2.Options.Attributes;
 using SMLHelper.V2.Handlers;
 using System.Collections.Generic;
 using Logger = QModManager.Utility.Logger;
+using Common;
+//using static CustomiseOxygen.Main;
 
 namespace CustomiseOxygen
 {
@@ -28,6 +30,7 @@ namespace CustomiseOxygen
 
         // We use strings instead of TechTypes to make it easier to support modded TechTypes.
         // Using TechTypes might result in failure to load the config if this mod is loaded before the modded TechType is loaded.
+        // So we save strings, then convert them to TechTypes at the latest possible moment.
         public Dictionary<string, float> defaultTankCapacities = new Dictionary<string, float>(System.StringComparer.OrdinalIgnoreCase)
         {
             { "Tank", 30f },
@@ -41,85 +44,117 @@ namespace CustomiseOxygen
         // The keys within are converted to TechTypes at post-patch time, held in typedCapacityOverrides, and it is that dictionary which
         // is actually used by the code.
         public Dictionary<string, float> CapacityOverrides = new Dictionary<string, float>();
-        
+
+        // This is a separate set of capacities which will be used if manual O2 refill is active. The same rules otherwise apply.
+        public Dictionary<string, float> manualCapacityOverrides = new Dictionary<string, float>();
+
         [System.NonSerialized]
         private Dictionary<TechType, float> typedCapacityOverrides = new Dictionary<TechType, float>();
+        [System.NonSerialized]
+        private Dictionary<TechType, float> manualTypedCapacityOverrides = new Dictionary<TechType, float>();
 
-        public float GetCapacityOverride(TechType tank)
+        public bool GetCapacityOverride(TechType tank, out float capacityOverride, out float capacityMultiplier)
         {
+            Dictionary<TechType, float> activeTypedCapacityOverrides;
+            if (Main.config.bAllowAutoRefill)
+                activeTypedCapacityOverrides = typedCapacityOverrides;
+            else
+                activeTypedCapacityOverrides = manualTypedCapacityOverrides;
+            // if return value is false, no override should be performed.
+            // If return value is true, and capacityOverride == -1, then the base capacity should not be altered.
+
+            capacityOverride = -1f;
+            capacityMultiplier = 1f;
+            Main.ExclusionType exclusion = Main.Exclusions.GetOrDefault(tank, Main.ExclusionType.None);
+
             if (tank == TechType.None)
             {
+#if !RELEASE
                 Logger.Log(Logger.Level.Debug, $"DWOxyConfig.GetCapacityOverride called with invalid TechType None");
-                return -1f;
+                return false;
+#endif
             }
 
-            if (typedCapacityOverrides.TryGetValue(tank, out float value))
+            if (exclusion == Main.ExclusionType.Both)
             {
-                Logger.Log(Logger.Level.Debug, $"DWOxyConfig.GetCapacityOverride: found override value of {value} for tank TechType '{tank.AsString()}' using TryGetValue");
-                return value;
+                Logger.Log(Logger.Level.Debug, $"DWOxyConfig.GetCapacityOverride called with excluded TechType {tank.AsString()}");
+                return false;
             }
 
-            Logger.Log(Logger.Level.Debug, $"DWOxyConfig.GetCapacityOverride: found no override value for TechType '{tank}' using TryGetValue or manual search");
-            return -1f;
+            if (exclusion != Main.ExclusionType.Override)
+            {
+                if (activeTypedCapacityOverrides.TryGetValue(tank, out float value))
+                {
+#if !RELEASE
+                    Logger.Log(Logger.Level.Debug, $"DWOxyConfig.GetCapacityOverride: found override value of {value} for tank TechType '{tank.AsString()}'");
+#endif
+                    capacityOverride = value;
+                    return true; // Don't apply multipliers
+                }
+            }
+
+            if (exclusion != Main.ExclusionType.Multipliers)
+                capacityMultiplier = baseOxyMultiplier * (bAllowAutoRefill ? refillableMultiplier : 1);
+
+            return true;
         }
 
-        public bool SetCapacityOverride(TechType tank, float capacity, bool bUpdateIfPresent = false, bool bIsDefault = false)
+        public bool SetCapacityOverride(TechType tank, float capacity, bool bUpdateIfPresent = false, bool bIsDefault = false, bool bIsManualMode = false)
         {
             // if bIsDefault, the value should be added to the defaults list, not the active list.
 
             if (bIsDefault)
             {
                 string tankID = tank.AsString(true);
-                foreach (KeyValuePair<string, float> kvp in defaultTankCapacities)
+                if (defaultTankCapacities.ContainsKey(tankID))
                 {
-                    if (kvp.Key.ToLower() == tankID)
+                    if (bUpdateIfPresent)
                     {
-                        if (bUpdateIfPresent)
-                        {
-                            defaultTankCapacities[kvp.Key] = capacity;
-                            Save();
-                            return true;
-                        }
-                        else
-                            return false;
+                        defaultTankCapacities[tankID] = capacity;
+                        Save();
+                        return true;
                     }
+                    else
+                        return false;
                 }
 
+                Main.TankTypes.AddTank(tank, capacity, bUpdateIfPresent);
                 defaultTankCapacities.Add(tank.AsString(false), capacity);
                 return false;
             }
 
-            if (typedCapacityOverrides.TryGetValue(tank, out float value))
+            if (bIsManualMode)
             {
-                if (bUpdateIfPresent)
+                if (manualTypedCapacityOverrides.ContainsKey(tank))
                 {
-                    typedCapacityOverrides[tank] = capacity;
-                    Save();
-                    return true;
+                    if (bUpdateIfPresent)
+                    {
+                        manualTypedCapacityOverrides[tank] = capacity;
+                        Save();
+                        return true;
+                    }
+                    else
+                        return false;
                 }
-                else
-                    return false;
+                manualTypedCapacityOverrides.Add(tank, capacity);
             }
-            typedCapacityOverrides.Add(tank, capacity);
+            else
+            {
+                if (typedCapacityOverrides.ContainsKey(tank))
+                {
+                    if (bUpdateIfPresent)
+                    {
+                        typedCapacityOverrides[tank] = capacity;
+                        Save();
+                        return true;
+                    }
+                    else
+                        return false;
+                }
+                typedCapacityOverrides.Add(tank, capacity);
+            }
             Save();
             return true;
-        }
-
-        // Useful function provided by PrimeSonic. Ta!
-        public static TechType GetTechType(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-                return TechType.None;
-
-            // Look for a known TechType
-            if (TechTypeExtensions.FromString(value, out TechType tType, true))
-                return tType;
-
-            //  Not one of the known TechTypes - is it registered with SMLHelper?
-            if (TechTypeHandler.TryGetModdedTechType(value, out TechType custom))
-                return custom;
-
-            return TechType.None;
         }
 
         public void Init()
@@ -133,23 +168,51 @@ namespace CustomiseOxygen
 
             foreach (KeyValuePair<string, float> kvp in CapacityOverrides)
             {
-                TechType tt = GetTechType(kvp.Key);
+                TechType tt = TechTypeUtils.GetTechType(kvp.Key);
                 if (tt == TechType.None)
                 {
-                    Logger.Log(Logger.Level.Debug, $"Failed to load TechType for string '{kvp.Key}'");
+#if !RELEASE
+                    Logger.Log(Logger.Level.Debug, $"Failed to load TechType for string '{kvp.Key}'"); 
+#endif
                     continue;
                 }
 
-                SetCapacityOverride(tt, kvp.Value);
+                SetCapacityOverride(tt, kvp.Value, false, false, false);
             }
 
-            if(bUpdated)
+            if (manualCapacityOverrides == null || manualCapacityOverrides.Count < 1)
+            {
+                manualCapacityOverrides = new Dictionary<string, float>();
+                bUpdated = true;
+            }
+
+            foreach (KeyValuePair<string, float> kvp in manualCapacityOverrides)
+            {
+                TechType tt = TechTypeUtils.GetTechType(kvp.Key);
+                if(tt == TechType.None)
+                {
+#if !RELEASE
+                    Logger.Log(Logger.Level.Debug, $"Failed to load TechType for string '{kvp.Key}'");
+#endif
+                    continue;
+                }
+
+                SetCapacityOverride(tt, kvp.Value, false, false, true);
+            }
+
+            if (bUpdated)
             {
                 Save();
-                Logger.Log(Logger.Level.Debug, "Some values reset to defaults");
+#if !RELEASE
+                Logger.Log(Logger.Level.Debug, "Some values reset to defaults"); 
+#endif
             }
             else
-                Logger.Log(Logger.Level.Debug, "All values present and correct");
+            {
+#if !RELEASE
+                Logger.Log(Logger.Level.Debug, "All values present and correct"); 
+#endif
+            }
         }
     }
 }

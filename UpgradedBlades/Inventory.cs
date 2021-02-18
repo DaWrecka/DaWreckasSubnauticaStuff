@@ -28,7 +28,9 @@ namespace UpgradedBlades
 
         public override void Awake()
         {
-            Logger.Log(Logger.Level.Debug, "VibrobladeBehaviour.Awake() executing");
+#if !RELEASE
+            Logger.Log(Logger.Level.Debug, "VibrobladeBehaviour.Awake() executing"); 
+#endif
 
             this.attackDist = 2f;
             this.bleederDamage = 90f;
@@ -62,7 +64,9 @@ namespace UpgradedBlades
             var obj = Object.Instantiate(prefab);
             if (obj == null)
             {
-                Logger.Log(Logger.Level.Error, "Failed to instantiate GameObject for prefab DiamondBlade");
+#if !RELEASE
+                Logger.Log(Logger.Level.Error, "Failed to instantiate GameObject for prefab DiamondBlade"); 
+#endif
                 return null;
             }
 
@@ -85,7 +89,11 @@ namespace UpgradedBlades
                 blade.ikAimRightArm = true;
             }
             else
-                Logger.Log(Logger.Level.Debug, $"Could not ensure VibrobladeBehaviour component in Vibroblade prefab");
+            {
+#if !RELEASE
+                Logger.Log(Logger.Level.Debug, $"Could not ensure VibrobladeBehaviour component in Vibroblade prefab"); 
+#endif
+            }
 
             return obj;
         }

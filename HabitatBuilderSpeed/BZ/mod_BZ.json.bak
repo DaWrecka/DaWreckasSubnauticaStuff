@@ -1,0 +1,21 @@
+{
+  "Id": "BuilderSpeed",
+  "DisplayName": "Habitat Builder Speed Modifier",
+  "Author": "DaWrecka",
+  "Version": "0.1.2.0",
+  "Dependencies": [
+    "SMLHelper"
+  ],
+  "Game": "BelowZero",
+  "AssemblyName": "HabitatBuilderSpeed.dll",
+  "VersionDependencies": {
+    "SMLHelper": "2.9"
+  },
+  "VersionChecker": {
+    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/HabitatBuilderSpeed/mod_BZ.json"
+  },
+  "NexusId": {
+    "Subnautica": "559"
+  },
+  "Enable": true
+}

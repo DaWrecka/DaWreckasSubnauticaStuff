@@ -10,9 +10,11 @@ namespace HabitatBuilderSpeed.Configuration
     {
         private const float MAX_MULT = 5f;
         private const float MIN_MULT = 0.1f;
-        internal float _builderMultiplier = 1f; // Minimum number of ingredients received from scanning an existing fragment
+        internal float _builderMultiplier = 1f;
 
-        [Slider("Speed multiplier", MIN_MULT, MAX_MULT, DefaultValue = 1, Id = "SpeedMult", Step = 0.05f, Format = "{0:F2}"), OnChange(nameof(OnSliderChange))]
+        [Slider("Speed multiplier", MIN_MULT, MAX_MULT, DefaultValue = 1, Id = "SpeedMult", Step = 0.05f, Format = "{0:F2}",
+            Tooltip = "Time required to construct/deconstruct is multiplied by this value. Values lower than 1 make the Habitat Builder faster, values above 1 make it slower.\r\nValues lower than 0.5 are allowed, but not recommended!"),
+            OnChange(nameof(OnSliderChange))]
         public float builderMultiplier {
             get
             {

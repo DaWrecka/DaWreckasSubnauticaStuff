@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>8a848353-2b17-4ec0-9a43-3992adb96579</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Common</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Utility\GeneralUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility\PrefabUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility\TechTypeUtils.cs" />
+  </ItemGroup>
+</Project>

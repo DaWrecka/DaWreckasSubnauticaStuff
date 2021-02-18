@@ -5,6 +5,8 @@ using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Handlers;
 using System.Collections.Generic;
 using System.Reflection;
+using Logger = QModManager.Utility.Logger;
+using Common;
 
 namespace CustomiseYourStorage_BZ
 {
@@ -15,7 +17,11 @@ namespace CustomiseYourStorage_BZ
 
         internal static DWStorageConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWStorageConfig>();
 
-        internal static List<TechType> StorageBlacklist = new List<TechType>() // If the TechType is on this list, don't do anything.
+        // The actual TechTypes used for the blacklist, populated at post-patch time.
+        internal static List<TechType> StorageBlacklist = new List<TechType>();
+
+        internal static List<string> stringBlacklist = new List<string>()
+        // If the TechType is on this list, don't do anything.
         // Initially-used for the aquariums - the free-standing base Aquarium, and the Seatruck Aquarium Module.
         // This is because there is a fixed limit of 8 fish that can be made visible in the aquarium, and the code assumes it will never go over this limit.
         // If it does - because you've increased the size of the storage container and added a ninth fish - a null reference exception is thrown.
@@ -23,16 +29,20 @@ namespace CustomiseYourStorage_BZ
         // Similarly, we exclude the planters because they, too, have visuals associated with them that are likely to go ka-ka if we expand the storage.
         {
 #if BELOWZERO
-            TechType.SeaTruckAquariumModule,
+            "SeaTruckAquariumModule",
 #endif
-            TechType.Aquarium,
-            TechType.FarmingTray,
-            TechType.PlanterBox,
-            TechType.PlanterPot,
-            TechType.PlanterPot2,
-            TechType.PlanterPot3,
-            TechType.PlanterShelf
+            "Aquarium",
+            "FarmingTray",
+            "PlanterBox",
+            "PlanterPot",
+            "PlanterPot2",
+            "PlanterPot3",
+            "PlanterShelf",
+            "AutoSorter",
+            "AutosortTarget",
+            "AutosortTargetStanding"
         };
+
 
         [QModPatch]
         public static void Load()
@@ -62,7 +72,14 @@ namespace CustomiseYourStorage_BZ
             CraftTreeHandler.AddCraftingNode(CraftTree.Type.SeamothUpgrades, TechType.VehicleStorageModule, new string[] { "ExosuitModules" });
             CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.VehicleStorageModule, new string[] { "Upgrades", "ExosuitUpgrades" });
             KnownTechHandler.SetAnalysisTechEntry(TechType.Exosuit, new TechType[] { TechType.VehicleStorageModule });
+            foreach (string s in stringBlacklist)
+            {
+                TechType tt = TechTypeUtils.GetTechType(s);
+                if (tt != TechType.None)
+                    StorageBlacklist.Add(tt);
+                else
+                    Logger.Log(Logger.Level.Debug, $"Could not find TechType for string '{s}' in blacklist. Is associated mod installed?");
+            }
         }
     }
 }
-
