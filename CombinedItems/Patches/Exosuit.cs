@@ -132,9 +132,11 @@ namespace CombinedItems.Patches
 
 			int flag2index = -1;
 			int jumpForceIndex = -1;
+			int maxIndex = codes.Count - 4; // We search for five-opcode patterns. If we go past (count-4) then we'll get an Index Out of Range exception.
+			// So we limit our max index here.
 			int i = -1;
 
-			while(++i < codes.Count && (flag2index == -1 || jumpForceIndex == -1))
+			while(++i < maxIndex && (flag2index == -1 || jumpForceIndex == -1))
 			{
 				//CodeInstruction currentCode = codes[i];
 				if (flag2index == -1)
