@@ -1,15 +1,17 @@
-﻿using Common;
+﻿using CombinedItems;
+using CombinedItems.ExosuitModules;
+using CombinedItems.MonoBehaviours;
+using Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CombinedItems;
 using HarmonyLib;
 using QModManager.Utility;
 using UnityEngine;
-using CombinedItems.ExosuitModules;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace CombinedItems.Patches
 {
@@ -27,21 +29,21 @@ namespace CombinedItems.Patches
         private static readonly FieldInfo powersliding = typeof(Exosuit).GetField("powersliding", BindingFlags.Instance | BindingFlags.NonPublic);
         private static readonly FieldInfo areFXPlaying = typeof(Exosuit).GetField("areFXPlaying", BindingFlags.Instance | BindingFlags.NonPublic);
         private static readonly MethodInfo ApplyJumpForceMethod = typeof(Exosuit).GetMethod("ApplyJumpForce", BindingFlags.Instance | BindingFlags.NonPublic);
-        protected static bool JumpJetsUpgraded(Exosuit instance) { return (bool)jumpJetUpgrade.GetValue(instance); }
-        protected static bool JetsActive(Exosuit instance) => (bool)jetsActive.GetValue(instance);
-        protected static void JetsActive(Exosuit instance, bool value) { jetsActive.SetValue(instance, value); }
-        protected static float TimeJetsActiveChanged(Exosuit instance) => (float)timeJetsActiveChanged.GetValue(instance);
-        protected static float ThrustPower(Exosuit instance) => (float)thrustPower.GetValue(instance);
-        protected static void ThrustPower(Exosuit instance, float value) { thrustPower.SetValue(instance, value); }
-        protected static float ThrustConsumption(Exosuit instance) => (float)thrustConsumption.GetValue(instance);
-        protected static bool OnGround(Exosuit instance) => (bool)onGround.GetValue(instance);
-        protected static float TimeOnGround(Exosuit instance) => (float)timeOnGround.GetValue(instance);
-        protected static bool JetDownLastFrame(Exosuit instance) => (bool)jetDownLastFrame.GetValue(instance);
-        protected static void JetDownLastFrame(Exosuit instance, bool value) { jetDownLastFrame.SetValue(instance, value); }
-        protected static bool Powersliding(Exosuit instance) => (bool)powersliding.GetValue(instance);
-        protected static bool AreFXPlaying(Exosuit instance) => (bool)areFXPlaying.GetValue(instance);
-        protected static void AreFXPlaying(Exosuit instance, bool value) { areFXPlaying.SetValue(instance, value); }
-        protected static void ApplyJumpForce(Exosuit instance) { ApplyJumpForceMethod.Invoke(instance, new object[] { }); }
+        internal static bool JumpJetsUpgraded(Exosuit instance) { return (bool)jumpJetUpgrade.GetValue(instance); }
+        /*internal static bool JetsActive(Exosuit instance) => (bool)jetsActive.GetValue(instance);
+        internal static void JetsActive(Exosuit instance, bool value) { jetsActive.SetValue(instance, value); }
+        internal static float TimeJetsActiveChanged(Exosuit instance) => (float)timeJetsActiveChanged.GetValue(instance);
+        internal static float ThrustPower(Exosuit instance) => (float)thrustPower.GetValue(instance);
+        internal static void ThrustPower(Exosuit instance, float value) { thrustPower.SetValue(instance, value); }
+        internal static float ThrustConsumption(Exosuit instance) => (float)thrustConsumption.GetValue(instance);
+        internal static bool OnGround(Exosuit instance) => (bool)onGround.GetValue(instance);
+        internal static float TimeOnGround(Exosuit instance) => (float)timeOnGround.GetValue(instance);
+        internal static bool JetDownLastFrame(Exosuit instance) => (bool)jetDownLastFrame.GetValue(instance);
+        internal static void JetDownLastFrame(Exosuit instance, bool value) { jetDownLastFrame.SetValue(instance, value); }
+        internal static bool Powersliding(Exosuit instance) => (bool)powersliding.GetValue(instance);
+        internal static bool AreFXPlaying(Exosuit instance) => (bool)areFXPlaying.GetValue(instance);
+        internal static void AreFXPlaying(Exosuit instance, bool value) { areFXPlaying.SetValue(instance, value); }*/
+        internal static void ApplyJumpForce(Exosuit instance) { ApplyJumpForceMethod.Invoke(instance, new object[] { }); }
 
         [HarmonyPatch("Start")]
         [HarmonyPrefix]
@@ -88,11 +90,19 @@ namespace CombinedItems.Patches
             }
         }
 
+        [HarmonyPatch("Start")]
+        [HarmonyPostfix]
+        public static void PostStart(Exosuit __instance)
+        {
+            ExosuitUpdater exosuitUpdate = __instance.gameObject.EnsureComponent<ExosuitUpdater>();
+            Vehicle v = __instance as Vehicle;
+            exosuitUpdate.Initialise(ref v);
+        }
+
         [HarmonyPostfix]
         [HarmonyPatch(nameof(Exosuit.HasClaw))]
         public static bool PostHasClaw(bool __result, Exosuit __instance)
         {
-
             return __result || __instance.leftArmType == Main.prefabLightningClaw.TechType || __instance.rightArmType == Main.prefabLightningClaw.TechType;
         }
 
@@ -100,6 +110,7 @@ namespace CombinedItems.Patches
         [HarmonyPatch("OnUpgradeModuleChange")]
         public static void PostUpgradeChange(ref Exosuit __instance, int slotID, TechType techType, bool added)
         {
+            __instance.gameObject.EnsureComponent<ExosuitUpdater>().PostUpgradeModuleChange(techType);
             if (techType == Main.prefabLightningClaw.TechType)
                 __instance.MarkArmsDirty();
         }
@@ -108,78 +119,85 @@ namespace CombinedItems.Patches
         [HarmonyPatch("OverrideAcceleration")]
         public static void PostOverrideAcceleration(ref Exosuit __instance, ref Vector3 acceleration)
         {
-            if (__instance.modules.GetCount(Main.prefabExosuitSprintModule.TechType) > 0 && GameInput.GetButtonDown(GameInput.Button.Sprint))
+            __instance.gameObject.EnsureComponent<ExosuitUpdater>().PostOverrideAcceleration(ref acceleration, JumpJetsUpgraded(__instance));
+        }
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(nameof(Exosuit.Update))]
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+            MethodInfo usingJumpjetsMethod = typeof(ExosuitPatches).GetMethod(nameof(ExosuitPatches.ExosuitUsingJumpJets));
+            MethodInfo tryApplyJumpForceMethod = typeof(ExosuitPatches).GetMethod(nameof(ExosuitPatches.TryApplyJumpForce));
+
+            int flag2index = -1;
+            int jumpForceIndex = -1;
+            int i = -1;
+
+            while(++i < codes.Count && (flag2index == -1 || jumpForceIndex == -1))
             {
-                float thrust = JumpJetsUpgraded(__instance) ? 2f : 1f;
-                acceleration.x *= thrust;
-                acceleration.z *= thrust;
+                //CodeInstruction currentCode = codes[i];
+                if (flag2index == -1)
+                {
+                    if (codes[i].opcode == OpCodes.Stloc_1 && codes[i + 1].opcode == OpCodes.Ldloc_1 && codes[i + 2].opcode == OpCodes.Ldfld && codes[i + 3].opcode == OpCodes.Ldc_R4 && codes[i + 4].opcode == OpCodes.Cgt)
+                    {
+                        /* These codes correspond to "bool flag2 = vector.y > 0;"
+		                    IL_00dd: stloc.1
+		                    IL_00de: ldloc.1
+		                    IL_00df: ldfld float32 [UnityEngine.CoreModule]UnityEngine.Vector3::y
+		                    IL_00e4: ldc.r4 0.0
+		                    IL_00e9: cgt
+                         * We want to replace them with the equivalent of bool flag2 = ExosuitPatches.ExosuitUsingJumpJets(this, vector);
+                         * So we need to first use ldarg.0 to put the current Exosuit instance on the stack, the ldloc.1 to put local variable 1 - named vector - on the stack.
+                         * Then we call the 'using jump jets' method. There are then two more opcodes we need to change to no-ops.*/
+                        flag2index = i;
+                        codes[flag2index] = new CodeInstruction(OpCodes.Ldarg_0);
+                        codes[flag2index + 1] = new CodeInstruction(OpCodes.Ldloc_1);
+                        codes[flag2index + 2] = new CodeInstruction(OpCodes.Call, usingJumpjetsMethod);
+                        codes[flag2index + 3] = new CodeInstruction(OpCodes.Nop);
+                        codes[flag2index + 4] = new CodeInstruction(OpCodes.Nop);
+                    }
+                }
+                else if (jumpForceIndex == -1) // jumpForceIndex cannot be found before flag2index. Even if this particular sequence of opcodes is found before this, it's not the one we're looking for.
+                    // Thus, 'else if' is appropriate here.
+                {
+                    /*
+		                IL_0141: ldarg.0
+		                IL_0142: ldfld bool Exosuit::jetDownLastFrame
+		                IL_0147: brtrue.s IL_014f
+
+		                IL_0149: ldarg.0
+		                IL_014a: call instance void Exosuit::ApplyJumpForce()
+                     */
+
+                    // We're searching here for the three opcodes ahead of the two we need, since the two opcodes we're looking for are pretty commonly found together.
+                    // A very cursory inspection on my part found an ldarg.0 followed by a call within about half a page of IL code - no scrolling required, and I found another.
+                    // So; Search for a specific group of three opcodes ahead of the ones we're interested in, to make sure they're actually the ones we're interested in.
+                    if (codes[i].opcode == OpCodes.Ldarg_0 && codes[i + 1].opcode == OpCodes.Ldfld && codes[i + 2].opcode == OpCodes.Brtrue_S && codes[i + 3].opcode == OpCodes.Ldarg_0 && codes[i + 4].opcode == OpCodes.Call)
+                    {
+                        jumpForceIndex = i + 3;
+                        // What we need to do here is a) Insert an additional ldloc between the ldarg.0 and the call, and b) change the destination of the call.
+                        codes.Insert(jumpForceIndex + 1, new CodeInstruction(OpCodes.Ldloc_1));
+                        codes[jumpForceIndex + 2] = new CodeInstruction(OpCodes.Call, tryApplyJumpForceMethod);
+                    }
+                }
             }
+
+            if (flag2index == -1)
+                Log.LogError("Exosuit.Update() transpiler could not find first patch location in method");
+            else if (jumpForceIndex == -1)
+                Log.LogError("Exosuit.Update() transpiler could not find second patch location in method");
+
+            return codes.AsEnumerable();
         }
 
         [HarmonyPostfix]
         [HarmonyPatch("Update")]
         public static void PostUpdate(ref Exosuit __instance)
         {
-            /*bool bSprint = (__instance.modules.GetCount(Main.prefabExosuitSprintModule.TechType) > 0 && GameInput.GetButtonDown(GameInput.Button.Sprint));
-            if (bSprint)
-            {
-                float fthrustConsumption = ThrustConsumption(__instance);
-                bool bOnGround = OnGround(__instance);
-                float fTimeOnGround = TimeOnGround(__instance);
-                bool bPowersliding = Powersliding(__instance);
-                float fTimeJetsActiveChanged = TimeJetsActiveChanged(__instance);
-                bool bJetsActive = JetsActive(__instance);
-                bool bJetsDownLastFrame = JetDownLastFrame(__instance);
-                bool pilotingMode = __instance.GetPilotingMode();
-                bool docked = pilotingMode && !__instance.docked;
-
-                if (pilotingMode)
-                {
-                    Player.main.transform.localPosition = Vector3.zero;
-                    Player.main.transform.localRotation = Quaternion.identity;
-                    Vector3 vector = AvatarInputHandler.main.IsEnabled() ? GameInput.GetMoveDirection() : Vector3.zero;
-                    bool bJumping = vector.y > 0f;
-                    bool bPoweredup = __instance.IsPowered() && __instance.liveMixin.IsAlive();
-                    if (bPoweredup)
-                    {
-                        ThrustPower(__instance, Mathf.Clamp01(ThrustPower(__instance) - Time.deltaTime * fthrustConsumption));
-                        if ((bOnGround || Time.time - fTimeOnGround <= 1f) && !bJetsDownLastFrame && bJumping)
-                        {
-                            ApplyJumpForce(__instance);
-                        }
-                        JetsActive(__instance, true);
-                    }
-                    else
-                    {
-                        JetsActive(__instance, false);
-                        float num = Time.deltaTime * fthrustConsumption * 0.7f;
-                        if (bOnGround)
-                        {
-                            num = Time.deltaTime * fthrustConsumption * 4f;
-                        }
-                        ThrustPower(__instance, Mathf.Clamp01(ThrustPower(__instance) + num));
-                    }
-                    JetDownLastFrame(__instance, bPoweredup);
-                    __instance.footStepSounds.soundsEnabled = !bPowersliding;
-                    __instance.movementEnabled = !bPowersliding;
-                    ProfilingUtils.BeginSample("UpdateJetFX");
-                    if (fTimeJetsActiveChanged + 0.3f <= Time.time)
-                    {
-                        if ((bJetsActive || bPowersliding) && ThrustPower(__instance) > 0f)
-                        {
-                            __instance.loopingJetSound.Play();
-                            __instance.fxcontrol.Play(0);
-                            AreFXPlaying(__instance, true);
-                        }
-                        else if (AreFXPlaying(__instance))
-                        {
-                            __instance.loopingJetSound.Stop();
-                            __instance.fxcontrol.Stop(0);
-                            AreFXPlaying(__instance, false);
-                        }
-                    }
-                }
-            }*/
+            __instance.gameObject.EnsureComponent<ExosuitUpdater>().Tick();
+            Vector3 vector = AvatarInputHandler.main.IsEnabled() ? GameInput.GetMoveDirection() : Vector3.zero;
+            //TestingCIL(vector, __instance);
         }
         /*
             * Methods which may need to be patched to accomodate future plans:
@@ -209,5 +227,28 @@ namespace CombinedItems.Patches
                 }
             }
             */
+
+        public static bool ExosuitIsJumping(Exosuit exosuit, Vector3 velocity)
+        {
+            return velocity.y > 0;
+        }
+
+        public static bool ExosuitIsSprinting(Exosuit exosuit)
+        {
+            return exosuit.modules.GetCount(Main.prefabExosuitSprintModule.TechType) > 0 && GameInput.GetButtonHeld(GameInput.Button.Sprint);
+        }
+
+        public static bool ExosuitUsingJumpJets(Exosuit exosuit, Vector3 velocity)
+        {
+            return ExosuitIsJumping(exosuit, velocity) || ExosuitIsSprinting(exosuit);
+        }
+
+        public static void TryApplyJumpForce(Exosuit exosuit, Vector3 velocity)
+        {
+            if (ExosuitIsJumping(exosuit, velocity))
+            {
+                ApplyJumpForceMethod.Invoke(exosuit, null);
+            }
+        }
     } 
 }

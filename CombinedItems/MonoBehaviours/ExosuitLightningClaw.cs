@@ -8,7 +8,8 @@ using UWE;
 
 namespace CombinedItems.ExosuitModules
 {
-    public class ExosuitLightningClaw : MonoBehaviour, IExosuitArm
+	//public class ExosuitLightningClaw : MonoBehaviour, IExosuitArm
+	public class ExosuitLightningClaw : ExosuitClawArm
 	{
 		// Stol<cough>Borrowed from Senna's Seamoth Arms
 		private void Awake()
@@ -20,17 +21,18 @@ namespace CombinedItems.ExosuitModules
 			foreach (FMODAsset asset in GetComponents<FMODAsset>())
 			{
 				if (asset.name == "claw_hit_terrain")
-					hitTerrainSound = asset;
+					this.hitTerrainSound = asset;
 
 				if (asset.name == "claw_hit_fish")
-					hitFishSound = asset;
+					this.hitFishSound = asset;
 
 				if (asset.name == "claw_pickup")
-					pickupSound = asset;
+					this.pickupSound = asset;
 			}
 
 
 			front = FindDeepChild(gameObject, "wrist").transform;
+			//base.Awake();
 		}
 
 		public GameObject FindDeepChild(GameObject parent, string childName)
@@ -56,6 +58,51 @@ namespace CombinedItems.ExosuitModules
 			return null;
 		}
 
+		new public void OnHit()
+		{
+			Exosuit componentInParent = base.GetComponentInParent<Exosuit>();
+			if (componentInParent.CanPilot() && componentInParent.GetPilotingMode())
+			{
+				Vector3 position = default(Vector3);
+				GameObject gameObject = null;
+				Vector3 vector;
+				UWE.Utils.TraceFPSTargetPosition(componentInParent.gameObject, 6.5f, ref gameObject, ref position, out vector, true);
+				if (gameObject == null)
+				{
+					InteractionVolumeUser component = Player.main.gameObject.GetComponent<InteractionVolumeUser>();
+					if (component != null && component.GetMostRecent() != null)
+					{
+						gameObject = component.GetMostRecent().gameObject;
+					}
+				}
+				if (gameObject)
+				{
+					LiveMixin liveMixin = gameObject.FindAncestor<LiveMixin>();
+					if (liveMixin)
+					{
+						liveMixin.IsAlive();
+						// Had to copy the entire class just so I could change this one line... sigh.
+						Log.LogDebug($"ExosuitLightningClaw: inflicting Electrical damage on target {gameObject.ToString()}");
+						liveMixin.TakeDamage(50f, position, DamageType.Normal, null);
+						// Originally the change was from Normal to Electrical, but there should be a Normal component and an Electrical.
+						// Without a Normal component to the damage, Eye Jellies (to use one example) give no fucks about being twatted in the eye with a Lightning Claw.
+						// That's not right; even if the electrical damage does nothing for them, it's a chunk of heavy metal being propelled at high speed by precision hydraulics.
+						liveMixin.TakeDamage(30f, position, DamageType.Electrical, null);
+						global::Utils.PlayFMODAsset(base.hitFishSound, this.front, 50f);
+					}
+					else
+					{
+						global::Utils.PlayFMODAsset(base.hitTerrainSound, this.front, 50f);
+					}
+					VFXSurface component2 = gameObject.GetComponent<VFXSurface>();
+					Vector3 euler = MainCameraControl.main.transform.eulerAngles + new Vector3(300f, 90f, 0f);
+					VFXSurfaceTypeManager.main.Play(component2, base.vfxEventType, position, Quaternion.Euler(euler), componentInParent.gameObject.transform);
+					gameObject.SendMessage("BashHit", this, SendMessageOptions.DontRequireReceiver);
+				}
+			}
+		}
+
+		/*
 		// Token: 0x060019E5 RID: 6629 RVA: 0x0002B86D File Offset: 0x00029A6D
 		GameObject IExosuitArm.GetGameObject()
 		{
@@ -210,50 +257,6 @@ namespace CombinedItems.ExosuitModules
 			yield break;
 		}
 
-		// Token: 0x060019F1 RID: 6641 RVA: 0x00080BD0 File Offset: 0x0007EDD0
-		public void OnHit()
-		{
-			Exosuit componentInParent = base.GetComponentInParent<Exosuit>();
-			if (componentInParent.CanPilot() && componentInParent.GetPilotingMode())
-			{
-				Vector3 position = default(Vector3);
-				GameObject gameObject = null;
-				Vector3 vector;
-				UWE.Utils.TraceFPSTargetPosition(componentInParent.gameObject, 6.5f, ref gameObject, ref position, out vector, true);
-				if (gameObject == null)
-				{
-					InteractionVolumeUser component = Player.main.gameObject.GetComponent<InteractionVolumeUser>();
-					if (component != null && component.GetMostRecent() != null)
-					{
-						gameObject = component.GetMostRecent().gameObject;
-					}
-				}
-				if (gameObject)
-				{
-					LiveMixin liveMixin = gameObject.FindAncestor<LiveMixin>();
-					if (liveMixin)
-					{
-						liveMixin.IsAlive();
-						// Had to copy the entire class just so I could change this one line... sigh.
-						Log.LogDebug($"ExosuitLightningClaw: inflicting Electrical damage on target {gameObject.ToString()}");
-						liveMixin.TakeDamage(50f, position, DamageType.Normal, null);
-						// Actually, on reflection we should have some normal-type damage in addition to electrical. As it stands, Eye Jellies give no fucks about being twatted in the eye with a Lightning Claw.
-						// That's not right; even if the electrical damage does nothing for them, it's a chunk of heavy metal being propelled at high speed by precision hydraulics.
-						liveMixin.TakeDamage(30f, position, DamageType.Electrical, null);
-						global::Utils.PlayFMODAsset(this.hitFishSound, this.front, 50f);
-					}
-					else
-					{
-						global::Utils.PlayFMODAsset(this.hitTerrainSound, this.front, 50f);
-					}
-					VFXSurface component2 = gameObject.GetComponent<VFXSurface>();
-					Vector3 euler = MainCameraControl.main.transform.eulerAngles + new Vector3(300f, 90f, 0f);
-					VFXSurfaceTypeManager.main.Play(component2, this.vfxEventType, position, Quaternion.Euler(euler), componentInParent.gameObject.transform);
-					gameObject.SendMessage("BashHit", this, SendMessageOptions.DontRequireReceiver);
-				}
-			}
-		}
-
 		// Token: 0x04001D57 RID: 7511
 		public const float kGrabDistance = 6f;
 
@@ -308,5 +311,6 @@ namespace CombinedItems.ExosuitModules
 
 		// Token: 0x04001D68 RID: 7528
 		private Exosuit exosuit;
+	*/
 	}
 }

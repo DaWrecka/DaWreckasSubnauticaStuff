@@ -28,6 +28,7 @@ namespace AcidProofSuit.Patches
         private static List<TechTypeSub> Substitutions = new List<TechTypeSub>();
 
         // We use this as a cache; if PostFix receives a call for which substitutionTargets.Contains(techType) is false, we know nothing has requested to substitute this TechType, so we can ignore it.
+        // If we were able to use a dictionary then ContainsKey() would do the trick, but since we can't...
         private static List<TechType> substitutionTargets = new List<TechType>();
 
         public static void AddSubstitution(TechType substituted, TechType substitution)
@@ -510,7 +511,7 @@ namespace AcidProofSuit.Patches
     internal class Player_OnAcidEnter_Patch
     {
         [HarmonyPrefix]
-        public static bool Prefix(ref Player __instance)
+        public static bool PreOnAcidEnter(ref Player __instance)
         {
             //Logger.Log(Logger.Level.Debug, "Player entered acid");
 
@@ -532,8 +533,8 @@ namespace AcidProofSuit.Patches
     [HarmonyPatch(typeof(Player), "OnAcidExit")]
     internal class Player_OnAcidExit_Patch
     {
-        [HarmonyPrefix]
-        public static bool Prefix(ref Player __instance)
+        [HarmonyPostfix]
+        public static bool PostOnAcidExit(ref Player __instance)
         {
             //Logger.Log(Logger.Level.Debug, "Player exited acid");
 

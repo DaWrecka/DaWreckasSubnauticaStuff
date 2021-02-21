@@ -44,7 +44,7 @@ namespace CombinedItems.Patches
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(Equipment), nameof(Equipment.GetCount))]
-        public static void GetCountPostFix(ref Equipment __instance, ref int __result, TechType techType)
+        public static void PostGetCount(ref Equipment __instance, ref int __result, TechType techType)
         {
             if (!substitutionTargets.Contains(techType))
                 return; // No need to do anything more.

@@ -94,9 +94,10 @@
     <Compile Include="Equipables\HighCapacityBooster.cs" />
     <Compile Include="Equipables\ReinforcedColdSuit.cs" />
     <Compile Include="ExosuitModules\ExosuitSprintModule.cs" />
-    <Compile Include="MonoBehaviors\ExosuitLightningClaw.cs" />
+    <Compile Include="MonoBehaviours\ExosuitLightningClaw.cs" />
     <Compile Include="ExosuitModules\ExosuitLightningClawPrefab.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="MonoBehaviours\ExosuitUpdater.cs" />
     <Compile Include="Patches\Batteries.cs" />
     <Compile Include="Patches\Exosuit.cs" />
     <Compile Include="Patches\Plantable.cs" />

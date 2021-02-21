@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using CombinedItems.Patches;
+using Common;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
@@ -30,6 +31,8 @@ namespace CombinedItems.Patches
             if (__instance is Exosuit exosuit)
             {
                 bool bExosuitSprint = (exosuit.modules.GetCount(Main.prefabExosuitSprintModule.TechType) > 0 && GameInput.GetButtonDown(GameInput.Button.Sprint));
+                bool bJumpJetsUpgraded = ExosuitPatches.JumpJetsUpgraded(exosuit);
+                float forceMultiplier = 1f * (bExosuitSprint ? (bJumpJetsUpgraded ? 2.5f : 2f) : 1f);
                 exosuit.forwardForce = defaultForwardForce * (bExosuitSprint ? 2f : 1f); // These constants will likely be tweaked, but they're here for testing
                 Log.LogDebug($"VehiclePatches.PreApplyPhysicsMove(): Applying forwardForce of {exosuit.forwardForce} to Exosuit with defaultForwardForce of {defaultForwardForce}");
             }
