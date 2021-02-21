@@ -134,11 +134,15 @@ namespace CombinedItems.Patches
 			int jumpForceIndex = -1;
 			int maxIndex = codes.Count - 4; // We search for five-opcode patterns. If we go past (count-4) then we'll get an Index Out of Range exception.
 			// So we limit our max index here.
-			int i = -1;
+			int i = 0;
 
-			while(++i < maxIndex && (flag2index == -1 || jumpForceIndex == -1))
+			for(i = 0; i < codes.Count; i++)
+				Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}");
+
+			i = -1;
+
+			while (++i < maxIndex && (flag2index == -1 || jumpForceIndex == -1))
 			{
-				//CodeInstruction currentCode = codes[i];
 				if (flag2index == -1)
 				{
 					if (codes[i].opcode == OpCodes.Stloc_1 && codes[i + 1].opcode == OpCodes.Ldloc_1 && codes[i + 2].opcode == OpCodes.Ldfld
@@ -151,14 +155,15 @@ namespace CombinedItems.Patches
 							IL_00e4: ldc.r4 0.0
 							IL_00e9: cgt
 						 * We want to replace them with the equivalent of bool flag2 = ExosuitPatches.ExosuitUsingJumpJets(this, vector);
-						 * So we first use ldarg.0 to put the current Exosuit instance on the stack, the ldloc.1 to put local variable 1 - vector - on the stack.
-						 * Then we call the 'using jump jets' method. There are then two more opcodes we need to change to no-ops.*/
-						flag2index = i;
-						codes[flag2index] = new CodeInstruction(OpCodes.Ldarg_0);
-						codes[flag2index + 1] = new CodeInstruction(OpCodes.Ldloc_1);
-						codes[flag2index + 2] = new CodeInstruction(OpCodes.Call, usingJumpjetsMethod);
-						codes[flag2index + 3] = new CodeInstruction(OpCodes.Nop);
-						codes[flag2index + 4] = new CodeInstruction(OpCodes.Nop);
+						 * So we first use ldarg.0 to put the current Exosuit instance on the stack, then ldloc.1 to put local variable 1 - vector - on the stack.
+						 * Then we call the 'using jump jets' method.*/
+						flag2index = i+1;
+						Log.LogDebug("Found first patch region at index " + String.Format("0x{0:X4}", flag2index));
+						codes[flag2index + 1] = new CodeInstruction(OpCodes.Ldarg_0);
+						codes[flag2index + 2] = new CodeInstruction(OpCodes.Ldarg_0);
+						codes[flag2index + 3] = new CodeInstruction(OpCodes.Ldloc_1);
+						codes[flag2index + 4] = new CodeInstruction(OpCodes.Callvirt, usingJumpjetsMethod);
+						i = flag2index + 4;
 					}
 				}
 				else if (jumpForceIndex == -1) // jumpForceIndex cannot be found before flag2index. Even if this particular sequence of opcodes is found before this,
@@ -173,17 +178,24 @@ namespace CombinedItems.Patches
 						IL_014a: call instance void Exosuit::ApplyJumpForce()
 
 					We're searching here for the three opcodes ahead of the two we need, since the two opcodes we're looking for are pretty commonly found together.
-					A very cursory inspection on my part found an ldarg.0 followed by a call within about half a page of IL code - with no effort
-						required, I found another.
+					A very cursory inspection on my part found an ldarg.0 followed by a call within about half a page of IL code. With no effort
+						required, I found another sequence of opcodes identical to the one I was interested in.
 					So; Search for a specific group of three opcodes ahead of the ones we're interested in, to make sure they're the ones we're interested in.
 					*/
-					if (codes[i].opcode == OpCodes.Ldarg_0 && codes[i + 1].opcode == OpCodes.Ldfld && codes[i + 2].opcode == OpCodes.Brtrue_S
+					if (codes[i].opcode == OpCodes.Ldarg_0 && codes[i + 1].opcode == OpCodes.Ldfld
+						&& (codes[i + 2].opcode == OpCodes.Brtrue_S || codes[i + 2].opcode == OpCodes.Brtrue) // Strangely, while ILSpy and dnSpy both display the opcode here as brtrue.s,
+							// the actual opcode passed to the transpiler is brtrue.
 						&& codes[i + 3].opcode == OpCodes.Ldarg_0 && codes[i + 4].opcode == OpCodes.Call)
 					{
 						jumpForceIndex = i + 3;
-						// What we need to do here is a) Insert an additional ldloc between the ldarg.0 and the call, and b) change the destination of the call.
-						codes.Insert(jumpForceIndex + 1, new CodeInstruction(OpCodes.Ldloc_1));
-						codes[jumpForceIndex + 2] = new CodeInstruction(OpCodes.Call, tryApplyJumpForceMethod);
+						Log.LogDebug("Found second patch region at index " + String.Format("0x{0:X4}", jumpForceIndex));
+						/* What we need to do here, in no particular order, is
+						 * a) Insert an additional ldarg.0 and a ldloc.1 between the ldarg.0 and the call
+						 * b) change the destination of the call. */
+						codes.Insert(jumpForceIndex + 1, new CodeInstruction(OpCodes.Ldarg_0));
+						codes.Insert(jumpForceIndex + 2, new CodeInstruction(OpCodes.Ldloc_1));
+						codes[jumpForceIndex + 3] = new CodeInstruction(OpCodes.Callvirt, tryApplyJumpForceMethod);
+						i = jumpForceIndex + 3;
 					}
 				}
 			}
@@ -202,7 +214,6 @@ namespace CombinedItems.Patches
 		{
 			__instance.gameObject.EnsureComponent<ExosuitUpdater>().Tick();
 			Vector3 vector = AvatarInputHandler.main.IsEnabled() ? GameInput.GetMoveDirection() : Vector3.zero;
-			//TestingCIL(vector, __instance);
 		}
 		/*
 			* Methods which may need to be patched to accomodate future plans:
