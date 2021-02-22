@@ -137,7 +137,7 @@ namespace CombinedItems.Patches
 			int i = 0;
 
 			for(i = 0; i < codes.Count; i++)
-				Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}");
+				Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
 
 			i = -1;
 
@@ -146,7 +146,7 @@ namespace CombinedItems.Patches
 				if (flag2index == -1)
 				{
 					if (codes[i].opcode == OpCodes.Stloc_1 && codes[i + 1].opcode == OpCodes.Ldloc_1 && codes[i + 2].opcode == OpCodes.Ldfld
-						&& codes[i + 3].opcode == OpCodes.Ldc_R4 && codes[i + 4].opcode == OpCodes.Cgt)
+						&& codes[i + 3].opcode == OpCodes.Ldc_R4 && codes[i + 4].opcode == OpCodes.Cgt && codes[i+5].opcode == OpCodes.Stloc_2)
 					{
 						/* These codes correspond to "bool flag2 = vector.y > 0;"
 							IL_00dd: stloc.1
@@ -160,9 +160,9 @@ namespace CombinedItems.Patches
 						flag2index = i+1;
 						Log.LogDebug("Found first patch region at index " + String.Format("0x{0:X4}", flag2index));
 						codes[flag2index + 1] = new CodeInstruction(OpCodes.Ldarg_0);
-						codes[flag2index + 2] = new CodeInstruction(OpCodes.Ldarg_0);
-						codes[flag2index + 3] = new CodeInstruction(OpCodes.Ldloc_1);
-						codes[flag2index + 4] = new CodeInstruction(OpCodes.Callvirt, usingJumpjetsMethod);
+						codes[flag2index + 2] = new CodeInstruction(OpCodes.Ldloc_1);
+						codes[flag2index + 3] = new CodeInstruction(OpCodes.Callvirt, usingJumpjetsMethod);
+						codes[flag2index + 4] = new CodeInstruction(OpCodes.Nop);
 						i = flag2index + 4;
 					}
 				}
@@ -192,9 +192,8 @@ namespace CombinedItems.Patches
 						/* What we need to do here, in no particular order, is
 						 * a) Insert an additional ldarg.0 and a ldloc.1 between the ldarg.0 and the call
 						 * b) change the destination of the call. */
-						codes.Insert(jumpForceIndex + 1, new CodeInstruction(OpCodes.Ldarg_0));
-						codes.Insert(jumpForceIndex + 2, new CodeInstruction(OpCodes.Ldloc_1));
-						codes[jumpForceIndex + 3] = new CodeInstruction(OpCodes.Callvirt, tryApplyJumpForceMethod);
+						codes.Insert(jumpForceIndex + 1, new CodeInstruction(OpCodes.Ldloc_1));
+						codes[jumpForceIndex + 2] = new CodeInstruction(OpCodes.Callvirt, tryApplyJumpForceMethod);
 						i = jumpForceIndex + 3;
 					}
 				}
@@ -207,7 +206,7 @@ namespace CombinedItems.Patches
 
 			Log.LogDebug("Generated codes list:");
 			for (i = 0; i < codes.Count; i++)
-				Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{codes[i].operand.ToString()}");
+				Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
 
 			return codes.AsEnumerable();
 		}
