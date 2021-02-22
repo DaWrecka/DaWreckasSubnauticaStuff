@@ -205,6 +205,10 @@ namespace CombinedItems.Patches
 			else if (jumpForceIndex == -1)
 				Log.LogError("Exosuit.Update() transpiler could not find second patch location in method");
 
+			Log.LogDebug("Generated codes list:");
+			for (i = 0; i < codes.Count; i++)
+				Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{codes[i].operand.ToString()}");
+
 			return codes.AsEnumerable();
 		}
 
