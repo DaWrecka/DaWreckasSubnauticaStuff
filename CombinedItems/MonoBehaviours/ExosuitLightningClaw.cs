@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UWE;
 
-namespace CombinedItems.ExosuitModules
+namespace CombinedItems.VehicleModules
 {
 	//public class ExosuitLightningClaw : MonoBehaviour, IExosuitArm
 	public class ExosuitLightningClaw : ExosuitClawArm
@@ -63,7 +63,7 @@ namespace CombinedItems.ExosuitModules
 			Exosuit componentInParent = base.GetComponentInParent<Exosuit>();
 			if (componentInParent.CanPilot() && componentInParent.GetPilotingMode())
 			{
-				Vector3 position = default(Vector3);
+				Vector3 position = default;
 				GameObject gameObject = null;
 				Vector3 vector;
 				UWE.Utils.TraceFPSTargetPosition(componentInParent.gameObject, 6.5f, ref gameObject, ref position, out vector, true);
@@ -81,13 +81,14 @@ namespace CombinedItems.ExosuitModules
 					if (liveMixin)
 					{
 						liveMixin.IsAlive();
-						// Had to copy the entire class just so I could change this one line... sigh.
-						Log.LogDebug($"ExosuitLightningClaw: inflicting Electrical damage on target {gameObject.ToString()}");
 						liveMixin.TakeDamage(50f, position, DamageType.Normal, null);
 						// Originally the change was from Normal to Electrical, but there should be a Normal component and an Electrical.
 						// Without a Normal component to the damage, Eye Jellies (to use one example) give no fucks about being twatted in the eye with a Lightning Claw.
 						// That's not right; even if the electrical damage does nothing for them, it's a chunk of heavy metal being propelled at high speed by precision hydraulics.
-						liveMixin.TakeDamage(30f, position, DamageType.Electrical, null);
+						Log.LogDebug($"ExosuitLightningClaw: inflicting Electrical damage on target {gameObject.ToString()}");
+						liveMixin.TakeDamage(30f, position, DamageType.Electrical, null); // Animals treat this as over 1000 damage when deciding whether to flee or not.
+						// Curiously, Snow Stalkers appear to give no fucks about any sort of damage, and will continue pursuing until you either get beyond their
+						// "bollocks to this" range, or until they are dead.
 						global::Utils.PlayFMODAsset(base.hitFishSound, this.front, 50f);
 					}
 					else

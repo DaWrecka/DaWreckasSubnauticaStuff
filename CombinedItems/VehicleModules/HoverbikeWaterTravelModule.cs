@@ -7,11 +7,11 @@ using SMLHelper.V2.Handlers;
 using UnityEngine;
 using Logger = QModManager.Utility.Logger;
 
-namespace CombinedItems.ExosuitModules
+namespace CombinedItems.VehicleModules
 {
-    internal class ExosuitSprintModule : Equipable
+    class HoverbikeWaterTravelModule : Equipable
     {
-        public override EquipmentType EquipmentType => EquipmentType.ExosuitModule;
+        public override EquipmentType EquipmentType => EquipmentType.HoverbikeModule;
 
         public override QuickSlotType QuickSlotType => QuickSlotType.Passive;
 
@@ -30,12 +30,10 @@ namespace CombinedItems.ExosuitModules
                 craftAmount = 1,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                     {
-                        new Ingredient(TechType.Titanium, 3),
-                        new Ingredient(TechType.Nickel, 2),
-                        new Ingredient(TechType.Kyanite, 1),
-                        new Ingredient(TechType.Lubricant, 1),
-                        new Ingredient(TechType.WiringKit, 1),
-                        new Ingredient(TechType.HydraulicFluid, 1)
+                        new Ingredient(TechType.PrecursorIonCrystal, 1),
+                        new Ingredient(TechType.AdvancedWiringKit, 1),
+                        new Ingredient(TechType.Magnetite, 1),
+                        new Ingredient(TechType.Polyaniline, 1)
                     }
                 )
             };
@@ -45,7 +43,7 @@ namespace CombinedItems.ExosuitModules
         {
             if (prefab == null)
             {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ExosuitThermalReactorModule);
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.HoverbikeJumpModule);
                 yield return task;
                 prefab = GameObject.Instantiate<GameObject>(task.GetResult());
             }
@@ -55,10 +53,10 @@ namespace CombinedItems.ExosuitModules
 
         protected override Sprite GetItemSprite()
         {
-            return SpriteManager.Get(TechType.ExosuitJetUpgradeModule);
+            return SpriteManager.Get(TechType.HoverbikeJumpModule); // Placeholder
         }
 
-        public ExosuitSprintModule() : base("ExosuitSprintModule", "Exosuit Sprint Module", "A hydraulic system that allows the Exosuit's jump jets to angle for horizontal travel.")
+        public HoverbikeWaterTravelModule() : base("HoverbikeWaterTravelModule", "Water Travel Module", "Increases the power of the Snowfox's hover pads, allowing travel over water in exchange for increased energy consumption.")
         {
             OnFinishedPatching += () =>
             {

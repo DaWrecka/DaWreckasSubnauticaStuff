@@ -10,8 +10,8 @@ using CombinedItems.ReinforcedColdSuitPrefabs;
 using QModManager.API;
 using QModManager.API.ModLoading;
 using CombinedItems.Equipables;
-using CombinedItems.ExosuitModules;
 using CombinedItems.Patches;
+using CombinedItems.VehicleModules;
 using Common;
 using UWE;
 using UnityEngine;
@@ -34,6 +34,7 @@ namespace CombinedItems
         internal static HighCapacityBooster prefabHighCapacityBooster = new HighCapacityBooster();
         internal static ExosuitLightningClawPrefab prefabLightningClaw = new ExosuitLightningClawPrefab();
         internal static ExosuitSprintModule prefabExosuitSprintModule = new ExosuitSprintModule();
+        internal static HoverbikeWaterTravelModule prefabHbWaterTravelModule = new HoverbikeWaterTravelModule();
 
         private static readonly Assembly myAssembly = Assembly.GetExecutingAssembly();
         private static void AddSubstitution(TechType custom, TechType vanilla)
@@ -63,6 +64,7 @@ namespace CombinedItems
             prefabHighCapacityBooster.Patch();
             prefabLightningClaw.Patch();
             prefabExosuitSprintModule.Patch();
+            prefabHbWaterTravelModule.Patch();
 
             new Harmony($"DaWrecka_{myAssembly.GetName().Name}").PatchAll(myAssembly);
         }

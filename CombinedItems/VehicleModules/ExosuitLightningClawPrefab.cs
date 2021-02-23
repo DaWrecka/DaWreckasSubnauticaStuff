@@ -7,7 +7,7 @@ using SMLHelper.V2.Handlers;
 using UnityEngine;
 using Logger = QModManager.Utility.Logger;
 
-namespace CombinedItems.ExosuitModules
+namespace CombinedItems.VehicleModules
 {
     internal class ExosuitLightningClawPrefab : Equipable
     {

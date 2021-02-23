@@ -1,4 +1,4 @@
-﻿using CombinedItems.ExosuitModules;
+﻿using CombinedItems.VehicleModules;
 using CombinedItems.Patches;
 using Common;
 using HarmonyLib;
@@ -11,23 +11,23 @@ using UnityEngine;
 
 namespace CombinedItems.MonoBehaviours
 {
-    internal class ExosuitUpdater : MonoBehaviour
+    internal class ExosuitUpdater : VehicleUpdater
     {
         private float GroundSprintMult = 1.25f; // Base force multiplier applied when using the Sprint Module on ground
         private float WaterSprintMult = 1.1f; // Base force multiplier applied when using the Sprint Module while jumping.
         private float JetUpgradeMult = 1.1f; // Additional multiplier applied to the above if the jump jet upgrade is installed.
         private float fLastForce = 1f;
         protected float defaultForwardForce;
-        protected Exosuit parentVehicle;
+        //protected Exosuit parentVehicle;
         protected bool bJetsUpgraded;
         //protected Equipment exosuitModules => parentVehicle != null ? parentVehicle.modules : null;
 
         [NonSerialized]
         private Vector3 lastMoveDirection;
 
-        internal virtual void Initialise(ref Exosuit vehicle)
+        internal override void Initialise(ref Vehicle vehicle)
         {
-            if (vehicle != null)
+            if (vehicle is Exosuit exosuit)
             {
                 parentVehicle = vehicle;
                 defaultForwardForce = vehicle.forwardForce;
@@ -35,7 +35,7 @@ namespace CombinedItems.MonoBehaviours
             }
         }
 
-        protected int GetModuleCount(TechType techType)
+        protected override int GetModuleCount(TechType techType)
         {
             if (parentVehicle == null || parentVehicle.modules == null)
                 return 0;
@@ -43,7 +43,7 @@ namespace CombinedItems.MonoBehaviours
             return parentVehicle.modules.GetCount(techType);
         }
 
-        internal virtual void PostUpgradeModuleChange(TechType changedTechType = TechType.None)
+        internal override void PostUpgradeModuleChange(TechType changedTechType = TechType.None)
         {
             if (parentVehicle != null)
             {
@@ -55,7 +55,7 @@ namespace CombinedItems.MonoBehaviours
 
         internal float GetForceMultiplier(bool bSprinting, bool bUnderwaterJumping)
         {
-            if (bSprinting && ExosuitPatches.GetThrustPower(parentVehicle) > 0f)
+            if (bSprinting && ExosuitPatches.GetThrustPower(parentVehicle as Exosuit) > 0f)
             {
                 if (bUnderwaterJumping)
                     return WaterSprintMult * (bJetsUpgraded ? JetUpgradeMult : 1f);
@@ -66,15 +66,15 @@ namespace CombinedItems.MonoBehaviours
             return 1f;
         }
 
-        internal virtual void PreUpdate()
+        internal override void PreUpdate()
         {
-            if (parentVehicle != null)
+            if (parentVehicle is Exosuit parentExosuit)
             {
                 lastMoveDirection = AvatarInputHandler.main.IsEnabled() ? GameInput.GetMoveDirection() : Vector3.zero;
 
-                bool bExosuitSprint = ExosuitPatches.ExosuitIsSprinting(parentVehicle, lastMoveDirection);
+                bool bExosuitSprint = ExosuitPatches.ExosuitIsSprinting(parentExosuit, lastMoveDirection);
                 //float forceMultiplier = 1f * (bExosuitSprint ? (bJetsUpgraded ? 2.5f : 2f) : 1f); // These constants will likely be tweaked, but they're here for testing
-                float forceMultiplier = GetForceMultiplier(bExosuitSprint, ExosuitPatches.ExosuitIsJumping(parentVehicle, lastMoveDirection) && parentVehicle.IsUnderwater());
+                float forceMultiplier = GetForceMultiplier(bExosuitSprint, ExosuitPatches.ExosuitIsJumping(parentExosuit, lastMoveDirection) && parentExosuit.IsUnderwater());
                 parentVehicle.forwardForce = defaultForwardForce * forceMultiplier;
                 if(forceMultiplier != fLastForce)
                     Log.LogDebug($"ExosuitUpdater.PostUpdate(): Applying forwardForce of {parentVehicle.forwardForce} to Exosuit with defaultForwardForce of {defaultForwardForce}");
@@ -82,21 +82,23 @@ namespace CombinedItems.MonoBehaviours
             }
         }
 
-        public void PostOverrideAcceleration(ref Vector3 acceleration, bool JumpJetsUpgraded = false)
+        internal override void Update()
         {
-            if (ExosuitPatches.ExosuitIsSprinting(parentVehicle, lastMoveDirection))
+        }
+
+        internal override void PostOverrideAcceleration(ref Vector3 acceleration)
+        {
+            Exosuit parentExosuit = parentVehicle as Exosuit;
+
+            if (ExosuitPatches.ExosuitIsSprinting(parentExosuit, lastMoveDirection))
             {
-                float thrust = GetForceMultiplier(true, ExosuitPatches.ExosuitIsJumping(parentVehicle, lastMoveDirection) && parentVehicle.IsUnderwater());
+                float thrust = GetForceMultiplier(true, ExosuitPatches.ExosuitIsJumping(parentExosuit, lastMoveDirection) && parentExosuit.IsUnderwater());
                 acceleration.x *= thrust;
                 acceleration.z *= thrust;
             }
         }
 
-        public virtual void ApplyPhysicsMove()
-        {
-        }
-
-        internal virtual void Update()
+        internal override void ApplyPhysicsMove()
         {
         }
     }

@@ -1,5 +1,5 @@
 ﻿using CombinedItems;
-using CombinedItems.ExosuitModules;
+using CombinedItems.VehicleModules;
 using CombinedItems.MonoBehaviours;
 using Common;
 using System;
@@ -18,7 +18,7 @@ namespace CombinedItems.Patches
 	[HarmonyPatch(typeof(Exosuit))]
 	public class ExosuitPatches
 	{
-		private static readonly PropertyInfo jetsActive = typeof(Exosuit).GetProperty("jetsActive", BindingFlags.Instance | BindingFlags.NonPublic);
+		/*private static readonly PropertyInfo jetsActive = typeof(Exosuit).GetProperty("jetsActive", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly FieldInfo timeJetsActiveChanged = typeof(Exosuit).GetField("timeJetsActiveChanged", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly FieldInfo thrustPower = typeof(Exosuit).GetField("thrustPower", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly FieldInfo thrustConsumption = typeof(Exosuit).GetField("thrustConsumption", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -26,8 +26,9 @@ namespace CombinedItems.Patches
 		private static readonly FieldInfo timeOnGround = typeof(Exosuit).GetField("timeOnGround", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly FieldInfo jetDownLastFrame = typeof(Exosuit).GetField("jetDownLastFrame", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly FieldInfo powersliding = typeof(Exosuit).GetField("powersliding", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static readonly FieldInfo areFXPlaying = typeof(Exosuit).GetField("areFXPlaying", BindingFlags.Instance | BindingFlags.NonPublic);
+		private static readonly FieldInfo areFXPlaying = typeof(Exosuit).GetField("areFXPlaying", BindingFlags.Instance | BindingFlags.NonPublic);*/
 		private static readonly MethodInfo ApplyJumpForceMethod = typeof(Exosuit).GetMethod("ApplyJumpForce", BindingFlags.Instance | BindingFlags.NonPublic);
+		private static readonly FieldInfo thrustPowerField = typeof(Exosuit).GetField("thrustPower", BindingFlags.Instance | BindingFlags.NonPublic);
 		internal static bool JumpJetsUpgraded(Exosuit instance)
 		{
 			if (instance == null)
@@ -48,7 +49,8 @@ namespace CombinedItems.Patches
 		internal static bool Powersliding(Exosuit instance) => (bool)powersliding.GetValue(instance);
 		internal static bool AreFXPlaying(Exosuit instance) => (bool)areFXPlaying.GetValue(instance);
 		internal static void AreFXPlaying(Exosuit instance, bool value) { areFXPlaying.SetValue(instance, value); }*/
-		internal static void ApplyJumpForce(Exosuit instance) { ApplyJumpForceMethod.Invoke(instance, new object[] { }); }
+		internal static void ApplyJumpForce(Exosuit instance) { ApplyJumpForceMethod.Invoke(instance, null); }
+		internal static float GetThrustPower(Exosuit instance) { return (float)thrustPowerField.GetValue(instance);  }
 
 		[HarmonyPatch("Start")]
 		[HarmonyPrefix]
@@ -100,7 +102,8 @@ namespace CombinedItems.Patches
 		public static void PostStart(Exosuit __instance)
 		{
 			ExosuitUpdater exosuitUpdate = __instance.gameObject.EnsureComponent<ExosuitUpdater>();
-			exosuitUpdate.Initialise(ref __instance);
+			Vehicle vehicle = __instance;
+			exosuitUpdate.Initialise(ref vehicle);
 		}
 
 		[HarmonyPostfix]
@@ -123,7 +126,7 @@ namespace CombinedItems.Patches
 		[HarmonyPatch("OverrideAcceleration")]
 		public static void PostOverrideAcceleration(ref Exosuit __instance, ref Vector3 acceleration)
 		{
-			__instance.gameObject.EnsureComponent<ExosuitUpdater>().PostOverrideAcceleration(ref acceleration, JumpJetsUpgraded(__instance));
+			__instance.gameObject.EnsureComponent<ExosuitUpdater>().PostOverrideAcceleration(ref acceleration);
 		}
 		
 		[HarmonyTranspiler]
@@ -347,7 +350,7 @@ namespace CombinedItems.Patches
 			Log.LogDebug($"ExosuitPatches.TryApplyJumpForce(): ExosuitIsJumping() returned {bIsJumping.ToString()}");
 			if (bIsJumping)
 			{
-				ApplyJumpForceMethod.Invoke(exosuit, null);
+				ApplyJumpForce(exosuit);
 			}
 		}
 	} 
