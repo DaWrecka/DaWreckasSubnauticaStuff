@@ -18,7 +18,6 @@ namespace CombinedItems.Patches
 	[HarmonyPatch(typeof(Exosuit))]
 	public class ExosuitPatches
 	{
-		private static readonly FieldInfo jumpJetUpgrade = typeof(Exosuit).GetField("jumpJetsUpgraded", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly PropertyInfo jetsActive = typeof(Exosuit).GetProperty("jetsActive", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly FieldInfo timeJetsActiveChanged = typeof(Exosuit).GetField("timeJetsActiveChanged", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly FieldInfo thrustPower = typeof(Exosuit).GetField("thrustPower", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -29,7 +28,13 @@ namespace CombinedItems.Patches
 		private static readonly FieldInfo powersliding = typeof(Exosuit).GetField("powersliding", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly FieldInfo areFXPlaying = typeof(Exosuit).GetField("areFXPlaying", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly MethodInfo ApplyJumpForceMethod = typeof(Exosuit).GetMethod("ApplyJumpForce", BindingFlags.Instance | BindingFlags.NonPublic);
-		internal static bool JumpJetsUpgraded(Exosuit instance) { return (bool)jumpJetUpgrade.GetValue(instance); }
+		internal static bool JumpJetsUpgraded(Exosuit instance)
+		{
+			if (instance == null)
+				return false;
+
+			return instance.modules.GetCount(TechType.ExosuitJetUpgradeModule) > 0;
+		}
 		/*internal static bool JetsActive(Exosuit instance) => (bool)jetsActive.GetValue(instance);
 		internal static void JetsActive(Exosuit instance, bool value) { jetsActive.SetValue(instance, value); }
 		internal static float TimeJetsActiveChanged(Exosuit instance) => (float)timeJetsActiveChanged.GetValue(instance);
@@ -95,8 +100,7 @@ namespace CombinedItems.Patches
 		public static void PostStart(Exosuit __instance)
 		{
 			ExosuitUpdater exosuitUpdate = __instance.gameObject.EnsureComponent<ExosuitUpdater>();
-			Vehicle v = __instance as Vehicle;
-			exosuitUpdate.Initialise(ref v);
+			exosuitUpdate.Initialise(ref __instance);
 		}
 
 		[HarmonyPostfix]
@@ -121,10 +125,10 @@ namespace CombinedItems.Patches
 		{
 			__instance.gameObject.EnsureComponent<ExosuitUpdater>().PostOverrideAcceleration(ref acceleration, JumpJetsUpgraded(__instance));
 		}
-
+		
 		[HarmonyTranspiler]
 		[HarmonyPatch(nameof(Exosuit.Update))]
-		public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+		public static IEnumerable<CodeInstruction> UpdateTranspiler(IEnumerable<CodeInstruction> instructions)
 		{
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 			MethodInfo usingJumpjetsMethod = typeof(ExosuitPatches).GetMethod(nameof(ExosuitPatches.ExosuitUsingJumpJets));
@@ -134,12 +138,16 @@ namespace CombinedItems.Patches
 			int jumpForceIndex = -1;
 			int maxIndex = codes.Count - 4; // We search for five-opcode patterns. If we go past (count-4) then we'll get an Index Out of Range exception.
 			// So we limit our max index here.
-			int i = 0;
+			int i = -1;
 
-			for(i = 0; i < codes.Count; i++)
-				Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
+			if (Main.bVerboseLogging)
+			{
+				for (i = 0; i < codes.Count; i++)
+					Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
 
-			i = -1;
+				i = -1;
+			}
+
 
 			while (++i < maxIndex && (flag2index == -1 || jumpForceIndex == -1))
 			{
@@ -158,11 +166,11 @@ namespace CombinedItems.Patches
 						 * So we first use ldarg.0 to put the current Exosuit instance on the stack, then ldloc.1 to put local variable 1 - vector - on the stack.
 						 * Then we call the 'using jump jets' method.*/
 						flag2index = i+1;
-						Log.LogDebug("Found first patch region at index " + String.Format("0x{0:X4}", flag2index));
-						codes[flag2index + 1] = new CodeInstruction(OpCodes.Ldarg_0);
-						codes[flag2index + 2] = new CodeInstruction(OpCodes.Ldloc_1);
-						codes[flag2index + 3] = new CodeInstruction(OpCodes.Callvirt, usingJumpjetsMethod);
-						codes[flag2index + 4] = new CodeInstruction(OpCodes.Nop);
+						//Log.LogDebug("Found first patch region at index " + String.Format("0x{0:X4}", flag2index));
+						codes[flag2index + 0] = new CodeInstruction(OpCodes.Ldarg_0);
+						codes[flag2index + 1] = new CodeInstruction(OpCodes.Ldloc_1);
+						codes[flag2index + 2] = new CodeInstruction(OpCodes.Callvirt, usingJumpjetsMethod);
+						codes[flag2index + 3] = new CodeInstruction(OpCodes.Nop);
 						i = flag2index + 4;
 					}
 				}
@@ -188,7 +196,7 @@ namespace CombinedItems.Patches
 						&& codes[i + 3].opcode == OpCodes.Ldarg_0 && codes[i + 4].opcode == OpCodes.Call)
 					{
 						jumpForceIndex = i + 3;
-						Log.LogDebug("Found second patch region at index " + String.Format("0x{0:X4}", jumpForceIndex));
+						//Log.LogDebug("Found second patch region at index " + String.Format("0x{0:X4}", jumpForceIndex));
 						/* What we need to do here, in no particular order, is
 						 * a) Insert an additional ldarg.0 and a ldloc.1 between the ldarg.0 and the call
 						 * b) change the destination of the call. */
@@ -204,19 +212,55 @@ namespace CombinedItems.Patches
 			else if (jumpForceIndex == -1)
 				Log.LogError("Exosuit.Update() transpiler could not find second patch location in method");
 
-			Log.LogDebug("Generated codes list:");
-			for (i = 0; i < codes.Count; i++)
-				Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
+			if (Main.bVerboseLogging)
+			{
+				Log.LogDebug("Generated codes list:");
+				for (i = 0; i < codes.Count; i++)
+					Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
+			}
 
 			return codes.AsEnumerable();
 		}
 
-		[HarmonyPostfix]
-		[HarmonyPatch("Update")]
-		public static void PostUpdate(ref Exosuit __instance)
+		[HarmonyTranspiler]
+		[HarmonyPatch(nameof(Exosuit.FixedUpdate))]
+		public static IEnumerable<CodeInstruction> FixedUpdateTranspiler(IEnumerable<CodeInstruction> instructions)
 		{
-			__instance.gameObject.EnsureComponent<ExosuitUpdater>().Tick();
-			Vector3 vector = AvatarInputHandler.main.IsEnabled() ? GameInput.GetMoveDirection() : Vector3.zero;
+			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			MethodInfo underwaterJumpingMethod = typeof(ExosuitPatches).GetMethod(nameof(ExosuitPatches.UnderwaterJumping));
+
+			int i = -1;
+			int flagIndex = -1;
+			int maxIndex = codes.Count - 4;
+
+			while (++i < maxIndex && flagIndex == -1)
+			{
+				/*
+				 Our target pattern is as follows:
+					IL_001A: ceq
+					IL_001C: stfld     bool WorldForces::handleGravity
+					IL_0021: ldarg.0
+					IL_0022: call instance bool Exosuit::IsUnderwater()
+					IL_0027: stloc.1
+
+				The call is all we need to change; the rest of the stuff is just so we know we're targetting the *right* call.
+				*/
+				if (codes[i].opcode == OpCodes.Ceq && codes[i + 1].opcode == OpCodes.Stfld && codes[i + 2].opcode == OpCodes.Ldarg_0 && codes[i + 3].opcode == OpCodes.Call && codes[i + 4].opcode == OpCodes.Stloc_1)
+				{
+					codes[i + 3] = new CodeInstruction(OpCodes.Callvirt, underwaterJumpingMethod);
+					break;
+				}
+			}
+
+			return codes.AsEnumerable();
+		}
+
+		[HarmonyPrefix]
+		[HarmonyPatch("Update")]
+		public static void PreUpdate(ref Exosuit __instance)
+		{
+			__instance.gameObject.EnsureComponent<ExosuitUpdater>().PreUpdate();
+			//Vector3 vector = AvatarInputHandler.main.IsEnabled() ? GameInput.GetMoveDirection() : Vector3.zero;
 		}
 		/*
 			* Methods which may need to be patched to accomodate future plans:
@@ -249,22 +293,59 @@ namespace CombinedItems.Patches
 
 		public static bool ExosuitIsJumping(Exosuit exosuit, Vector3 velocity)
 		{
-			return velocity.y > 0;
+			if (Player.main.GetVehicle() != exosuit)
+				return false;
+
+			bool bJumpHeld = GameInput.GetButtonHeld(GameInput.Button.Jump);
+			bool bMovingUp = velocity.y > 0;
+			Log.LogDebug($"ExosuitPatches.ExosuitIsJumping: bJumpHeld = " + (bJumpHeld ? " true" : "false") + ", bMovingUp = " + (bMovingUp ? " true" : "false"));
+
+			return bJumpHeld || bMovingUp;
 		}
 
-		public static bool ExosuitIsSprinting(Exosuit exosuit)
+		public static bool UnderwaterJumping(Exosuit exosuit)
 		{
-			return exosuit.modules.GetCount(Main.prefabExosuitSprintModule.TechType) > 0 && GameInput.GetButtonHeld(GameInput.Button.Sprint);
+			if (Player.main.GetVehicle() != exosuit)
+				return false;
+
+			bool bJumpHeld = GameInput.GetButtonHeld(GameInput.Button.Jump);
+			bool bIsUnderwater = exosuit.IsUnderwater();
+			Log.LogDebug($"ExosuitPatches.UnderwaterJumping: bJumpHeld = " + (bJumpHeld ? " true" : "false") + ", bIsUnderwater = " + (bIsUnderwater ? " true" : "false"));
+			return bJumpHeld && bIsUnderwater;
+		}
+
+		public static bool ExosuitIsSprinting(Exosuit exosuit, Vector3 velocity)
+		{
+			if (Player.main.GetVehicle() != exosuit)
+				return false;
+
+			Vector3 groundVector = new Vector3(velocity.x, 0, velocity.z);
+			bool bIsMoving = (velocity != Vector3.zero && groundVector.magnitude > 0f);
+			bool bPdaInUse = (Player.main.GetPDA() != null ? Player.main.GetPDA().isInUse : false);
+			bool bSprintControlActive = exosuit.modules.GetCount(Main.prefabExosuitSprintModule.TechType) > 0 && GameInput.GetButtonHeld(GameInput.Button.Sprint);
+			Log.LogDebug($"ExosuitPatches.ExosuitIsSprinting: bIsMoving = " + (bIsMoving ? " true" : "false") + ", bSprintControlActive = " + (bSprintControlActive ? " true" : "false") + ", bPdaInUse = " + (bPdaInUse ? " true" : "false"));
+			return bIsMoving && bSprintControlActive && !bPdaInUse;
 		}
 
 		public static bool ExosuitUsingJumpJets(Exosuit exosuit, Vector3 velocity)
 		{
-			return ExosuitIsJumping(exosuit, velocity) || ExosuitIsSprinting(exosuit);
+			if (Player.main.GetVehicle() != exosuit)
+				return false;
+
+			bool bJumping = ExosuitIsJumping(exosuit, velocity);
+			bool bSprinting = ExosuitIsSprinting(exosuit, velocity);
+			Log.LogDebug($"ExosuitPatches.ExosuitUsingJumpJets: bJumping = " + (bJumping ? " true" : "false") + ", bSprinting = " + (bSprinting ? " true" : "false"));
+			return bJumping || bSprinting;
 		}
 
 		public static void TryApplyJumpForce(Exosuit exosuit, Vector3 velocity)
 		{
-			if (ExosuitIsJumping(exosuit, velocity))
+			if (Player.main.GetVehicle() != exosuit)
+				return;
+
+			bool bIsJumping = ExosuitIsJumping(exosuit, velocity);
+			Log.LogDebug($"ExosuitPatches.TryApplyJumpForce(): ExosuitIsJumping() returned {bIsJumping.ToString()}");
+			if (bIsJumping)
 			{
 				ApplyJumpForceMethod.Invoke(exosuit, null);
 			}

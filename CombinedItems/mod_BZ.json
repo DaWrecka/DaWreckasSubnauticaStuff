@@ -6,7 +6,7 @@
   },
   "Id": "CombinedItems",
   "AssemblyName": "CombinedItems.dll",
-  "Version": "0.8.0.1",
+  "Version": "0.8.0.2",
   "Enable": true,
   "NexusId": {
     "Subnautica": "610"

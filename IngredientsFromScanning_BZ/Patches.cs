@@ -60,12 +60,7 @@ namespace IngredientsFromScanning_BZ.Patches
 
         private static void AddInventory(TechType techType, int count = 1, bool bNoMessage = false, bool bSpawnIfCantAdd = true)
         {
-            if (Player.main.IsPilotingSeatruck())
-            {
-
-            }
-
-            // Ripped<cough>based upon MrPurple6411's method Deconstruct_Patch from the BuilderModule mo
+            // Ripped<cough>based upon MrPurple6411's method Deconstruct_Patch from the BuilderModule
             Vehicle thisVehicle = Player.main.GetVehicle();
             if (thisVehicle != null)
             {

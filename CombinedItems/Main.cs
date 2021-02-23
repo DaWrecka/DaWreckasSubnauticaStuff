@@ -22,7 +22,7 @@ namespace CombinedItems
     public class Main
     {
         internal static bool bVerboseLogging = false;
-        internal const string version = "0.8.0.1";
+        internal const string version = "0.8.0.2";
 
         private static readonly Type CustomiseOxygen = Type.GetType("CustomiseOxygen.Main, CustomiseOxygen", false, false);
         private static readonly MethodInfo CustomOxyAddExclusionMethod = CustomiseOxygen?.GetMethod("AddExclusion", BindingFlags.Public | BindingFlags.Static);
