@@ -35,6 +35,9 @@ namespace CombinedItems
         internal static ExosuitLightningClawPrefab prefabLightningClaw = new ExosuitLightningClawPrefab();
         internal static ExosuitSprintModule prefabExosuitSprintModule = new ExosuitSprintModule();
         internal static HoverbikeWaterTravelModule prefabHbWaterTravelModule = new HoverbikeWaterTravelModule();
+        internal static HoverbikeSolarChargerModule prefabHbSolarCharger = new HoverbikeSolarChargerModule();
+        internal static HoverbikeStructuralIntegrityModule prefabHbHullModule = new HoverbikeStructuralIntegrityModule();
+        internal static HoverbikeEngineEfficiencyModule prefabHbEngineModule = new HoverbikeEngineEfficiencyModule();
 
         private static readonly Assembly myAssembly = Assembly.GetExecutingAssembly();
         private static void AddSubstitution(TechType custom, TechType vanilla)
@@ -65,6 +68,9 @@ namespace CombinedItems
             prefabLightningClaw.Patch();
             prefabExosuitSprintModule.Patch();
             prefabHbWaterTravelModule.Patch();
+            prefabHbSolarCharger.Patch();
+            prefabHbHullModule.Patch();
+            prefabHbEngineModule.Patch();
 
             new Harmony($"DaWrecka_{myAssembly.GetName().Name}").PatchAll(myAssembly);
         }
@@ -83,13 +89,13 @@ namespace CombinedItems
             AddCustomOxyExclusion(prefabHighCapacityBooster.TechType, true, true);
             AddCustomOxyTank(prefabHighCapacityBooster.TechType, -1f);
             CraftDataHandler.SetBackgroundType(prefabLightningClaw.TechType, CraftData.BackgroundType.ExosuitArm);
-            CraftDataHandler.SetItemSize(prefabLightningClaw.TechType, new Vector2int(1, 2));
-            CraftDataHandler.SetCraftingTime(prefabLightningClaw.TechType, 10f);
-            CraftTreeHandler.AddCraftingNode(CraftTree.Type.SeamothUpgrades, prefabLightningClaw.TechType, new string[] { "ExosuitModules" });
+            //CraftDataHandler.SetItemSize(prefabLightningClaw.TechType, new Vector2int(1, 2));
+            //CraftDataHandler.SetCraftingTime(prefabLightningClaw.TechType, 10f);
+            //CraftTreeHandler.AddCraftingNode(CraftTree.Type.SeamothUpgrades, prefabLightningClaw.TechType, new string[] { "ExosuitModules" });
             CraftDataHandler.SetBackgroundType(prefabExosuitSprintModule.TechType, CraftData.BackgroundType.Normal);
-            CraftDataHandler.SetItemSize(prefabExosuitSprintModule.TechType, new Vector2int(1, 1));
-            CraftDataHandler.SetCraftingTime(prefabExosuitSprintModule.TechType, 10f);
-            CraftTreeHandler.AddCraftingNode(CraftTree.Type.SeamothUpgrades, prefabExosuitSprintModule.TechType, new string[] { "ExosuitModules" });
+            //CraftDataHandler.SetItemSize(prefabExosuitSprintModule.TechType, new Vector2int(1, 1));
+            //CraftDataHandler.SetCraftingTime(prefabExosuitSprintModule.TechType, 10f);
+            //CraftTreeHandler.AddCraftingNode(CraftTree.Type.SeamothUpgrades, prefabExosuitSprintModule.TechType, new string[] { "ExosuitModules" });
 
             // This is test code
             //string PrefabFilename;
@@ -116,7 +122,7 @@ namespace CombinedItems
                 {
                     TechType.Battery,
                     TechType.LithiumIonBattery,
-					TechType.PowerCell,
+                    TechType.PowerCell,
                     TechType.PrecursorIonBattery,
                     TechType.PrecursorIonPowerCell
                 })

@@ -66,7 +66,7 @@ namespace CombinedItems.Patches
 			{
 				if (__instance.armPrefabs[i].techType == Main.prefabLightningClaw.TechType)
 				{
-					//Log.LogDebug($"Lightning claw prefab already found at index {i}");
+					Log.LogDebug($"Lightning claw prefab already found at index {i}");
 					return;
 				}
 				else if (__instance.armPrefabs[i].techType == TechType.ExosuitClawArmModule)
@@ -145,6 +145,7 @@ namespace CombinedItems.Patches
 
 			if (Main.bVerboseLogging)
 			{
+				Log.LogDebug("Exosuit.Update(), pre-transpiler:");
 				for (i = 0; i < codes.Count; i++)
 					Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
 
@@ -201,7 +202,7 @@ namespace CombinedItems.Patches
 						jumpForceIndex = i + 3;
 						//Log.LogDebug("Found second patch region at index " + String.Format("0x{0:X4}", jumpForceIndex));
 						/* What we need to do here, in no particular order, is
-						 * a) Insert an additional ldarg.0 and a ldloc.1 between the ldarg.0 and the call
+						 * a) Insert an additional ldloc.1 between the ldarg.0 and the call
 						 * b) change the destination of the call. */
 						codes.Insert(jumpForceIndex + 1, new CodeInstruction(OpCodes.Ldloc_1));
 						codes[jumpForceIndex + 2] = new CodeInstruction(OpCodes.Callvirt, tryApplyJumpForceMethod);
@@ -217,7 +218,7 @@ namespace CombinedItems.Patches
 
 			if (Main.bVerboseLogging)
 			{
-				Log.LogDebug("Generated codes list:");
+				Log.LogDebug("Exosuit.Update(), post-transpiler:");
 				for (i = 0; i < codes.Count; i++)
 					Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
 			}

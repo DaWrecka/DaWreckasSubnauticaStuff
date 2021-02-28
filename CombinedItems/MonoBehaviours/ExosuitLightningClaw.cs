@@ -14,48 +14,51 @@ namespace CombinedItems.VehicleModules
 		// Stol<cough>Borrowed from Senna's Seamoth Arms
 		private void Awake()
 		{
+			int i = 3;
+			Log.LogDebug($"ExosuitLightningClaw: 1");
 			animator = GetComponent<Animator>();
+			Log.LogDebug($"ExosuitLightningClaw: 2");
 			fxControl = GetComponent<VFXController>();
+			Log.LogDebug($"ExosuitLightningClaw: 3");
 			vfxEventType = VFXEventTypes.impact;
 
 			foreach (FMODAsset asset in GetComponents<FMODAsset>())
 			{
+				Log.LogDebug($"ExosuitLightningClaw: {++i}.1");
 				if (asset.name == "claw_hit_terrain")
 					this.hitTerrainSound = asset;
 
+				Log.LogDebug($"ExosuitLightningClaw: {i}.2");
 				if (asset.name == "claw_hit_fish")
 					this.hitFishSound = asset;
 
+				/*Log.LogDebug($"ExosuitLightningClaw: {i}.3");
 				if (asset.name == "claw_pickup")
-					this.pickupSound = asset;
+					this.pickupSound = asset;*/
 			}
 
+			Log.LogDebug($"ExosuitLightningClaw: pickupSounds");
+			this.pickupSounds = GetComponent<TechSoundData>();
 
-			front = FindDeepChild(gameObject, "wrist").transform;
+			Log.LogDebug($"ExosuitLightningClaw: FindDeepChild");
+			CoroutineHost.StartCoroutine(GetDeepChildCoroutine());
+			Log.LogDebug($"ExosuitLightningClaw: end");
 			//base.Awake();
 		}
 
-		public GameObject FindDeepChild(GameObject parent, string childName)
+		private IEnumerator GetDeepChildCoroutine()
 		{
-			Queue<Transform> queue = new Queue<Transform>();
-
-			queue.Enqueue(parent.transform);
-
-			while (queue.Count > 0)
+			while (this.front == null)
 			{
-				var c = queue.Dequeue();
+				yield return new WaitForEndOfFrame();
 
-				if (c.name == childName)
+				GameObject obj = TransformUtils.FindDeepChild(this.gameObject, "wrist");
+				if (obj != null)
 				{
-					return c.gameObject;
-				}
-
-				foreach (Transform t in c)
-				{
-					queue.Enqueue(t);
+					this.front = obj.transform;
 				}
 			}
-			return null;
+			yield break;
 		}
 
 		new public void OnHit()

@@ -12,14 +12,15 @@ namespace CombinedItems.VehicleModules
     class HoverbikeWaterTravelModule : Equipable
     {
         public override EquipmentType EquipmentType => EquipmentType.HoverbikeModule;
-
         public override QuickSlotType QuickSlotType => QuickSlotType.Passive;
-
         public override TechGroup GroupForPDA => TechGroup.VehicleUpgrades;
-
         public override TechCategory CategoryForPDA => TechCategory.VehicleUpgrades;
-
         public override TechType RequiredForUnlock => TechType.BaseUpgradeConsole;
+        public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;
+        public override string[] StepsToFabricatorTab => new string[] { "Machines" };
+        public override float CraftingTime => 10f;
+        public override Vector2int SizeInInventory => new Vector2int(1, 1);
+
 
         private GameObject prefab;
 
@@ -53,7 +54,7 @@ namespace CombinedItems.VehicleModules
 
         protected override Sprite GetItemSprite()
         {
-            return SpriteManager.Get(TechType.HoverbikeJumpModule); // Placeholder
+            return SpriteManager.Get(TechType.ExoHullModule1); // Placeholder
         }
 
         public HoverbikeWaterTravelModule() : base("HoverbikeWaterTravelModule", "Water Travel Module", "Increases the power of the Snowfox's hover pads, allowing travel over water in exchange for increased energy consumption.")

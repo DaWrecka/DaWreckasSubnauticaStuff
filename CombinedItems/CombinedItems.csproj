@@ -93,6 +93,7 @@
   <ItemGroup>
     <Compile Include="Equipables\HighCapacityBooster.cs" />
     <Compile Include="Equipables\ReinforcedColdSuit.cs" />
+    <Compile Include="MonoBehaviours\HoverbikeStructuralIntegrityModifier.cs" />
     <Compile Include="MonoBehaviours\HoverbikeUpdater.cs" />
     <Compile Include="MonoBehaviours\VehicleUpdater.cs" />
     <Compile Include="Patches\Hoverbike.cs" />
@@ -108,6 +109,9 @@
     <Compile Include="Patches\Equipment.cs" />
     <Compile Include="Patches\Vehicle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VehicleModules\HoverbikeSolarChargerModule.cs" />
+    <Compile Include="VehicleModules\HoverbikeStructuralIntegrityModule.cs" />
+    <Compile Include="VehicleModules\HoverbikeEngineEfficiencyModule.cs" />
     <Compile Include="VehicleModules\HoverbikeWaterTravelModule.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -12,5 +12,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Utility\GeneralUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\PrefabUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\TechTypeUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility\TransformUtils.cs" />
   </ItemGroup>
 </Project>

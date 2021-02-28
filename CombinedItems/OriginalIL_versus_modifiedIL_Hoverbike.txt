@@ -1,0 +1,1222 @@
+Dump of Hoverbike.HoverEngines method, pre-transpiler:
+0x0000 : ldarg.0
+0x0001 : ldfld	Hoverpad dockedPad
+0x0002 : call	Boolean op_Implicit(UnityEngine.Object)
+0x0003 : brfalse	System.Reflection.Emit.Label
+0x0004 : ret
+0x0005 : ldarg.0
+0x0006 : ldfld	System.Boolean forceLandMode
+0x0007 : brtrue	System.Reflection.Emit.Label
+0x0008 : ldarg.0
+0x0009 : ldfld	System.Boolean debugIgnoreWater
+0x000A : brtrue	System.Reflection.Emit.Label
+0x000B : ldarg.0
+0x000C : call	UnityEngine.Transform get_transform()
+0x000D : callvirt	UnityEngine.Vector3 get_position()
+0x000E : ldfld	System.Single y
+0x000F : ldarg.0
+0x0010 : ldfld	System.Single waterLevelOffset
+0x0011 : bge.un	System.Reflection.Emit.Label
+0x0012 : ldarg.0
+0x0013 : ldfld	UnityEngine.Rigidbody rb
+0x0014 : call	UnityEngine.Vector3 get_up()
+0x0015 : ldarg.0
+0x0016 : ldfld	System.Single boyancy
+0x0017 : call	UnityEngine.Vector3 op_Multiply(UnityEngine.Vector3, Single)
+0x0018 : callvirt	Void AddForce(UnityEngine.Vector3)
+0x0019 : ldarg.0
+0x001A : ldc.i4.0
+0x001B : stfld	System.Boolean overWater
+0x001C : ldarg.0
+0x001D : ldfld	System.Boolean forceLandMode
+0x001E : brtrue	System.Reflection.Emit.Label
+0x001F : ldarg.0
+0x0020 : ldfld	System.Boolean debugIgnoreWater
+0x0021 : brtrue	System.Reflection.Emit.Label
+0x0022 : ldarg.0
+0x0023 : call	UnityEngine.Transform get_transform()
+0x0024 : callvirt	UnityEngine.Vector3 get_position()
+0x0025 : ldfld	System.Single y
+0x0026 : ldarg.0
+0x0027 : ldfld	System.Single waterLevelOffset
+0x0028 : ldc.r4	3
+0x0029 : add
+0x002A : bge.un	System.Reflection.Emit.Label
+0x002B : ldarg.0
+0x002C : ldc.i4.1
+0x002D : stfld	System.Boolean overWater
+0x002E : ldc.i4.0
+0x002F : stloc.0
+0x0030 : ldc.i4.0
+0x0031 : stloc.1
+0x0032 : ldarg.0
+0x0033 : ldfld	System.Boolean isPiloting
+0x0034 : brfalse	System.Reflection.Emit.Label
+0x0035 : ldarg.0
+0x0036 : ldfld	System.Boolean overWater
+0x0037 : brtrue	System.Reflection.Emit.Label
+0x0038 : ldc.i4.0
+0x0039 : call	Boolean GetButtonHeld(Button)
+0x003A : stloc.0
+0x003B : ldloc.0
+0x003C : brfalse	System.Reflection.Emit.Label
+0x003D : ldarg.0
+0x003E : ldfld	System.Boolean jumpReset
+0x003F : brfalse	System.Reflection.Emit.Label
+0x0040 : ldarg.0
+0x0041 : ldfld	System.Boolean wasOnGround
+0x0042 : brfalse	System.Reflection.Emit.Label
+0x0043 : ldarg.0
+0x0044 : ldfld	System.Boolean jumpEnabled
+0x0045 : brfalse	System.Reflection.Emit.Label
+0x0046 : ldarg.0
+0x0047 : ldc.i4.0
+0x0048 : stfld	System.Boolean jumpReset
+0x0049 : ldarg.0
+0x004A : ldc.i4.0
+0x004B : stfld	System.Boolean wasOnGround
+0x004C : ldarg.0
+0x004D : ldarg.0
+0x004E : ldfld	System.Single verticalBoostForce
+0x004F : stfld	System.Single jumpFuel
+0x0050 : ldarg.0
+0x0051 : ldfld	VFXController jumpFxControl
+0x0052 : callvirt	Void Play()
+0x0053 : ldarg.0
+0x0054 : ldfld	FMOD_CustomEmitter sfx_jump
+0x0055 : callvirt	Void Play()
+0x0056 : ldsfld	Player main
+0x0057 : ldfld	UnityEngine.Animator playerAnimator
+0x0058 : ldstr	hovercraft_button_1
+0x0059 : callvirt	Void SetTrigger(System.String)
+0x005A : ldarg.0
+0x005B : ldfld	UnityEngine.Animator animator
+0x005C : ldstr	hovercraft_jump
+0x005D : ldc.i4.1
+0x005E : callvirt	Void SetBool(System.String, Boolean)
+0x005F : ldsfld	Player main
+0x0060 : ldfld	UnityEngine.Animator playerAnimator
+0x0061 : ldstr	hovercraft_jump
+0x0062 : ldc.i4.1
+0x0063 : callvirt	Void SetBool(System.String, Boolean)
+0x0064 : ldarg.0
+0x0065 : ldfld	System.Single jumpCooldown
+0x0066 : ldc.r4	0
+0x0067 : ble.un	System.Reflection.Emit.Label
+0x0068 : ldarg.0
+0x0069 : ldstr	ResetJumpCD
+0x006A : ldarg.0
+0x006B : ldfld	System.Single jumpCooldown
+0x006C : call	Void Invoke(System.String, Single)
+0x006D : ldc.i4.s	16
+0x006E : call	Boolean GetButtonHeld(Button)
+0x006F : stloc.1
+0x0070 : ldloc.1
+0x0071 : brfalse	System.Reflection.Emit.Label
+0x0072 : ldarg.0
+0x0073 : ldfld	System.Boolean boostReset
+0x0074 : brfalse	System.Reflection.Emit.Label
+0x0075 : ldarg.0
+0x0076 : ldc.i4.0
+0x0077 : stfld	System.Boolean boostReset
+0x0078 : ldarg.0
+0x0079 : ldarg.0
+0x007A : ldfld	System.Single forwardBoostForce
+0x007B : stfld	System.Single boostFuel
+0x007C : ldarg.0
+0x007D : ldfld	VFXController boostFxControl
+0x007E : callvirt	Void Play()
+0x007F : ldarg.0
+0x0080 : ldfld	FMOD_CustomEmitter sfx_boost
+0x0081 : callvirt	Void Play()
+0x0082 : ldarg.0
+0x0083 : ldc.i4.0
+0x0084 : call	Void SetBoostButtonState(Boolean)
+0x0085 : ldsfld	Player main
+0x0086 : ldfld	UnityEngine.Animator playerAnimator
+0x0087 : ldstr	hovercraft_button_3
+0x0088 : callvirt	Void SetTrigger(System.String)
+0x0089 : ldarg.0
+0x008A : ldfld	System.Single boostCooldown
+0x008B : ldc.r4	0
+0x008C : ble.un	System.Reflection.Emit.Label
+0x008D : ldarg.0
+0x008E : ldstr	ResetBoostCD
+0x008F : ldarg.0
+0x0090 : ldfld	System.Single boostCooldown
+0x0091 : call	Void Invoke(System.String, Single)
+0x0092 : ldloc.1
+0x0093 : brtrue	System.Reflection.Emit.Label
+0x0094 : ldloc.0
+0x0095 : brtrue	System.Reflection.Emit.Label
+0x0096 : ldarg.0
+0x0097 : ldfld	VFXController boostFxControl
+0x0098 : callvirt	Void Stop()
+0x0099 : ldloc.1
+0x009A : brfalse	System.Reflection.Emit.Label
+0x009B : ldarg.0
+0x009C : ldfld	UnityEngine.Rigidbody rb
+0x009D : ldarg.0
+0x009E : call	UnityEngine.Transform get_transform()
+0x009F : callvirt	UnityEngine.Vector3 get_forward()
+0x00A0 : ldarg.0
+0x00A1 : ldfld	System.Single boostFuel
+0x00A2 : call	UnityEngine.Vector3 op_Multiply(UnityEngine.Vector3, Single)
+0x00A3 : callvirt	Void AddForce(UnityEngine.Vector3)
+0x00A4 : ldarg.0
+0x00A5 : ldarg.0
+0x00A6 : ldfld	System.Single boostFuel
+0x00A7 : ldc.r4	0
+0x00A8 : call	Single get_deltaTime()
+0x00A9 : ldarg.0
+0x00AA : ldfld	System.Single boostDecay
+0x00AB : mul
+0x00AC : call	Single MoveTowards(Single, Single, Single)
+0x00AD : stfld	System.Single boostFuel
+0x00AE : ldloc.0
+0x00AF : brfalse	System.Reflection.Emit.Label
+0x00B0 : ldarg.0
+0x00B1 : ldfld	UnityEngine.Transform hoverPoints
+0x00B2 : callvirt	System.Collections.IEnumerator GetEnumerator()
+0x00B3 : stloc.s	System.Collections.IEnumerator (9)
+0x00B4 : br	System.Reflection.Emit.Label
+0x00B5 : ldloc.s	System.Collections.IEnumerator (9)
+0x00B6 : callvirt	System.Object get_Current()
+0x00B7 : castclass	UnityEngine.Transform
+0x00B8 : stloc.s	UnityEngine.Transform (10)
+0x00B9 : ldarg.0
+0x00BA : ldfld	UnityEngine.Rigidbody rb
+0x00BB : call	UnityEngine.Vector3 get_up()
+0x00BC : ldarg.0
+0x00BD : ldfld	System.Single jumpFuel
+0x00BE : call	UnityEngine.Vector3 op_Multiply(UnityEngine.Vector3, Single)
+0x00BF : ldloc.s	UnityEngine.Transform (10)
+0x00C0 : callvirt	UnityEngine.Vector3 get_position()
+0x00C1 : callvirt	Void AddForceAtPosition(UnityEngine.Vector3, UnityEngine.Vector3)
+0x00C2 : ldloc.s	System.Collections.IEnumerator (9)
+0x00C3 : callvirt	Boolean MoveNext()
+0x00C4 : brtrue	System.Reflection.Emit.Label
+0x00C5 : leave	System.Reflection.Emit.Label
+0x00C6 : ldloc.s	System.Collections.IEnumerator (9)
+0x00C7 : isinst	System.IDisposable
+0x00C8 : stloc.s	System.IDisposable (11)
+0x00C9 : ldloc.s	System.IDisposable (11)
+0x00CA : brfalse	System.Reflection.Emit.Label
+0x00CB : ldloc.s	System.IDisposable (11)
+0x00CC : callvirt	Void Dispose()
+0x00CD : endfinally
+0x00CE : ldarg.0
+0x00CF : ldarg.0
+0x00D0 : ldfld	System.Single jumpFuel
+0x00D1 : ldc.r4	0
+0x00D2 : call	Single get_deltaTime()
+0x00D3 : ldarg.0
+0x00D4 : ldfld	System.Single jumpDecay
+0x00D5 : mul
+0x00D6 : call	Single MoveTowards(Single, Single, Single)
+0x00D7 : stfld	System.Single jumpFuel
+0x00D8 : ldc.i4.1
+0x00D9 : stloc.2
+0x00DA : ldarg.0
+0x00DB : ldfld	UnityEngine.Transform hoverPoints
+0x00DC : callvirt	Int32 get_childCount()
+0x00DD : newarr	UnityEngine.RaycastHit
+0x00DE : stloc.3
+0x00DF : ldc.i4	1073741825
+0x00E0 : stloc.s	System.Int32 (4)
+0x00E1 : ldc.i4.0
+0x00E2 : stloc.s	System.Int32 (5)
+0x00E3 : ldarg.0
+0x00E4 : ldfld	System.Single jumpFuel
+0x00E5 : ldarg.0
+0x00E6 : ldfld	System.Single verticalBoostForce
+0x00E7 : div
+0x00E8 : stloc.s	System.Single (6)
+0x00E9 : ldloc.0
+0x00EA : brtrue	System.Reflection.Emit.Label
+0x00EB : ldarg.0
+0x00EC : ldfld	System.Boolean isPiloting
+0x00ED : brtrue	System.Reflection.Emit.Label
+0x00EE : ldarg.0
+0x00EF : ldfld	System.Single hoverDist
+0x00F0 : ldarg.0
+0x00F1 : ldfld	System.Single emptyVehicleHeight
+0x00F2 : div
+0x00F3 : br	System.Reflection.Emit.Label
+0x00F4 : ldarg.0
+0x00F5 : ldfld	System.Single hoverDist
+0x00F6 : br	System.Reflection.Emit.Label
+0x00F7 : ldarg.0
+0x00F8 : ldfld	System.Single hoverDist
+0x00F9 : ldarg.0
+0x00FA : ldfld	System.Single hoverDist
+0x00FB : ldc.r4	2
+0x00FC : div
+0x00FD : ldloc.s	System.Single (6)
+0x00FE : call	Single Lerp(Single, Single, Single)
+0x00FF : stloc.s	System.Single (7)
+0x0100 : ldarg.0
+0x0101 : ldfld	UnityEngine.Transform hoverPoints
+0x0102 : callvirt	System.Collections.IEnumerator GetEnumerator()
+0x0103 : stloc.s	System.Collections.IEnumerator (9)
+0x0104 : br	System.Reflection.Emit.Label
+0x0105 : ldloc.s	System.Collections.IEnumerator (9)
+0x0106 : callvirt	System.Object get_Current()
+0x0107 : castclass	UnityEngine.Transform
+0x0108 : callvirt	UnityEngine.Vector3 get_position()
+0x0109 : call	UnityEngine.Vector3 get_up()
+0x010A : call	UnityEngine.Vector3 op_UnaryNegation(UnityEngine.Vector3)
+0x010B : ldloc.3
+0x010C : ldloc.s	System.Int32 (5)
+0x010D : ldelema	UnityEngine.RaycastHit
+0x010E : ldloc.s	System.Single (7)
+0x010F : ldloc.s	System.Int32 (4)
+0x0110 : ldc.i4.1
+0x0111 : call	Boolean Raycast(UnityEngine.Vector3, UnityEngine.Vector3, UnityEngine.RaycastHit ByRef, Single, Int32, UnityEngine.QueryTriggerInteraction)
+0x0112 : brfalse	System.Reflection.Emit.Label
+0x0113 : ldloc.s	System.Int32 (5)
+0x0114 : ldc.i4.1
+0x0115 : add
+0x0116 : stloc.s	System.Int32 (5)
+0x0117 : br	System.Reflection.Emit.Label
+0x0118 : ldc.i4.0
+0x0119 : stloc.2
+0x011A : leave	System.Reflection.Emit.Label
+0x011B : ldloc.s	System.Collections.IEnumerator (9)
+0x011C : callvirt	Boolean MoveNext()
+0x011D : brtrue	System.Reflection.Emit.Label
+0x011E : leave	System.Reflection.Emit.Label
+0x011F : ldloc.s	System.Collections.IEnumerator (9)
+0x0120 : isinst	System.IDisposable
+0x0121 : stloc.s	System.IDisposable (11)
+0x0122 : ldloc.s	System.IDisposable (11)
+0x0123 : brfalse	System.Reflection.Emit.Label
+0x0124 : ldloc.s	System.IDisposable (11)
+0x0125 : callvirt	Void Dispose()
+0x0126 : endfinally
+0x0127 : ldloc.2
+0x0128 : brfalse	System.Reflection.Emit.Label
+0x0129 : ldarg.0
+0x012A : ldfld	HoverbikePlayerTool playerTool
+0x012B : callvirt	Boolean get_isEquipped()
+0x012C : brtrue	System.Reflection.Emit.Label
+0x012D : ldarg.0
+0x012E : ldfld	EnergyMixin energyMixin
+0x012F : callvirt	Boolean IsDepleted()
+0x0130 : brtrue	System.Reflection.Emit.Label
+0x0131 : ldarg.0
+0x0132 : ldfld	System.Single hoverForce
+0x0133 : br	System.Reflection.Emit.Label
+0x0134 : ldc.r4	0
+0x0135 : stloc.s	System.Single (12)
+0x0136 : ldarg.0
+0x0137 : ldfld	Hoverbike+PowerDownStates fictionalPowerState
+0x0138 : ldc.i4.2
+0x0139 : bne.un	System.Reflection.Emit.Label
+0x013A : ldarg.0
+0x013B : ldarg.0
+0x013C : ldfld	System.Single emptyHoverPower
+0x013D : ldc.r4	0
+0x013E : call	Single get_deltaTime()
+0x013F : ldc.r4	1500
+0x0140 : mul
+0x0141 : call	Single MoveTowards(Single, Single, Single)
+0x0142 : stfld	System.Single emptyHoverPower
+0x0143 : ldarg.0
+0x0144 : ldfld	System.Single emptyHoverPower
+0x0145 : stloc.s	System.Single (12)
+0x0146 : ldarg.0
+0x0147 : ldfld	UnityEngine.Animator animator
+0x0148 : ldstr	powered_down
+0x0149 : ldc.i4.1
+0x014A : callvirt	Void SetBool(System.String, Boolean)
+0x014B : ldarg.0
+0x014C : ldfld	UnityEngine.GameObject powerDownCollider
+0x014D : ldc.i4.1
+0x014E : callvirt	Void SetActive(Boolean)
+0x014F : ldarg.0
+0x0150 : ldfld	FMOD_CustomLoopingEmitter sfx_engineIdle
+0x0151 : callvirt	Boolean get_playing()
+0x0152 : brfalse	System.Reflection.Emit.Label
+0x0153 : ldarg.0
+0x0154 : ldfld	FMOD_CustomLoopingEmitter sfx_engineIdle
+0x0155 : callvirt	Void Stop()
+0x0156 : br	System.Reflection.Emit.Label
+0x0157 : ldarg.0
+0x0158 : ldfld	Hoverbike+PowerDownStates fictionalPowerState
+0x0159 : ldc.i4.3
+0x015A : bne.un	System.Reflection.Emit.Label
+0x015B : ldarg.0
+0x015C : ldfld	UnityEngine.Animator animator
+0x015D : ldstr	powered_down
+0x015E : ldc.i4.0
+0x015F : callvirt	Void SetBool(System.String, Boolean)
+0x0160 : ldarg.0
+0x0161 : ldc.i4.1
+0x0162 : stfld	Hoverbike+PowerDownStates fictionalPowerState
+0x0163 : ldarg.0
+0x0164 : ldfld	FMOD_CustomLoopingEmitter sfx_engineIdle
+0x0165 : callvirt	Void Play()
+0x0166 : ldarg.0
+0x0167 : ldfld	Hoverbike+PowerDownStates fictionalPowerState
+0x0168 : ldc.i4.1
+0x0169 : bne.un	System.Reflection.Emit.Label
+0x016A : ldarg.0
+0x016B : ldarg.0
+0x016C : ldfld	System.Single emptyHoverPower
+0x016D : ldarg.0
+0x016E : ldfld	System.Single hoverForce
+0x016F : call	Single get_deltaTime()
+0x0170 : ldc.r4	2500
+0x0171 : mul
+0x0172 : call	Single MoveTowards(Single, Single, Single)
+0x0173 : stfld	System.Single emptyHoverPower
+0x0174 : ldarg.0
+0x0175 : ldfld	System.Single emptyHoverPower
+0x0176 : stloc.s	System.Single (12)
+0x0177 : ldloc.s	System.Single (12)
+0x0178 : call	Single get_time()
+0x0179 : call	Single Sin(Single)
+0x017A : ldarg.0
+0x017B : ldfld	System.Single hoverEngineMicroVariance
+0x017C : mul
+0x017D : add
+0x017E : stloc.s	System.Single (12)
+0x017F : ldc.i4.0
+0x0180 : stloc.s	System.Int32 (5)
+0x0181 : ldc.i4.0
+0x0182 : stloc.s	System.Boolean (13)
+0x0183 : ldloc.3
+0x0184 : stloc.s	UnityEngine.RaycastHit[] (14)
+0x0185 : ldc.i4.0
+0x0186 : stloc.s	System.Int32 (15)
+0x0187 : br	System.Reflection.Emit.Label
+0x0188 : ldloc.s	UnityEngine.RaycastHit[] (14)
+0x0189 : ldloc.s	System.Int32 (15)
+0x018A : ldelem	UnityEngine.RaycastHit
+0x018B : stloc.s	UnityEngine.RaycastHit (16)
+0x018C : ldloca.s	UnityEngine.RaycastHit (16)
+0x018D : call	Single get_distance()
+0x018E : ldarg.0
+0x018F : ldfld	System.Single impactCompensatorHeight
+0x0190 : bge.un	System.Reflection.Emit.Label
+0x0191 : ldc.i4.1
+0x0192 : stloc.s	System.Boolean (13)
+0x0193 : ldloc.s	System.Single (12)
+0x0194 : ldarg.0
+0x0195 : ldfld	System.Single constantForceDampening
+0x0196 : div
+0x0197 : ldloc.s	System.Single (12)
+0x0198 : ldc.r4	1
+0x0199 : ldloca.s	UnityEngine.RaycastHit (16)
+0x019A : call	Single get_distance()
+0x019B : ldloc.s	System.Single (7)
+0x019C : div
+0x019D : sub
+0x019E : call	Single Clamp01(Single)
+0x019F : mul
+0x01A0 : call	Single Max(Single, Single)
+0x01A1 : stloc.s	System.Single (17)
+0x01A2 : ldarg.0
+0x01A3 : ldfld	UnityEngine.Rigidbody rb
+0x01A4 : call	UnityEngine.Vector3 get_up()
+0x01A5 : ldloc.s	System.Single (17)
+0x01A6 : call	UnityEngine.Vector3 op_Multiply(UnityEngine.Vector3, Single)
+0x01A7 : ldarg.0
+0x01A8 : ldfld	UnityEngine.Transform hoverPoints
+0x01A9 : ldloc.s	System.Int32 (5)
+0x01AA : callvirt	UnityEngine.Transform GetChild(Int32)
+0x01AB : callvirt	UnityEngine.Vector3 get_position()
+0x01AC : callvirt	Void AddForceAtPosition(UnityEngine.Vector3, UnityEngine.Vector3)
+0x01AD : ldloc.s	System.Int32 (5)
+0x01AE : ldc.i4.1
+0x01AF : add
+0x01B0 : stloc.s	System.Int32 (5)
+0x01B1 : ldloc.s	System.Int32 (15)
+0x01B2 : ldc.i4.1
+0x01B3 : add
+0x01B4 : stloc.s	System.Int32 (15)
+0x01B5 : ldloc.s	System.Int32 (15)
+0x01B6 : ldloc.s	UnityEngine.RaycastHit[] (14)
+0x01B7 : ldlen
+0x01B8 : conv.i4
+0x01B9 : blt	System.Reflection.Emit.Label
+0x01BA : ldarg.0
+0x01BB : ldfld	System.Boolean isPiloting
+0x01BC : ldloc.s	System.Boolean (13)
+0x01BD : and
+0x01BE : brfalse	System.Reflection.Emit.Label
+0x01BF : ldarg.0
+0x01C0 : ldfld	UnityEngine.Rigidbody rb
+0x01C1 : call	UnityEngine.Vector3 get_up()
+0x01C2 : ldarg.0
+0x01C3 : ldfld	System.Single hoverForce
+0x01C4 : call	UnityEngine.Vector3 op_Multiply(UnityEngine.Vector3, Single)
+0x01C5 : ldc.r4	4
+0x01C6 : call	UnityEngine.Vector3 op_Multiply(UnityEngine.Vector3, Single)
+0x01C7 : callvirt	Void AddForce(UnityEngine.Vector3)
+0x01C8 : ldarg.0
+0x01C9 : ldfld	System.Single jumpCooldown
+0x01CA : ldc.r4	0
+0x01CB : bgt.un	System.Reflection.Emit.Label
+0x01CC : ldarg.0
+0x01CD : ldc.i4.1
+0x01CE : stfld	System.Boolean jumpReset
+0x01CF : ldarg.0
+0x01D0 : ldfld	UnityEngine.Animator animator
+0x01D1 : ldstr	hovercraft_jump
+0x01D2 : ldc.i4.0
+0x01D3 : callvirt	Void SetBool(System.String, Boolean)
+0x01D4 : ldsfld	Player main
+0x01D5 : ldfld	UnityEngine.Animator playerAnimator
+0x01D6 : ldstr	hovercraft_jump
+0x01D7 : ldc.i4.0
+0x01D8 : callvirt	Void SetBool(System.String, Boolean)
+0x01D9 : ldarg.0
+0x01DA : ldfld	System.Boolean wasOnGround
+0x01DB : brtrue	System.Reflection.Emit.Label
+0x01DC : ldarg.0
+0x01DD : ldfld	FMOD_CustomEmitter sfx_land
+0x01DE : callvirt	Void Play()
+0x01DF : ldarg.0
+0x01E0 : ldc.i4.1
+0x01E1 : stfld	System.Boolean wasOnGround
+0x01E2 : ldarg.0
+0x01E3 : ldfld	EnergyMixin energyMixin
+0x01E4 : callvirt	Boolean IsDepleted()
+0x01E5 : brtrue	System.Reflection.Emit.Label
+0x01E6 : ldarg.0
+0x01E7 : ldfld	Hoverbike+PowerDownStates fictionalPowerState
+0x01E8 : ldc.i4.2
+0x01E9 : beq	System.Reflection.Emit.Label
+0x01EA : ldarg.0
+0x01EB : ldfld	System.Boolean debugDisableVerticalStabilizer
+0x01EC : brtrue	System.Reflection.Emit.Label
+0x01ED : call	UnityEngine.Vector3 get_up()
+0x01EE : stloc.s	UnityEngine.Vector3 (19)
+0x01EF : ldarg.0
+0x01F0 : call	UnityEngine.Transform get_transform()
+0x01F1 : callvirt	UnityEngine.Vector3 get_position()
+0x01F2 : call	UnityEngine.Vector3 get_up()
+0x01F3 : call	UnityEngine.Vector3 op_UnaryNegation(UnityEngine.Vector3)
+0x01F4 : ldloca.s	UnityEngine.RaycastHit (18)
+0x01F5 : ldc.r4	15
+0x01F6 : ldloc.s	System.Int32 (4)
+0x01F7 : ldc.i4.1
+0x01F8 : call	Boolean Raycast(UnityEngine.Vector3, UnityEngine.Vector3, UnityEngine.RaycastHit ByRef, Single, Int32, UnityEngine.QueryTriggerInteraction)
+0x01F9 : brfalse	System.Reflection.Emit.Label
+0x01FA : ldloca.s	UnityEngine.RaycastHit (18)
+0x01FB : call	UnityEngine.Vector3 get_normal()
+0x01FC : stloc.s	UnityEngine.Vector3 (19)
+0x01FD : ldarg.0
+0x01FE : call	UnityEngine.Transform get_transform()
+0x01FF : callvirt	UnityEngine.Vector3 get_up()
+0x0200 : ldloc.s	UnityEngine.Vector3 (19)
+0x0201 : call	Single Dot(UnityEngine.Vector3, UnityEngine.Vector3)
+0x0202 : stloc.s	System.Single (20)
+0x0203 : ldarg.0
+0x0204 : call	UnityEngine.Transform get_transform()
+0x0205 : callvirt	UnityEngine.Vector3 get_up()
+0x0206 : ldloc.s	UnityEngine.Vector3 (19)
+0x0207 : call	UnityEngine.Vector3 Cross(UnityEngine.Vector3, UnityEngine.Vector3)
+0x0208 : stloc.s	UnityEngine.Vector3 (21)
+0x0209 : ldloc.0
+0x020A : brtrue	System.Reflection.Emit.Label
+0x020B : ldloc.2
+0x020C : brfalse	System.Reflection.Emit.Label
+0x020D : ldloc.s	System.Single (20)
+0x020E : ldarg.0
+0x020F : ldfld	System.Single stability
+0x0210 : blt	System.Reflection.Emit.Label
+0x0211 : ldloc.2
+0x0212 : brtrue	System.Reflection.Emit.Label
+0x0213 : ldarg.0
+0x0214 : ldfld	UnityEngine.Rigidbody rb
+0x0215 : ldloc.s	UnityEngine.Vector3 (21)
+0x0216 : ldarg.0
+0x0217 : ldfld	System.Single stabilitySpeed
+0x0218 : call	UnityEngine.Vector3 op_Multiply(UnityEngine.Vector3, Single)
+0x0219 : ldarg.0
+0x021A : ldfld	System.Single stabilitySpeed
+0x021B : call	UnityEngine.Vector3 op_Multiply(UnityEngine.Vector3, Single)
+0x021C : callvirt	Void AddTorque(UnityEngine.Vector3)
+0x021D : ldarg.0
+0x021E : call	UnityEngine.Transform get_transform()
+0x021F : callvirt	UnityEngine.Vector3 get_up()
+0x0220 : call	UnityEngine.Vector3 get_up()
+0x0221 : call	Single Dot(UnityEngine.Vector3, UnityEngine.Vector3)
+0x0222 : stloc.s	System.Single (22)
+0x0223 : ldc.r4	1
+0x0224 : ldloc.s	System.Single (22)
+0x0225 : sub
+0x0226 : ldarg.0
+0x0227 : ldfld	System.Single sfxCreakThreshold
+0x0228 : ble.un	System.Reflection.Emit.Label
+0x0229 : ldarg.0
+0x022A : ldfld	System.Boolean creakReset
+0x022B : brfalse	System.Reflection.Emit.Label
+0x022C : ldarg.0
+0x022D : ldfld	FMOD_CustomEmitter sfx_creak
+0x022E : callvirt	Void Play()
+0x022F : ldarg.0
+0x0230 : ldc.i4.0
+0x0231 : stfld	System.Boolean creakReset
+0x0232 : ldarg.0
+0x0233 : ldstr	CreakReset
+0x0234 : call	Boolean IsInvoking(System.String)
+0x0235 : brtrue	System.Reflection.Emit.Label
+0x0236 : ldc.r4	0.3
+0x0237 : ldc.r4	0.5
+0x0238 : call	Single Range(Single, Single)
+0x0239 : stloc.s	System.Single (23)
+0x023A : ldarg.0
+0x023B : ldstr	CreakReset
+0x023C : ldloc.s	System.Single (23)
+0x023D : call	Void Invoke(System.String, Single)
+0x023E : ldarg.0
+0x023F : ldfld	UnityEngine.Rigidbody rb
+0x0240 : callvirt	UnityEngine.Vector3 get_velocity()
+0x0241 : stloc.s	UnityEngine.Vector3 (24)
+0x0242 : ldloca.s	UnityEngine.Vector3 (24)
+0x0243 : call	Single get_magnitude()
+0x0244 : ldarg.0
+0x0245 : ldfld	System.Single sfxWindThreshold
+0x0246 : div
+0x0247 : call	Single Clamp01(Single)
+0x0248 : stloc.s	System.Single (8)
+0x0249 : ldarg.0
+0x024A : ldfld	FMOD_CustomEmitter sfx_wind
+0x024B : ldstr	velocity
+0x024C : ldloc.s	System.Single (8)
+0x024D : callvirt	Void SetParameterValue(System.String, Single)
+0x024E : ldarg.0
+0x024F : ldfld	UnityEngine.Rigidbody rb
+0x0250 : ldc.r4	0
+0x0251 : ldarg.0
+0x0252 : ldfld	System.Single gravity
+0x0253 : neg
+0x0254 : call	Single get_deltaTime()
+0x0255 : mul
+0x0256 : ldc.r4	0
+0x0257 : newobj	Void .ctor(Single, Single, Single)
+0x0258 : ldc.i4.2
+0x0259 : callvirt	Void AddForce(UnityEngine.Vector3, UnityEngine.ForceMode)
+0x025A : ldarg.0
+0x025B : ldfld	UnityEngine.Animator animator
+0x025C : ldstr	on_land
+0x025D : ldloc.2
+0x025E : callvirt	Void SetBool(System.String, Boolean)
+0x025F : ret
+Located overWater segment at 44
+Located wasOnGround segment at 65
+Dump of Hoverbike.HoverEngines method, post-transpiler:
+0x0000 : ldarg.0
+0x0001 : ldfld	Hoverpad dockedPad
+0x0002 : call	Boolean op_Implicit(UnityEngine.Object)
+0x0003 : brfalse	System.Reflection.Emit.Label
+0x0004 : ret
+0x0005 : ldarg.0
+0x0006 : ldfld	System.Boolean forceLandMode
+0x0007 : brtrue	System.Reflection.Emit.Label
+0x0008 : ldarg.0
+0x0009 : ldfld	System.Boolean debugIgnoreWater
+0x000A : brtrue	System.Reflection.Emit.Label
+0x000B : ldarg.0
+0x000C : call	UnityEngine.Transform get_transform()
+0x000D : callvirt	UnityEngine.Vector3 get_position()
+0x000E : ldfld	System.Single y
+0x000F : ldarg.0
+0x0010 : ldfld	System.Single waterLevelOffset
+0x0011 : bge.un	System.Reflection.Emit.Label
+0x0012 : ldarg.0
+0x0013 : ldfld	UnityEngine.Rigidbody rb
+0x0014 : call	UnityEngine.Vector3 get_up()
+0x0015 : ldarg.0
+0x0016 : ldfld	System.Single boyancy
+0x0017 : call	UnityEngine.Vector3 op_Multiply(UnityEngine.Vector3, Single)
+0x0018 : callvirt	Void AddForce(UnityEngine.Vector3)
+0x0019 : ldarg.0
+0x001A : ldc.i4.0
+0x001B : stfld	System.Boolean overWater
+0x001C : ldarg.0
+0x001D : ldfld	System.Boolean forceLandMode
+0x001E : brtrue	System.Reflection.Emit.Label
+0x001F : ldarg.0
+0x0020 : ldfld	System.Boolean debugIgnoreWater
+0x0021 : brtrue	System.Reflection.Emit.Label
+0x0022 : ldarg.0
+0x0023 : call	UnityEngine.Transform get_transform()
+0x0024 : callvirt	UnityEngine.Vector3 get_position()
+0x0025 : ldfld	System.Single y
+0x0026 : ldarg.0
+0x0027 : ldfld	System.Single waterLevelOffset
+0x0028 : ldc.r4	3
+0x0029 : add
+0x002A : bge.un	System.Reflection.Emit.Label
+0x002B : ldarg.0
+0x002C : ldarg.0
+0x002D : callvirt	Boolean WaterHoverMode(Hoverbike)
+0x002E : stfld	System.Boolean overWater
+0x002F : ldc.i4.0
+0x0030 : stloc.0
+0x0031 : ldc.i4.0
+0x0032 : stloc.1
+0x0033 : ldarg.0
+0x0034 : ldfld	System.Boolean isPiloting
+0x0035 : brfalse	System.Reflection.Emit.Label
+0x0036 : ldarg.0
+0x0037 : ldfld	System.Boolean overWater
+0x0038 : brtrue	System.Reflection.Emit.Label
+0x0039 : ldc.i4.0
+0x003A : call	Boolean GetButtonHeld(Button)
+0x003B : stloc.0
+0x003C : ldloc.0
+0x003D : brfalse	System.Reflection.Emit.Label
+0x003E : ldarg.0
+0x003F : ldfld	System.Boolean jumpReset
+0x0040 : brfalse	System.Reflection.Emit.Label
+0x0041 : nop
+0x0042 : nop
+0x0043 : nop
+0x0044 : ldarg.0
+0x0045 : ldfld	System.Boolean jumpEnabled
+0x0046 : brfalse	System.Reflection.Emit.Label
+0x0047 : ldarg.0
+0x0048 : ldc.i4.0
+0x0049 : stfld	System.Boolean jumpReset
+0x004A : ldarg.0
+0x004B : ldc.i4.0
+0x004C : stfld	System.Boolean wasOnGround
+0x004D : ldarg.0
+0x004E : ldarg.0
+0x004F : ldfld	System.Single verticalBoostForce
+0x0050 : stfld	System.Single jumpFuel
+0x0051 : ldarg.0
+0x0052 : ldfld	VFXController jumpFxControl
+0x0053 : callvirt	Void Play()
+0x0054 : ldarg.0
+0x0055 : ldfld	FMOD_CustomEmitter sfx_jump
+0x0056 : callvirt	Void Play()
+0x0057 : ldsfld	Player main
+0x0058 : ldfld	UnityEngine.Animator playerAnimator
+0x0059 : ldstr	hovercraft_button_1
+0x005A : callvirt	Void SetTrigger(System.String)
+0x005B : ldarg.0
+0x005C : ldfld	UnityEngine.Animator animator
+0x005D : ldstr	hovercraft_jump
+0x005E : ldc.i4.1
+0x005F : callvirt	Void SetBool(System.String, Boolean)
+0x0060 : ldsfld	Player main
+0x0061 : ldfld	UnityEngine.Animator playerAnimator
+0x0062 : ldstr	hovercraft_jump
+0x0063 : ldc.i4.1
+0x0064 : callvirt	Void SetBool(System.String, Boolean)
+0x0065 : ldarg.0
+0x0066 : ldfld	System.Single jumpCooldown
+0x0067 : ldc.r4	0
+0x0068 : ble.un	System.Reflection.Emit.Label
+0x0069 : ldarg.0
+0x006A : ldstr	ResetJumpCD
+0x006B : ldarg.0
+0x006C : ldfld	System.Single jumpCooldown
+0x006D : call	Void Invoke(System.String, Single)
+0x006E : ldc.i4.s	16
+0x006F : call	Boolean GetButtonHeld(Button)
+0x0070 : stloc.1
+0x0071 : ldloc.1
+0x0072 : brfalse	System.Reflection.Emit.Label
+0x0073 : ldarg.0
+0x0074 : ldfld	System.Boolean boostReset
+0x0075 : brfalse	System.Reflection.Emit.Label
+0x0076 : ldarg.0
+0x0077 : ldc.i4.0
+0x0078 : stfld	System.Boolean boostReset
+0x0079 : ldarg.0
+0x007A : ldarg.0
+0x007B : ldfld	System.Single forwardBoostForce
+0x007C : stfld	System.Single boostFuel
+0x007D : ldarg.0
+0x007E : ldfld	VFXController boostFxControl
+0x007F : callvirt	Void Play()
+0x0080 : ldarg.0
+0x0081 : ldfld	FMOD_CustomEmitter sfx_boost
+0x0082 : callvirt	Void Play()
+0x0083 : ldarg.0
+0x0084 : ldc.i4.0
+0x0085 : call	Void SetBoostButtonState(Boolean)
+0x0086 : ldsfld	Player main
+0x0087 : ldfld	UnityEngine.Animator playerAnimator
+0x0088 : ldstr	hovercraft_button_3
+0x0089 : callvirt	Void SetTrigger(System.String)
+0x008A : ldarg.0
+0x008B : ldfld	System.Single boostCooldown
+0x008C : ldc.r4	0
+0x008D : ble.un	System.Reflection.Emit.Label
+0x008E : ldarg.0
+0x008F : ldstr	ResetBoostCD
+0x0090 : ldarg.0
+0x0091 : ldfld	System.Single boostCooldown
+0x0092 : call	Void Invoke(System.String, Single)
+0x0093 : ldloc.1
+0x0094 : brtrue	System.Reflection.Emit.Label
+0x0095 : ldloc.0
+0x0096 : brtrue	System.Reflection.Emit.Label
+0x0097 : ldarg.0
+0x0098 : ldfld	VFXController boostFxControl
+0x0099 : callvirt	Void Stop()
+0x009A : ldloc.1
+0x009B : brfalse	System.Reflection.Emit.Label
+0x009C : ldarg.0
+0x009D : ldfld	UnityEngine.Rigidbody rb
+0x009E : ldarg.0
+0x009F : call	UnityEngine.Transform get_transform()
+0x00A0 : callvirt	UnityEngine.Vector3 get_forward()
+0x00A1 : ldarg.0
+0x00A2 : ldfld	System.Single boostFuel
+0x00A3 : call	UnityEngine.Vector3 op_Multiply(UnityEngine.Vector3, Single)
+0x00A4 : callvirt	Void AddForce(UnityEngine.Vector3)
+0x00A5 : ldarg.0
+0x00A6 : ldarg.0
+0x00A7 : ldfld	System.Single boostFuel
+0x00A8 : ldc.r4	0
+0x00A9 : call	Single get_deltaTime()
+0x00AA : ldarg.0
+0x00AB : ldfld	System.Single boostDecay
+0x00AC : mul
+0x00AD : call	Single MoveTowards(Single, Single, Single)
+0x00AE : stfld	System.Single boostFuel
+0x00AF : ldloc.0
+0x00B0 : brfalse	System.Reflection.Emit.Label
+0x00B1 : ldarg.0
+0x00B2 : ldfld	UnityEngine.Transform hoverPoints
+0x00B3 : callvirt	System.Collections.IEnumerator GetEnumerator()
+0x00B4 : stloc.s	System.Collections.IEnumerator (9)
+0x00B5 : br	System.Reflection.Emit.Label
+0x00B6 : ldloc.s	System.Collections.IEnumerator (9)
+0x00B7 : callvirt	System.Object get_Current()
+0x00B8 : castclass	UnityEngine.Transform
+0x00B9 : stloc.s	UnityEngine.Transform (10)
+0x00BA : ldarg.0
+0x00BB : ldfld	UnityEngine.Rigidbody rb
+0x00BC : call	UnityEngine.Vector3 get_up()
+0x00BD : ldarg.0
+0x00BE : ldfld	System.Single jumpFuel
+0x00BF : call	UnityEngine.Vector3 op_Multiply(UnityEngine.Vector3, Single)
+0x00C0 : ldloc.s	UnityEngine.Transform (10)
+0x00C1 : callvirt	UnityEngine.Vector3 get_position()
+0x00C2 : callvirt	Void AddForceAtPosition(UnityEngine.Vector3, UnityEngine.Vector3)
+0x00C3 : ldloc.s	System.Collections.IEnumerator (9)
+0x00C4 : callvirt	Boolean MoveNext()
+0x00C5 : brtrue	System.Reflection.Emit.Label
+0x00C6 : leave	System.Reflection.Emit.Label
+0x00C7 : ldloc.s	System.Collections.IEnumerator (9)
+0x00C8 : isinst	System.IDisposable
+0x00C9 : stloc.s	System.IDisposable (11)
+0x00CA : ldloc.s	System.IDisposable (11)
+0x00CB : brfalse	System.Reflection.Emit.Label
+0x00CC : ldloc.s	System.IDisposable (11)
+0x00CD : callvirt	Void Dispose()
+0x00CE : endfinally
+0x00CF : ldarg.0
+0x00D0 : ldarg.0
+0x00D1 : ldfld	System.Single jumpFuel
+0x00D2 : ldc.r4	0
+0x00D3 : call	Single get_deltaTime()
+0x00D4 : ldarg.0
+0x00D5 : ldfld	System.Single jumpDecay
+0x00D6 : mul
+0x00D7 : call	Single MoveTowards(Single, Single, Single)
+0x00D8 : stfld	System.Single jumpFuel
+0x00D9 : ldc.i4.1
+0x00DA : stloc.2
+0x00DB : ldarg.0
+0x00DC : ldfld	UnityEngine.Transform hoverPoints
+0x00DD : callvirt	Int32 get_childCount()
+0x00DE : newarr	UnityEngine.RaycastHit
+0x00DF : stloc.3
+0x00E0 : ldc.i4	1073741825
+0x00E1 : stloc.s	System.Int32 (4)
+0x00E2 : ldc.i4.0
+0x00E3 : stloc.s	System.Int32 (5)
+0x00E4 : ldarg.0
+0x00E5 : ldfld	System.Single jumpFuel
+0x00E6 : ldarg.0
+0x00E7 : ldfld	System.Single verticalBoostForce
+0x00E8 : div
+0x00E9 : stloc.s	System.Single (6)
+0x00EA : ldloc.0
+0x00EB : brtrue	System.Reflection.Emit.Label
+0x00EC : ldarg.0
+0x00ED : ldfld	System.Boolean isPiloting
+0x00EE : brtrue	System.Reflection.Emit.Label
+0x00EF : ldarg.0
+0x00F0 : ldfld	System.Single hoverDist
+0x00F1 : ldarg.0
+0x00F2 : ldfld	System.Single emptyVehicleHeight
+0x00F3 : div
+0x00F4 : br	System.Reflection.Emit.Label
+0x00F5 : ldarg.0
+0x00F6 : ldfld	System.Single hoverDist
+0x00F7 : br	System.Reflection.Emit.Label
+0x00F8 : ldarg.0
+0x00F9 : ldfld	System.Single hoverDist
+0x00FA : ldarg.0
+0x00FB : ldfld	System.Single hoverDist
+0x00FC : ldc.r4	2
+0x00FD : div
+0x00FE : ldloc.s	System.Single (6)
+0x00FF : call	Single Lerp(Single, Single, Single)
+0x0100 : stloc.s	System.Single (7)
+0x0101 : ldarg.0
+0x0102 : ldfld	UnityEngine.Transform hoverPoints
+0x0103 : callvirt	System.Collections.IEnumerator GetEnumerator()
+0x0104 : stloc.s	System.Collections.IEnumerator (9)
+0x0105 : br	System.Reflection.Emit.Label
+0x0106 : ldloc.s	System.Collections.IEnumerator (9)
+0x0107 : callvirt	System.Object get_Current()
+0x0108 : castclass	UnityEngine.Transform
+0x0109 : callvirt	UnityEngine.Vector3 get_position()
+0x010A : call	UnityEngine.Vector3 get_up()
+0x010B : call	UnityEngine.Vector3 op_UnaryNegation(UnityEngine.Vector3)
+0x010C : ldloc.3
+0x010D : ldloc.s	System.Int32 (5)
+0x010E : ldelema	UnityEngine.RaycastHit
+0x010F : ldloc.s	System.Single (7)
+0x0110 : ldloc.s	System.Int32 (4)
+0x0111 : ldc.i4.1
+0x0112 : call	Boolean Raycast(UnityEngine.Vector3, UnityEngine.Vector3, UnityEngine.RaycastHit ByRef, Single, Int32, UnityEngine.QueryTriggerInteraction)
+0x0113 : brfalse	System.Reflection.Emit.Label
+0x0114 : ldloc.s	System.Int32 (5)
+0x0115 : ldc.i4.1
+0x0116 : add
+0x0117 : stloc.s	System.Int32 (5)
+0x0118 : br	System.Reflection.Emit.Label
+0x0119 : ldc.i4.0
+0x011A : stloc.2
+0x011B : leave	System.Reflection.Emit.Label
+0x011C : ldloc.s	System.Collections.IEnumerator (9)
+0x011D : callvirt	Boolean MoveNext()
+0x011E : brtrue	System.Reflection.Emit.Label
+0x011F : leave	System.Reflection.Emit.Label
+0x0120 : ldloc.s	System.Collections.IEnumerator (9)
+0x0121 : isinst	System.IDisposable
+0x0122 : stloc.s	System.IDisposable (11)
+0x0123 : ldloc.s	System.IDisposable (11)
+0x0124 : brfalse	System.Reflection.Emit.Label
+0x0125 : ldloc.s	System.IDisposable (11)
+0x0126 : callvirt	Void Dispose()
+0x0127 : endfinally
+0x0128 : ldloc.2
+0x0129 : brfalse	System.Reflection.Emit.Label
+0x012A : ldarg.0
+0x012B : ldfld	HoverbikePlayerTool playerTool
+0x012C : callvirt	Boolean get_isEquipped()
+0x012D : brtrue	System.Reflection.Emit.Label
+0x012E : ldarg.0
+0x012F : ldfld	EnergyMixin energyMixin
+0x0130 : callvirt	Boolean IsDepleted()
+0x0131 : brtrue	System.Reflection.Emit.Label
+0x0132 : ldarg.0
+0x0133 : ldfld	System.Single hoverForce
+0x0134 : br	System.Reflection.Emit.Label
+0x0135 : ldc.r4	0
+0x0136 : stloc.s	System.Single (12)
+0x0137 : ldarg.0
+0x0138 : ldfld	Hoverbike+PowerDownStates fictionalPowerState
+0x0139 : ldc.i4.2
+0x013A : bne.un	System.Reflection.Emit.Label
+0x013B : ldarg.0
+0x013C : ldarg.0
+0x013D : ldfld	System.Single emptyHoverPower
+0x013E : ldc.r4	0
+0x013F : call	Single get_deltaTime()
+0x0140 : ldc.r4	1500
+0x0141 : mul
+0x0142 : call	Single MoveTowards(Single, Single, Single)
+0x0143 : stfld	System.Single emptyHoverPower
+0x0144 : ldarg.0
+0x0145 : ldfld	System.Single emptyHoverPower
+0x0146 : stloc.s	System.Single (12)
+0x0147 : ldarg.0
+0x0148 : ldfld	UnityEngine.Animator animator
+0x0149 : ldstr	powered_down
+0x014A : ldc.i4.1
+0x014B : callvirt	Void SetBool(System.String, Boolean)
+0x014C : ldarg.0
+0x014D : ldfld	UnityEngine.GameObject powerDownCollider
+0x014E : ldc.i4.1
+0x014F : callvirt	Void SetActive(Boolean)
+0x0150 : ldarg.0
+0x0151 : ldfld	FMOD_CustomLoopingEmitter sfx_engineIdle
+0x0152 : callvirt	Boolean get_playing()
+0x0153 : brfalse	System.Reflection.Emit.Label
+0x0154 : ldarg.0
+0x0155 : ldfld	FMOD_CustomLoopingEmitter sfx_engineIdle
+0x0156 : callvirt	Void Stop()
+0x0157 : br	System.Reflection.Emit.Label
+0x0158 : ldarg.0
+0x0159 : ldfld	Hoverbike+PowerDownStates fictionalPowerState
+0x015A : ldc.i4.3
+0x015B : bne.un	System.Reflection.Emit.Label
+0x015C : ldarg.0
+0x015D : ldfld	UnityEngine.Animator animator
+0x015E : ldstr	powered_down
+0x015F : ldc.i4.0
+0x0160 : callvirt	Void SetBool(System.String, Boolean)
+0x0161 : ldarg.0
+0x0162 : ldc.i4.1
+0x0163 : stfld	Hoverbike+PowerDownStates fictionalPowerState
+0x0164 : ldarg.0
+0x0165 : ldfld	FMOD_CustomLoopingEmitter sfx_engineIdle
+0x0166 : callvirt	Void Play()
+0x0167 : ldarg.0
+0x0168 : ldfld	Hoverbike+PowerDownStates fictionalPowerState
+0x0169 : ldc.i4.1
+0x016A : bne.un	System.Reflection.Emit.Label
+0x016B : ldarg.0
+0x016C : ldarg.0
+0x016D : ldfld	System.Single emptyHoverPower
+0x016E : ldarg.0
+0x016F : ldfld	System.Single hoverForce
+0x0170 : call	Single get_deltaTime()
+0x0171 : ldc.r4	2500
+0x0172 : mul
+0x0173 : call	Single MoveTowards(Single, Single, Single)
+0x0174 : stfld	System.Single emptyHoverPower
+0x0175 : ldarg.0
+0x0176 : ldfld	System.Single emptyHoverPower
+0x0177 : stloc.s	System.Single (12)
+0x0178 : ldloc.s	System.Single (12)
+0x0179 : call	Single get_time()
+0x017A : call	Single Sin(Single)
+0x017B : ldarg.0
+0x017C : ldfld	System.Single hoverEngineMicroVariance
+0x017D : mul
+0x017E : add
+0x017F : stloc.s	System.Single (12)
+0x0180 : ldc.i4.0
+0x0181 : stloc.s	System.Int32 (5)
+0x0182 : ldc.i4.0
+0x0183 : stloc.s	System.Boolean (13)
+0x0184 : ldloc.3
+0x0185 : stloc.s	UnityEngine.RaycastHit[] (14)
+0x0186 : ldc.i4.0
+0x0187 : stloc.s	System.Int32 (15)
+0x0188 : br	System.Reflection.Emit.Label
+0x0189 : ldloc.s	UnityEngine.RaycastHit[] (14)
+0x018A : ldloc.s	System.Int32 (15)
+0x018B : ldelem	UnityEngine.RaycastHit
+0x018C : stloc.s	UnityEngine.RaycastHit (16)
+0x018D : ldloca.s	UnityEngine.RaycastHit (16)
+0x018E : call	Single get_distance()
+0x018F : ldarg.0
+0x0190 : ldfld	System.Single impactCompensatorHeight
+0x0191 : bge.un	System.Reflection.Emit.Label
+0x0192 : ldc.i4.1
+0x0193 : stloc.s	System.Boolean (13)
+0x0194 : ldloc.s	System.Single (12)
+0x0195 : ldarg.0
+0x0196 : ldfld	System.Single constantForceDampening
+0x0197 : div
+0x0198 : ldloc.s	System.Single (12)
+0x0199 : ldc.r4	1
+0x019A : ldloca.s	UnityEngine.RaycastHit (16)
+0x019B : call	Single get_distance()
+0x019C : ldloc.s	System.Single (7)
+0x019D : div
+0x019E : sub
+0x019F : call	Single Clamp01(Single)
+0x01A0 : mul
+0x01A1 : call	Single Max(Single, Single)
+0x01A2 : stloc.s	System.Single (17)
+0x01A3 : ldarg.0
+0x01A4 : ldfld	UnityEngine.Rigidbody rb
+0x01A5 : call	UnityEngine.Vector3 get_up()
+0x01A6 : ldloc.s	System.Single (17)
+0x01A7 : call	UnityEngine.Vector3 op_Multiply(UnityEngine.Vector3, Single)
+0x01A8 : ldarg.0
+0x01A9 : ldfld	UnityEngine.Transform hoverPoints
+0x01AA : ldloc.s	System.Int32 (5)
+0x01AB : callvirt	UnityEngine.Transform GetChild(Int32)
+0x01AC : callvirt	UnityEngine.Vector3 get_position()
+0x01AD : callvirt	Void AddForceAtPosition(UnityEngine.Vector3, UnityEngine.Vector3)
+0x01AE : ldloc.s	System.Int32 (5)
+0x01AF : ldc.i4.1
+0x01B0 : add
+0x01B1 : stloc.s	System.Int32 (5)
+0x01B2 : ldloc.s	System.Int32 (15)
+0x01B3 : ldc.i4.1
+0x01B4 : add
+0x01B5 : stloc.s	System.Int32 (15)
+0x01B6 : ldloc.s	System.Int32 (15)
+0x01B7 : ldloc.s	UnityEngine.RaycastHit[] (14)
+0x01B8 : ldlen
+0x01B9 : conv.i4
+0x01BA : blt	System.Reflection.Emit.Label
+0x01BB : ldarg.0
+0x01BC : ldfld	System.Boolean isPiloting
+0x01BD : ldloc.s	System.Boolean (13)
+0x01BE : and
+0x01BF : brfalse	System.Reflection.Emit.Label
+0x01C0 : ldarg.0
+0x01C1 : ldfld	UnityEngine.Rigidbody rb
+0x01C2 : call	UnityEngine.Vector3 get_up()
+0x01C3 : ldarg.0
+0x01C4 : ldfld	System.Single hoverForce
+0x01C5 : call	UnityEngine.Vector3 op_Multiply(UnityEngine.Vector3, Single)
+0x01C6 : ldc.r4	4
+0x01C7 : call	UnityEngine.Vector3 op_Multiply(UnityEngine.Vector3, Single)
+0x01C8 : callvirt	Void AddForce(UnityEngine.Vector3)
+0x01C9 : ldarg.0
+0x01CA : ldfld	System.Single jumpCooldown
+0x01CB : ldc.r4	0
+0x01CC : bgt.un	System.Reflection.Emit.Label
+0x01CD : ldarg.0
+0x01CE : ldc.i4.1
+0x01CF : stfld	System.Boolean jumpReset
+0x01D0 : ldarg.0
+0x01D1 : ldfld	UnityEngine.Animator animator
+0x01D2 : ldstr	hovercraft_jump
+0x01D3 : ldc.i4.0
+0x01D4 : callvirt	Void SetBool(System.String, Boolean)
+0x01D5 : ldsfld	Player main
+0x01D6 : ldfld	UnityEngine.Animator playerAnimator
+0x01D7 : ldstr	hovercraft_jump
+0x01D8 : ldc.i4.0
+0x01D9 : callvirt	Void SetBool(System.String, Boolean)
+0x01DA : ldarg.0
+0x01DB : ldfld	System.Boolean wasOnGround
+0x01DC : brtrue	System.Reflection.Emit.Label
+0x01DD : ldarg.0
+0x01DE : ldfld	FMOD_CustomEmitter sfx_land
+0x01DF : callvirt	Void Play()
+0x01E0 : ldarg.0
+0x01E1 : ldc.i4.1
+0x01E2 : stfld	System.Boolean wasOnGround
+0x01E3 : ldarg.0
+0x01E4 : ldfld	EnergyMixin energyMixin
+0x01E5 : callvirt	Boolean IsDepleted()
+0x01E6 : brtrue	System.Reflection.Emit.Label
+0x01E7 : ldarg.0
+0x01E8 : ldfld	Hoverbike+PowerDownStates fictionalPowerState
+0x01E9 : ldc.i4.2
+0x01EA : beq	System.Reflection.Emit.Label
+0x01EB : ldarg.0
+0x01EC : ldfld	System.Boolean debugDisableVerticalStabilizer
+0x01ED : brtrue	System.Reflection.Emit.Label
+0x01EE : call	UnityEngine.Vector3 get_up()
+0x01EF : stloc.s	UnityEngine.Vector3 (19)
+0x01F0 : ldarg.0
+0x01F1 : call	UnityEngine.Transform get_transform()
+0x01F2 : callvirt	UnityEngine.Vector3 get_position()
+0x01F3 : call	UnityEngine.Vector3 get_up()
+0x01F4 : call	UnityEngine.Vector3 op_UnaryNegation(UnityEngine.Vector3)
+0x01F5 : ldloca.s	UnityEngine.RaycastHit (18)
+0x01F6 : ldc.r4	15
+0x01F7 : ldloc.s	System.Int32 (4)
+0x01F8 : ldc.i4.1
+0x01F9 : call	Boolean Raycast(UnityEngine.Vector3, UnityEngine.Vector3, UnityEngine.RaycastHit ByRef, Single, Int32, UnityEngine.QueryTriggerInteraction)
+0x01FA : brfalse	System.Reflection.Emit.Label
+0x01FB : ldloca.s	UnityEngine.RaycastHit (18)
+0x01FC : call	UnityEngine.Vector3 get_normal()
+0x01FD : stloc.s	UnityEngine.Vector3 (19)
+0x01FE : ldarg.0
+0x01FF : call	UnityEngine.Transform get_transform()
+0x0200 : callvirt	UnityEngine.Vector3 get_up()
+0x0201 : ldloc.s	UnityEngine.Vector3 (19)
+0x0202 : call	Single Dot(UnityEngine.Vector3, UnityEngine.Vector3)
+0x0203 : stloc.s	System.Single (20)
+0x0204 : ldarg.0
+0x0205 : call	UnityEngine.Transform get_transform()
+0x0206 : callvirt	UnityEngine.Vector3 get_up()
+0x0207 : ldloc.s	UnityEngine.Vector3 (19)
+0x0208 : call	UnityEngine.Vector3 Cross(UnityEngine.Vector3, UnityEngine.Vector3)
+0x0209 : stloc.s	UnityEngine.Vector3 (21)
+0x020A : ldloc.0
+0x020B : brtrue	System.Reflection.Emit.Label
+0x020C : ldloc.2
+0x020D : brfalse	System.Reflection.Emit.Label
+0x020E : ldloc.s	System.Single (20)
+0x020F : ldarg.0
+0x0210 : ldfld	System.Single stability
+0x0211 : blt	System.Reflection.Emit.Label
+0x0212 : ldloc.2
+0x0213 : brtrue	System.Reflection.Emit.Label
+0x0214 : ldarg.0
+0x0215 : ldfld	UnityEngine.Rigidbody rb
+0x0216 : ldloc.s	UnityEngine.Vector3 (21)
+0x0217 : ldarg.0
+0x0218 : ldfld	System.Single stabilitySpeed
+0x0219 : call	UnityEngine.Vector3 op_Multiply(UnityEngine.Vector3, Single)
+0x021A : ldarg.0
+0x021B : ldfld	System.Single stabilitySpeed
+0x021C : call	UnityEngine.Vector3 op_Multiply(UnityEngine.Vector3, Single)
+0x021D : callvirt	Void AddTorque(UnityEngine.Vector3)
+0x021E : ldarg.0
+0x021F : call	UnityEngine.Transform get_transform()
+0x0220 : callvirt	UnityEngine.Vector3 get_up()
+0x0221 : call	UnityEngine.Vector3 get_up()
+0x0222 : call	Single Dot(UnityEngine.Vector3, UnityEngine.Vector3)
+0x0223 : stloc.s	System.Single (22)
+0x0224 : ldc.r4	1
+0x0225 : ldloc.s	System.Single (22)
+0x0226 : sub
+0x0227 : ldarg.0
+0x0228 : ldfld	System.Single sfxCreakThreshold
+0x0229 : ble.un	System.Reflection.Emit.Label
+0x022A : ldarg.0
+0x022B : ldfld	System.Boolean creakReset
+0x022C : brfalse	System.Reflection.Emit.Label
+0x022D : ldarg.0
+0x022E : ldfld	FMOD_CustomEmitter sfx_creak
+0x022F : callvirt	Void Play()
+0x0230 : ldarg.0
+0x0231 : ldc.i4.0
+0x0232 : stfld	System.Boolean creakReset
+0x0233 : ldarg.0
+0x0234 : ldstr	CreakReset
+0x0235 : call	Boolean IsInvoking(System.String)
+0x0236 : brtrue	System.Reflection.Emit.Label
+0x0237 : ldc.r4	0.3
+0x0238 : ldc.r4	0.5
+0x0239 : call	Single Range(Single, Single)
+0x023A : stloc.s	System.Single (23)
+0x023B : ldarg.0
+0x023C : ldstr	CreakReset
+0x023D : ldloc.s	System.Single (23)
+0x023E : call	Void Invoke(System.String, Single)
+0x023F : ldarg.0
+0x0240 : ldfld	UnityEngine.Rigidbody rb
+0x0241 : callvirt	UnityEngine.Vector3 get_velocity()
+0x0242 : stloc.s	UnityEngine.Vector3 (24)
+0x0243 : ldloca.s	UnityEngine.Vector3 (24)
+0x0244 : call	Single get_magnitude()
+0x0245 : ldarg.0
+0x0246 : ldfld	System.Single sfxWindThreshold
+0x0247 : div
+0x0248 : call	Single Clamp01(Single)
+0x0249 : stloc.s	System.Single (8)
+0x024A : ldarg.0
+0x024B : ldfld	FMOD_CustomEmitter sfx_wind
+0x024C : ldstr	velocity
+0x024D : ldloc.s	System.Single (8)
+0x024E : callvirt	Void SetParameterValue(System.String, Single)
+0x024F : ldarg.0
+0x0250 : ldfld	UnityEngine.Rigidbody rb
+0x0251 : ldc.r4	0
+0x0252 : ldarg.0
+0x0253 : ldfld	System.Single gravity
+0x0254 : neg
+0x0255 : call	Single get_deltaTime()
+0x0256 : mul
+0x0257 : ldc.r4	0
+0x0258 : newobj	Void .ctor(Single, Single, Single)
+0x0259 : ldc.i4.2
+0x025A : callvirt	Void AddForce(UnityEngine.Vector3, UnityEngine.ForceMode)
+0x025B : ldarg.0
+0x025C : ldfld	UnityEngine.Animator animator
+0x025D : ldstr	on_land
+0x025E : ldloc.2
+0x025F : callvirt	Void SetBool(System.String, Boolean)
+0x0260 : ret
+Hoverbike.HoverEngine transpiler done

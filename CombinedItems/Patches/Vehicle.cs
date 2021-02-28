@@ -11,7 +11,7 @@ namespace CombinedItems.Patches
 {
     class VehiclePatches
     {
-        protected static float defaultForwardForce;
+        /*protected static float defaultForwardForce;
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(Vehicle.Start))]
@@ -36,6 +36,6 @@ namespace CombinedItems.Patches
                 exosuit.forwardForce = defaultForwardForce * (bExosuitSprint ? 2f : 1f); // These constants will likely be tweaked, but they're here for testing
                 Log.LogDebug($"VehiclePatches.PreApplyPhysicsMove(): Applying forwardForce of {exosuit.forwardForce} to Exosuit with defaultForwardForce of {defaultForwardForce}");
             }
-        }
+        }*/
     }
 }
