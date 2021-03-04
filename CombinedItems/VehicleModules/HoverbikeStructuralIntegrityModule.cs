@@ -9,19 +9,8 @@ using Logger = QModManager.Utility.Logger;
 
 namespace CombinedItems.VehicleModules
 {
-    class HoverbikeStructuralIntegrityModule : Equipable
+    class HoverbikeStructuralIntegrityModule : HoverbikeUpgradeBase
     {
-        public override EquipmentType EquipmentType => EquipmentType.HoverbikeModule;
-        public override QuickSlotType QuickSlotType => QuickSlotType.Passive;
-        public override TechGroup GroupForPDA => TechGroup.VehicleUpgrades;
-        public override TechCategory CategoryForPDA => TechCategory.VehicleUpgrades;
-        public override TechType RequiredForUnlock => TechType.BaseUpgradeConsole;
-        public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;
-        public override string[] StepsToFabricatorTab => new string[] { "Machines" };
-        public override float CraftingTime => 10f;
-        public override Vector2int SizeInInventory => new Vector2int(1, 1);
-
-
         private GameObject prefab;
 
         protected override RecipeData GetBlueprintRecipe()

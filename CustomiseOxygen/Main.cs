@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Common;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
@@ -7,6 +9,7 @@ using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Handlers;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UWE;
 using Logger = QModManager.Utility.Logger;
 #if SUBNAUTICA
 using RecipeData = SMLHelper.V2.Crafting.TechData;
@@ -32,7 +35,22 @@ namespace CustomiseOxygen
             Both = 3           // Don't apply CapacityOverrides or multipliers
         }
 
+        private struct PendingTankEntry
+        {
+            public TechType techType;
+            public float capacity;
+            public Sprite icon;
+
+            public PendingTankEntry(TechType tt, float cap, Sprite icon)
+            {
+                this.techType = tt;
+                this.capacity = cap;
+                this.icon = icon;
+            }
+        }
+
         internal static Dictionary<TechType, ExclusionType> Exclusions = new Dictionary<TechType, ExclusionType>();
+        private static List<PendingTankEntry> pendingTanks = new List<PendingTankEntry>();
 
         public static void AddExclusion(TechType excludedTank, bool bExcludeMultipliers, bool bExcludeOverride)
         {
@@ -49,10 +67,53 @@ namespace CustomiseOxygen
             Exclusions.Add(excludedTank, (ExclusionType)newExclusion);
         }
 
-        public static void AddTank(TechType tank, float capacity)
+        public static void AddTank(TechType tank, float capacity, Sprite sprite = null)
         {
             Logger.Log(Logger.Level.Debug, $"Registering new tank TechType.{tank.AsString()} with capacity {capacity}");
-            TankTypes.AddTank(tank, capacity);
+            for (int i = 0; i < pendingTanks.Count; i++)
+            {
+                if(pendingTanks[i].techType == tank)
+                    return;
+            }
+            pendingTanks.Add(new PendingTankEntry(tank, capacity, sprite));
+            CoroutineHost.StartCoroutine(WaitForSpriteHandler());
+        }
+
+        private static IEnumerator WaitForSpriteHandler()
+        {
+            if (!SpriteManager.hasInitialized)
+            {
+                while (!SpriteManager.hasInitialized)
+                {
+                    yield return new WaitForSeconds(0.5f);
+                }
+                Log.LogDebug($"WaitForSpriteHandler(): Sprite manager initialisation complete");
+            }
+            while (pendingTanks.Count > 0)
+            {
+                Log.LogDebug($"WaitForSpriteHandler(): Beginning iteration, pendingTanks.Count == {pendingTanks.Count}");
+                for (int i = pendingTanks.Count - 1; i >= 0; i--)
+                {
+                    Log.LogDebug($"WaitForSpriteHandler(): index {i}, pendingTanks.Count == {pendingTanks.Count}");
+                    TechType key = pendingTanks[i].techType;
+                    Log.LogDebug($"WaitForSpriteHandler(): Processing TechType {key.AsString(false)}");
+                    float capacity = pendingTanks[i].capacity;
+                    Sprite icon = pendingTanks[i].icon;
+                    if (icon == null || icon == SpriteManager.defaultSprite)
+                    {
+                        Log.LogDebug($"Searching for icon for TechType {key.AsString(false)}");
+                        while (icon == null || icon == SpriteManager.defaultSprite)
+                        {
+                            icon = SpriteManager.Get(key);
+                            yield return new WaitForEndOfFrame();
+                        }
+                        Log.LogDebug($"Found icon for TechType {key.AsString(false)}: {icon.texture.name}");
+                    }
+                    TankTypes.AddTank(key, capacity, icon);
+                    pendingTanks.RemoveAt(i);
+                    yield return new WaitForEndOfFrame();
+                }
+            }
         }
 
         public struct TankType
@@ -62,10 +123,13 @@ namespace CustomiseOxygen
             internal TechType refillTechType;
             internal float BaseO2Capacity;
 
-            public TankType(TechType tank, float baseO2capacity)
+            public TankType(TechType tank, float baseO2capacity, Sprite sprite = null)
             {
                 Logger.Log(Logger.Level.Debug, $"Registering tank TechType.{tank.AsString()}");
-                this.sprite = SpriteManager.Get(tank);
+                if (sprite != null)
+                    this.sprite = sprite;
+                else
+                    this.sprite = SpriteManager.Get(tank);
                 this.tankTechType = tank;
                 string tankName = Language.main.Get(tank);
                 this.refillTechType = TechTypeHandler.AddTechType((tank.AsString(false) + "Refill"), tankName+" Refill", "Refilled "+tankName, false);
@@ -117,7 +181,7 @@ namespace CustomiseOxygen
         {
             private List<TankType> TankTypes;
 
-            public bool AddTank(TechType tank, float baseCapacity, bool bUpdate = false)
+            public bool AddTank(TechType tank, float baseCapacity, Sprite sprite = null, bool bUpdate = false)
             {
                 if (TankTypes == null)
                     TankTypes = new List<TankType>();

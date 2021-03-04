@@ -1,12 +1,11 @@
-﻿using CustomiseYourStorage_BZ.Configuration;
+﻿using Common;
+using CustomiseYourStorage_BZ.Configuration;
 using HarmonyLib;
 using QModManager.API.ModLoading;
-using SMLHelper.V2.Crafting;
-using SMLHelper.V2.Handlers;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using Logger = QModManager.Utility.Logger;
-using Common;
 
 namespace CustomiseYourStorage_BZ
 {
@@ -15,7 +14,8 @@ namespace CustomiseYourStorage_BZ
     {
         internal const string version = "0.0.2.0";
 
-        internal static DWStorageConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWStorageConfig>();
+        //internal static DWStorageConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWStorageConfig>();
+        internal static readonly DWStorageConfigNonSML config = DWStorageConfigNonSML.LoadConfig(Path.Combine(new string[] { Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "config.json" }));
 
         // The actual TechTypes used for the blacklist, populated at post-patch time.
         internal static List<TechType> StorageBlacklist = new List<TechType>();
@@ -55,7 +55,10 @@ namespace CustomiseYourStorage_BZ
         [QModPostPatch]
         public void PostPatch()
         {
-            // Enable the Storage Module. It's only useful for the Exosuit, but it still works, and it can turn the Exosuit's storage locker from "useless" to "useful", so I don't know why UWE disabled it.
+            /* Enable the Storage Module. It's only useful for the Exosuit, but it still works, and it can turn the Exosuit's storage locker from "useless" to "useful", so I don't know why UWE disabled it.
+             *
+             * This block of code became unnecessary with the Seaworthy update, late Feb 2021, which re-enabled the Storage Module. The above comment has been retained for historical purposes.
+             * 
             var storageModuleData = new RecipeData()
             {
                 craftAmount = 1,
@@ -71,7 +74,7 @@ namespace CustomiseYourStorage_BZ
             CraftDataHandler.SetTechData(TechType.VehicleStorageModule, storageModuleData);
             CraftTreeHandler.AddCraftingNode(CraftTree.Type.SeamothUpgrades, TechType.VehicleStorageModule, new string[] { "ExosuitModules" });
             CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.VehicleStorageModule, new string[] { "Upgrades", "ExosuitUpgrades" });
-            KnownTechHandler.SetAnalysisTechEntry(TechType.Exosuit, new TechType[] { TechType.VehicleStorageModule });
+            KnownTechHandler.SetAnalysisTechEntry(TechType.Exosuit, new TechType[] { TechType.VehicleStorageModule });*/
             foreach (string s in stringBlacklist)
             {
                 TechType tt = TechTypeUtils.GetTechType(s);

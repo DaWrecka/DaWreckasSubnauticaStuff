@@ -32,13 +32,15 @@ namespace CombinedItems.VehicleModules
 				if (asset.name == "claw_hit_fish")
 					this.hitFishSound = asset;
 
-				/*Log.LogDebug($"ExosuitLightningClaw: {i}.3");
+				Log.LogDebug($"ExosuitLightningClaw: {i}.3");
 				if (asset.name == "claw_pickup")
-					this.pickupSound = asset;*/
+					this.pickupSound = asset;
 			}
 
+			/*
 			Log.LogDebug($"ExosuitLightningClaw: pickupSounds");
 			this.pickupSounds = GetComponent<TechSoundData>();
+			*/
 
 			Log.LogDebug($"ExosuitLightningClaw: FindDeepChild");
 			CoroutineHost.StartCoroutine(GetDeepChildCoroutine());

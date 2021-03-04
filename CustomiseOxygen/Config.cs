@@ -118,7 +118,7 @@ namespace CustomiseOxygen
                         return false;
                 }
 
-                Main.TankTypes.AddTank(tank, capacity, bUpdateIfPresent);
+                Main.TankTypes.AddTank(tank, capacity, null, bUpdateIfPresent);
                 defaultTankCapacities.Add(tank.AsString(false), capacity);
                 return false;
             }

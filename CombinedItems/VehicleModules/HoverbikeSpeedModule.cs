@@ -10,10 +10,12 @@ using CombinedItems.MonoBehaviours;
 
 namespace CombinedItems.VehicleModules
 {
-    class HoverbikeEngineEfficiencyModule : HoverbikeUpgradeBase
+    class HoverbikeSpeedModule : HoverbikeUpgradeBase
     {
-        private const float efficiencyModifier = 0.65f;
-        private const int maxUpgrades = 2;
+        private const float speedMultiplier = 1.5f;
+        private const float cooldownMultiplier = 0.5f;
+        private const float powerConsumptionModifier = 2f;
+        private const int maxStack = 1;
 
         private GameObject prefab;
 
@@ -24,7 +26,7 @@ namespace CombinedItems.VehicleModules
                 craftAmount = 1,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                     {
-                        new Ingredient(TechType.AdvancedWiringKit, 1),
+                        new Ingredient(TechType.ComputerChip, 1),
                         new Ingredient(TechType.Polyaniline, 1)
                     }
                 )
@@ -45,14 +47,15 @@ namespace CombinedItems.VehicleModules
 
         protected override Sprite GetItemSprite()
         {
-            return SpriteManager.Get(TechType.SeaTruckUpgradeEnergyEfficiency); // Placeholder
+            return SpriteManager.Get(TechType.SeaTruckUpgradeAfterburner); // Placeholder
         }
 
-        public HoverbikeEngineEfficiencyModule() : base("HoverbikeEngineEfficiencyModule", "Snowfox Engine Efficiency Module", "Optimises Snowfox power use, reducing battery consumption by 35%. Stacks up to twice.")
+        public HoverbikeSpeedModule() : base("HoverbikeSpeedModule", "Snowfox Speed Module", "Increases Snowfox speed, but also significantly increases power consumption. Does not stack.")
         {
             OnFinishedPatching += () =>
             {
-                HoverbikeUpdater.AddEfficiencyMultiplier(this.TechType, efficiencyModifier, maxUpgrades: maxUpgrades);
+                HoverbikeUpdater.AddEfficiencyMultiplier(this.TechType, powerConsumptionModifier);
+                HoverbikeUpdater.AddMovementModifier(this.TechType, speedMultiplier, cooldownMultiplier, maxStack);
             };
         }
     }

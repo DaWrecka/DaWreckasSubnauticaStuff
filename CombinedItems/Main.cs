@@ -21,7 +21,7 @@ namespace CombinedItems
     [QModCore]
     public class Main
     {
-        internal static bool bVerboseLogging = false;
+        internal static bool bVerboseLogging = true;
         internal const string version = "0.8.0.2";
 
         private static readonly Type CustomiseOxygen = Type.GetType("CustomiseOxygen.Main, CustomiseOxygen", false, false);
@@ -38,6 +38,8 @@ namespace CombinedItems
         internal static HoverbikeSolarChargerModule prefabHbSolarCharger = new HoverbikeSolarChargerModule();
         internal static HoverbikeStructuralIntegrityModule prefabHbHullModule = new HoverbikeStructuralIntegrityModule();
         internal static HoverbikeEngineEfficiencyModule prefabHbEngineModule = new HoverbikeEngineEfficiencyModule();
+        internal static HoverbikeSpeedModule prefabHbSpeedModule = new HoverbikeSpeedModule();
+        internal static HoverbikeMobilityUpgrade prefabHbMobility = new HoverbikeMobilityUpgrade();
 
         private static readonly Assembly myAssembly = Assembly.GetExecutingAssembly();
         private static void AddSubstitution(TechType custom, TechType vanilla)
@@ -52,10 +54,10 @@ namespace CombinedItems
                 CustomOxyAddExclusionMethod.Invoke(null, new object[] { excludedTank, bExcludeMultipliers, bExcludeOverride });
         }
 
-        internal static void AddCustomOxyTank(TechType tank, float capacity)
+        internal static void AddCustomOxyTank(TechType tank, float capacity, Sprite icon = null)
         {
             if (CustomOxyAddTankMethod != null)
-                CustomOxyAddTankMethod.Invoke(null, new object[] { tank, capacity });
+                CustomOxyAddTankMethod.Invoke(null, new object[] { tank, capacity, icon });
         }
 
         [QModPatch]
@@ -71,6 +73,9 @@ namespace CombinedItems
             prefabHbSolarCharger.Patch();
             prefabHbHullModule.Patch();
             prefabHbEngineModule.Patch();
+            prefabHbSpeedModule.Patch();
+            // prefabHbMobility *must* be patched last, since it depends on other techtypes in this list
+            prefabHbMobility.Patch();
 
             new Harmony($"DaWrecka_{myAssembly.GetName().Name}").PatchAll(myAssembly);
         }
@@ -86,16 +91,8 @@ namespace CombinedItems
             AddSubstitution(prefabReinforcedColdGloves.TechType, TechType.ReinforcedGloves);
             AddSubstitution(prefabHighCapacityBooster.TechType, TechType.SuitBoosterTank);
             AddSubstitution(prefabHighCapacityBooster.TechType, TechType.HighCapacityTank);
-            AddCustomOxyExclusion(prefabHighCapacityBooster.TechType, true, true);
-            AddCustomOxyTank(prefabHighCapacityBooster.TechType, -1f);
             CraftDataHandler.SetBackgroundType(prefabLightningClaw.TechType, CraftData.BackgroundType.ExosuitArm);
-            //CraftDataHandler.SetItemSize(prefabLightningClaw.TechType, new Vector2int(1, 2));
-            //CraftDataHandler.SetCraftingTime(prefabLightningClaw.TechType, 10f);
-            //CraftTreeHandler.AddCraftingNode(CraftTree.Type.SeamothUpgrades, prefabLightningClaw.TechType, new string[] { "ExosuitModules" });
             CraftDataHandler.SetBackgroundType(prefabExosuitSprintModule.TechType, CraftData.BackgroundType.Normal);
-            //CraftDataHandler.SetItemSize(prefabExosuitSprintModule.TechType, new Vector2int(1, 1));
-            //CraftDataHandler.SetCraftingTime(prefabExosuitSprintModule.TechType, 10f);
-            //CraftTreeHandler.AddCraftingNode(CraftTree.Type.SeamothUpgrades, prefabExosuitSprintModule.TechType, new string[] { "ExosuitModules" });
 
             // This is test code
             //string PrefabFilename;
