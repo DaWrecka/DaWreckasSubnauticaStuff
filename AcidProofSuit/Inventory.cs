@@ -6,6 +6,7 @@ using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Utility;
 using UnityEngine;
 using SMLHelper.V2.Handlers;
+using System.Collections;
 
 #if SUBNAUTICA
 using RecipeData = SMLHelper.V2.Crafting.TechData;
@@ -23,9 +24,22 @@ namespace AcidProofSuit.Module
 
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
 
+        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+            CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ReinforcedGloves);
+            yield return task;
+
+            gameObject.Set(ModifyAndInstantiateGameObject(task.GetResult()));
+        }
+
         public override GameObject GetGameObject()
         {
             var prefab = CraftData.GetPrefabForTechType(TechType.ReinforcedGloves);
+            return ModifyAndInstantiateGameObject(prefab);
+        }
+
+        protected GameObject ModifyAndInstantiateGameObject(GameObject prefab)
+        {
             var obj = Object.Instantiate(prefab);
             Shader shader = Shader.Find("MarmosetUBER");
             Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
@@ -89,9 +103,22 @@ namespace AcidProofSuit.Module
 
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
 
+        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+            CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ReinforcedGloves);
+            yield return task;
+
+            gameObject.Set(ModifyAndInstantiateGameObject(task.GetResult()));
+        }
+
         public override GameObject GetGameObject()
         {
-            var prefab = CraftData.GetPrefabForTechType(TechType.Rebreather);
+            var prefab = CraftData.GetPrefabForTechType(TechType.ReinforcedGloves);
+            return ModifyAndInstantiateGameObject(prefab);
+        }
+
+        protected GameObject ModifyAndInstantiateGameObject(GameObject prefab)
+        {
             var obj = Object.Instantiate(prefab);
             Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
             Shader shader = Shader.Find("MarmosetUBER");
@@ -139,9 +166,22 @@ namespace AcidProofSuit.Module
         public override string[] StepsToFabricatorTab => new string[] { "Personal", "Equipment" };
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
 
+        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+            CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ReinforcedGloves);
+            yield return task;
+
+            gameObject.Set(ModifyAndInstantiateGameObject(task.GetResult()));
+        }
+
         public override GameObject GetGameObject()
         {
-            var prefab = CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit);
+            var prefab = CraftData.GetPrefabForTechType(TechType.ReinforcedGloves);
+            return ModifyAndInstantiateGameObject(prefab);
+        }
+
+        protected GameObject ModifyAndInstantiateGameObject(GameObject prefab)
+        {
             var obj = Object.Instantiate(prefab);
             Shader shader = Shader.Find("MarmosetUBER");
             Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
@@ -206,6 +246,7 @@ namespace AcidProofSuit.Module
 
     abstract class Blueprint : Craftable
     {
+        // A base class for all of the modification recipes that use existing suit pieces
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
 
         public override string[] StepsToFabricatorTab => new string[] { "BodyMenu" };
@@ -217,11 +258,15 @@ namespace AcidProofSuit.Module
             return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit));
         }
 
+        protected override Sprite GetItemSprite()
+        {
+            return SpriteManager.Get(TechType.ReinforcedDiveSuit);
+        }
+
         public Blueprint(string classId, string friendlyName, string description) : base(classId, friendlyName, description)
         {
             OnFinishedPatching += () =>
             {
-                SpriteHandler.RegisterSprite(base.TechType, SpriteManager.Get(TechType.ReinforcedDiveSuit));
             };
         }
     }

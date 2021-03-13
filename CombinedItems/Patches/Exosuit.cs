@@ -18,15 +18,6 @@ namespace CombinedItems.Patches
 	[HarmonyPatch(typeof(Exosuit))]
 	public class ExosuitPatches
 	{
-		/*private static readonly PropertyInfo jetsActive = typeof(Exosuit).GetProperty("jetsActive", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static readonly FieldInfo timeJetsActiveChanged = typeof(Exosuit).GetField("timeJetsActiveChanged", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static readonly FieldInfo thrustPower = typeof(Exosuit).GetField("thrustPower", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static readonly FieldInfo thrustConsumption = typeof(Exosuit).GetField("thrustConsumption", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static readonly FieldInfo onGround = typeof(Exosuit).GetField("onGround", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static readonly FieldInfo timeOnGround = typeof(Exosuit).GetField("timeOnGround", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static readonly FieldInfo jetDownLastFrame = typeof(Exosuit).GetField("jetDownLastFrame", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static readonly FieldInfo powersliding = typeof(Exosuit).GetField("powersliding", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static readonly FieldInfo areFXPlaying = typeof(Exosuit).GetField("areFXPlaying", BindingFlags.Instance | BindingFlags.NonPublic);*/
 		private static readonly MethodInfo ApplyJumpForceMethod = typeof(Exosuit).GetMethod("ApplyJumpForce", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly FieldInfo thrustPowerField = typeof(Exosuit).GetField("thrustPower", BindingFlags.Instance | BindingFlags.NonPublic);
 		internal static bool JumpJetsUpgraded(Exosuit instance)
@@ -36,22 +27,11 @@ namespace CombinedItems.Patches
 
 			return instance.modules.GetCount(TechType.ExosuitJetUpgradeModule) > 0;
 		}
-		/*internal static bool JetsActive(Exosuit instance) => (bool)jetsActive.GetValue(instance);
-		internal static void JetsActive(Exosuit instance, bool value) { jetsActive.SetValue(instance, value); }
-		internal static float TimeJetsActiveChanged(Exosuit instance) => (float)timeJetsActiveChanged.GetValue(instance);
-		internal static float ThrustPower(Exosuit instance) => (float)thrustPower.GetValue(instance);
-		internal static void ThrustPower(Exosuit instance, float value) { thrustPower.SetValue(instance, value); }
-		internal static float ThrustConsumption(Exosuit instance) => (float)thrustConsumption.GetValue(instance);
-		internal static bool OnGround(Exosuit instance) => (bool)onGround.GetValue(instance);
-		internal static float TimeOnGround(Exosuit instance) => (float)timeOnGround.GetValue(instance);
-		internal static bool JetDownLastFrame(Exosuit instance) => (bool)jetDownLastFrame.GetValue(instance);
-		internal static void JetDownLastFrame(Exosuit instance, bool value) { jetDownLastFrame.SetValue(instance, value); }
-		internal static bool Powersliding(Exosuit instance) => (bool)powersliding.GetValue(instance);
-		internal static bool AreFXPlaying(Exosuit instance) => (bool)areFXPlaying.GetValue(instance);
-		internal static void AreFXPlaying(Exosuit instance, bool value) { areFXPlaying.SetValue(instance, value); }*/
 		internal static void ApplyJumpForce(Exosuit instance) { ApplyJumpForceMethod.Invoke(instance, null); }
 		internal static float GetThrustPower(Exosuit instance) { return (float)thrustPowerField.GetValue(instance);  }
 
+/*		Disabled because not using the Lightning Claw *Arm* any more.
+ *		
 		[HarmonyPatch("Start")]
 		[HarmonyPrefix]
 		public static void PreStart(Exosuit __instance)
@@ -96,7 +76,7 @@ namespace CombinedItems.Patches
 				//Log.LogDebug($"Failed to find arm prefab in Exosuit prefab");
 			}
 		}
-
+*/
 		[HarmonyPatch("Start")]
 		[HarmonyPostfix]
 		public static void PostStart(Exosuit __instance)
@@ -129,8 +109,8 @@ namespace CombinedItems.Patches
 			__instance.gameObject.EnsureComponent<ExosuitUpdater>().PostOverrideAcceleration(ref acceleration);
 		}
 		
-		[HarmonyTranspiler]
-		[HarmonyPatch(nameof(Exosuit.Update))]
+		//[HarmonyTranspiler]
+		//[HarmonyPatch(nameof(Exosuit.Update))]
 		public static IEnumerable<CodeInstruction> UpdateTranspiler(IEnumerable<CodeInstruction> instructions)
 		{
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
@@ -143,7 +123,7 @@ namespace CombinedItems.Patches
 			// So we limit our max index here.
 			int i = -1;
 
-			if (Main.bVerboseLogging)
+			if (Main.bLogTranspilers)
 			{
 				Log.LogDebug("Exosuit.Update(), pre-transpiler:");
 				for (i = 0; i < codes.Count; i++)
@@ -216,7 +196,7 @@ namespace CombinedItems.Patches
 			else if (jumpForceIndex == -1)
 				Log.LogError("Exosuit.Update() transpiler could not find second patch location in method");
 
-			if (Main.bVerboseLogging)
+			if (Main.bLogTranspilers)
 			{
 				Log.LogDebug("Exosuit.Update(), post-transpiler:");
 				for (i = 0; i < codes.Count; i++)
@@ -226,8 +206,8 @@ namespace CombinedItems.Patches
 			return codes.AsEnumerable();
 		}
 
-		[HarmonyTranspiler]
-		[HarmonyPatch(nameof(Exosuit.FixedUpdate))]
+		//[HarmonyTranspiler]
+		//[HarmonyPatch(nameof(Exosuit.FixedUpdate))]
 		public static IEnumerable<CodeInstruction> FixedUpdateTranspiler(IEnumerable<CodeInstruction> instructions)
 		{
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);

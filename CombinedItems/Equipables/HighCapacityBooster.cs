@@ -25,6 +25,8 @@ namespace CombinedItems.Equipables
                 CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "ModTanks", "Tank Upgrades", GetItemSprite());
                 CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HighCapacityTank" });
                 CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HighCapacityTank);
+                Main.AddSubstitution(this.TechType, TechType.SuitBoosterTank);
+                Main.AddSubstitution(this.TechType, TechType.HighCapacityTank);
                 Main.AddCustomOxyExclusion(this.TechType, true, true);
                 Main.AddCustomOxyTank(this.TechType, -1f);
             };
@@ -82,7 +84,6 @@ namespace CombinedItems.Equipables
             yield return task;
             Oxygen highCapOxygen = GameObject.Instantiate(task.GetResult()).GetComponent<Oxygen>();
             //Oxygen highCapOxygen = task.GetResult().GetComponent<Oxygen>();
-
             if (highCapOxygen != null)
             {
                 oxy = go.EnsureComponent<Oxygen>();

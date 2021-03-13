@@ -32,15 +32,13 @@ namespace CombinedItems.VehicleModules
 				if (asset.name == "claw_hit_fish")
 					this.hitFishSound = asset;
 
-				Log.LogDebug($"ExosuitLightningClaw: {i}.3");
+				/*Log.LogDebug($"ExosuitLightningClaw: {i}.3");
 				if (asset.name == "claw_pickup")
-					this.pickupSound = asset;
+					this.pickupSound = asset;*/
 			}
 
-			/*
 			Log.LogDebug($"ExosuitLightningClaw: pickupSounds");
 			this.pickupSounds = GetComponent<TechSoundData>();
-			*/
 
 			Log.LogDebug($"ExosuitLightningClaw: FindDeepChild");
 			CoroutineHost.StartCoroutine(GetDeepChildCoroutine());
@@ -52,13 +50,14 @@ namespace CombinedItems.VehicleModules
 		{
 			while (this.front == null)
 			{
-				yield return new WaitForEndOfFrame();
-
-				GameObject obj = TransformUtils.FindDeepChild(this.gameObject, "wrist");
+				GameObject obj = null;
+				if(this.gameObject != null)
+					obj = TransformUtils.FindDeepChild(this.gameObject, "wrist");
 				if (obj != null)
 				{
 					this.front = obj.transform;
 				}
+				yield return new WaitForSeconds(0.2f);
 			}
 			yield break;
 		}

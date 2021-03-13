@@ -17,7 +17,7 @@ namespace CombinedItems.VehicleModules
         public override TechCategory CategoryForPDA => TechCategory.VehicleUpgrades;
         public override TechType RequiredForUnlock => TechType.BaseUpgradeConsole;
         public override CraftTree.Type FabricatorType => CraftTree.Type.SeamothUpgrades;
-        public override string[] StepsToFabricatorTab => new string[] { "ExosuitModules" };
+        //public override string[] StepsToFabricatorTab => new string[] { "ExosuitModules" };
         public override float CraftingTime => 10f;
         public override Vector2int SizeInInventory => new Vector2int(1, 2);
 
@@ -27,7 +27,7 @@ namespace CombinedItems.VehicleModules
         {
             return new RecipeData()
             {
-                craftAmount = 1,
+                /*craftAmount = 1,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                     {
                         new Ingredient(TechType.Polyaniline, 1),
@@ -35,7 +35,7 @@ namespace CombinedItems.VehicleModules
                         new Ingredient(TechType.Battery, 1),
                         new Ingredient(TechType.AluminumOxide, 1)
                     }
-                )
+                )*/
             };
         }
 

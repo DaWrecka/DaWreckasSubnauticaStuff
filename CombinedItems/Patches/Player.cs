@@ -20,7 +20,7 @@ namespace CombinedItems.Patches
 
 		public static void AddSubstitution(TechType custom, TechType vanilla, bool bUpdate = false)
 		{
-			Logger.Log(Logger.Level.Debug, $"Adding substitution: custom TechType {custom.AsString()}, for vanilla {vanilla.AsString()}");
+			//Logger.Log(Logger.Level.Debug, $"Adding substitution: custom TechType {custom.AsString()}, for vanilla {vanilla.AsString()}");
 			if (DisplaySubstitutions.ContainsKey(custom))
 			{
 				if(bUpdate)
@@ -50,20 +50,20 @@ namespace CombinedItems.Patches
 
 		public static TechType CheckSubstitute(TechType vanilla)
 		{
-			if (Main.bVerboseLogging)
-				Logger.Log(Logger.Level.Debug, $"CheckSubstitute: Checking for substitute for TechType {vanilla.AsString()}");
+			/*if (Main.bVerboseLogging)
+				Logger.Log(Logger.Level.Debug, $"CheckSubstitute: Checking for substitute for TechType {vanilla.AsString()}");*/
 			foreach (KeyValuePair<TechType, TechType> kvp in DisplaySubstitutions)
 			{
 				if (vanilla == kvp.Key)
 				{
-					if (Main.bVerboseLogging)
-						Logger.Log(Logger.Level.Debug, $"Found substitute TechType.{kvp.Key.AsString()}");
+					/*if (Main.bVerboseLogging)
+						Logger.Log(Logger.Level.Debug, $"Found substitute TechType.{kvp.Key.AsString()}");*/
 					return kvp.Value;
 				}
 			}
 
-			if (Main.bVerboseLogging)
-				Logger.Log(Logger.Level.Debug, $"No substitute found for TechType ${vanilla.AsString()}");
+			/*if (Main.bVerboseLogging)
+				Logger.Log(Logger.Level.Debug, $"No substitute found for TechType ${vanilla.AsString()}");*/
 			return vanilla;
 		}
 
@@ -71,8 +71,10 @@ namespace CombinedItems.Patches
         [HarmonyPatch("EquipmentChanged")]
 		public static bool PlayerEquipmentChanged(ref Player __instance, string slot, InventoryItem item)
 		{
-			if (Main.bVerboseLogging)
+			/*if (Main.bVerboseLogging)
+			{
 				Logger.Log(Logger.Level.Debug, $"PlayerEquipmentChanged() start");
+			}*/
 			Equipment equipment = Inventory.main.equipment;
 			int num = __instance.equipmentModels.Length;
 			for(int i = 0; i < num; i++)
@@ -87,8 +89,10 @@ namespace CombinedItems.Patches
 				for(int j = 0;  j < num2; j++)
 				{
 					Player.EquipmentModel equipmentModel = equipmentType.equipment[j];
-					if(Main.bVerboseLogging)
+					/*if (Main.bVerboseLogging)
+					{
 						Logger.Log(Logger.Level.Debug, $"equipmentModel at index {j} has techType {equipmentModel.techType}");
+					}*/
 					bool bShowEquipped = equipmentModel.techType == techTypeInSlot && bIsUnderwaterOrNotFlipper;
 					if (equipmentModel.model)
 					{

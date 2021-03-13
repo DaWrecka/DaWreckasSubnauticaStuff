@@ -9,7 +9,7 @@ using Logger = QModManager.Utility.Logger;
 
 namespace CombinedItems.VehicleModules
 {
-    internal class ExosuitSprintModule : Equipable
+    internal class ExosuitLightningClawGeneratorModule : Equipable
     {
         public override EquipmentType EquipmentType => EquipmentType.ExosuitModule;
         public override QuickSlotType QuickSlotType => QuickSlotType.Passive;
@@ -19,7 +19,7 @@ namespace CombinedItems.VehicleModules
         public override CraftTree.Type FabricatorType => CraftTree.Type.SeamothUpgrades;
         public override string[] StepsToFabricatorTab => new string[] { "ExosuitModules" };
         public override float CraftingTime => 10f;
-        public override Vector2int SizeInInventory => new Vector2int(1, 1);
+        public override Vector2int SizeInInventory => new Vector2int(1, 2);
 
         private GameObject prefab;
 
@@ -27,17 +27,15 @@ namespace CombinedItems.VehicleModules
         {
             return new RecipeData()
             {
-                /*craftAmount = 1,
+                craftAmount = 1,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                     {
-                        new Ingredient(TechType.Titanium, 3),
-                        new Ingredient(TechType.Nickel, 2),
-                        new Ingredient(TechType.Kyanite, 1),
-                        new Ingredient(TechType.Lubricant, 1),
+                        new Ingredient(TechType.Polyaniline, 1),
                         new Ingredient(TechType.WiringKit, 1),
-                        new Ingredient(TechType.HydraulicFluid, 1)
+                        new Ingredient(TechType.Battery, 1),
+                        new Ingredient(TechType.AluminumOxide, 1)
                     }
-                )*/
+                )
             };
         }
 
@@ -48,6 +46,7 @@ namespace CombinedItems.VehicleModules
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ExosuitThermalReactorModule);
                 yield return task;
                 prefab = GameObject.Instantiate<GameObject>(task.GetResult());
+
             }
 
             gameObject.Set(GameObject.Instantiate(prefab));
@@ -55,10 +54,10 @@ namespace CombinedItems.VehicleModules
 
         protected override Sprite GetItemSprite()
         {
-            return SpriteManager.Get(TechType.ExosuitJetUpgradeModule);
+            return SpriteManager.Get(TechType.SeaTruckUpgradePerimeterDefense);
         }
 
-        public ExosuitSprintModule() : base("ExosuitSprintModule", "Exosuit Sprint Module", "A hydraulic system that allows the Exosuit's jump jets to angle for horizontal travel.")
+        public ExosuitLightningClawGeneratorModule() : base("ExosuitLightningClawGeneratorModule", "Exosuit Lightning Claw Generator", "An electrical pulse generator which ties into the Exosuit's claw arm, electrocuting anything struck by it.")
         {
             OnFinishedPatching += () =>
             {

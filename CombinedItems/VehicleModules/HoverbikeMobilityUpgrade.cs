@@ -12,9 +12,9 @@ namespace CombinedItems.VehicleModules
 {
     class HoverbikeMobilityUpgrade : HoverbikeUpgradeBase
     {
-        private const float speedMultiplier = 1.25f;
-        private const float cooldownMultiplier = 0.6f;
-        private const float efficiencyModifier = 0.8f;
+        private const float speedMultiplier = 1.3f;
+        private const float cooldownMultiplier = 0.5f;
+        private const float efficiencyModifier = 0.9f;
         private const int maxStack = 1;
         private const int upgradePriority = 2;
 

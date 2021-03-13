@@ -84,13 +84,8 @@ namespace CombinedItems.MonoBehaviours
             }
         };
 
-		//private static readonly Dictionary<TechType, EfficiencyModifierStruct> efficiencyMultipliers = new Dictionary<TechType, EfficiencyModifierStruct>();
-		//private static readonly Dictionary<TechType, MovementModifierStruct> movementModifiers = new Dictionary<TechType, MovementModifierStruct>();
 		private static readonly List<EfficiencyModifierStruct> efficiencyModifiers = new List<EfficiencyModifierStruct>();
 		private static readonly List<MovementModifierStruct> movementModifiers = new List<MovementModifierStruct>();
-
-		// The idea with obsoletedTechTypes is; If the key is installed, loop through the list.
-		// If any TechType in the list is also installed, the key is considered "obsolete" and is rendered inactive.
 
 		private bool bHasTravelModule;
 		private const float moduleWaterDampening = 1f; // Movement is divided by this value when travelling over water.
@@ -102,12 +97,12 @@ namespace CombinedItems.MonoBehaviours
 														// based on the current light level.
 		internal const float fMaxSolarDepth = 2f;
 		private bool bBikeOverWater;
-		private TechType techTypeWaterTravel => Main.prefabHbWaterTravelModule.TechType;
-		private TechType techTypeSolarCharger => Main.prefabHbSolarCharger.TechType;
-		private TechType techTypeHullModule => Main.prefabHbHullModule.TechType;
-		private TechType techTypeEngineEfficiency => Main.prefabHbEngineModule.TechType;
-		private TechType techTypeSpeed => Main.prefabHbSpeedModule.TechType;
-		private TechType techTypeMobility => Main.prefabHbMobility.TechType;
+		private static TechType techTypeWaterTravel => Main.prefabHbWaterTravelModule.TechType;
+		private static TechType techTypeSolarCharger => Main.prefabHbSolarCharger.TechType;
+		private static TechType techTypeHullModule => Main.prefabHbHullModule.TechType;
+		private static TechType techTypeEngineEfficiency => Main.prefabHbEngineModule.TechType;
+		private static TechType techTypeSpeed => Main.prefabHbSpeedModule.TechType;
+		private static TechType techTypeMobility => Main.prefabHbMobility.TechType;
 
 		internal static bool AddEfficiencyMultiplier(TechType module, float multiplier, int priority = 1, int maxUpgrades = 1, bool bUpdateIfPresent = false)
 		{
@@ -137,7 +132,7 @@ namespace CombinedItems.MonoBehaviours
 				MovementModifierStruct modifier = movementModifiers[i];
 				if (modifier.techType == module)
 				{
-					Log.LogDebug($"AddEfficiencyMultiplier called multiple times for TechType {module}; previous value was {modifier.ToString()}; new value speedModifier = {speedModifier}, cooldownModifier = {cooldownModifier}, maxUpgrades = {maxUpgrades}; value "
+					Log.LogDebug($"AddMovementModifier called multiple times for TechType {module}; previous value was {modifier.ToString()}; new value speedModifier = {speedModifier}, cooldownModifier = {cooldownModifier}, maxUpgrades = {maxUpgrades}; value "
 						+ (bUpdateIfPresent ? "was " : "was not ") + "updated");
 					if (bUpdateIfPresent)
 						movementModifiers[i] = new MovementModifierStruct(module, speedModifier, cooldownModifier, priority, maxUpgrades);
@@ -186,6 +181,14 @@ namespace CombinedItems.MonoBehaviours
 			}
 		}
 
+		protected static int StaticGetModuleCount(TechType techType, Hoverbike instance = null)
+		{
+			if (instance == null)
+				return 0;
+
+			return instance.modules.GetCount(techType);
+		}
+
 		protected virtual int GetModuleCount(TechType techType, Hoverbike instance = null)
 		{
 			if (instance != null)
@@ -232,12 +235,12 @@ namespace CombinedItems.MonoBehaviours
 				//if (Main.bVerboseLogging)
 				//	Log.LogDebug("Solar charger found in Hoverbike");
 
-				DayNightCycle main = DayNightCycle.main;
-				if (main == null)
+				DayNightCycle dayNightCycle = DayNightCycle.main;
+				if (dayNightCycle == null)
 					return;
 
 				float depthMultiplier = Mathf.Clamp01((fMaxSolarDepth + parentHoverbike.transform.position.y) / fMaxSolarDepth);
-				float lightScalar = main.GetLocalLightScalar();
+				float lightScalar = dayNightCycle.GetLocalLightScalar();
 				float deltaTime = Time.deltaTime;
 
 				//Log.LogDebug($"Charging Hoverbike battery with depthMultiplier of {depthMultiplier}, lightScalar = {lightScalar}, fSolarChargeMultiplier = {fSolarChargeMultiplier}, and deltaTime of {deltaTime}");
@@ -259,6 +262,22 @@ namespace CombinedItems.MonoBehaviours
 				parentHoverbike.energyMixin.ConsumeEnergy(Time.deltaTime * parentHoverbike.enginePowerConsumption); // This effectively doubles power consumption when above water.
 		}
 
+		internal static bool StaticHasTravelModule(Hoverbike instance)
+		{
+			if (instance == null)
+				return false;
+
+			return (StaticGetModuleCount(techTypeMobility, instance) + StaticGetModuleCount(techTypeWaterTravel, instance)) > 0;
+		}
+
+		internal bool HasTravelModule(Hoverbike instance = null)
+		{
+			if (instance != null)
+				return StaticHasTravelModule(instance);
+
+			return StaticHasTravelModule(parentHoverbike);
+		}
+
 		internal virtual void PostUpgradeModuleChange(int slotID, TechType techType, bool added, Hoverbike instance = null)
 		{
 			if (parentHoverbike == null)
@@ -272,7 +291,7 @@ namespace CombinedItems.MonoBehaviours
 			// My first instinct is always to use switch() in situations like this, but you can't use switch() with non-const types.
 			if (techType == techTypeWaterTravel)
 			{
-				bHasTravelModule = added;
+				bHasTravelModule = HasTravelModule();
 			}
 			else if (techType == techTypeHullModule)
 			{
@@ -280,7 +299,7 @@ namespace CombinedItems.MonoBehaviours
 			}
 			else if (techType == techTypeMobility)
 			{
-				bHasTravelModule = added;
+				bHasTravelModule = HasTravelModule();
 				if (GetModuleCount(TechType.HoverbikeJumpModule) < 1)
 				{
 					FieldInfo jump = typeof(Hoverbike).GetField("jumpEnabled", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -293,10 +312,10 @@ namespace CombinedItems.MonoBehaviours
 			{
 				float effectiveEfficiency = 1f;
 				int priority = 0;
-				Log.LogDebug($"HoverbikeUpdate.PostUpgradeModuleChange(): applying efficiency modifiers");
+				//Log.LogDebug($"HoverbikeUpdate.PostUpgradeModuleChange(): applying efficiency modifiers");
 				foreach (EfficiencyModifierStruct modifier in efficiencyModifiers)
 				{
-					Log.LogDebug($"Using modifier {modifier.ToString()}");
+					//Log.LogDebug($"Using modifier {modifier.ToString()}");
 					int moduleCount = GetModuleCount(modifier.techType);
 					if (moduleCount > 0)
 					{
@@ -305,7 +324,7 @@ namespace CombinedItems.MonoBehaviours
 						{
 							effectiveEfficiency = modifier.efficiencyMultiplier * moduleCount;
 							priority = modifier.priority;
-							Log.LogDebug($"Using modifier with higher priority {priority}; effectiveEfficiency now {modifier.efficiencyMultiplier}");
+							//Log.LogDebug($"Using modifier with higher priority {priority}; effectiveEfficiency now {modifier.efficiencyMultiplier}");
 						}
 						else if (modifier.priority == priority)
 						{
@@ -328,10 +347,10 @@ namespace CombinedItems.MonoBehaviours
 				float cooldownMult = 1f;
 				int priority = 0;
 
-				Log.LogDebug($"HoverbikeUpdate.PostUpgradeModuleChange(): applying movement modifiers");
+				//Log.LogDebug($"HoverbikeUpdate.PostUpgradeModuleChange(): applying movement modifiers");
 				foreach (MovementModifierStruct modifier in movementModifiers)
 				{
-					Log.LogDebug($"Using modifier {modifier.ToString()}");
+					//Log.LogDebug($"Using modifier {modifier.ToString()}");
 					int moduleCount = GetModuleCount(modifier.techType);
 					if (moduleCount > 0)
 					{
@@ -341,13 +360,13 @@ namespace CombinedItems.MonoBehaviours
 							speedMult = modifier.speedModifier * moduleCount;
 							cooldownMult = modifier.cooldownModifier * moduleCount;
 							priority = modifier.priority;
-							Log.LogDebug($"Using modifier with higher priority {priority}; speedMult now {speedMult}, cooldownMult now {cooldownMult}");
+							//Log.LogDebug($"Using modifier with higher priority {priority}; speedMult now {speedMult}, cooldownMult now {cooldownMult}");
 						}
 						else if (modifier.priority == priority)
 						{
 							speedMult *= modifier.speedModifier * moduleCount;
 							cooldownMult *= modifier.cooldownModifier * moduleCount;
-							Log.LogDebug($"Using modifier with equal priority {priority}; speedMult now {speedMult}, cooldownMult now {cooldownMult}");
+							//Log.LogDebug($"Using modifier with equal priority {priority}; speedMult now {speedMult}, cooldownMult now {cooldownMult}");
 						}
 						// There is no else.
 					}
@@ -422,7 +441,7 @@ namespace CombinedItems.MonoBehaviours
 					return false;
 			}
 
-			return GetModuleCount(techTypeWaterTravel) < 1;
+			return HasTravelModule();
 		}
 	}
 }

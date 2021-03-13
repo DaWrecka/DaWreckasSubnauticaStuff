@@ -41,7 +41,7 @@ namespace CombinedItems.Patches
                         typedBatteryValues = new Dictionary<TechType, float>();
 
                     typedBatteryValues.Add(tt, kvp.Value);
-                }    
+                }
             }
         }
 
@@ -49,7 +49,7 @@ namespace CombinedItems.Patches
         {
             while (pendingBatteryList.Count > 0)
             {
-                for(int i = pendingBatteryList.Count - 1; i >= 0; i--)
+                for (int i = pendingBatteryList.Count - 1; i >= 0; i--)
                 {
                     Battery b = pendingBatteryList[i];
                     TechTag tt = b.GetComponent<TechTag>();
@@ -84,5 +84,26 @@ namespace CombinedItems.Patches
 
             CoroutineHost.StartCoroutine(ProcessPendingBatteries());
         }
+
+        /*[HarmonyPostfix]
+        [HarmonyPatch("Start")]
+        public static void PostStart(Battery __instance)
+        {
+            bool bIsFull = (__instance.charge == __instance._capacity);
+            TechType batteryTech = CraftData.GetTechType(__instance.gameObject);
+
+            Log.LogDebug($"Batteries.PostAwake(): Found battery TechType {batteryTech.AsString()}");
+            if (typedBatteryValues.ContainsKey(batteryTech))
+            {
+                float newCapacity = typedBatteryValues[batteryTech];
+                if (__instance._capacity != newCapacity)
+                {
+                    Log.LogDebug($"Updating battery with new capacity {newCapacity}");
+                    __instance._capacity = newCapacity;
+                    if (bIsFull)
+                        __instance._charge = newCapacity;
+                }
+            }
+        }*/
     }
 }

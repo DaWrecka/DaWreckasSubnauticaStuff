@@ -38,7 +38,7 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'SN1|AnyCPU'">
-    <DefineConstants>SN1;SUBNAUTICA_STABLE</DefineConstants>
+    <DefineConstants>SN1;SUBNAUTICA</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <GameDir>$(CommonDir)Subnautica.Stable</GameDir>
@@ -149,6 +149,7 @@
     <Compile Include="Main.cs" />
     <Compile Include="Inventory.cs" />
     <Compile Include="Patches\Patches.cs" />
+    <Compile Include="Patches\Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -15,6 +15,7 @@ using CombinedItems.VehicleModules;
 using Common;
 using UWE;
 using UnityEngine;
+using CombinedItems.Spawnables;
 
 namespace CombinedItems
 {
@@ -22,6 +23,7 @@ namespace CombinedItems
     public class Main
     {
         internal static bool bVerboseLogging = true;
+        internal static bool bLogTranspilers = true;
         internal const string version = "0.8.0.2";
 
         private static readonly Type CustomiseOxygen = Type.GetType("CustomiseOxygen.Main, CustomiseOxygen", false, false);
@@ -40,9 +42,12 @@ namespace CombinedItems
         internal static HoverbikeEngineEfficiencyModule prefabHbEngineModule = new HoverbikeEngineEfficiencyModule();
         internal static HoverbikeSpeedModule prefabHbSpeedModule = new HoverbikeSpeedModule();
         internal static HoverbikeMobilityUpgrade prefabHbMobility = new HoverbikeMobilityUpgrade();
+        internal static PowerglideEquipable prefabPowerglide = new PowerglideEquipable();
+        internal static ExosuitLightningClawGeneratorModule ExoLightningGenerator = new ExosuitLightningClawGeneratorModule();
+        internal static PowerglideFragmentPrefab powerglideFrag = new PowerglideFragmentPrefab();
 
         private static readonly Assembly myAssembly = Assembly.GetExecutingAssembly();
-        private static void AddSubstitution(TechType custom, TechType vanilla)
+        internal static void AddSubstitution(TechType custom, TechType vanilla)
         {
             Patches.EquipmentPatch.AddSubstitution(custom, vanilla);
             Patches.PlayerPatch.AddSubstitution(custom, vanilla);
@@ -67,15 +72,19 @@ namespace CombinedItems
             prefabReinforcedColdGloves.Patch();
             prefabReinforcedColdSuit.Patch();
             prefabHighCapacityBooster.Patch();
-            prefabLightningClaw.Patch();
-            prefabExosuitSprintModule.Patch();
+            //prefabLightningClaw.Patch();
+            //prefabExosuitSprintModule.Patch();
             prefabHbWaterTravelModule.Patch();
             prefabHbSolarCharger.Patch();
             prefabHbHullModule.Patch();
             prefabHbEngineModule.Patch();
             prefabHbSpeedModule.Patch();
-            // prefabHbMobility *must* be patched last, since it depends on other techtypes in this list
+            ExoLightningGenerator.Patch();
+            powerglideFrag.Patch();
+
+            // prefabHbMobility depends on other prefabs in this list, so must be patched after them
             prefabHbMobility.Patch();
+            prefabPowerglide.Patch();
 
             new Harmony($"DaWrecka_{myAssembly.GetName().Name}").PatchAll(myAssembly);
         }
@@ -89,8 +98,8 @@ namespace CombinedItems
             AddSubstitution(prefabReinforcedColdSuit.TechType, TechType.ReinforcedDiveSuit);
             AddSubstitution(prefabInsulatedRebreather.TechType, TechType.Rebreather);
             AddSubstitution(prefabReinforcedColdGloves.TechType, TechType.ReinforcedGloves);
-            AddSubstitution(prefabHighCapacityBooster.TechType, TechType.SuitBoosterTank);
-            AddSubstitution(prefabHighCapacityBooster.TechType, TechType.HighCapacityTank);
+            //AddSubstitution(prefabHighCapacityBooster.TechType, TechType.SuitBoosterTank);
+            //AddSubstitution(prefabHighCapacityBooster.TechType, TechType.HighCapacityTank);
             CraftDataHandler.SetBackgroundType(prefabLightningClaw.TechType, CraftData.BackgroundType.ExosuitArm);
             CraftDataHandler.SetBackgroundType(prefabExosuitSprintModule.TechType, CraftData.BackgroundType.Normal);
 
@@ -124,7 +133,7 @@ namespace CombinedItems
                     TechType.PrecursorIonPowerCell
                 })
             {
-                string classId = CraftData.GetClassIdForTechType(TechType.PrecursorIonBattery);
+                string classId = CraftData.GetClassIdForTechType(tt);
                 if (PrefabDatabase.TryGetPrefabFilename(classId, out string PrefabFilename))
                 {
                     Common.Log.LogDebug($"Got prefab filename '{PrefabFilename}' for classId '{classId}' for TechType {tt.AsString()}");

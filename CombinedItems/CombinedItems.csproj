@@ -91,12 +91,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Equipables\PowerglideEquipable.cs" />
     <Compile Include="Equipables\HighCapacityBooster.cs" />
     <Compile Include="Equipables\ReinforcedColdSuit.cs" />
     <Compile Include="MonoBehaviours\HoverbikeStructuralIntegrityModifier.cs" />
     <Compile Include="MonoBehaviours\HoverbikeUpdater.cs" />
+    <Compile Include="MonoBehaviours\Powerglide.cs" />
     <Compile Include="MonoBehaviours\VehicleUpdater.cs" />
+    <Compile Include="Patches\ExosuitClawArm.cs" />
     <Compile Include="Patches\Hoverbike.cs" />
+    <Compile Include="Patches\PlayerTool.cs" />
+    <Compile Include="Patches\Seaglide.cs" />
+    <Compile Include="Spawnables\PowerglideFragmentPrefab.cs" />
+    <Compile Include="VehicleModules\ExosuitLightningClawGeneratorModule.cs" />
     <Compile Include="VehicleModules\ExosuitSprintModule.cs" />
     <Compile Include="MonoBehaviours\ExosuitLightningClaw.cs" />
     <Compile Include="VehicleModules\ExosuitLightningClawPrefab.cs" />

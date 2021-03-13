@@ -87,9 +87,6 @@ namespace CombinedItems.Patches
         public static IEnumerable<CodeInstruction> HoverEnginesTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
-            /*
-			MethodInfo usingJumpjetsMethod = typeof(ExosuitPatches).GetMethod(nameof(ExosuitPatches.ExosuitUsingJumpJets));
-            */
             MethodInfo waterHoverMethod = typeof(HoverbikePatches).GetMethod(nameof(HoverbikePatches.WaterHoverMode));
 
             if (waterHoverMethod == null)
@@ -101,7 +98,7 @@ namespace CombinedItems.Patches
             int overWaterIndex = -1;
             int wasOnGroundIndex = -1;
 
-            if (Main.bVerboseLogging)
+            if (Main.bLogTranspilers)
             {
                 Log.LogDebug("Dump of Hoverbike.HoverEngines method, pre-transpiler:");
                 for (i = 0; i < codes.Count; i++)
@@ -163,16 +160,15 @@ namespace CombinedItems.Patches
                     &&   codes[i + 13].opcode == OpCodes.Ldc_I4_0  // * IL_00D6: ldc.i4.0
                     &&   codes[i + 14].opcode == OpCodes.Stfld)    // * IL_00D7: stfld     bool Hoverbike::jumpReset
                 {
-                    // We're going to replace the codes at i+6 to i+8 with nop, to completely negate the wasOnGround check
+                    // We're going to replace the codes at i+6 to i+7 with ldc.i4.1 and nop, placing 1 (true) on the stack instead of the result of the wasOnGround() method
                     wasOnGroundIndex = i + 6;
                     Log.LogDebug($"Located wasOnGround segment at {String.Format("0x{0:X4}", wasOnGroundIndex)}");
                     codes[wasOnGroundIndex + 0] = new CodeInstruction(OpCodes.Ldc_I4_1);
                     codes[wasOnGroundIndex + 1] = new CodeInstruction(OpCodes.Nop);
-                    //codes[wasOnGroundIndex + 2] = new CodeInstruction(OpCodes.Nop);
                 }
             }
 
-            if (Main.bVerboseLogging)
+            if (Main.bLogTranspilers)
             {
                 Log.LogDebug("Dump of Hoverbike.HoverEngines method, post-transpiler:");
                 for (i = 0; i < codes.Count; i++)
@@ -189,11 +185,14 @@ namespace CombinedItems.Patches
         public static bool WaterHoverMode(Hoverbike instance)
         {
             // This method is called in Hoverbike.HoverEngines(), made so via transpiler, and is only called once the code has already established that the Hoverbike is over water.
+            // Also, since we want to fool the game into thinking the hoverbike is not over water if a valid travel module is installed, we need to invert the boolean.
+            // This is because the return result of this method is assigned to the hoverbike's "over water" field; if we want the hoverbike to believe it is over land and thus is allowed
+            // to boost and jump, we have to say "There's a travel module here... No, you're not over water".
 
             if (instance?.gameObject == null)
                 return true;
 
-            return instance.modules.GetCount(Main.prefabHbWaterTravelModule.TechType) < 1;
+            return !HoverbikeUpdater.StaticHasTravelModule(instance); //instance.modules.GetCount(Main.prefabHbWaterTravelModule.TechType) < 1;
         }
     }
 }

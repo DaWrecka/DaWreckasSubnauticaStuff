@@ -94,23 +94,33 @@ namespace CustomiseOxygen
                 Log.LogDebug($"WaitForSpriteHandler(): Beginning iteration, pendingTanks.Count == {pendingTanks.Count}");
                 for (int i = pendingTanks.Count - 1; i >= 0; i--)
                 {
-                    Log.LogDebug($"WaitForSpriteHandler(): index {i}, pendingTanks.Count == {pendingTanks.Count}");
-                    TechType key = pendingTanks[i].techType;
-                    Log.LogDebug($"WaitForSpriteHandler(): Processing TechType {key.AsString(false)}");
-                    float capacity = pendingTanks[i].capacity;
-                    Sprite icon = pendingTanks[i].icon;
-                    if (icon == null || icon == SpriteManager.defaultSprite)
+                    try
                     {
-                        Log.LogDebug($"Searching for icon for TechType {key.AsString(false)}");
-                        while (icon == null || icon == SpriteManager.defaultSprite)
+                        Log.LogDebug($"WaitForSpriteHandler(): index {i}, pendingTanks.Count == {pendingTanks.Count}");
+                        TechType key = pendingTanks[i].techType;
+                        Log.LogDebug($"WaitForSpriteHandler(): Processing TechType {key.AsString(false)}");
+                        float capacity = pendingTanks[i].capacity;
+                        Sprite icon = pendingTanks[i].icon;
+                        if (icon == null || icon == SpriteManager.defaultSprite)
                         {
-                            icon = SpriteManager.Get(key);
-                            yield return new WaitForEndOfFrame();
+                            Log.LogDebug($"WaitForSpriteHandler(): Searching for icon for TechType {key.AsString(false)}");
+                            if (icon == null || icon == SpriteManager.defaultSprite)
+                            {
+                                icon = SpriteManager.Get(key);
+                            }
+
                         }
-                        Log.LogDebug($"Found icon for TechType {key.AsString(false)}: {icon.texture.name}");
+                        if (icon != null || icon != SpriteManager.defaultSprite)
+                        {
+                            Log.LogDebug($"WaitForSpriteHandler(): Found icon for TechType {key.AsString(false)}: {icon.texture.name}");
+                            TankTypes.AddTank(key, capacity, icon);
+                            pendingTanks.RemoveAt(i);
+                        }
                     }
-                    TankTypes.AddTank(key, capacity, icon);
-                    pendingTanks.RemoveAt(i);
+                    catch(Exception e)
+                    {
+                        Log.LogDebug($"WaitForSpriteHandler(): Caught exception {e.ToString()} at index {i}");
+                    }
                     yield return new WaitForEndOfFrame();
                 }
             }
