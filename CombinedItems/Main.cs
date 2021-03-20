@@ -16,6 +16,10 @@ using UWE;
 using UnityEngine;
 using CombinedItems.Spawnables;
 using SMLHelper.V2.Assets;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json.Converters;
+using System.Collections;
 
 namespace CombinedItems
 {
@@ -127,7 +131,10 @@ namespace CombinedItems
 				new ReinforcedSurvivalSuit(),
 				new HoverbikeMobilityUpgrade(),
 				new PowerglideEquipable(),
-				new SuperSurvivalSuit()
+				new SuperSurvivalSuit(),
+				new SurvivalSuitBlueprint_FromReinforcedSurvival(),
+				new SurvivalSuitBlueprint_BaseSuits(),
+				new SurvivalSuitBlueprint_FromReinforcedCold()
 			})
 			{
 				s.Patch();
@@ -187,15 +194,18 @@ namespace CombinedItems
 					Log.LogError($"Could not get prefab for classId '{classId}' for TechType {tt.AsString()}");
 			}
 			Batteries.PostPatch();
+			Reflection.PostPatch();
 		}
 	}
 
-	internal class Reflection
+	public class Reflection
 	{
 		private static readonly MethodInfo addJsonPropertyInfo = typeof(CraftDataHandler).GetMethod("AddJsonProperty", BindingFlags.NonPublic | BindingFlags.Static);
 		private static readonly MethodInfo playerUpdateReinforcedSuitInfo = typeof(Player).GetMethod("UpdateReinforcedSuit", BindingFlags.NonPublic | BindingFlags.Instance);
 		private static readonly MethodInfo playerCheckColdsuitGoalInfo = typeof(Player).GetMethod("CheckColdsuitGoal", BindingFlags.NonPublic | BindingFlags.Instance);
 		private static readonly FieldInfo knownTechCompoundTech = typeof(KnownTech).GetField("compoundTech", BindingFlags.NonPublic | BindingFlags.Static);
+		private static List<KnownTech.CompoundTech> pendingCompoundTech = new List<KnownTech.CompoundTech>();
+		private static bool bProcessingCompounds;
 
 		public static void AddJsonProperty(TechType techType, string key, JsonValue newValue)
 		{
@@ -233,16 +243,70 @@ namespace CombinedItems
 			playerCheckColdsuitGoalInfo.Invoke(player, new object[] { });
 		}
 
-		public static bool AddCompoundTech(KnownTech.CompoundTech compound)
+		public static void AddCompoundTech(KnownTech.CompoundTech compound, bool bForce = false)
 		{
-			List<KnownTech.CompoundTech> compounds = (List<KnownTech.CompoundTech>)(knownTechCompoundTech.GetValue(null));
-			if (compounds != null)
+			//List<KnownTech.CompoundTech> compounds = (List<KnownTech.CompoundTech>)knownTechCompoundTech.GetValue(null);
+			/*Log.LogDebug("AddCompoundTech executing with compoundTech: " + (compound == null ? "null" : JsonConvert.SerializeObject(compound, Formatting.Indented, new StringEnumConverter()
 			{
-				compounds.Add(compound);
-				return true;
+				NamingStrategy = new CamelCaseNamingStrategy(),
+				AllowIntegerValues = true
+			})));*/
+
+			if(compound != null)
+				pendingCompoundTech.Add(compound);
+			//CoroutineHost.StartCoroutine(ProcessPendingCompounds(bForce));
+		}
+
+		public static void PostPatch()
+		{
+			CoroutineHost.StartCoroutine(ProcessPendingCompounds(true));
+		}
+
+		private bool KnownTechInitialised()
+		{
+			return (knownTechCompoundTech.GetValue(null) != null);
+		}
+
+		private static IEnumerator ProcessPendingCompounds(bool bForce = false)
+		{
+			if (bProcessingCompounds)
+			{
+				if (bForce)
+					Log.LogDebug("ProcessPendingCompounds executing: forced");
+				else
+					yield break;
 			}
 
-			return false;
+			if (pendingCompoundTech.Count < 1)
+			{
+				bProcessingCompounds = false;
+				yield break;
+			}
+
+			bProcessingCompounds = true;
+
+			int tries = 0;
+			while (pendingCompoundTech.Count > 0)
+			{
+				List<KnownTech.CompoundTech> compounds = (List<KnownTech.CompoundTech>)knownTechCompoundTech.GetValue(null);
+				Log.LogDebug($"Attempting to process pending compound tech: pendingCompoundTech.Count == {pendingCompoundTech.Count}, attempt {++tries}");
+				if (compounds != null)
+				{
+					Log.LogDebug("Successfully retrieved KnownTech.compoundTech: Now processing pendingCompoundTech");
+					for (int i = pendingCompoundTech.Count - 1; i >= 0; i--)
+					{
+						compounds.Add(pendingCompoundTech[i]);
+						pendingCompoundTech.RemoveAt(i);
+					}
+				}
+				else
+				{
+					Log.LogDebug($"KnownTech.compoundTech could not be retrieved");
+				}
+				yield return new WaitForSecondsRealtime(2f);
+			}
+
+			bProcessingCompounds = false;
 		}
 	}
 }
