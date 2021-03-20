@@ -17,6 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleBatchFiles", "Consol
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0D82A2A1-A62C-4A71-BF2F-6F774BF5B880}"
 	ProjectSection(SolutionItems) = preProject
+		GameDir.targets = GameDir.targets
 		post-build.ps1 = post-build.ps1
 	EndProjectSection
 EndProject
@@ -38,11 +39,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CombinedItems", "CombinedIt
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common", "Common\Common.shproj", "{8A848353-2B17-4EC0-9A43-3992ADB96579}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuelCells", "FuelCells\FuelCells.csproj", "{C5E29C24-D05F-4321-A886-1EFF69D01C46}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Common\Common.projitems*{6ef05ca8-b139-4a7f-98e4-856a44849034}*SharedItemsImports = 4
 		Common\Common.projitems*{854262eb-f44f-4d6b-9b32-4103ae9f4253}*SharedItemsImports = 4
 		Common\Common.projitems*{8a848353-2b17-4ec0-9a43-3992adb96579}*SharedItemsImports = 13
+		Common\Common.projitems*{971fa188-6ab9-4c4f-bdee-89e37f305276}*SharedItemsImports = 4
 		Common\Common.projitems*{b43f4c23-beb5-4b02-a623-a843a010f6a4}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -369,8 +373,8 @@ Global
 		{971FA188-6AB9-4C4F-BDEE-89E37F305276}.SN1.EXP|x64.Build.0 = SN1.EXP|Any CPU
 		{971FA188-6AB9-4C4F-BDEE-89E37F305276}.SN1|Any CPU.ActiveCfg = SN1|Any CPU
 		{971FA188-6AB9-4C4F-BDEE-89E37F305276}.SN1|Any CPU.Build.0 = SN1|Any CPU
-		{971FA188-6AB9-4C4F-BDEE-89E37F305276}.SN1|x64.ActiveCfg = SN1|Any CPU
-		{971FA188-6AB9-4C4F-BDEE-89E37F305276}.SN1|x64.Build.0 = SN1|Any CPU
+		{971FA188-6AB9-4C4F-BDEE-89E37F305276}.SN1|x64.ActiveCfg = BZ|Any CPU
+		{971FA188-6AB9-4C4F-BDEE-89E37F305276}.SN1|x64.Build.0 = BZ|Any CPU
 		{6EF05CA8-B139-4A7F-98E4-856A44849034}.BZ.EXP|Any CPU.ActiveCfg = Release|Any CPU
 		{6EF05CA8-B139-4A7F-98E4-856A44849034}.BZ.EXP|Any CPU.Build.0 = Release|Any CPU
 		{6EF05CA8-B139-4A7F-98E4-856A44849034}.BZ.EXP|x64.ActiveCfg = Release|Any CPU
@@ -395,6 +399,30 @@ Global
 		{6EF05CA8-B139-4A7F-98E4-856A44849034}.SN1|Any CPU.Build.0 = Release|Any CPU
 		{6EF05CA8-B139-4A7F-98E4-856A44849034}.SN1|x64.ActiveCfg = BZ|Any CPU
 		{6EF05CA8-B139-4A7F-98E4-856A44849034}.SN1|x64.Build.0 = BZ|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.BZ.EXP|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.BZ.EXP|Any CPU.Build.0 = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.BZ.EXP|x64.ActiveCfg = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.BZ.EXP|x64.Build.0 = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.BZ|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.BZ|Any CPU.Build.0 = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.BZ|x64.ActiveCfg = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.BZ|x64.Build.0 = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.Debug|x64.Build.0 = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.Release|x64.ActiveCfg = Release|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.Release|x64.Build.0 = Release|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.SN1.EXP|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.SN1.EXP|Any CPU.Build.0 = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.SN1.EXP|x64.ActiveCfg = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.SN1.EXP|x64.Build.0 = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.SN1|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.SN1|Any CPU.Build.0 = Debug|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.SN1|x64.ActiveCfg = BZ|Any CPU
+		{C5E29C24-D05F-4321-A886-1EFF69D01C46}.SN1|x64.Build.0 = BZ|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

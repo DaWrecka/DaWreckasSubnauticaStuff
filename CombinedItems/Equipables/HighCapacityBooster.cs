@@ -29,6 +29,7 @@ namespace CombinedItems.Equipables
                 Main.AddSubstitution(this.TechType, TechType.HighCapacityTank);
                 Main.AddCustomOxyExclusion(this.TechType, true, true);
                 Main.AddCustomOxyTank(this.TechType, -1f);
+                Main.AddModTechType(this.TechType);
             };
         }
 

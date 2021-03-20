@@ -14,7 +14,7 @@ namespace CombinedItems.Patches
 	internal class ExosuitClawArmPatches
 	{
 		protected const float damageMultiplier = 0.6f; // Whatever standard damage is inflicted, this multiple of that value will be inflicted as Electrical
-
+		private static TechType LightningGeneratorTechType => Main.GetModTechType("ExosuitLightningClawGeneratorModule");
 		public static bool InflictDamage(LiveMixin instance, float originalDamage, Vector3 position = default(Vector3), DamageType type = DamageType.Normal, GameObject dealer = null)
 		{
 			Log.LogDebug($"ExosuitClawArmPatches.InflictDamage running, instance {instance?.name}, originalDamage {originalDamage}, position ({position.ToString()}, type {type.ToString()}, dealer "
@@ -24,7 +24,7 @@ namespace CombinedItems.Patches
 			{
 				Exosuit exosuit = Player.main.GetVehicle() as Exosuit;
 				if (exosuit?.modules != null // This shouldn't fail, but this is here for paranoia's sake
-					&& exosuit.modules.GetCount(Main.ExoLightningGenerator.TechType) > 0)
+					&& exosuit.modules.GetCount(LightningGeneratorTechType) > 0)
 				{
 					result |= instance.TakeDamage(originalDamage*damageMultiplier, position, DamageType.Electrical, dealer);
 				}

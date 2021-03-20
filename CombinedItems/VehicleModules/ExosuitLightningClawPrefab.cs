@@ -122,6 +122,7 @@ namespace CombinedItems.VehicleModules
         {
             OnFinishedPatching += () =>
             {
+                Main.AddModTechType(this.TechType);
             };
         }
     }

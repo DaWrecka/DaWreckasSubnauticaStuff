@@ -23,7 +23,7 @@
     <DataFolder>SubnauticaZero_Data</DataFolder>
     <SMLHelperFolder>SMLHelper_BZ</SMLHelperFolder>
     <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.1</LangVersion>
+    <LangVersion>8.0</LangVersion>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BZ.EXP|AnyCPU'">
@@ -34,7 +34,7 @@
     <DataFolder>SubnauticaZero_Data</DataFolder>
     <SMLHelperFolder>SMLHelper_BZ</SMLHelperFolder>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>7.1</LangVersion>
+    <LangVersion>8.0</LangVersion>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
@@ -94,10 +94,14 @@
     <Compile Include="Equipables\PowerglideEquipable.cs" />
     <Compile Include="Equipables\HighCapacityBooster.cs" />
     <Compile Include="Equipables\ReinforcedColdSuit.cs" />
+    <Compile Include="Equipables\SuperSurvivalSuit.cs" />
+    <Compile Include="Equipables\SurvivalSuit.cs" />
     <Compile Include="MonoBehaviours\HoverbikeStructuralIntegrityModifier.cs" />
     <Compile Include="MonoBehaviours\HoverbikeUpdater.cs" />
     <Compile Include="MonoBehaviours\Powerglide.cs" />
+    <Compile Include="MonoBehaviours\SurvivalsuitBehaviour.cs" />
     <Compile Include="MonoBehaviours\VehicleUpdater.cs" />
+    <Compile Include="Patches\BatteryCharger.cs" />
     <Compile Include="Patches\ExosuitClawArm.cs" />
     <Compile Include="Patches\Hoverbike.cs" />
     <Compile Include="Patches\PlayerTool.cs" />

@@ -61,7 +61,7 @@ namespace CombinedItems.MonoBehaviours
             }
 
             tool.powerGlideActive = Player.main.IsUnderwaterForSwimming()
-                && !power.IsDepleted()
+                && tool.HasEnergy()
                 && GameInput.GetButtonHeld(GameInput.Button.Sprint);
             tool.powerGlideParam = Mathf.Lerp(tool.powerGlideParam, tool.powerGlideActive ? 1f : 0f, Time.deltaTime * 3f);
             powerSeaglideForce = Mathf.Lerp(powerSeaglideForce, tool.powerGlideActive ? powerGlideForce : 0f, Time.deltaTime * powerLerpRate);

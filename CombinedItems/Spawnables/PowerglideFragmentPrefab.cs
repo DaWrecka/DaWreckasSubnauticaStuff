@@ -21,7 +21,12 @@ namespace CombinedItems.Spawnables
         private const float PowerglideColourB = 0f;
 
         public PowerglideFragmentPrefab() : base("PowerglideFragment", "Powerglide Fragment", "Damaged Powerglide")
-        { }
+        {
+            OnFinishedPatching += () =>
+            {
+                Main.AddModTechType(this.TechType);
+            };
+        }
 
         public override List<LootDistributionData.BiomeData> BiomesToSpawnIn => GetBiomeDistribution();
 

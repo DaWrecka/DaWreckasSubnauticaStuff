@@ -24,7 +24,7 @@ namespace CustomiseOxygen
     {
         internal const string AssemblyTitle = "CustomiseOxygen";
         internal const string AssemblyProduct = "CustomiseOxygen";
-        internal const string AssemblyVersion = "1.0.0.0";
+        internal const string AssemblyVersion = "0.8.0.2";
 
         // Exclusions which can be added by external mods, such as CombinedItems.
         internal enum ExclusionType

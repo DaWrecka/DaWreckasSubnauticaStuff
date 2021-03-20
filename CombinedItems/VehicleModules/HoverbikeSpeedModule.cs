@@ -56,6 +56,7 @@ namespace CombinedItems.VehicleModules
             {
                 HoverbikeUpdater.AddEfficiencyMultiplier(this.TechType, powerConsumptionModifier);
                 HoverbikeUpdater.AddMovementModifier(this.TechType, speedMultiplier, cooldownMultiplier, maxStack);
+                Main.AddModTechType(this.TechType);
             };
         }
     }

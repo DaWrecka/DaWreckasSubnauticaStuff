@@ -33,7 +33,7 @@ namespace CombinedItems.Patches
 		// Because of our patch to Equipment.GetCount, {Inventory.main.equipment.GetCount(TechType.ReinforcedDiveSuit)} will return a value greater than zero if the Reinforced Cold Suit is equipped.
 		[HarmonyPrefix]
         [HarmonyPatch(nameof(Player.HasReinforcedSuit))]
-        public static bool SuitPrefix(ref bool __result)
+        public static bool PreHasReinforcedSuit(ref bool __result)
         {
             __result = (Inventory.main.equipment.GetCount(TechType.ReinforcedDiveSuit) > 0);
 			return false;
@@ -42,7 +42,7 @@ namespace CombinedItems.Patches
         // This, too, exploits our patch to Equipment.GetCount.
         [HarmonyPrefix]
         [HarmonyPatch(nameof(Player.HasReinforcedGloves))]
-        public static bool GlovesPrefix(ref bool __result)
+        public static bool PreHasReinforcedGloves(ref bool __result)
         {
             __result = (Inventory.main.equipment.GetCount(TechType.ReinforcedGloves) > 0);
 			return false;

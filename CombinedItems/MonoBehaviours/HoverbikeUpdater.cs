@@ -97,12 +97,12 @@ namespace CombinedItems.MonoBehaviours
 														// based on the current light level.
 		internal const float fMaxSolarDepth = 2f;
 		private bool bBikeOverWater;
-		private static TechType techTypeWaterTravel => Main.prefabHbWaterTravelModule.TechType;
-		private static TechType techTypeSolarCharger => Main.prefabHbSolarCharger.TechType;
-		private static TechType techTypeHullModule => Main.prefabHbHullModule.TechType;
-		private static TechType techTypeEngineEfficiency => Main.prefabHbEngineModule.TechType;
-		private static TechType techTypeSpeed => Main.prefabHbSpeedModule.TechType;
-		private static TechType techTypeMobility => Main.prefabHbMobility.TechType;
+		private static TechType techTypeWaterTravel => Main.GetModTechType("HoverbikeWaterTravelModule");// Main.prefabHbWaterTravelModule.TechType;
+		private static TechType techTypeSolarCharger => Main.GetModTechType("HoverbikeSolarChargerModule");// Main.prefabHbSolarCharger.TechType;
+		private static TechType techTypeHullModule => Main.GetModTechType("HoverbikeStructuralIntegrityModule");// Main.prefabHbHullModule.TechType;
+		private static TechType techTypeEngineEfficiency => Main.GetModTechType("HoverbikeEngineEfficiencyModule");// Main.prefabHbEngineModule.TechType;
+		private static TechType techTypeSpeed => Main.GetModTechType("HoverbikeSpeedModule");// Main.prefabHbSpeedModule.TechType;
+		private static TechType techTypeMobility => Main.GetModTechType("HoverbikeMobilityUpgrade");// Main.prefabHbMobility.TechType;
 
 		internal static bool AddEfficiencyMultiplier(TechType module, float multiplier, int priority = 1, int maxUpgrades = 1, bool bUpdateIfPresent = false)
 		{

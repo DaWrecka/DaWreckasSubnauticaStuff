@@ -53,6 +53,7 @@ namespace CombinedItems.VehicleModules
             OnFinishedPatching += () =>
             {
                 HoverbikeUpdater.AddEfficiencyMultiplier(this.TechType, efficiencyModifier, maxUpgrades: maxUpgrades);
+                Main.AddModTechType(this.TechType);
             };
         }
     }

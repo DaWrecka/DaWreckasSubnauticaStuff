@@ -20,6 +20,8 @@ namespace CombinedItems.Patches
 	{
 		private static readonly MethodInfo ApplyJumpForceMethod = typeof(Exosuit).GetMethod("ApplyJumpForce", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly FieldInfo thrustPowerField = typeof(Exosuit).GetField("thrustPower", BindingFlags.Instance | BindingFlags.NonPublic);
+		private static TechType lightningClawTechType => Main.GetModTechType("ExosuitLightningClawArm");
+		private static TechType ExosuitSprintModuleTechType => Main.GetModTechType("ExosuitSprintModule");
 		internal static bool JumpJetsUpgraded(Exosuit instance)
 		{
 			if (instance == null)
@@ -90,7 +92,7 @@ namespace CombinedItems.Patches
 		[HarmonyPatch(nameof(Exosuit.HasClaw))]
 		public static bool PostHasClaw(bool __result, Exosuit __instance)
 		{
-			return __result || __instance.leftArmType == Main.prefabLightningClaw.TechType || __instance.rightArmType == Main.prefabLightningClaw.TechType;
+			return __result || __instance.leftArmType == lightningClawTechType || __instance.rightArmType == lightningClawTechType;
 		}
 
 		[HarmonyPostfix]
@@ -98,7 +100,7 @@ namespace CombinedItems.Patches
 		public static void PostUpgradeChange(ref Exosuit __instance, int slotID, TechType techType, bool added)
 		{
 			__instance.gameObject.EnsureComponent<ExosuitUpdater>().PostUpgradeModuleChange(techType);
-			if (techType == Main.prefabLightningClaw.TechType)
+			if (techType == lightningClawTechType)
 				__instance.MarkArmsDirty();
 		}
 
@@ -306,7 +308,7 @@ namespace CombinedItems.Patches
 			Vector3 groundVector = new Vector3(velocity.x, 0, velocity.z);
 			bool bIsMoving = (velocity != Vector3.zero && groundVector.magnitude > 0f);
 			bool bPdaInUse = (Player.main.GetPDA() != null ? Player.main.GetPDA().isInUse : false);
-			bool bSprintControlActive = exosuit.modules.GetCount(Main.prefabExosuitSprintModule.TechType) > 0 && GameInput.GetButtonHeld(GameInput.Button.Sprint);
+			bool bSprintControlActive = exosuit.modules.GetCount(ExosuitSprintModuleTechType) > 0 && GameInput.GetButtonHeld(GameInput.Button.Sprint);
 			Log.LogDebug($"ExosuitPatches.ExosuitIsSprinting: bIsMoving = " + (bIsMoving ? " true" : "false") + ", bSprintControlActive = " + (bSprintControlActive ? " true" : "false") + ", bPdaInUse = " + (bPdaInUse ? " true" : "false"));
 			return bIsMoving && bSprintControlActive && !bPdaInUse;
 		}

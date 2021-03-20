@@ -13,7 +13,7 @@ namespace CombinedItems.VehicleModules
         public override QuickSlotType QuickSlotType => QuickSlotType.Passive;
         public override TechGroup GroupForPDA => TechGroup.VehicleUpgrades;
         public override TechCategory CategoryForPDA => TechCategory.VehicleUpgrades;
-        public override TechType RequiredForUnlock => TechType.BaseUpgradeConsole;
+        public override TechType RequiredForUnlock => TechType.Hoverbike;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;
         public override string[] StepsToFabricatorTab => new string[] { "Machines" };
         public override float CraftingTime => 10f;

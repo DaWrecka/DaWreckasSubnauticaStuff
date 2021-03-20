@@ -33,7 +33,7 @@ namespace CombinedItems
 		[HarmonyPostfix]
 		public static void GetCustomUseText(string __result, Seaglide __instance)
 		{
-			if (__instance.gameObject.GetComponent<PowerglideBehaviour>() == null)
+			if (__instance == null || __instance.gameObject == null || __instance.gameObject.GetComponent<PowerglideBehaviour>() == null)
 				return;
 
 			if (string.IsNullOrEmpty(customUseText))

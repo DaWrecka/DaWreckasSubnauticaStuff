@@ -86,7 +86,7 @@ namespace AcidProofSuit
         }
 
         // This function was stol*cough*take*cough*nicked wholesale from FCStudios
-        public static object GetPrivateField<T>(this T instance, string fieldName, BindingFlags bindingFlags = BindingFlags.Default)
+        public static object GetPrivateInstanceField<T>(this T instance, string fieldName, BindingFlags bindingFlags = BindingFlags.Default)
         {
             return typeof(T).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic | bindingFlags).GetValue(instance);
         }

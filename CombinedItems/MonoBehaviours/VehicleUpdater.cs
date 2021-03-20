@@ -36,24 +36,16 @@ namespace CombinedItems.MonoBehaviours
             return parentVehicle.modules.GetCount(techType);
         }
 
-        internal virtual void PostUpgradeModuleChange(TechType changedTechType = TechType.None)
-        { }
+        internal virtual void PostUpgradeModuleChange(TechType changedTechType = TechType.None) { }
 
-        internal virtual void PreUpdate()
-        { }
+        internal virtual void PreUpdate() { }
 
-        internal virtual void Update()
-        {
-        }
+        internal virtual void Update() { }
 
-        internal virtual void PostUpdate()
-        { }
+        internal virtual void PostUpdate() { }
 
-        internal virtual void PostOverrideAcceleration(ref Vector3 acceleration)
-        { }
+        internal virtual void PostOverrideAcceleration(ref Vector3 acceleration) { }
 
-        internal virtual void ApplyPhysicsMove()
-        { }
-
+        internal virtual void ApplyPhysicsMove() { }
     }
 }

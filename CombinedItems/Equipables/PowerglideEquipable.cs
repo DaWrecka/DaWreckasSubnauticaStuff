@@ -27,6 +27,7 @@ namespace CombinedItems.Equipables
 		{
 			OnFinishedPatching += () =>
 			{
+				Main.AddModTechType(this.TechType);
 			};
 		}
 
@@ -40,7 +41,8 @@ namespace CombinedItems.Equipables
 		public override string[] StepsToFabricatorTab => new string[] { "Machines" };
 		public override float CraftingTime => 5f;
 		public override QuickSlotType QuickSlotType => QuickSlotType.Selectable;
-		public override TechType RequiredForUnlock => Main.powerglideFrag.TechType;
+		//public override TechType RequiredForUnlock => Main.powerglideFrag.TechType;
+		public override TechType RequiredForUnlock => Main.GetModTechType("PowerglideFragment");
 		public override string DiscoverMessage => $"{this.FriendlyName} Unlocked!";
 		public override bool AddScannerEntry => true;
 		public override int FragmentsToScan => 4;

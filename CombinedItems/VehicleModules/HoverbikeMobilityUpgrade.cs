@@ -28,9 +28,9 @@ namespace CombinedItems.VehicleModules
                 Ingredients = new List<Ingredient>(new Ingredient[]
                     {
                         new Ingredient(TechType.HoverbikeJumpModule, 1),
-                        new Ingredient(Main.prefabHbEngineModule.TechType, 1),
-                        new Ingredient(Main.prefabHbSpeedModule.TechType, 1),
-                        new Ingredient(Main.prefabHbWaterTravelModule.TechType, 1),
+                        new Ingredient(Main.GetModTechType("HoverbikeEngineEfficiencyModule"), 1),
+                        new Ingredient(Main.GetModTechType("HoverbikeSpeedModule"), 1),
+                        new Ingredient(Main.GetModTechType("HoverbikeWaterTravelModule"), 1),
                         new Ingredient(TechType.AdvancedWiringKit, 1)
                     }
                 )
@@ -60,6 +60,7 @@ namespace CombinedItems.VehicleModules
             {
                 HoverbikeUpdater.AddEfficiencyMultiplier(this.TechType, efficiencyModifier, upgradePriority, maxStack);
                 HoverbikeUpdater.AddMovementModifier(this.TechType, speedMultiplier, cooldownMultiplier, upgradePriority, maxStack);
+                Main.AddModTechType(this.TechType);
             };
         }
     }
