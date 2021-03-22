@@ -35,6 +35,9 @@ namespace UpgradedBlades
             this.attackDist = 2f;
             this.bleederDamage = 90f;
             this.damage = 90f;
+#if BELOWZERO
+            this.spikeyTrapDamage = 9f;
+#endif
             this.damageType = DamageType.Normal;
             this.socket = PlayerTool.Socket.RightHand;
             this.ikAimRightArm = true;

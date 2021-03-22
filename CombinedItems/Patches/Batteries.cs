@@ -136,6 +136,8 @@ namespace CombinedItems.Patches
     [HarmonyPatch(typeof(Battery))]
     class Batteries
     {
+        private static bool bProcessingBatteries = false;
+
         // TODO: Make configurable
         internal static Dictionary<string, float> BatteryValues = new Dictionary<string, float>()
         {
@@ -169,6 +171,11 @@ namespace CombinedItems.Patches
 
         internal static IEnumerator ProcessPendingBatteries()
         {
+            if (bProcessingBatteries)
+                yield break;
+
+            bProcessingBatteries = true;
+
             while (pendingBatteryList.Count > 0)
             {
                 for (int i = pendingBatteryList.Count - 1; i >= 0; i--)
@@ -191,6 +198,8 @@ namespace CombinedItems.Patches
                 }
                 yield return new WaitForSecondsRealtime(1f);
             }
+
+            bProcessingBatteries = true;
             yield break;
         }
 

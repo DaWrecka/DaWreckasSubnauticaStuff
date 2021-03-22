@@ -29,6 +29,7 @@ namespace CombinedItems
 		internal static bool bVerboseLogging = true;
 		internal static bool bLogTranspilers = false;
 		internal const string version = "0.8.0.3";
+		internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
 
 		private static readonly Type CustomiseOxygen = Type.GetType("CustomiseOxygen.Main, CustomiseOxygen", false, false);
 		private static readonly MethodInfo CustomOxyAddExclusionMethod = CustomiseOxygen?.GetMethod("AddExclusion", BindingFlags.Public | BindingFlags.Static);
@@ -87,7 +88,7 @@ namespace CombinedItems
 			if (ModTechTypes.ContainsKey(lowerKey))
 				return ModTechTypes[lowerKey];
 
-			return TechType.None;
+			return TechTypeUtils.GetTechType(key);
 		}
 
 		[QModPatch]
@@ -128,6 +129,7 @@ namespace CombinedItems
 				new ExosuitLightningClawGeneratorModule(),
 				new PowerglideFragmentPrefab(),
 				new SurvivalSuit(),
+				new SurvivalColdSuit(),
 				new ReinforcedSurvivalSuit(),
 				new HoverbikeMobilityUpgrade(),
 				new PowerglideEquipable(),
@@ -194,10 +196,11 @@ namespace CombinedItems
 					Log.LogError($"Could not get prefab for classId '{classId}' for TechType {tt.AsString()}");
 			}
 			Batteries.PostPatch();
-			Reflection.PostPatch();
+			//Reflection.PostPatch();
 		}
 	}
 
+	[HarmonyPatch]
 	public class Reflection
 	{
 		private static readonly MethodInfo addJsonPropertyInfo = typeof(CraftDataHandler).GetMethod("AddJsonProperty", BindingFlags.NonPublic | BindingFlags.Static);
@@ -245,20 +248,16 @@ namespace CombinedItems
 
 		public static void AddCompoundTech(KnownTech.CompoundTech compound, bool bForce = false)
 		{
-			//List<KnownTech.CompoundTech> compounds = (List<KnownTech.CompoundTech>)knownTechCompoundTech.GetValue(null);
-			/*Log.LogDebug("AddCompoundTech executing with compoundTech: " + (compound == null ? "null" : JsonConvert.SerializeObject(compound, Formatting.Indented, new StringEnumConverter()
-			{
-				NamingStrategy = new CamelCaseNamingStrategy(),
-				AllowIntegerValues = true
-			})));*/
-
 			if(compound != null)
 				pendingCompoundTech.Add(compound);
 			//CoroutineHost.StartCoroutine(ProcessPendingCompounds(bForce));
 		}
 
-		public static void PostPatch()
+		[HarmonyPostfix]
+		[HarmonyPatch(typeof(KnownTech), nameof(KnownTech.Initialize))]
+		public static void PostKnownTechInit()
 		{
+			Log.LogDebug("Reflection.PostKnownTechInit() executing");
 			CoroutineHost.StartCoroutine(ProcessPendingCompounds(true));
 		}
 

@@ -91,6 +91,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config.cs" />
     <Compile Include="Equipables\PowerglideEquipable.cs" />
     <Compile Include="Equipables\HighCapacityBooster.cs" />
     <Compile Include="Equipables\ReinforcedColdSuit.cs" />
@@ -106,6 +107,7 @@
     <Compile Include="Patches\Hoverbike.cs" />
     <Compile Include="Patches\PlayerTool.cs" />
     <Compile Include="Patches\Seaglide.cs" />
+    <Compile Include="Patches\SpikeyTrap.cs" />
     <Compile Include="Spawnables\PowerglideFragmentPrefab.cs" />
     <Compile Include="VehicleModules\ExosuitLightningClawGeneratorModule.cs" />
     <Compile Include="VehicleModules\ExosuitSprintModule.cs" />

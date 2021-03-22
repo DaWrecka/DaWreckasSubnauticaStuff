@@ -12,6 +12,7 @@ using UnityEngine;
 using UWE;
 using Logger = QModManager.Utility.Logger;
 using FMODUnity;
+using CombinedItems.Patches;
 
 namespace CombinedItems.Equipables
 {
@@ -28,6 +29,7 @@ namespace CombinedItems.Equipables
 			OnFinishedPatching += () =>
 			{
 				Main.AddModTechType(this.TechType);
+				PlayerToolPatches.AddToolSubstitution(this.TechType, TechType.Seaglide);
 			};
 		}
 
