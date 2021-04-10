@@ -82,6 +82,28 @@ namespace CombinedItems.Patches
             __instance.gameObject.EnsureComponent<HoverbikeUpdater>()?.PostPhysicsMove(__instance);
         }
 
+        [HarmonyPatch(nameof(Hoverbike.GetHUDValues))]
+        [HarmonyPrefix]
+        public static bool PreGetHUDValues(Hoverbike __instance, out float health, out float power)
+        {
+            if (!Main.config.bHUDAbsoluteValues)
+            {
+                health = 0f;
+                power = 0f;
+                return true;
+            }
+
+            // The HUD code is expecting values between 0.0 and 1.0 and thus multiplies both of these values by 100 before displaying them.
+            // Easiest way for us to sort this out is to divide the values by 100 first. Less-efficient, but if the player is running on a CPU
+            // where a division by 100 takes a significant chunk of CPU time, they probably can't play Subnautica anyway.
+            health = Mathf.Floor(__instance.liveMixin.health) * 0.01f;
+            float charge = __instance.energyMixin.charge;
+            float capacity = __instance.energyMixin.capacity;
+            //power = ((charge > 0f && capacity > 0f) ? (charge / capacity) : 0f);
+            power = Mathf.Floor(charge) * 0.01f;
+            return false;
+        }
+
         [HarmonyPatch("HoverEngines")]
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> HoverEnginesTranspiler(IEnumerable<CodeInstruction> instructions)
@@ -187,7 +209,7 @@ namespace CombinedItems.Patches
             // This method is called in Hoverbike.HoverEngines(), made so via transpiler, and is only called once the code has already established that the Hoverbike is over water.
             // Also, since we want to fool the game into thinking the hoverbike is not over water if a valid travel module is installed, we need to invert the boolean.
             // This is because the return result of this method is assigned to the hoverbike's "over water" field; if we want the hoverbike to believe it is over land and thus is allowed
-            // to boost and jump, we have to say "There's a travel module here... No, you're not over water".
+            // to boost and jump, we have to say "No, you're not over water" if a travel module is present.
 
             if (instance?.gameObject == null)
                 return true;

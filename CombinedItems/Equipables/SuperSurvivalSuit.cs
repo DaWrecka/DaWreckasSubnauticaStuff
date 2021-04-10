@@ -22,9 +22,13 @@ namespace CombinedItems.Equipables
                 Reflection.AddColdResistance(this.TechType, System.Math.Max(55, coldResist));
                 Reflection.SetItemSize(this.TechType, 2, 3);
                 Log.LogDebug($"Finished patching, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
-                Main.AddSubstitution(this.TechType, TechType.ColdSuit);
-                Main.AddSubstitution(this.TechType, TechType.ReinforcedDiveSuit);
-                Main.AddModTechType(this.TechType);
+
+                // the SurvivalSuit constructor will call AddModTechType already.
+                // It has also been set up to add substitutions based on the value of the 'substitutions' property below.
+
+                //Main.AddModTechType(this.TechType);
+                //Main.AddSubstitution(this.TechType, TechType.ReinforcedDiveSuit);
+                //Main.AddSubstitution(this.TechType, TechType.ColdSuit);
                 /*KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
                 compound.techType = this.TechType;
                 compound.dependencies = new List<TechType>()
@@ -37,7 +41,13 @@ namespace CombinedItems.Equipables
             };
         }
 
-        private GameObject prefab;
+        protected override TechType[] substitutions
+        {
+            get
+            {
+                return new TechType[] { TechType.ColdSuit, TechType.ReinforcedDiveSuit };
+            }
+        }
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -69,6 +79,9 @@ namespace CombinedItems.Equipables
             }
 
             GameObject go = GameObject.Instantiate(prefab);
+            Stillsuit still = go.GetComponent<Stillsuit>();
+            if (still != null)
+                GameObject.DestroyImmediate(still);
             gameObject.Set(go);
         }
     }
@@ -119,13 +132,16 @@ namespace CombinedItems.Equipables
                 Ingredients = new List<Ingredient>(new Ingredient[]
                     {
                         new Ingredient(TechType.ReinforcedDiveSuit, 1),
-                        new Ingredient(TechType.Stillsuit, 1),
-                        new Ingredient(TechType.ColdSuit, 1)
+                        new Ingredient(Main.GetModTechType("SurvivalSuit"), 1),
+                        new Ingredient(TechType.ColdSuit, 1),
+                        new Ingredient(TechType.ColdSuitGloves, 1),
+                        new Ingredient(TechType.ReinforcedGloves, 1)
                     }
                 ),
                 LinkedItems = new List<TechType>()
                 {
-                    Main.GetModTechType("SuperSurvivalSuit")
+                    Main.GetModTechType("SuperSurvivalSuit"),
+                    Main.GetModTechType("ReinforcedColdGloves")
                 }
             };
         }
@@ -141,14 +157,15 @@ namespace CombinedItems.Equipables
                 compound.techType = this.TechType;
                 compound.dependencies = new List<TechType>()
                 {
-                    Main.GetModTechType("ReinforcedSurvivalSuit"),
-                    TechType.ColdSuit
+                    TechType.Stillsuit,
+                    TechType.ColdSuit,
+                    TechType.ReinforcedDiveSuit
                 };
                 Reflection.AddCompoundTech(compound);
             };
         }
 
-        public override TechType RequiredForUnlock => TechType.FrozenCreatureAntidote;
+        public override TechType RequiredForUnlock => TechType.Warper;
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -158,12 +175,15 @@ namespace CombinedItems.Equipables
                 Ingredients = new List<Ingredient>(new Ingredient[]
                     {
                         new Ingredient(Main.GetModTechType("ReinforcedSurvivalSuit"), 1),
-                        new Ingredient(TechType.ColdSuit, 1)
+                        new Ingredient(TechType.ColdSuit, 1),
+                        new Ingredient(TechType.ColdSuitGloves, 1),
+                        new Ingredient(TechType.ReinforcedGloves, 1)
                     }
                 ),
                 LinkedItems = new List<TechType>()
                 {
-                    Main.GetModTechType("SuperSurvivalSuit")
+                    Main.GetModTechType("SuperSurvivalSuit"),
+                    Main.GetModTechType("ReinforcedColdGloves")
                 }
             };
         }
@@ -171,7 +191,7 @@ namespace CombinedItems.Equipables
 
     internal class SurvivalSuitBlueprint_FromReinforcedCold : SurvivalSuitBlueprint
     {
-        public SurvivalSuitBlueprint_FromReinforcedCold() : base("SurvivalSuitBlueprint_FromReinforcedSurvival")
+        public SurvivalSuitBlueprint_FromReinforcedCold() : base("SurvivalSuitBlueprint_FromReinforcedCold")
         {
             OnFinishedPatching += () =>
             {
@@ -179,14 +199,15 @@ namespace CombinedItems.Equipables
                 compound.techType = this.TechType;
                 compound.dependencies = new List<TechType>()
                 {
-                    Main.GetModTechType("ReinforcedColdSuit"),
-                    Main.GetModTechType("SurvivalSuit")
+                    TechType.Stillsuit,
+                    TechType.ColdSuit,
+                    TechType.ReinforcedDiveSuit
                 };
                 Reflection.AddCompoundTech(compound);
             };
         }
 
-        public override TechType RequiredForUnlock => TechType.FrozenCreatureAntidote;
+        public override TechType RequiredForUnlock => TechType.Warper;
         protected override RecipeData GetBlueprintRecipe()
         {
             return new RecipeData()
@@ -216,14 +237,15 @@ namespace CombinedItems.Equipables
                 compound.techType = this.TechType;
                 compound.dependencies = new List<TechType>()
                 {
-                    Main.GetModTechType("SurvivalColdSuit"),
+                    TechType.Stillsuit,
+                    TechType.ColdSuit,
                     TechType.ReinforcedDiveSuit
                 };
                 Reflection.AddCompoundTech(compound);
             };
         }
 
-        public override TechType RequiredForUnlock => TechType.FrozenCreatureAntidote;
+        public override TechType RequiredForUnlock => TechType.Warper;
         protected override RecipeData GetBlueprintRecipe()
         {
             return new RecipeData()
@@ -232,12 +254,15 @@ namespace CombinedItems.Equipables
                 Ingredients = new List<Ingredient>(new Ingredient[]
                     {
                         new Ingredient(Main.GetModTechType("SurvivalColdSuit"), 1),
+                        new Ingredient(TechType.ReinforcedGloves, 1),
+                        new Ingredient(TechType.ColdSuitGloves, 1),
                         new Ingredient(TechType.ReinforcedDiveSuit, 1)
                     }
                 ),
                 LinkedItems = new List<TechType>()
                 {
-                    Main.GetModTechType("SuperSurvivalSuit")
+                    Main.GetModTechType("SuperSurvivalSuit"),
+                    Main.GetModTechType("ReinforcedColdGloves")
                 }
             };
         }

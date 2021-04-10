@@ -16,7 +16,7 @@ namespace CombinedItems.VehicleModules
         public override TechGroup GroupForPDA => TechGroup.VehicleUpgrades;
         public override TechCategory CategoryForPDA => TechCategory.VehicleUpgrades;
         public override TechType RequiredForUnlock => TechType.BaseUpgradeConsole;
-        public override CraftTree.Type FabricatorType => CraftTree.Type.SeamothUpgrades;
+        public override CraftTree.Type FabricatorType => CraftTree.Type.None;
         //public override string[] StepsToFabricatorTab => new string[] { "ExosuitModules" };
         public override float CraftingTime => 10f;
         public override Vector2int SizeInInventory => new Vector2int(1, 2);
@@ -27,6 +27,8 @@ namespace CombinedItems.VehicleModules
         {
             return new RecipeData()
             {
+                // Disabled this in favour of the Lightning Claw Generator Module, which augments the standard claw.
+
                 /*craftAmount = 1,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                     {

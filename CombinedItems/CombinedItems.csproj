@@ -89,6 +89,9 @@
     <Reference Include="UnityEngine.UIModule">
       <HintPath>$(GameDir)\$(DataFolder)\Managed\UnityEngine.UIModule.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(GameDir)\$(DataFolder)\Managed\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
@@ -107,6 +110,7 @@
     <Compile Include="Patches\Hoverbike.cs" />
     <Compile Include="Patches\PlayerTool.cs" />
     <Compile Include="Patches\Seaglide.cs" />
+    <Compile Include="Patches\Seatruck.cs" />
     <Compile Include="Patches\SpikeyTrap.cs" />
     <Compile Include="Spawnables\PowerglideFragmentPrefab.cs" />
     <Compile Include="VehicleModules\ExosuitLightningClawGeneratorModule.cs" />

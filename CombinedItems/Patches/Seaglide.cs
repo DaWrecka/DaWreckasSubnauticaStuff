@@ -18,6 +18,7 @@ namespace CombinedItems
 	[HarmonyPatch(typeof(Seaglide))]
 	class SeaglidePatches
 	{
+		internal static string cachedUseText;
 		internal static string customUseText;
 
 		[HarmonyPatch("Update")]
@@ -36,11 +37,19 @@ namespace CombinedItems
 			if (__instance == null || __instance.gameObject == null || __instance.gameObject.GetComponent<PowerglideBehaviour>() == null)
 				return;
 
-			if (string.IsNullOrEmpty(customUseText))
+			string sprintText = LanguageCache.GetButtonFormat(Language.main.Get("HoverbikeBoostDisplay") + "({0})", GameInput.Button.Sprint); ;
+			if (string.IsNullOrEmpty(customUseText) || cachedUseText != sprintText)
 			{
-				string sprintText = Language.main.Get("HoverbikeBoostDisplay") + "({0})";
-				customUseText = __result + ", " + LanguageCache.GetButtonFormat(sprintText, GameInput.Button.Sprint);
-				typeof(Seaglide).GetField("customUseCachedString", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(__instance, customUseText);
+				if (Language.main != null)
+				{
+					customUseText = __result + ", " + sprintText;
+					cachedUseText = sprintText;
+					typeof(Seaglide).GetField("customUseCachedString", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(__instance, customUseText);
+				}
+				else
+				{
+					//Log.LogDebug("Language.main is not available");
+				}
 			}
 			//__result = customUseText;
 			//__instance.customUseCachedString = customUseText;

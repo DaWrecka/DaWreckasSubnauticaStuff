@@ -70,10 +70,11 @@ namespace AcidProofSuit.Patches
 		}
 	}
 
-	[HarmonyPatch(typeof(DamageSystem), nameof(DamageSystem.CalculateDamage))]
+	[HarmonyPatch(typeof(DamageSystem))]
 	internal class DamageSystem_CalculateDamage_Patch
 	{
 		[HarmonyPostfix]
+		[HarmonyPatch(nameof(DamageSystem.CalculateDamage))]
 		public static float Postfix(float damage, DamageType type, GameObject target, GameObject dealer = null)
 		{
 			//Logger.Log(Logger.Level.Debug, $"DamageSystem_CalculateDamage_Patch.Postfix executing: parameters (damage = {damage}, DamageType = {type})");

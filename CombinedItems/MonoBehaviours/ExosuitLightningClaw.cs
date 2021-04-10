@@ -14,35 +14,23 @@ namespace CombinedItems.VehicleModules
 		// Stol<cough>Borrowed from Senna's Seamoth Arms
 		private void Awake()
 		{
-			int i = 3;
-			Log.LogDebug($"ExosuitLightningClaw: 1");
 			animator = GetComponent<Animator>();
-			Log.LogDebug($"ExosuitLightningClaw: 2");
 			fxControl = GetComponent<VFXController>();
-			Log.LogDebug($"ExosuitLightningClaw: 3");
 			vfxEventType = VFXEventTypes.impact;
 
 			foreach (FMODAsset asset in GetComponents<FMODAsset>())
 			{
-				Log.LogDebug($"ExosuitLightningClaw: {++i}.1");
 				if (asset.name == "claw_hit_terrain")
 					this.hitTerrainSound = asset;
 
-				Log.LogDebug($"ExosuitLightningClaw: {i}.2");
 				if (asset.name == "claw_hit_fish")
 					this.hitFishSound = asset;
-
-				/*Log.LogDebug($"ExosuitLightningClaw: {i}.3");
-				if (asset.name == "claw_pickup")
-					this.pickupSound = asset;*/
 			}
 
-			Log.LogDebug($"ExosuitLightningClaw: pickupSounds");
 			this.pickupSounds = GetComponent<TechSoundData>();
 
-			Log.LogDebug($"ExosuitLightningClaw: FindDeepChild");
+			// Getting the wrist doesn't seem to work properly this early; I make it a coroutine here so that it can be set when available.
 			CoroutineHost.StartCoroutine(GetDeepChildCoroutine());
-			Log.LogDebug($"ExosuitLightningClaw: end");
 			//base.Awake();
 		}
 

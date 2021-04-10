@@ -14,7 +14,7 @@ using FMODUnity;
 
 namespace CombinedItems.Equipables
 {
-    class HighCapacityBooster : Equipable
+    internal class HighCapacityBooster : Equipable
     {
         private static GameObject prefab;
 
@@ -24,12 +24,20 @@ namespace CombinedItems.Equipables
             {
                 CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "ModTanks", "Tank Upgrades", GetItemSprite());
                 CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HighCapacityTank" });
-                CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HighCapacityTank);
+                CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HighCapacityTank, new string[] { "ModTanks" });
                 Main.AddSubstitution(this.TechType, TechType.SuitBoosterTank);
                 Main.AddSubstitution(this.TechType, TechType.HighCapacityTank);
                 Main.AddCustomOxyExclusion(this.TechType, true, true);
                 Main.AddCustomOxyTank(this.TechType, -1f);
                 Main.AddModTechType(this.TechType);
+                KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
+                compound.techType = this.TechType;
+                compound.dependencies = new List<TechType>()
+                {
+                    TechType.SuitBoosterTank,
+                    TechType.HighCapacityTank
+                };
+                Reflection.AddCompoundTech(compound);
             };
         }
 
@@ -39,7 +47,7 @@ namespace CombinedItems.Equipables
 
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
 
-        public override TechType RequiredForUnlock => TechType.SuitBoosterTank;
+        public override TechType RequiredForUnlock => TechType.Warper;
 
         public override TechCategory CategoryForPDA => TechCategory.Equipment;
 

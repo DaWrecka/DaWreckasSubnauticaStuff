@@ -10,7 +10,7 @@ using UWE;
 namespace CombinedItems.Patches
 {
     [HarmonyPatch(typeof(Plantable))]
-    class Plantables
+    internal class Plantables
     {
         /*[HarmonyPatch(nameof(Plantable.Spawn))]
         [HarmonyPrefix]
@@ -25,8 +25,9 @@ namespace CombinedItems.Patches
     }
 
     [HarmonyPatch(typeof(Planter))]
-    class Planters
+    internal class Planters
     {
+        /*
         [HarmonyPrefix]
         [HarmonyPatch("IsAllowedToAdd")]
         public static void IsAllowedToAdd(Pickupable pickupable, bool verbose)
@@ -39,6 +40,7 @@ namespace CombinedItems.Patches
             }
         }
 
+        [HarmonyPrefix]
         [HarmonyPatch("AddItem", new Type[] { typeof(InventoryItem) })]
         public static void AddItem(InventoryItem item)
         {
@@ -46,5 +48,6 @@ namespace CombinedItems.Patches
             if (component != null && component.plantTechType == TechType.SnowStalkerPlant)
                 component.size = Plantable.PlantSize.Large;
         }
+        */
     }
 }

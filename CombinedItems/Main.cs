@@ -134,9 +134,10 @@ namespace CombinedItems
 				new HoverbikeMobilityUpgrade(),
 				new PowerglideEquipable(),
 				new SuperSurvivalSuit(),
-				new SurvivalSuitBlueprint_FromReinforcedSurvival(),
 				new SurvivalSuitBlueprint_BaseSuits(),
-				new SurvivalSuitBlueprint_FromReinforcedCold()
+				new SurvivalSuitBlueprint_FromReinforcedSurvival(),
+				new SurvivalSuitBlueprint_FromReinforcedCold(),
+				new SurvivalSuitBlueprint_FromSurvivalCold()
 			})
 			{
 				s.Patch();
@@ -145,30 +146,23 @@ namespace CombinedItems
 			new Harmony($"DaWrecka_{myAssembly.GetName().Name}").PatchAll(myAssembly);
 		}
 
-		[QModPostPatch]
-		public static void PostPatch()
+		[QModPrePatch]
+		public static void PrePatch()
 		{
-			//CraftDataHandler.SetBackgroundType(prefabLightningClaw.TechType, CraftData.BackgroundType.ExosuitArm);
-			//CraftDataHandler.SetBackgroundType(prefabExosuitSprintModule.TechType, CraftData.BackgroundType.Normal);
-			CraftDataHandler.SetBackgroundType(GetModTechType("ExosuitSprintModule"), CraftData.BackgroundType.Normal);
-
-			// This is test code
-			//string PrefabFilename;
-			//if it works, the following changes are made;
-
 			// Preston's Plant becomes 2x2 instead of 1x1
 			//WorldEntities/Flora/Expansion/Shared/vegetable_plant_01_fruit.prefab
+			/*
 			CraftDataHandler.SetItemSize(TechType.SnowStalkerPlant, new Vector2int(2, 2)); // this affects the inventory only, or more specifically how much space the plant requires in a planter.
-			// It does nothing about the actual growing size of the plant; other methods are required for that.
-			// We also need to know the prefab ahead of time; there is no known method to get the following prefab filename from the plant's TechType. The methods we can use for batteries
-			// won't work for Preston's Plant, and likely other plantables too.
+				// It does nothing about the actual growing size of the plant; other methods are required for that.
+				// We need to know the prefab ahead of time; there is no known method to get the following prefab filename from the plant's TechType. The methods we can use for batteries
+				// won't work for Preston's Plant, and likely other plantables too.
 			AddressablesUtility.LoadAsync<GameObject>("WorldEntities/Flora/Expansion/Shared/vegetable_plant_01_fruit.prefab").Completed += (x) =>
 			{
 				GameObject gameObject1 = x.Result;
 				Plantable component = gameObject1?.GetComponent<Plantable>();
 				if (component != null)
 					component.size = Plantable.PlantSize.Large;
-			};
+			};*/
 
 
 			foreach (TechType tt in new List<TechType>()
@@ -195,7 +189,21 @@ namespace CombinedItems
 				else
 					Log.LogError($"Could not get prefab for classId '{classId}' for TechType {tt.AsString()}");
 			}
+		}
+
+		[QModPostPatch]
+		public static void PostPatch()
+		{
+			//CraftDataHandler.SetBackgroundType(prefabLightningClaw.TechType, CraftData.BackgroundType.ExosuitArm);
+			//CraftDataHandler.SetBackgroundType(prefabExosuitSprintModule.TechType, CraftData.BackgroundType.Normal);
+			CraftDataHandler.SetBackgroundType(GetModTechType("ExosuitSprintModule"), CraftData.BackgroundType.Normal);
+
+			// This is test code
+			//string PrefabFilename;
+			//if it works, the following changes are made;
+
 			Batteries.PostPatch();
+			LanguageHandler.SetLanguageLine("SeamothWelcomeAboard", "Welcome aboard captain.");
 			//Reflection.PostPatch();
 		}
 	}

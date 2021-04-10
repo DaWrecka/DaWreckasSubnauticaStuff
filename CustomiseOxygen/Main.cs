@@ -51,6 +51,7 @@ namespace CustomiseOxygen
 
         internal static Dictionary<TechType, ExclusionType> Exclusions = new Dictionary<TechType, ExclusionType>();
         private static List<PendingTankEntry> pendingTanks = new List<PendingTankEntry>();
+        private static bool bWaitingForSpriteHandler;
 
         public static void AddExclusion(TechType excludedTank, bool bExcludeMultipliers, bool bExcludeOverride)
         {
@@ -81,6 +82,12 @@ namespace CustomiseOxygen
 
         private static IEnumerator WaitForSpriteHandler()
         {
+            // We want a singleton method here
+            if (bWaitingForSpriteHandler)
+                yield break;
+
+            bWaitingForSpriteHandler = true;
+
             if (!SpriteManager.hasInitialized)
             {
                 while (!SpriteManager.hasInitialized)
@@ -124,6 +131,8 @@ namespace CustomiseOxygen
                     yield return new WaitForEndOfFrame();
                 }
             }
+
+            bWaitingForSpriteHandler = false;
         }
 
         public struct TankType

@@ -15,13 +15,44 @@ using System.Reflection.Emit;
 
 namespace CombinedItems.Patches
 {
+	[HarmonyPatch(typeof(uGUI_ExosuitHUD))]
+	public class uGUI_ExosuitHUDPatches
+	{
+		/*
+		[HarmonyPatch("Update")]
+		[HarmonyPostfix]
+		public static void PostUpdate(uGUI_ExosuitHUD __instance)
+		{
+			Exosuit exosuit = (Player.main.GetVehicle() as Exosuit);
+
+			float charge;
+			float capacity;
+
+			int health = Mathf.RoundToInt(exosuit.liveMixin.health);
+			__instance.textHealth.text = IntStringCache.GetStringForInt(health);
+
+			EnergyInterface energyinterface = (EnergyInterface)(ExosuitPatches.energyInterfaceField.GetValue(exosuit));
+			energyinterface.GetValues(out charge, out capacity);
+			charge = Mathf.RoundToInt(energyinterface.TotalCanProvide(out int i));
+			ErrorMessage.AddMessage($"Current Charge {charge}");
+			__instance.textPower.text = charge.ToString(); //IntStringCache.GetStringForInt((int)charge);
+		}
+		*/
+	}
+
 	[HarmonyPatch(typeof(Exosuit))]
 	public class ExosuitPatches
 	{
+		private const float fGrappleUpgradeModuleRangeMultiplier = 1.5f;
+		private const float fGrappleUpgradeModuleFlightSpeedMultiplier = 2f;
+		private const float fGrappleUpgradeModuleRetractForceMultiplier = 2f;
+
 		private static readonly MethodInfo ApplyJumpForceMethod = typeof(Exosuit).GetMethod("ApplyJumpForce", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly FieldInfo thrustPowerField = typeof(Exosuit).GetField("thrustPower", BindingFlags.Instance | BindingFlags.NonPublic);
-		private static TechType lightningClawTechType => Main.GetModTechType("ExosuitLightningClawArm");
-		private static TechType ExosuitSprintModuleTechType => Main.GetModTechType("ExosuitSprintModule");
+		internal static readonly FieldInfo energyInterfaceField = typeof(Vehicle).GetField("energyInterface", BindingFlags.Instance | BindingFlags.NonPublic);
+
+		//private static TechType lightningClawTechType => Main.GetModTechType("ExosuitLightningClawArm");
+		//private static TechType ExosuitSprintModuleTechType => Main.GetModTechType("ExosuitSprintModule");
 		internal static bool JumpJetsUpgraded(Exosuit instance)
 		{
 			if (instance == null)
@@ -30,10 +61,33 @@ namespace CombinedItems.Patches
 			return instance.modules.GetCount(TechType.ExosuitJetUpgradeModule) > 0;
 		}
 		internal static void ApplyJumpForce(Exosuit instance) { ApplyJumpForceMethod.Invoke(instance, null); }
-		internal static float GetThrustPower(Exosuit instance) { return (float)thrustPowerField.GetValue(instance);  }
+		internal static float GetThrustPower(Exosuit instance) { return (float)thrustPowerField.GetValue(instance); }
 
-/*		Disabled because not using the Lightning Claw *Arm* any more.
- *		
+		[HarmonyPatch(nameof(Exosuit.GetHUDValues))]
+		[HarmonyPrefix]
+		public static bool PostGetHUDValues(Exosuit __instance, out float health, out float power, out float thrust)
+		{
+			EnergyInterface energy = (EnergyInterface)(energyInterfaceField.GetValue(__instance));
+			float charge = 0f;
+			float capacity = 0f;
+			if(energy != null)
+				energy.GetValues(out charge, out capacity);
+			thrust = (float)thrustPowerField.GetValue(__instance);
+			if (Main.config.bHUDAbsoluteValues)
+			{
+				health = Mathf.Floor(__instance.liveMixin.health) * 0.01f;
+				power = Mathf.Floor(charge) * 0.01f;
+			}
+			else
+			{
+				health = __instance.liveMixin.GetHealthFraction();
+				power = ((charge > 0f && capacity > 0f) ? charge / capacity : 0f);
+			}
+
+			return false;
+		}
+
+		/*
 		[HarmonyPatch("Start")]
 		[HarmonyPrefix]
 		public static void PreStart(Exosuit __instance)
@@ -42,35 +96,44 @@ namespace CombinedItems.Patches
 			// WWWWWWWWWWWWWHHHHHHHHHHHHHHHHHHHHHHHHHYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
 
 			int count = __instance.armPrefabs.Length;
-			int clawIndex = -1;
+			int index = -1;
+			TechType armTechType = Main.GetModTechType("ExosuitGrapplingArmMk2Prefab");
 
 			for (int i = 0; i < count; i++)
 			{
-				if (__instance.armPrefabs[i].techType == Main.prefabLightningClaw.TechType)
+				if (__instance.armPrefabs[i].techType == armTechType)
 				{
-					Log.LogDebug($"Lightning claw prefab already found at index {i}");
+					Log.LogDebug($"Grapple Arm Mk2 prefab already found at index {i}");
 					return;
 				}
-				else if (__instance.armPrefabs[i].techType == TechType.ExosuitClawArmModule)
-					clawIndex = i; // Save this index for later use
+				else if (__instance.armPrefabs[i].techType == TechType.ExosuitGrapplingArmModule)
+					index = i; // Save this index for later use
 			}
 
 			GameObject armPrefab = null;
-			if (clawIndex > -1)
-				armPrefab = GameObject.Instantiate(__instance.armPrefabs[clawIndex].prefab);
+			if (index > -1)
+				armPrefab = GameObject.Instantiate(__instance.armPrefabs[index].prefab);
 
 			if (armPrefab != null)
 			{
-				// Since we're making a variant of Claw Arm, we don't actually have to do much here.
-				// Just remove the base ExosuitClawArm component, and swap in our ExosuitLightningClaw prefab
-				GameObject.DestroyImmediate(armPrefab.GetComponent<ExosuitClawArm>());
-				armPrefab.AddComponent<ExosuitLightningClaw>();
+				GameObject.DestroyImmediate(armPrefab.GetComponent<ExosuitGrapplingArm>());
+				armPrefab.AddComponent<ExosuitGrapplingArmMk2>();
 				armPrefab.SetActive(true);
+
+				var mk2Arm = armPrefab.EnsureComponent<ExosuitGrapplingArmMk2>();
+				var oldGrapple = armPrefab.GetComponent<ExosuitGrapplingArm>();
+				if (oldGrapple != null)
+				{
+					mk2Arm.hookPrefab = oldGrapple.hookPrefab;
+					mk2Arm.rope = oldGrapple.rope;
+					GameObject.Destroy(oldGrapple);
+				}
+
 				Array.Resize(ref __instance.armPrefabs, count + 1);
 				__instance.armPrefabs[count] = new Exosuit.ExosuitArmPrefab()
 				{
 					prefab = armPrefab,
-					techType = Main.prefabLightningClaw.TechType
+					techType = armTechType
 				};
 			}
 			else
@@ -78,7 +141,8 @@ namespace CombinedItems.Patches
 				//Log.LogDebug($"Failed to find arm prefab in Exosuit prefab");
 			}
 		}
-*/
+		*/
+
 		[HarmonyPatch("Start")]
 		[HarmonyPostfix]
 		public static void PostStart(Exosuit __instance)
@@ -88,20 +152,22 @@ namespace CombinedItems.Patches
 			exosuitUpdate.Initialise(ref vehicle);
 		}
 
+		/*
 		[HarmonyPostfix]
 		[HarmonyPatch(nameof(Exosuit.HasClaw))]
 		public static bool PostHasClaw(bool __result, Exosuit __instance)
 		{
 			return __result || __instance.leftArmType == lightningClawTechType || __instance.rightArmType == lightningClawTechType;
 		}
+		*/
 
 		[HarmonyPostfix]
 		[HarmonyPatch("OnUpgradeModuleChange")]
 		public static void PostUpgradeChange(ref Exosuit __instance, int slotID, TechType techType, bool added)
 		{
 			__instance.gameObject.EnsureComponent<ExosuitUpdater>().PostUpgradeModuleChange(techType);
-			if (techType == lightningClawTechType)
-				__instance.MarkArmsDirty();
+			//if (techType == lightningClawTechType)
+			//	__instance.MarkArmsDirty();
 		}
 
 		[HarmonyPostfix]
@@ -110,7 +176,12 @@ namespace CombinedItems.Patches
 		{
 			__instance.gameObject.EnsureComponent<ExosuitUpdater>().PostOverrideAcceleration(ref acceleration);
 		}
+
 		
+		/* These transpilers were disabled after the Seaworthy update made them obsolete - they served to allow my Sprint Module to function, but the Seaworthy update
+		 improved the Exosuit speed considerably, at least when it wasn't on the ground. 
+		 However, they still serve as useful reference material in the making of transpilers, and so they haven't been deleted for that reason.
+		*/
 		//[HarmonyTranspiler]
 		//[HarmonyPatch(nameof(Exosuit.Update))]
 		public static IEnumerable<CodeInstruction> UpdateTranspiler(IEnumerable<CodeInstruction> instructions)
@@ -231,7 +302,11 @@ namespace CombinedItems.Patches
 
 				The call is all we need to change; the rest of the stuff is just so we know we're targetting the *right* call.
 				*/
-				if (codes[i].opcode == OpCodes.Ceq && codes[i + 1].opcode == OpCodes.Stfld && codes[i + 2].opcode == OpCodes.Ldarg_0 && codes[i + 3].opcode == OpCodes.Call && codes[i + 4].opcode == OpCodes.Stloc_1)
+				if (codes[i].opcode == OpCodes.Ceq 
+					&& codes[i + 1].opcode == OpCodes.Stfld 
+					&& codes[i + 2].opcode == OpCodes.Ldarg_0 
+					&& codes[i + 3].opcode == OpCodes.Call 
+					&& codes[i + 4].opcode == OpCodes.Stloc_1)
 				{
 					codes[i + 3] = new CodeInstruction(OpCodes.Callvirt, underwaterJumpingMethod);
 					break;
@@ -284,7 +359,7 @@ namespace CombinedItems.Patches
 
 			bool bJumpHeld = GameInput.GetButtonHeld(GameInput.Button.Jump);
 			bool bMovingUp = velocity.y > 0;
-			Log.LogDebug($"ExosuitPatches.ExosuitIsJumping: bJumpHeld = " + (bJumpHeld ? " true" : "false") + ", bMovingUp = " + (bMovingUp ? " true" : "false"));
+			//Log.LogDebug($"ExosuitPatches.ExosuitIsJumping: bJumpHeld = " + (bJumpHeld ? " true" : "false") + ", bMovingUp = " + (bMovingUp ? " true" : "false"));
 
 			return bJumpHeld || bMovingUp;
 		}
@@ -296,21 +371,23 @@ namespace CombinedItems.Patches
 
 			bool bJumpHeld = GameInput.GetButtonHeld(GameInput.Button.Jump);
 			bool bIsUnderwater = exosuit.IsUnderwater();
-			Log.LogDebug($"ExosuitPatches.UnderwaterJumping: bJumpHeld = " + (bJumpHeld ? " true" : "false") + ", bIsUnderwater = " + (bIsUnderwater ? " true" : "false"));
+			//Log.LogDebug($"ExosuitPatches.UnderwaterJumping: bJumpHeld = " + (bJumpHeld ? " true" : "false") + ", bIsUnderwater = " + (bIsUnderwater ? " true" : "false"));
 			return bJumpHeld && bIsUnderwater;
 		}
 
 		public static bool ExosuitIsSprinting(Exosuit exosuit, Vector3 velocity)
 		{
-			if (Player.main.GetVehicle() != exosuit)
+			//if (Player.main.GetVehicle() != exosuit)
 				return false;
 
+			/*
 			Vector3 groundVector = new Vector3(velocity.x, 0, velocity.z);
 			bool bIsMoving = (velocity != Vector3.zero && groundVector.magnitude > 0f);
 			bool bPdaInUse = (Player.main.GetPDA() != null ? Player.main.GetPDA().isInUse : false);
 			bool bSprintControlActive = exosuit.modules.GetCount(ExosuitSprintModuleTechType) > 0 && GameInput.GetButtonHeld(GameInput.Button.Sprint);
-			Log.LogDebug($"ExosuitPatches.ExosuitIsSprinting: bIsMoving = " + (bIsMoving ? " true" : "false") + ", bSprintControlActive = " + (bSprintControlActive ? " true" : "false") + ", bPdaInUse = " + (bPdaInUse ? " true" : "false"));
+			//Log.LogDebug($"ExosuitPatches.ExosuitIsSprinting: bIsMoving = " + (bIsMoving ? " true" : "false") + ", bSprintControlActive = " + (bSprintControlActive ? " true" : "false") + ", bPdaInUse = " + (bPdaInUse ? " true" : "false"));
 			return bIsMoving && bSprintControlActive && !bPdaInUse;
+			*/
 		}
 
 		public static bool ExosuitUsingJumpJets(Exosuit exosuit, Vector3 velocity)
@@ -320,7 +397,7 @@ namespace CombinedItems.Patches
 
 			bool bJumping = ExosuitIsJumping(exosuit, velocity);
 			bool bSprinting = ExosuitIsSprinting(exosuit, velocity);
-			Log.LogDebug($"ExosuitPatches.ExosuitUsingJumpJets: bJumping = " + (bJumping ? " true" : "false") + ", bSprinting = " + (bSprinting ? " true" : "false"));
+			//Log.LogDebug($"ExosuitPatches.ExosuitUsingJumpJets: bJumping = " + (bJumping ? " true" : "false") + ", bSprinting = " + (bSprinting ? " true" : "false"));
 			return bJumping || bSprinting;
 		}
 
@@ -330,11 +407,47 @@ namespace CombinedItems.Patches
 				return;
 
 			bool bIsJumping = ExosuitIsJumping(exosuit, velocity);
-			Log.LogDebug($"ExosuitPatches.TryApplyJumpForce(): ExosuitIsJumping() returned {bIsJumping.ToString()}");
+			//Log.LogDebug($"ExosuitPatches.TryApplyJumpForce(): ExosuitIsJumping() returned {bIsJumping.ToString()}");
 			if (bIsJumping)
 			{
 				ApplyJumpForce(exosuit);
 			}
+		}
+
+		public static float GetMaxGrappleDistance(Exosuit exosuit, float fBaseGrappleRange)
+		{
+			float fGrappleRange = fBaseGrappleRange;
+			if (exosuit != null)
+			{
+				if(exosuit.modules.GetCount(Main.GetModTechType("ExosuitGrappleUpgradeModule")) > 0)
+					fGrappleRange *= fGrappleUpgradeModuleRangeMultiplier;
+			}
+
+			return fGrappleRange;
+		}
+
+		public static float GetGrappleHookSpeed(Exosuit exosuit, float fBaseHookSpeed)
+		{
+			float fHookSpeed = fBaseHookSpeed;
+			if (exosuit != null)
+			{
+				if (exosuit.modules.GetCount(Main.GetModTechType("ExosuitGrappleUpgradeModule")) > 0)
+					fHookSpeed *= fGrappleUpgradeModuleFlightSpeedMultiplier;
+			}
+
+			return fHookSpeed;
+		}
+
+		public static float GetGrapplePullSpeed(Exosuit exosuit, float fBasePullSpeed)
+		{
+			float fPullSpeed = fBasePullSpeed;
+			if (exosuit != null)
+			{
+				if (exosuit.modules.GetCount(Main.GetModTechType("ExosuitGrappleUpgradeModule")) > 0)
+					fPullSpeed *= fGrappleUpgradeModuleRetractForceMultiplier;
+			}
+
+			return fPullSpeed;
 		}
 	} 
 }

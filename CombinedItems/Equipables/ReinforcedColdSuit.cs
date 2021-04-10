@@ -96,7 +96,7 @@ namespace CombinedItems.Equipables
         public override EquipmentType EquipmentType => EquipmentType.Head;
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
-        public override TechType RequiredForUnlock => TechType.FrozenCreatureAntidote;
+        public override TechType RequiredForUnlock => TechType.Warper;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
         public override string[] StepsToFabricatorTab => new string[] { "SuitUpgrades" };
 
@@ -165,7 +165,7 @@ namespace CombinedItems.Equipables
         private GameObject prefab;
 
         public override EquipmentType EquipmentType => EquipmentType.Body;
-        public override TechType RequiredForUnlock => TechType.FrozenCreatureAntidote;
+        public override TechType RequiredForUnlock => TechType.Warper;
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;

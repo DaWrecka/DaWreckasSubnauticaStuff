@@ -22,15 +22,27 @@ namespace CombinedItems.Equipables
         {
             OnFinishedPatching += () =>
             {
-                Main.AddSubstitution(this.TechType, TechType.Stillsuit);
+                //Main.AddSubstitution(this.TechType, TechType.Stillsuit);
+                foreach (TechType tt in substitutions)
+                {
+                    Main.AddSubstitution(this.TechType, tt);
+                }
                 Main.AddModTechType(this.TechType);
             };
         }
 
-        private GameObject prefab;
+        protected GameObject prefab;
+
+        protected virtual TechType[] substitutions
+        {
+            get
+            {
+                return new TechType[] { TechType.Stillsuit };
+            }
+        }
 
         public override EquipmentType EquipmentType => EquipmentType.Body;
-        public override TechType RequiredForUnlock => TechType.FrozenCreatureAntidote;
+        public override TechType RequiredForUnlock => TechType.Stillsuit;
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
@@ -66,7 +78,7 @@ namespace CombinedItems.Equipables
                 yield return task;
 
                 prefab = task.GetResult();
-                prefab.SetActive(false); // Keep the prefab inactive until we're done editing it.
+                //prefab.SetActive(false); // Keep the prefab inactive until we're done editing it.
 
                 // Editing prefab
                 GameObject.Destroy(prefab.GetComponent<Stillsuit>());
@@ -75,7 +87,12 @@ namespace CombinedItems.Equipables
                 prefab.SetActive(true);
             }
 
+            // Despite the component being removed from the prefab above, testing shows that the Survival Suits still add the water packs when they should.
+            // So we're going to force-remove it here, to be safe.
             GameObject go = GameObject.Instantiate(prefab);
+            Stillsuit still = go.GetComponent<Stillsuit>();
+            if (still != null)
+                GameObject.DestroyImmediate(still);
             gameObject.Set(go);
         }
     }
@@ -88,21 +105,27 @@ namespace CombinedItems.Equipables
         {
             OnFinishedPatching += () =>
             {
-                Main.AddSubstitution(this.TechType, TechType.Stillsuit);
-                Main.AddSubstitution(this.TechType, TechType.ReinforcedDiveSuit);
-                Main.AddModTechType(this.TechType);
+                //Main.AddSubstitution(this.TechType, TechType.Stillsuit);
+                //Main.AddSubstitution(this.TechType, TechType.ReinforcedDiveSuit);
+                //Main.AddModTechType(this.TechType);
                 KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
                 compound.techType = this.TechType;
                 compound.dependencies = new List<TechType>()
                 {
                     TechType.ReinforcedDiveSuit,
-                    TechType.Stillsuit
+                    Main.GetModTechType("SurvivalSuit")
                 };
                 Reflection.AddCompoundTech(compound);
             };
         }
 
-        private GameObject prefab;
+        protected override TechType[] substitutions
+        {
+            get
+            {
+                return new TechType[] { TechType.Stillsuit };
+            }
+        }
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -124,27 +147,6 @@ namespace CombinedItems.Equipables
         {
             return SpriteManager.Get(TechType.Stillsuit);
         }
-
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            if (prefab == null)
-            {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.Stillsuit, true);
-                yield return task;
-
-                prefab = task.GetResult();
-                prefab.SetActive(false); // Keep the prefab inactive until we're done editing it.
-
-                // Editing prefab
-                GameObject.Destroy(prefab.GetComponent<Stillsuit>());
-                prefab.EnsureComponent<SurvivalsuitBehaviour>();
-
-                prefab.SetActive(true);
-            }
-
-            GameObject go = GameObject.Instantiate(prefab);
-            gameObject.Set(go);
-        }
     }
 
 
@@ -160,9 +162,9 @@ namespace CombinedItems.Equipables
                 Reflection.AddColdResistance(this.TechType, System.Math.Max(55, coldResist));
                 Reflection.SetItemSize(this.TechType, 2, 3);
                 Log.LogDebug($"Finished patching, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
-                Main.AddSubstitution(this.TechType, TechType.Stillsuit);
-                Main.AddSubstitution(this.TechType, TechType.ColdSuit);
-                Main.AddModTechType(this.TechType);
+                //Main.AddSubstitution(this.TechType, TechType.Stillsuit);
+                //Main.AddSubstitution(this.TechType, TechType.ColdSuit);
+                //Main.AddModTechType(this.TechType);
                 KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
                 compound.techType = this.TechType;
                 compound.dependencies = new List<TechType>()
@@ -174,7 +176,13 @@ namespace CombinedItems.Equipables
             };
         }
 
-        private GameObject prefab;
+        protected override TechType[] substitutions
+        {
+            get
+            {
+                return new TechType[] { TechType.ColdSuit };
+            }
+        }
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -191,30 +199,35 @@ namespace CombinedItems.Equipables
             };
         }
 
-        protected override Sprite GetItemSprite()
-        {
-            return SpriteManager.Get(TechType.Stillsuit);
-        }
-
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             if (prefab == null)
             {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.Stillsuit, true);
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuit, true);
                 yield return task;
 
                 prefab = task.GetResult();
-                prefab.SetActive(false); // Keep the prefab inactive until we're done editing it.
+                //prefab.SetActive(false); // Keep the prefab inactive until we're done editing it.
 
                 // Editing prefab
-                GameObject.Destroy(prefab.GetComponent<Stillsuit>());
+                //GameObject.Destroy(prefab.GetComponent<Stillsuit>());
                 prefab.EnsureComponent<SurvivalsuitBehaviour>();
 
                 prefab.SetActive(true);
             }
 
+            // Despite the component being removed from the prefab above, testing shows that the Survival Suits still add the water packs when they should.
+            // So we're going to force-remove it here, to be safe.
             GameObject go = GameObject.Instantiate(prefab);
+            Stillsuit still = go.GetComponent<Stillsuit>();
+            if (still != null)
+                GameObject.DestroyImmediate(still);
             gameObject.Set(go);
+        }
+
+        protected override Sprite GetItemSprite()
+        {
+            return SpriteManager.Get(TechType.Stillsuit);
         }
     }
 }

@@ -61,7 +61,7 @@ namespace FuelCells
                     CustomTexture = ImageUtils.LoadTextureFromFile(Path.Combine(AssetsFolder, "large_fuel_cell_01.png")),
                     CustomIllumMap = ImageUtils.LoadTextureFromFile(Path.Combine(AssetsFolder, "large_fuel_cell_01_illum.png")),
                     CustomSpecMap = ImageUtils.LoadTextureFromFile(Path.Combine(AssetsFolder, "large_fuel_cell_01_spec.png")),
-                    UseIonModelsAsBase = false,
+                    UseIonModelsAsBase = true,
                     CustomIllumStrength = 1.2f
                 },
             };

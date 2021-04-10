@@ -38,7 +38,7 @@ namespace CombinedItems
 
         [Slider("Knife damage", KNIFE_DAMAGE_MIN, KNIFE_DAMAGE_MAX, DefaultValue = KNIFE_DAMAGE_DEFAULT, Id = "KnifeDamage",
             Step = 0.1f, Format = "{0:F1}",
-            Tooltip = "Damage dealt by Survival Knife (UWE default: 20)")]
+            Tooltip = "Base damage dealt by Survival Knife (UWE default: 20)")]
         public float KnifeDamage = KNIFE_DAMAGE_DEFAULT;
 
         [Slider("Knife Tentacle damage", KNIFE_TENTACLE_DAMAGE_MIN, KNIFE_TENTACLE_DAMAGE_MAX, DefaultValue = KNIFE_TENTACLE_DAMAGE_DEFAULT, Id = "KnifeTentacleDamage",
@@ -56,5 +56,7 @@ namespace CombinedItems
             Tooltip = "Damage dealt by Heatblade to a Spikey Trap tentacle; see above (UWE default: 2.0)")]
         public float HeatbladeTentacleDamage = HEATBLADE_TENTACLE_DAMAGE_DEFAULT;
 
+        [Toggle("Absolute values on HUD", Tooltip = "If enabled, vehicle HUDs (Exosuit, Seatruck and Hoverbike) will show absolute values on the HUD, instead of percentages. (so a Hoverbike with a full, unmodified Ion Battery would show 500 energy, instead of 100)")]
+        public bool bHUDAbsoluteValues = true;
     }
 }
