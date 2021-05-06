@@ -86,24 +86,28 @@ namespace CombinedItems.Equipables
 				e.RemoveItem(thisPickup != null ? thisPickup : gameObject.GetComponent<Pickupable>());
 				if (bDestroyWhenEmpty)
 				{
-					if (DiverPerimeterDefenceChipItem.brokenPrefab != null)
-					{
-						GameObject brokenChip = GameObject.Instantiate(DiverPerimeterDefenceChipItem.brokenPrefab);
-						if (brokenChip != null)
-							Inventory.main.ForcePickup(brokenChip.GetComponent<Pickupable>());
-						else
-						{
-							Log.LogError($"DiverPerimeterDefenceBehaviour.Discharge(): Failed to instantiate broken chip");
-						}
-					}
-					else
-					{
-						Log.LogError($"DiverPerimeterDefenceBehaviour.Discharge(): No prefab available for broken chip");
-					}
+					CoroutineHost.StartCoroutine(AddBrokenChipAsync());
 					GameObject.Destroy(gameObject);
 				}
 			}
 			return true;
+		}
+
+		protected IEnumerator AddBrokenChipAsync()
+		{
+			TaskResult<GameObject> instResult = new TaskResult<GameObject>();
+			yield return CraftData.InstantiateFromPrefabAsync(Main.GetModTechType("DiverPerimeterDefenceChip_Broken"), instResult, false);
+
+			GameObject go = instResult.Get();
+			Pickupable component = (go != null ? go.GetComponent<Pickupable>() : null);
+			if (component != null)
+				Inventory.main.ForcePickup(component);
+			else
+			{
+				Log.LogError($"DiverPerimeterDefenceBehaviour.Discharge(): Failed to instantiate broken chip");
+			}
+
+			yield break;
 		}
 
 		public string GetInventoryDescription()
@@ -133,7 +137,7 @@ namespace CombinedItems.Equipables
 			OnFinishedPatching += () =>
 			{
 				Main.AddModTechType(this.TechType);
-				SMLHelper.V2.Handlers.PrefabHandler.Main.RegisterPrefab(this);
+				CoroutineHost.StartCoroutine(PostPatchSetup());
 			};
 		}
 
@@ -145,11 +149,8 @@ namespace CombinedItems.Equipables
 		protected override RecipeData GetBlueprintRecipe()
 		{
 			return new RecipeData();
-			/*{
-				craftAmount = 0,
-				Ingredients = new List<Ingredient>()
-			};*/
 		}
+
 		protected static IEnumerator PostPatchSetup()
 		{
 			if (bWaiting)
@@ -170,7 +171,16 @@ namespace CombinedItems.Equipables
 			}
 		}
 
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+		protected override Sprite GetItemSprite()
+		{
+			if (icon == null || icon == SpriteManager.defaultSprite)
+			{
+				icon = SpriteManager.Get(templateTechType);
+			}
+			return icon;
+		}
+
+		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
 			if (prefab == null)
 			{
