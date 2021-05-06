@@ -2,7 +2,7 @@
   "Id": "FuelCells",
   "DisplayName": "Fuel Cells",
   "Author": "DaWrecka",
-  "Version": "0.5.0.0",
+  "Version": "1.0.0.0",
   "Dependencies": [
     "SMLHelper",
     "CustomBatteries"

@@ -134,10 +134,9 @@ namespace CombinedItems.Patches
     }*/
 
     [HarmonyPatch(typeof(Battery))]
-    class Batteries
+    internal class Batteries
     {
         private static bool bProcessingBatteries = false;
-
         // TODO: Make configurable
         internal static Dictionary<string, float> BatteryValues = new Dictionary<string, float>()
         {
@@ -147,9 +146,7 @@ namespace CombinedItems.Patches
             { "PrecursorIonBattery", 800f },
             { "PrecursorIonPowerCell", 1600f }
         };
-
         internal static Dictionary<TechType, float> typedBatteryValues;
-
         internal static List<Battery> pendingBatteryList = new List<Battery>();
 
         internal static void PostPatch()

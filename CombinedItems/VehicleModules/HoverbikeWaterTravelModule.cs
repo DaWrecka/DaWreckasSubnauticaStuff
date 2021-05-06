@@ -9,9 +9,9 @@ using Logger = QModManager.Utility.Logger;
 
 namespace CombinedItems.VehicleModules
 {
-    class HoverbikeWaterTravelModule : HoverbikeUpgradeBase
+    class HoverbikeWaterTravelModule : HoverbikeUpgradeBase<HoverbikeWaterTravelModule>
     {
-        private GameObject prefab;
+        //private GameObject prefab;
 
         protected override RecipeData GetBlueprintRecipe()
         {

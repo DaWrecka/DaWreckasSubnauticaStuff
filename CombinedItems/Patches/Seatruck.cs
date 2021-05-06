@@ -24,7 +24,13 @@ namespace CombinedItems.Patches
 		[HarmonyPatch("Update")]
 		public static void PostUpdate(uGUI_SeaTruckHUD __instance)
 		{
+			if (__instance == null)
+				return;
+
 			if (!Main.config.bHUDAbsoluteValues)
+				return;
+
+			if (Player.main == null)
 				return;
 
 			if (!Player.main.inSeatruckPilotingChair)
@@ -39,7 +45,9 @@ namespace CombinedItems.Patches
 					float power = Mathf.Floor(relay.GetPower());
 					float truckhealth = Mathf.Floor(motor.liveMixin.health);
 					__instance.textHealth.text = truckhealth.ToString();
+					//__instance.textHealth.fontSize = (truckhealth > 9999 ? 20 : 36);
 					__instance.textPower.text = power.ToString();
+					__instance.textPower.fontSize = (power > 9999 ? 28 : 36);
 				}
 			}
 		}

@@ -7,6 +7,7 @@ using SMLHelper.V2.Utility;
 using UnityEngine;
 using SMLHelper.V2.Handlers;
 using Logger = QModManager.Utility.Logger;
+using System.Collections;
 
 #if SUBNAUTICA
 using RecipeData = SMLHelper.V2.Crafting.TechData;
@@ -46,6 +47,9 @@ namespace UpgradedBlades
 
     internal class Vibroblade : Equipable
     {
+        protected static GameObject prefab;
+        protected static GameObject hbPrefab;
+
         public Vibroblade(string classId = "Vibroblade", string friendlyName = "Vibroblade", string description = "Hardened survival blade with high-frequency oscillator inflicts horrific damage with even glancing blows") : base(classId, friendlyName, description)
         {
 
@@ -61,29 +65,40 @@ namespace UpgradedBlades
         public override QuickSlotType QuickSlotType => QuickSlotType.Selectable;
         public override float CraftingTime => base.CraftingTime*2;
 
-        public override GameObject GetGameObject()
+        private static GameObject ModifyPrefab(GameObject activePrefab)
         {
-            var prefab = CraftData.GetPrefabForTechType(TechType.DiamondBlade);
-            var obj = Object.Instantiate(prefab);
+            var obj = Object.Instantiate(activePrefab);
             if (obj == null)
             {
 #if !RELEASE
-                Logger.Log(Logger.Level.Error, "Failed to instantiate GameObject for prefab DiamondBlade"); 
+                Logger.Log(Logger.Level.Error, "Failed to instantiate GameObject for prefab DiamondBlade");
 #endif
                 return null;
             }
 
+
             var component = obj.GetComponent<Knife>();
-            if(component != null)
+            if (component != null)
                 Object.Destroy(component);
 
             VibrobladeBehaviour blade = obj.EnsureComponent<VibrobladeBehaviour>();
             if (blade != null)
             {
-                HeatBlade hb = Resources.Load<GameObject>("WorldEntities/Tools/Heatblade").GetComponent<HeatBlade>();
+                /*
+                    * #if SN1
+                                HeatBlade hb = Resources.Load<GameObject>("WorldEntities/Tools/Heatblade").GetComponent<HeatBlade>();
+#elif BELOWZERO
+                                task = CraftData.GetPrefabForTechTypeAsync(TechType.HeatBlade);
+                                yield return task;
 
-                if (hb != null)
+                                HeatBlade hb = task.GetResult().GetComponent<HeatBlade>();
+#endif
+                */
+                if (hbPrefab != null)
+                {
+                    HeatBlade hb = hbPrefab.GetComponent<HeatBlade>();
                     blade.fxControl = Object.Instantiate(hb.fxControl, obj.transform);
+                }
                 blade.attackDist = 2f;
                 blade.bleederDamage = 90f;
                 blade.damage = 90f;
@@ -94,12 +109,41 @@ namespace UpgradedBlades
             else
             {
 #if !RELEASE
-                Logger.Log(Logger.Level.Debug, $"Could not ensure VibrobladeBehaviour component in Vibroblade prefab"); 
+                Logger.Log(Logger.Level.Debug, $"Could not ensure VibrobladeBehaviour component in Vibroblade prefab");
 #endif
             }
 
             return obj;
         }
+
+#if SN1
+        public override GameObject GetGameObject()
+        {
+            if (prefab == null)
+            {
+                GameObject dbPrefab = CraftData.GetPrefabForTechType(TechType.DiamondBlade);
+                hbPrefab = CraftData.GetPrefabForTechType(TechType.HeatBlade);
+
+                prefab = ModifyPrefab(dbPrefab);
+            }
+
+            return GameObject.Instantiate(prefab);
+        }
+#elif BELOWZERO
+        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+            var task = CraftData.GetPrefabForTechTypeAsync(TechType.HeatBlade);
+            yield return task;
+            hbPrefab = task.GetResult();
+
+            task = CraftData.GetPrefabForTechTypeAsync(TechType.DiamondBlade);
+            yield return task;
+
+            prefab = ModifyPrefab(task.GetResult());
+
+            gameObject.Set(GameObject.Instantiate(prefab));
+        }
+#endif
 
         protected override RecipeData GetBlueprintRecipe()
         {

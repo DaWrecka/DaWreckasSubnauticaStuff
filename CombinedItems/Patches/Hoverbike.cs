@@ -149,7 +149,7 @@ namespace CombinedItems.Patches
                     // We now need to insert another ldarg.0 before this call.
                     codes.Insert(overWaterIndex, new CodeInstruction(OpCodes.Ldarg_0));
                 }
-                /* We're using a 15-opcode search pattern here just to be on the safe side.
+                /* We're using a 15-opcode search pattern here just to be on the safe side. Maxim 37: There is no overkill. There is only "open fire" and "I need to reload"
                  * IL_00AD: stloc.0
                  * IL_00AE: ldloc.0
                  * IL_00AF: brfalse IL_015D

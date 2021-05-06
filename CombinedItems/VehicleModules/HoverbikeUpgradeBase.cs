@@ -4,11 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace CombinedItems.VehicleModules
 {
-    internal abstract class HoverbikeUpgradeBase : Equipable
+    internal abstract class HoverbikeUpgradeBase<T> : Equipable
     {
+        protected static GameObject prefab;
+
         public override EquipmentType EquipmentType => EquipmentType.HoverbikeModule;
         public override QuickSlotType QuickSlotType => QuickSlotType.Passive;
         public override TechGroup GroupForPDA => TechGroup.VehicleUpgrades;

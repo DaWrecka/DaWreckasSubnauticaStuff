@@ -10,15 +10,15 @@ using CombinedItems.MonoBehaviours;
 
 namespace CombinedItems.VehicleModules
 {
-    class HoverbikeMobilityUpgrade : HoverbikeUpgradeBase
+    internal class HoverbikeMobilityUpgrade : HoverbikeUpgradeBase<HoverbikeMobilityUpgrade>
     {
         private const float speedMultiplier = 1.3f;
         private const float cooldownMultiplier = 0.5f;
-        private const float efficiencyModifier = 0.9f;
+        private const float efficiencyModifier = 0.8f;
         private const int maxStack = 1;
         private const int upgradePriority = 2;
 
-        private GameObject prefab;
+        //private GameObject prefab;
 
         protected override RecipeData GetBlueprintRecipe()
         {

@@ -29,7 +29,7 @@ namespace CombinedItems.Equipables
             };
         }
 
-        private GameObject prefab;
+        protected static GameObject prefab;
 
         public override EquipmentType EquipmentType => EquipmentType.Gloves;
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
@@ -92,7 +92,7 @@ namespace CombinedItems.Equipables
             };
         }
 
-        private GameObject prefab;
+        protected static GameObject prefab;
         public override EquipmentType EquipmentType => EquipmentType.Head;
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
@@ -162,7 +162,7 @@ namespace CombinedItems.Equipables
             };
         }
 
-        private GameObject prefab;
+        protected static GameObject prefab;
 
         public override EquipmentType EquipmentType => EquipmentType.Body;
         public override TechType RequiredForUnlock => TechType.Warper;

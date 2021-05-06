@@ -16,7 +16,8 @@ namespace CombinedItems.Equipables
 {
     internal class HighCapacityBooster : Equipable
     {
-        private static GameObject prefab;
+        protected static Sprite icon;
+        protected static GameObject prefab;
 
         public HighCapacityBooster() : base("HighCapacityBooster", "High Capacity Booster Tank", "Booster tank with increased oxygen capacity.")
         {
@@ -27,8 +28,6 @@ namespace CombinedItems.Equipables
                 CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HighCapacityTank, new string[] { "ModTanks" });
                 Main.AddSubstitution(this.TechType, TechType.SuitBoosterTank);
                 Main.AddSubstitution(this.TechType, TechType.HighCapacityTank);
-                Main.AddCustomOxyExclusion(this.TechType, true, true);
-                Main.AddCustomOxyTank(this.TechType, -1f);
                 Main.AddModTechType(this.TechType);
                 KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
                 compound.techType = this.TechType;
@@ -38,6 +37,7 @@ namespace CombinedItems.Equipables
                     TechType.HighCapacityTank
                 };
                 Reflection.AddCompoundTech(compound);
+                CoroutineHost.StartCoroutine(PostPatchSetup());
             };
         }
 
@@ -69,9 +69,27 @@ namespace CombinedItems.Equipables
             };
         }
 
+        protected virtual IEnumerator PostPatchSetup()
+        {
+            bool bWaiting = true;
+
+            while (bWaiting)
+            {
+                if (icon == null || icon == SpriteManager.defaultSprite)
+                {
+                    icon = SpriteManager.Get(TechType.HighCapacityTank);
+                }
+                else
+                    bWaiting = false;
+
+                yield return new WaitForSecondsRealtime(0.5f);
+            }
+            Main.AddCustomOxyExclusion(this.TechType, true, true);
+            Main.AddCustomOxyTank(this.TechType, -1f, icon);
+        }
         protected override Sprite GetItemSprite()
         {
-            return SpriteManager.Get(TechType.HighCapacityTank);
+            return (icon != null && icon != SpriteManager.defaultSprite) ? icon : SpriteManager.Get(TechType.HighCapacityTank);
         }
 
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)

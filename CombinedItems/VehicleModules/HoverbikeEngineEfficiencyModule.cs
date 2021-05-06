@@ -10,12 +10,12 @@ using CombinedItems.MonoBehaviours;
 
 namespace CombinedItems.VehicleModules
 {
-    class HoverbikeEngineEfficiencyModule : HoverbikeUpgradeBase
+    internal class HoverbikeEngineEfficiencyModule : HoverbikeUpgradeBase<HoverbikeEngineEfficiencyModule>
     {
         private const float efficiencyModifier = 0.65f;
         private const int maxUpgrades = 2;
 
-        private GameObject prefab;
+        //private GameObject prefab;
 
         protected override RecipeData GetBlueprintRecipe()
         {

@@ -18,11 +18,11 @@ namespace CombinedItems.Equipables
 {
 	class PowerglideEquipable: Equipable
 	{
-		private static GameObject prefab;
-		private static Sprite icon;
+		protected static GameObject prefab;
+		protected static Sprite icon;
 		private const float PowerglideColourR = 0f;
 		private const float PowerglideColourG = 2f;
-		private const float PowerglideColourB = 0f;
+		private const float PowerglideColourB = 1f;
 
 		public PowerglideEquipable() : base("PowerglideEquipable", "Powerglide", $"Hold {GameInput.GetBinding(GameInput.Device.Keyboard, GameInput.Button.Sprint, GameInput.BindingSet.Primary)} for dramatic speed bonus with increased energy consumption")
 		{

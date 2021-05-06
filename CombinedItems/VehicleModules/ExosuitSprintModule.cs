@@ -21,7 +21,7 @@ namespace CombinedItems.VehicleModules
         public override float CraftingTime => 10f;
         public override Vector2int SizeInInventory => new Vector2int(1, 1);
 
-        private GameObject prefab;
+        private static GameObject prefab;
 
         protected override RecipeData GetBlueprintRecipe()
         {

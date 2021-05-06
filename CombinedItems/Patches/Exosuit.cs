@@ -18,26 +18,50 @@ namespace CombinedItems.Patches
 	[HarmonyPatch(typeof(uGUI_ExosuitHUD))]
 	public class uGUI_ExosuitHUDPatches
 	{
-		/*
+		private static Exosuit exosuit;
+
 		[HarmonyPatch("Update")]
 		[HarmonyPostfix]
 		public static void PostUpdate(uGUI_ExosuitHUD __instance)
 		{
-			Exosuit exosuit = (Player.main.GetVehicle() as Exosuit);
+			if (Player.main == null)
+				return;
 
-			float charge;
-			float capacity;
+			exosuit = Player.main.GetVehicle() as Exosuit;
+			if (exosuit == null)
+			{
+				return;
+			}
 
-			int health = Mathf.RoundToInt(exosuit.liveMixin.health);
-			__instance.textHealth.text = IntStringCache.GetStringForInt(health);
+			if (exosuit.liveMixin == null)
+			{
+				return;
+			}
 
-			EnergyInterface energyinterface = (EnergyInterface)(ExosuitPatches.energyInterfaceField.GetValue(exosuit));
-			energyinterface.GetValues(out charge, out capacity);
-			charge = Mathf.RoundToInt(energyinterface.TotalCanProvide(out int i));
-			ErrorMessage.AddMessage($"Current Charge {charge}");
-			__instance.textPower.text = charge.ToString(); //IntStringCache.GetStringForInt((int)charge);
+			int charge;
+			//float capacity;
+
+			if (__instance.textHealth != null)
+			{
+				int health = Mathf.RoundToInt(exosuit.liveMixin.health);
+				__instance.textHealth.text = IntStringCache.GetStringForInt(health);
+			}
+
+			if (__instance.textPower != null)
+			{
+				EnergyInterface energy = (EnergyInterface)(ExosuitPatches.energyInterfaceField.GetValue(exosuit));
+				if (energy == null)
+				{
+					return;
+				}
+
+				//energy.GetValues(out charge, out capacity);
+				charge = Mathf.RoundToInt(energy.TotalCanProvide(out int i));
+				//ErrorMessage.AddMessage($"Current Charge {charge}");
+				__instance.textPower.text = IntStringCache.GetStringForInt(charge);
+				__instance.textPower.fontSize = (charge > 9999 ? 28 : 36);
+			}
 		}
-		*/
 	}
 
 	[HarmonyPatch(typeof(Exosuit))]
@@ -63,7 +87,7 @@ namespace CombinedItems.Patches
 		internal static void ApplyJumpForce(Exosuit instance) { ApplyJumpForceMethod.Invoke(instance, null); }
 		internal static float GetThrustPower(Exosuit instance) { return (float)thrustPowerField.GetValue(instance); }
 
-		[HarmonyPatch(nameof(Exosuit.GetHUDValues))]
+		/*[HarmonyPatch(nameof(Exosuit.GetHUDValues))]
 		[HarmonyPrefix]
 		public static bool PostGetHUDValues(Exosuit __instance, out float health, out float power, out float thrust)
 		{
@@ -85,7 +109,7 @@ namespace CombinedItems.Patches
 			}
 
 			return false;
-		}
+		}*/
 
 		/*
 		[HarmonyPatch("Start")]

@@ -21,6 +21,8 @@ namespace FuelCells
 
         public const string version = "0.5.0.0";
         public const string modName = "FuelCells";
+        private const int batteryCap = 400;
+        private const int cellCap = (int)(batteryCap * 2.25f);
 
         [QModPatch]
         public static void Load()
@@ -29,7 +31,7 @@ namespace FuelCells
             new Harmony($"DaWrecka_{assembly.GetName().Name}").PatchAll(assembly);
             var nBattery = new CbBattery // Calling the CustomBatteries API to patch this item as a Battery
             {
-                EnergyCapacity = 400,
+                EnergyCapacity = batteryCap,
                 ID = "SmallFuelCell",
                 Name = "Small Fuel Cell",
                 FlavorText = "Small hydrogen fuel cell, longer-lasting drop-in substitute for standard Alterra batteries.",
@@ -49,7 +51,7 @@ namespace FuelCells
 
             var nPowercell = new CbPowerCell // Calling the CustomBatteries API to patch this item as a Power Cell
             {
-                EnergyCapacity = (int)(nBattery.EnergyCapacity * 2.125f),
+                EnergyCapacity = cellCap,
                 ID = "FuelCell",
                 Name = "Fuel Cell",
                 FlavorText = "Full-sized hydrogen fuel cell, higher-capacity drop-in substitute for standard Alterra power cells.",

@@ -14,11 +14,11 @@ using CombinedItems.MonoBehaviours;
 
 namespace CombinedItems.Equipables
 {
-    public class SurvivalSuit : Equipable
+    abstract public class SurvivalSuitBase<T> : Equipable
     {
-        public SurvivalSuit(string classId = "SurvivalSuit",
-                string friendlyName = "Survival Suit",
-                string Description = "Enhanced survival suit provides passive replenishment of calories and fluids, reducing the need for external sources of sustenance.") : base(classId, friendlyName, Description)
+        public SurvivalSuitBase(string classId,
+                string friendlyName,
+                string Description) : base(classId, friendlyName, Description)
         {
             OnFinishedPatching += () =>
             {
@@ -31,8 +31,6 @@ namespace CombinedItems.Equipables
             };
         }
 
-        protected GameObject prefab;
-
         protected virtual TechType[] substitutions
         {
             get
@@ -41,6 +39,50 @@ namespace CombinedItems.Equipables
             }
         }
 
+        protected static GameObject prefab;
+
+        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+            if (prefab == null)
+            {
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.Stillsuit, true);
+                yield return task;
+
+                prefab = task.GetResult();
+                //prefab.SetActive(false); // Keep the prefab inactive until we're done editing it.
+
+                // Editing prefab
+                GameObject.Destroy(prefab.GetComponent<Stillsuit>());
+                prefab.EnsureComponent<SurvivalsuitBehaviour>();
+
+                prefab.SetActive(true);
+            }
+
+            // Despite the component being removed from the prefab above, testing shows that the Survival Suits still add the water packs when they should.
+            // So we're going to force-remove it here, to be safe.
+            GameObject go = GameObject.Instantiate(prefab);
+            Stillsuit still = go.GetComponent<Stillsuit>();
+            if (still != null)
+                GameObject.DestroyImmediate(still);
+            gameObject.Set(go);
+        }
+    }
+
+    public class SurvivalSuit : SurvivalSuitBase<SurvivalSuit>
+    {
+        public SurvivalSuit(string classId = "SurvivalSuit",
+                string friendlyName = "Survival Suit",
+                string Description = "Enhanced survival suit provides passive replenishment of calories and fluids, reducing the need for external sources of sustenance.") : base(classId, friendlyName, Description)
+        {
+        }
+
+        protected override TechType[] substitutions
+        {
+            get
+            {
+                return new TechType[] { TechType.Stillsuit };
+            }
+        }
         public override EquipmentType EquipmentType => EquipmentType.Body;
         public override TechType RequiredForUnlock => TechType.Stillsuit;
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
@@ -68,32 +110,6 @@ namespace CombinedItems.Equipables
         protected override Sprite GetItemSprite()
         {
             return SpriteManager.Get(TechType.Stillsuit);
-        }
-
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            if (prefab == null)
-            {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.Stillsuit, true);
-                yield return task;
-
-                prefab = task.GetResult();
-                //prefab.SetActive(false); // Keep the prefab inactive until we're done editing it.
-
-                // Editing prefab
-                GameObject.Destroy(prefab.GetComponent<Stillsuit>());
-                prefab.EnsureComponent<SurvivalsuitBehaviour>();
-
-                prefab.SetActive(true);
-            }
-
-            // Despite the component being removed from the prefab above, testing shows that the Survival Suits still add the water packs when they should.
-            // So we're going to force-remove it here, to be safe.
-            GameObject go = GameObject.Instantiate(prefab);
-            Stillsuit still = go.GetComponent<Stillsuit>();
-            if (still != null)
-                GameObject.DestroyImmediate(still);
-            gameObject.Set(go);
         }
     }
 

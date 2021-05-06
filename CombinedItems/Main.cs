@@ -53,8 +53,11 @@ namespace CombinedItems
 		//internal static SurvivalSuit prefabSurvivalSuit = new SurvivalSuit();
 		//internal static ReinforcedSurvivalSuit prefabReinforcedSurvivalSuit = new ReinforcedSurvivalSuit();
 		private static readonly Dictionary<string, TechType> ModTechTypes = new Dictionary<string, TechType>(StringComparer.OrdinalIgnoreCase);
+		private static readonly Dictionary<string, GameObject> ModPrefabs = new Dictionary<string, GameObject>(StringComparer.OrdinalIgnoreCase);
 
 		private static readonly Assembly myAssembly = Assembly.GetExecutingAssembly();
+		internal static List<string> chipSlots = new List<string>();
+
 		internal static void AddSubstitution(TechType custom, TechType vanilla)
 		{
 			Patches.EquipmentPatch.AddSubstitution(custom, vanilla);
@@ -73,22 +76,37 @@ namespace CombinedItems
 				CustomOxyAddTankMethod.Invoke(null, new object[] { tank, capacity, icon });
 		}
 
-		internal static void AddModTechType(TechType tech)
+		internal static void AddModTechType(TechType tech, GameObject prefab = null)
 		{
 			string key = tech.AsString(true);
 			if (!ModTechTypes.ContainsKey(key))
 			{
 				ModTechTypes.Add(key, tech);
 			}
+			if (prefab != null)
+			{
+				ModPrefabs[key] = prefab;
+			}
 		}
 
 		internal static TechType GetModTechType(string key)
 		{
 			string lowerKey = key.ToLower();
-			if (ModTechTypes.ContainsKey(lowerKey))
-				return ModTechTypes[lowerKey];
+			TechType tt;
+			if(ModTechTypes.TryGetValue(lowerKey, out tt))
+				return tt;
 
 			return TechTypeUtils.GetTechType(key);
+		}
+
+		internal static GameObject GetModPrefab(string key)
+		{
+			string lowerKey = key.ToLower();
+			GameObject modPrefab;
+			if (ModPrefabs.TryGetValue(lowerKey, out modPrefab))
+				return modPrefab;
+
+			return null;
 		}
 
 		[QModPatch]
@@ -137,7 +155,9 @@ namespace CombinedItems
 				new SurvivalSuitBlueprint_BaseSuits(),
 				new SurvivalSuitBlueprint_FromReinforcedSurvival(),
 				new SurvivalSuitBlueprint_FromReinforcedCold(),
-				new SurvivalSuitBlueprint_FromSurvivalCold()
+				new SurvivalSuitBlueprint_FromSurvivalCold(),
+				new DiverPerimeterDefenceChip_Broken(),
+				new DiverPerimeterDefenceChipItem(),
 			})
 			{
 				s.Patch();
