@@ -13,7 +13,7 @@ using Common;
 
 namespace CombinedItems.Equipables
 {
-	internal class DiverPerimeterDefenceBehaviour : MonoBehaviour, IInventoryDescription
+	public class DiverPerimeterDefenceBehaviour : MonoBehaviour, IInventoryDescription
 	{
 		private const float DischargeDamage = 10f;
 		protected virtual bool bDestroyWhenEmpty {
@@ -25,7 +25,7 @@ namespace CombinedItems.Equipables
 			get { return 1; }
 		}
 
-		internal TechType ChipTechType;
+		public TechType ChipTechType { get; private set; }
 		private Battery battery;
 
 		public void Awake()
@@ -41,6 +41,17 @@ namespace CombinedItems.Equipables
 			battery = batt;
 			battery._charge = MaxCharge;
 			battery._capacity = MaxCharge;
+		}
+
+		internal void SetChipType(TechType tt)
+		{
+			if (tt == TechType.None)
+			{
+				Log.LogError($"DiverPerimeterDefenceBehaviour.SetChipType() called with null TechType");
+				return;
+			}
+
+			ChipTechType = tt;
 		}
 
 		// Returns true if discharge occurred, false otherwise
@@ -65,10 +76,10 @@ namespace CombinedItems.Equipables
 				return false;
 			}
 
-			Log.LogDebug($"DiverPerimeterDefenceBehaviour: Discharging");
+			Log.LogDebug($"DiverPerimeterDefenceBehaviour.Discharge(): Discharging");
 			mixin.TakeDamage(DischargeDamage, gameObject.transform.position, DamageType.Electrical, gameObject);
 			battery._charge -= 1;
-			Log.LogDebug($"DiverPerimeterDefenceBehaviour: Discharged, available charges now {battery.charge}");
+			Log.LogDebug($"DiverPerimeterDefenceBehaviour.Discharge(): Discharged, available charges now {battery.charge}");
 			if (battery._charge < 1)
 			{
 				Equipment e = Inventory.main.equipment;
@@ -82,12 +93,12 @@ namespace CombinedItems.Equipables
 							Inventory.main.ForcePickup(brokenChip.GetComponent<Pickupable>());
 						else
 						{
-							Log.LogError($"Failed to instantiate broken chip");
+							Log.LogError($"DiverPerimeterDefenceBehaviour.Discharge(): Failed to instantiate broken chip");
 						}
 					}
 					else
 					{
-						Log.LogError($"No prefab available for broken chip");
+						Log.LogError($"DiverPerimeterDefenceBehaviour.Discharge(): No prefab available for broken chip");
 					}
 					GameObject.Destroy(gameObject);
 				}
@@ -110,17 +121,19 @@ namespace CombinedItems.Equipables
 		}
 	}
 
-	internal class DiverPerimeterDefenceChip_Broken : PdaItem
+	public class DiverPerimeterDefenceChip_Broken : PdaItem
 	{
 		private static bool bWaiting;
 		protected static TechType templateTechType => TechType.MapRoomHUDChip;
-		protected static Sprite icon;
+		public static Sprite icon { get; private set; }
+		public static GameObject prefab { get; private set; }
 
 		public DiverPerimeterDefenceChip_Broken() : base("DiverPerimeterDefenceChip_Broken", "Diver Perimeter Defence Chip", $"Protects a diver from hostile fauna using electrical discouragement.\n\nChip has been discharged and is non-functional.")
 		{
 			OnFinishedPatching += () =>
 			{
 				Main.AddModTechType(this.TechType);
+				SMLHelper.V2.Handlers.PrefabHandler.Main.RegisterPrefab(this);
 			};
 		}
 
@@ -156,13 +169,27 @@ namespace CombinedItems.Equipables
 				yield return new WaitForSecondsRealtime(0.5f);
 			}
 		}
-	}
 
-	internal class DiverPerimeterDefenceChipItem : Equipable
+        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+			if (prefab == null)
+			{
+				var task = CraftData.GetPrefabForTechTypeAsync(TechType.MapRoomHUDChip);
+				yield return task;
+
+				prefab = task.GetResult();
+			}
+
+			gameObject.Set(GameObject.Instantiate(prefab));
+        }
+    }
+
+	public class DiverPerimeterDefenceChipItem : Equipable
     {
-		protected static Sprite icon;
-		protected static GameObject prefab;
-		internal static GameObject brokenPrefab;
+		public static Sprite icon { get; private set; }
+		public static GameObject prefab { get; private set; }
+		public static GameObject brokenPrefab { get; private set; }
+
 		protected Battery battery;
 		private bool bWaiting;
 
@@ -262,7 +289,7 @@ namespace CombinedItems.Equipables
 			battery = go.EnsureComponent<Battery>();
 			DiverPerimeterDefenceBehaviour behaviour = go.EnsureComponent<DiverPerimeterDefenceBehaviour>();
 			behaviour.SetBattery(battery);
-			behaviour.ChipTechType = this.TechType;
+			behaviour.SetChipType(this.TechType);
 			gameObject.Set(go);
 		}
 	}
