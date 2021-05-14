@@ -12,33 +12,35 @@ namespace CustomiseOxygen
         [HarmonyPrefix]
         public static bool Prefix(ref OxygenManager __instance, float __result, float secondsToAdd)
         {
-            if (Main.config.bAllowAutoRefill)
-                return true;
-
-            if (sourcesInfo == null)
-                return true; // Fail safe
-
-            List<IOxygenSource> oxySources = (List<IOxygenSource>)sourcesInfo.GetValue(__instance);
-            if (oxySources == null)
-                return true;
-
-            float O2added = 0f;
-            for (int i = 0; i < oxySources.Count; i++)
+            if (Main.config.bManualRefill)
             {
-                if (!oxySources[i].IsPlayer())
-                    continue;
+                if (sourcesInfo == null)
+                    return true; // Fail safe
 
-                float num = oxySources[0].AddOxygen(secondsToAdd);
-                secondsToAdd -= num;
-                O2added += num;
-                if (Utils.NearlyEqual(secondsToAdd, 0f, 1.401298E-45f))
+                List<IOxygenSource> oxySources = (List<IOxygenSource>)sourcesInfo.GetValue(__instance);
+                if (oxySources == null)
+                    return true;
+
+                float O2added = 0f;
+                for (int i = 0; i < oxySources.Count; i++)
                 {
-                    break;
-                }
-            }
-            __result = O2added;
+                    if (!oxySources[i].IsPlayer())
+                        continue;
 
-            return false;
+                    float num = oxySources[0].AddOxygen(secondsToAdd);
+                    secondsToAdd -= num;
+                    O2added += num;
+                    if (Utils.NearlyEqual(secondsToAdd, 0f, 1.401298E-45f))
+                    {
+                        break;
+                    }
+                }
+                __result = O2added;
+
+                return false;
+            }
+
+            return true;
         }
     }
 }

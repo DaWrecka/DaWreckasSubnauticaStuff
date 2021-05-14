@@ -13,9 +13,67 @@ using Common;
 
 namespace CombinedItems.Equipables
 {
+	public class DiverPerimeterBattery : MonoBehaviour, IBattery
+	{
+		private const float JuicePerDischarge = 100f; // Units of energy consumed by a perimeter discharge.
+
+		private float _charge;
+		private float _capacity;
+
+		public static readonly Gradient gradient = new Gradient
+		{
+			colorKeys = new GradientColorKey[]
+			{
+				new GradientColorKey(new Color(0.8745099f, 0.2509804f, 0.1490196f, 1f), 0f),
+				new GradientColorKey(new Color(1f, 0.8196079f, 0f, 1f), 0.5f),
+				new GradientColorKey(new Color(0.5803922f, 0.8705883f, 0f, 1f), 1f)
+			},
+			alphaKeys = new GradientAlphaKey[]
+			{
+				new GradientAlphaKey(1f, 0f),
+				new GradientAlphaKey(1f, 1f)
+			}
+		};
+
+		public float charge
+		{
+			get { return _charge; }
+			set { _charge = System.Math.Min(capacity, value); }
+		}
+		public float capacity { get; protected set; }
+
+		// Charge the internal battery using a provided battery.
+		public void ChargeWithBattery(IBattery newBattery)
+		{
+			if (newBattery.charge > charge)
+			{
+				if (newBattery.charge > capacity)
+					capacity = newBattery.charge;
+				charge = newBattery.charge;
+				newBattery.charge = 0f;
+			}
+		}
+
+		public string GetChargeValueText()
+		{
+			int numShots = Mathf.RoundToInt(this._charge / JuicePerDischarge);
+			int maxShots = Mathf.RoundToInt(this._capacity / JuicePerDischarge);
+			float num = numShots / maxShots;
+			return Language.main.GetFormat<string, float, int, float>("BatteryCharge", ColorUtility.ToHtmlStringRGBA(gradient.Evaluate(num)), num, numShots, maxShots);
+		}
+	}
+
 	public class DiverPerimeterDefenceBehaviour : MonoBehaviour, IInventoryDescription
 	{
-		private const float DischargeDamage = 10f;
+		protected virtual float DischargeDamage
+		{
+			get { return 10f; }
+		}
+		protected virtual string brokenTechString
+		{
+			get
+			{ return "DiverPerimeterDefenceChip_Broken"; }
+		}
 		protected virtual bool bDestroyWhenEmpty {
 			get { return true; } // If true, the chip is destroyed when empty. If false, the chip is just empty.
 		} 
@@ -87,7 +145,6 @@ namespace CombinedItems.Equipables
 				if (bDestroyWhenEmpty)
 				{
 					CoroutineHost.StartCoroutine(AddBrokenChipAsync());
-					GameObject.Destroy(gameObject);
 				}
 			}
 			return true;
@@ -96,7 +153,7 @@ namespace CombinedItems.Equipables
 		protected IEnumerator AddBrokenChipAsync()
 		{
 			TaskResult<GameObject> instResult = new TaskResult<GameObject>();
-			yield return CraftData.InstantiateFromPrefabAsync(Main.GetModTechType("DiverPerimeterDefenceChip_Broken"), instResult, false);
+			yield return CraftData.InstantiateFromPrefabAsync(Main.GetModTechType(brokenTechString), instResult, false);
 
 			GameObject go = instResult.Get();
 			Pickupable component = (go != null ? go.GetComponent<Pickupable>() : null);
@@ -107,6 +164,7 @@ namespace CombinedItems.Equipables
 				Log.LogError($"DiverPerimeterDefenceBehaviour.Discharge(): Failed to instantiate broken chip");
 			}
 
+			GameObject.Destroy(gameObject);
 			yield break;
 		}
 

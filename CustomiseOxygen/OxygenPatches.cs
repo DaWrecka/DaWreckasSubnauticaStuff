@@ -18,7 +18,7 @@ namespace CustomiseOxygen.Patches
         {
             this.techType = techType;
             this.oxygen = base.GetComponent<Oxygen>();
-            if (!Main.config.bAllowAutoRefill)
+            if (Main.config.bManualRefill)
                 this.oxygen.oxygenAvailable = this.oxygen.oxygenCapacity;
         }
 

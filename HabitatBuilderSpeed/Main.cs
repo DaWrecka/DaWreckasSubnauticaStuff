@@ -9,7 +9,7 @@ namespace HabitatBuilderSpeed
     [QModCore]
     public class Main
     {
-        internal const string version = "0.1.2.0";
+        internal const string version = "1.0.0.0";
 
         internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
 

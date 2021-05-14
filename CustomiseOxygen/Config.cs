@@ -16,7 +16,7 @@ namespace CustomiseOxygen
         const float MAX_MULT = 10f;
 
         [Toggle("Automatic O2 refill", Tooltip = "If enabled, oxygen tanks refill automatically; if disabled, tanks can only be refilled at fabricators, but have their capacity multiplied by the Manual Mode multiplier below.")]
-        public bool bAllowAutoRefill = true; // if true, prevents tanks refilling themselves and applies refillableMultiplier on top of the baseOxyMultiplier.
+        public bool bManualRefill = false; // if true, prevents tanks refilling themselves and applies refillableMultiplier on top of the baseOxyMultiplier.
         [Slider("Base oxygen multiplier", MIN_MULT, MAX_MULT, DefaultValue = 1f, Id = "baseMult", Step = 0.05f, Format = "{0:F2}", Tooltip = "Base multiplier applied to all oxygen tank capacities not explicitly-defined in the config.json")]
         public float baseOxyMultiplier = 1f;
         [Slider("Manual mode multiplier", 2.0f, MAX_MULT, DefaultValue = 4f, Id = "refillMult", Step = 0.05f, Format = "{0:F2}", Tooltip = "Multiplier applied to tank capacities if, and only if, automatic refill mode is not enabled.")]
@@ -56,10 +56,10 @@ namespace CustomiseOxygen
         public bool GetCapacityOverride(TechType tank, out float capacityOverride, out float capacityMultiplier)
         {
             Dictionary<TechType, float> activeTypedCapacityOverrides;
-            if (Main.config.bAllowAutoRefill)
-                activeTypedCapacityOverrides = typedCapacityOverrides;
+            if (Main.config.bManualRefill)
+                activeTypedCapacityOverrides = manualTypedCapacityOverrides; 
             else
-                activeTypedCapacityOverrides = manualTypedCapacityOverrides;
+                activeTypedCapacityOverrides = typedCapacityOverrides;
             // if return value is false, no override should be performed.
             // If return value is true, and capacityOverride == -1, then the base capacity should not be altered.
 
@@ -94,7 +94,7 @@ namespace CustomiseOxygen
             }
 
             if (exclusion != Main.ExclusionType.Multipliers)
-                capacityMultiplier = baseOxyMultiplier * (bAllowAutoRefill ? refillableMultiplier : 1);
+                capacityMultiplier = baseOxyMultiplier * (bManualRefill ? refillableMultiplier : 1);
 
             return true;
         }

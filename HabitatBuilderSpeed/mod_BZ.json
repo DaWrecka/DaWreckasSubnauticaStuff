@@ -2,7 +2,7 @@
   "Id": "BuilderSpeed",
   "DisplayName": "Habitat Builder Speed Modifier",
   "Author": "DaWrecka",
-  "Version": "0.1.2.0",
+  "Version": "1.0.0.0",
   "Dependencies": [
     "SMLHelper"
   ],

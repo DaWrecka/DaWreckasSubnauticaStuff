@@ -2,6 +2,7 @@
 using CustomiseYourStorage_BZ.Configuration;
 using HarmonyLib;
 using QModManager.API.ModLoading;
+using SMLHelper.V2.Handlers;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -12,10 +13,10 @@ namespace CustomiseYourStorage_BZ
     [QModCore]
     public class Main
     {
-        internal const string version = "0.0.2.0";
+        internal const string version = "1.0.0.0";
 
-        //internal static DWStorageConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWStorageConfig>();
-        internal static readonly DWStorageConfigNonSML config = DWStorageConfigNonSML.LoadConfig(Path.Combine(new string[] { Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "config.json" }));
+        internal static DWStorageConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWStorageConfig>();
+        //internal static readonly DWStorageConfigNonSML config = DWStorageConfigNonSML.LoadConfig(Path.Combine(new string[] { Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "config.json" }));
 
         // The actual TechTypes used for the blacklist, populated at post-patch time.
         internal static List<TechType> StorageBlacklist = new List<TechType>();

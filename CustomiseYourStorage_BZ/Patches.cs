@@ -3,9 +3,20 @@ using Logger = QModManager.Utility.Logger;
 using CustomiseYourStorage_BZ;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Collections;
+using UWE;
+using UnityEngine;
+using System.IO;
+using Common;
 
 namespace CustomiseYourStorage_BZ.Patches
 {
+	internal class InventoryModMarker : MonoBehaviour
+	{
+		// This exists purely as a marker to say "Hey, you've already modified this container, don't need to do anything else"
+		// As such, it doesn't have any custom code because it doesn't need any - it just has to *be*.
+	}
+
 	[HarmonyPatch(typeof(StorageContainer), "Awake")]
 	internal class StoragePatcher
 	{
@@ -30,6 +41,10 @@ namespace CustomiseYourStorage_BZ.Patches
 				Logger.Log(Logger.Level.Debug, $"Setting LifePod locker to size ({newLifepodLockerSize})"); 
 #endif
 				__instance.Resize(newLifepodLockerSize.x, newLifepodLockerSize.y);
+				if (Main.config.defaultLifepodLockerInventoryTypes.Count > 0)
+				{
+					CoroutineHost.StartCoroutine(AddLifepodInventory(__instance, Main.config.defaultLifepodLockerInventoryTypes));
+				}
 				return;
 			}
 
@@ -76,6 +91,42 @@ namespace CustomiseYourStorage_BZ.Patches
 			Logger.Log(Logger.Level.Info, $"Storage container identifier {ContainerID} was not found in configuration settings; using default values"); 
 #endif
 			Main.config.AddContainer(lowerID, __instance.width, __instance.height);
+		}
+
+		public static IEnumerator AddLifepodInventory(StorageContainer container, List<TechType> newTechTypes)
+		{
+			if (!Main.config.useDropPodInventory)
+				yield break;
+
+			if (AlreadyInitialised())
+				yield break;
+
+			foreach (TechType tt in newTechTypes)
+			{
+				TaskResult<GameObject> result = new TaskResult<GameObject>();
+				yield return CraftData.InstantiateFromPrefabAsync(tt, result, false);
+
+				InventoryItem inventoryItem2 = new InventoryItem(result.Get().GetComponent<Pickupable>());
+				inventoryItem2.item.Initialize();
+				container.container.UnsafeAdd(inventoryItem2);
+			}
+			yield break;
+		}
+
+		static bool AlreadyInitialised()
+		{
+			var file = Path.Combine(SaveLoadManager.GetTemporarySavePath(), "CustomisedStorageInit");
+			if (File.Exists(file))
+			{
+				// already initialized, return to prevent from spawn duplications.
+				Log.LogDebug("Customised Storage already initialized in the current save.");
+				return true;
+			}
+
+			File.Create(file);
+
+			Log.LogDebug("Customised Storage has been initialized in the current save.");
+			return false;
 		}
 	}
 

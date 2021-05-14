@@ -21,10 +21,12 @@ namespace IngredientsFromScanning_BZ.Configuration
     {
         private const int MAX_PRIZE = 10;
         private const int MIN_PRIZE = 1;
-        [Slider("Minimum ingredients", MIN_PRIZE, MAX_PRIZE, DefaultValue = 2, Id = "MinComponents"), OnChange(nameof(OnSliderChange))]
+        [Slider("Minimum ingredients", MIN_PRIZE, MAX_PRIZE, DefaultValue = 2, Id = "MinComponents",
+            Tooltip = "Scanning a known item will always return this number of items, or the total number of items in the recipe, whichever is lower."), OnChange(nameof(OnSliderChange))]
         public int minComponents = 2; // Minimum number of ingredients received from scanning an existing fragment
 
-        [Slider("Maximum ingredients", MIN_PRIZE, MAX_PRIZE, DefaultValue = 2, Id = "MaxComponents"), OnChange(nameof(OnSliderChange))]
+        [Slider("Maximum ingredients", MIN_PRIZE, MAX_PRIZE, DefaultValue = 2, Id = "MaxComponents",
+            Tooltip = "Scanning a known item will return no more than this many items, regardless of the length of the recipe."), OnChange(nameof(OnSliderChange))]
         public int maxComponents = 2; // Maximum number
 
         [Toggle("Show all fragments in Map Room")]

@@ -2,7 +2,7 @@
   "Id": "CustomiseOxygen",
   "DisplayName": "Customise Your Oxygen",
   "Author": "DaWrecka",
-  "Version": "0.8.0.2",
+  "Version": "1.0.0.0",
   "Dependencies": [
     "SMLHelper"
   ],

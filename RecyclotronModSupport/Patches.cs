@@ -176,7 +176,7 @@ namespace RecyclotronModSupport.Patches
 					EnergyMixin component = gameObject.GetComponent<EnergyMixin>();
 					if (component)
 					{
-						GameObject battery = component.GetBattery();
+						GameObject battery = component.GetBatteryGameObject();
 						if (battery)
 						{
 							ingredients.Add(new Ingredient(CraftData.GetTechType(battery), 1));
