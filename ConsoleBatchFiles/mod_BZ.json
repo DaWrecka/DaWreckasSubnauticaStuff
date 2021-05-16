@@ -2,7 +2,7 @@
   "Author": "DaWrecka",
   "DisplayName": "Console Batch Commands",
   "VersionDependencies": {
-    "SMLHelper": "2.9"
+    "SMLHelper": "2.9.6"
   },
   "Id": "ConsoleBatchFiles",
   "AssemblyName": "ConsoleBatchFiles.dll",

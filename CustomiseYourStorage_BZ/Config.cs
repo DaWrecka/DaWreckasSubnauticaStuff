@@ -10,11 +10,15 @@ using Newtonsoft.Json.Serialization;
 using System.Reflection;
 using SMLHelper.V2.Json;
 using Common;
+using SMLHelper.V2.Options.Attributes;
+using SMLHelper.V2.Options;
 
 namespace CustomiseYourStorage_BZ.Configuration
 {
     internal class DWStorageConfig : ConfigFile
     {
+        private static readonly bool bHasAdvancedInventory = QModManager.API.QModServices.Main.ModPresent("AdvancedInventory_BZ");
+        private static readonly int MaxHeight = (bHasAdvancedInventory ? 12 : 8);
         private readonly Vector2int nullVector = new Vector2int(0, 0); // Used for quick comparison
 
         private Dictionary<string, Vector2int> defaultStorageSizes = new Dictionary<string, Vector2int>(System.StringComparer.OrdinalIgnoreCase)
@@ -94,11 +98,117 @@ namespace CustomiseYourStorage_BZ.Configuration
         internal List<TechType> defaultLifepodLockerInventoryTypes = new List<TechType>();
         public bool useDropPodInventory = false;
         public List<string> defaultLifepodLockerInventory = new List<string>();
-        public Vector2int LifepodLockerSize = new Vector2int(0, 0);
-        public ExoConfigStruct ExosuitConfig;
-        public FiltrationConfigStruct FiltrationConfig;
-        public Vector2int InventorySize = new Vector2int(0, 0);
-        public Vector2int BioreactorSize = new Vector2int(0, 0);
+        
+        //public Vector2int LifepodLockerSize = new Vector2int(0, 0);
+        [Slider("Droppod locker width", 4, 8, DefaultValue = 6, Id = "DroppodWidth",
+            Step = 1f,
+            Tooltip = "Width of the Droppod locker, in inventory units"), OnChange(nameof(OnSliderChange))]
+        public int DroppodWidth = 6;
+        [Slider("Droppod locker height", 4, 8, DefaultValue = 8, Id = "DroppodHeight",
+            Step = 1f,
+            Tooltip = "Height of the Droppod locker, in inventory units"), OnChange(nameof(OnSliderChange))]
+        public int DroppodHeight = 8;
+
+        //public ExoConfigStruct ExosuitConfig;
+        [Slider("Exosuit locker width", 4, 8, DefaultValue = 6, Id = "ExosuitX",
+            Step = 1f,
+            Tooltip = "Width of the Exosuit locker, in inventory units"), OnChange(nameof(OnSliderChange))]
+        public int ExosuitX = 6;
+        [Slider("Exosuit locker height", 4, 8, DefaultValue = 4, Id = "ExosuitY",
+            Step = 1f,
+            Tooltip = "Height of the Exosuit locker, in inventory units"), OnChange(nameof(OnSliderChange))]
+        public int ExosuitY = 4;
+        [Slider("Exosuit storage module height", 1, 4, DefaultValue = 1, Id = "ExosuitModuleHeight",
+            Step = 1f,
+            Tooltip = "Number of rows added to the Exosuit locker per Vehicle Storage Module installed"), OnChange(nameof(OnSliderChange))]
+        public int ExosuitModuleHeight = 1;
+
+        //public FiltrationConfigStruct FiltrationConfig;
+        [Slider("Filtration Machine width", 2, 8, DefaultValue = 2, Id = "FiltrationX",
+            Step = 1f,
+            Tooltip = "Width of the Water Filtration Machine storage container, in inventory units"), OnChange(nameof(OnSliderChange))]
+        public int FiltrationX = 2;
+        [Slider("Filtration Machine height", 2, 8, DefaultValue = 2, Id = "FiltrationY",
+            Step = 1f,
+            Tooltip = "Height of the Water Filtration Machine storage container, in inventory units"), OnChange(nameof(OnSliderChange))]
+        public int FiltrationY = 2;
+        [Slider("Filtration Machine max water", 2, 8, DefaultValue = 2, Id = "FiltrationWater",
+            Step = 1f,
+            Tooltip = "Maximum number of water bottles that can be held by the Water Filtration Machine"), OnChange(nameof(OnSliderChange))]
+        public int FiltrationWater = 2;
+        [Slider("Filtration Machine max salt", 2, 8, DefaultValue = 2, Id = "FiltrationSalt",
+            Step = 1f,
+            Tooltip = "Maximum number of salt deposits that can be held by the Water Filtration Machine"), OnChange(nameof(OnSliderChange))]
+        public int FiltrationSalt = 2;
+
+        //public Vector2int InventorySize = new Vector2int(0, 0);
+        [Slider("Inventory width", 4, 8, DefaultValue = 6, Id = "InvWidth",
+            Step = 1f,
+            Tooltip = "Base width of the inventory, in inventory units"), OnChange(nameof(OnSliderChange))]
+        public int InvWidth = 6;
+        [Slider("Inventory height", 4, 8, DefaultValue = 8, Id = "InvHeight",
+            Step = 1f,
+            Tooltip = "Base height of the inventory, in inventory units"), OnChange(nameof(OnSliderChange))]
+        public int InvHeight = 8;
+
+        //public Vector2int BioreactorSize = new Vector2int(0, 0);
+        [Slider("Bioreactor width", 3, 8, DefaultValue = 4, Id = "BioreactorWidth",
+            Step = 1f,
+            Tooltip = "Width of the Bioreactor container, in inventory units"), OnChange(nameof(OnSliderChange))]
+        public int BioreactorWidth = 4;
+        [Slider("Bioreactor height", 3, 8, DefaultValue = 4, Id = "BioreactorHeight",
+            Step = 1f,
+            Tooltip = "Height of the Bioreactor container, in inventory units"), OnChange(nameof(OnSliderChange))]
+        public int BioreactorHeight = 4;
+
+        internal void OnSliderChange(SliderChangedEventArgs e)
+        {
+            switch (e.Id)
+            {
+                /*case "DroppodWidth":
+                    LifepodLockerSize.x = e.IntegerValue;
+                    break;
+                case "DroppodHeight":
+                    LifepodLockerSize.y = e.IntegerValue;
+                    break;
+                case "ExosuitX":
+                    ExosuitConfig.width = e.IntegerValue;
+                    break;
+                case "ExosuitY":
+                    ExosuitConfig.height = e.IntegerValue;
+                    break;
+                case "ExosuitModuleHeight":
+                    ExosuitConfig.heightPerModule = e.IntegerValue;
+                    break;
+                case "FiltrationX":
+                    FiltrationConfig.containerSize.x = e.IntegerValue;
+                    break;
+                case "FiltrationY":
+                    FiltrationConfig.containerSize.y = e.IntegerValue;
+                    break;
+                case "FiltrationWater":
+                    FiltrationConfig.containerSize.x = e.IntegerValue;
+                    break;
+                case "FiltrationSalt":
+                    FiltrationConfig.containerSize.x = e.IntegerValue;
+                    break;
+                case "InvWidth":
+                    InventorySize.x = e.IntegerValue;
+                    break;
+                case "InvHeight":
+                    InventorySize.x = e.IntegerValue;
+                    break;
+                case "BioreactorWidth":
+                    BioreactorSize.x = e.IntegerValue;
+                    break;
+                case "BioreactorHeight":
+                    BioreactorSize.y = e.IntegerValue;
+                    break;*/
+                default:
+                    break;
+            }
+        }
+
 
         public bool TryGetModSize(string Identifier, out Vector2int newSize)
         {
@@ -211,7 +321,7 @@ namespace CustomiseYourStorage_BZ.Configuration
                 bUpdated = true;
             }
 
-            if (LifepodLockerSize.x < 1 || LifepodLockerSize.y < 1)
+            /*if (LifepodLockerSize.x < 1 || LifepodLockerSize.y < 1)
             {
                 LifepodLockerSize = defaultLifepodLockerSize;
                 bUpdated = true;
@@ -239,14 +349,14 @@ namespace CustomiseYourStorage_BZ.Configuration
             {
                 InventorySize = defaultInventorySize;
                 bUpdated = true;
-            }
+            }*/
 
             // defaultLifepodLockerInventory is empty by default, so we actually want to act if it's not.
             if (defaultLifepodLockerInventory.Count > 0)
             {
+                defaultLifepodLockerInventoryTypes.Clear(); // Doesn't hurt to be sure.
                 foreach (string s in defaultLifepodLockerInventory)
                 {
-                    defaultLifepodLockerInventoryTypes.Clear(); // Doesn't hurt to be sure.
                     TechType tt = TechTypeUtils.GetTechType(s);
                     if (tt != TechType.None)
                         defaultLifepodLockerInventoryTypes.Add(tt);
@@ -262,6 +372,20 @@ namespace CustomiseYourStorage_BZ.Configuration
 #if !RELEASE
             Log.LogDebug(bUpdated ? "Some values reset to defaults" : "All values present and correct");
 #endif
+            // Set the UI values so that the mod menu starts with the right values
+            /*DroppodWidth = LifepodLockerSize.x;
+            DroppodHeight = LifepodLockerSize.y;
+            ExosuitX = ExosuitConfig.width;
+            ExosuitY = ExosuitConfig.height;
+            ExosuitModuleHeight = ExosuitConfig.heightPerModule;
+            FiltrationX = FiltrationConfig.containerSize.x;
+            FiltrationY = FiltrationConfig.containerSize.y;
+            FiltrationWater = FiltrationConfig.containerSize.x;
+            FiltrationSalt = FiltrationConfig.containerSize.x;
+            InvWidth = InventorySize.x;
+            InvHeight = InventorySize.x;
+            BioreactorWidth = BioreactorSize.x;
+            BioreactorHeight = BioreactorSize.y;*/
         }
 
         /*public static bool SaveConfig(DWStorageConfigNonSML configToSave, string SavePath)

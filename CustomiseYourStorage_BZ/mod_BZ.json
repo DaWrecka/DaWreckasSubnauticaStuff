@@ -9,13 +9,13 @@
   "Game": "BelowZero",
   "AssemblyName": "CustomiseYourStorage_BZ.dll",
   "VersionDependencies": {
-    "SMLHelper": "2.9"
+    "SMLHelper": "2.9.6"
   },
   "VersionChecker": {
     "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/CustomiseYourStorage_BZ/mod_BZ.json"
   },
   "NexusId": {
-    "Subnautica": "559"
+    "BelowZero": "163"
   },
   "Enable": true
 }

@@ -12,11 +12,13 @@ namespace CustomiseYourStorage_BZ
 		[HarmonyPatch("Awake")]
 		public static void Postfix(ref Inventory __instance)
 		{
-			Vector2int invSize = Main.config.InventorySize;
+			//Vector2int invSize = Main.config.InventorySize;
+			int X = Main.config.InvWidth;
+			int Y = Main.config.InvHeight;
 #if !RELEASE
-			Logger.Log(Logger.Level.Debug, $"Inventory.Awake() postfix: Resizing with values of ({invSize.ToString()})"); 
+			Logger.Log(Logger.Level.Debug, $"Inventory.Awake() postfix: Resizing with values of ({X}, {Y})"); 
 #endif
-			__instance.container.Resize(invSize.x, invSize.y);
+			__instance.container.Resize(X, Y);
 		}
 	}
 }

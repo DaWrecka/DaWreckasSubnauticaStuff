@@ -49,8 +49,8 @@ namespace CustomiseYourStorage_BZ
         public static void Load()
         {
             var assembly = Assembly.GetExecutingAssembly();
-            new Harmony($"DaWrecka_{assembly.GetName().Name}").PatchAll(assembly);
             config.Init();
+            new Harmony($"DaWrecka_{assembly.GetName().Name}").PatchAll(assembly);
         }
 
         [QModPostPatch]

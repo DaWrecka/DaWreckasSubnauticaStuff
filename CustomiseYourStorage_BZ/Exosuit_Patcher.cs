@@ -16,13 +16,16 @@ namespace CustomiseYourStorage_BZ
         [HarmonyPatch("UpdateStorageSize")]
         public static bool UpdateStorageSize(ref Exosuit __instance)
         {
-            var exoConfig = Main.config.ExosuitConfig;
+            //var exoConfig = Main.config.ExosuitConfig;
+            var X = Main.config.ExosuitX;
+            var Y = Main.config.ExosuitY;
+            var perModule = Main.config.ExosuitModuleHeight;
             int moduleCount = __instance.modules.GetCount(TechType.VehicleStorageModule);
+            var height = Y + (moduleCount * perModule);
 #if !RELEASE
-            Logger.Log(Logger.Level.Debug, $"Exosuit.UpdateStorageSize prefixed with ExosuitConfig of ({exoConfig.ToString()}); Number of VehicleStorageModule units found: {moduleCount}"); 
+            Logger.Log(Logger.Level.Debug, $"Exosuit.UpdateStorageSize prefixed with Exosuit config of ({X}, {Y}, {perModule}); Number of VehicleStorageModule units found: {moduleCount}"); 
 #endif
-            int height = exoConfig.height + (exoConfig.heightPerModule * moduleCount);
-            __instance.storageContainer.Resize(exoConfig.width, height);
+            __instance.storageContainer.Resize(X, height);
 
             return false;
         }
@@ -33,7 +36,7 @@ namespace CustomiseYourStorage_BZ
         {
             if (pickupable.GetTechType() == TechType.VehicleStorageModule)
             {
-                __result = __instance.storageContainer.container.HasRoomFor(Main.config.ExosuitConfig.width, Main.config.ExosuitConfig.heightPerModule);
+                __result = __instance.storageContainer.container.HasRoomFor(Main.config.ExosuitX, Main.config.ExosuitModuleHeight);
                 if (verbose && !__result)
                 {
                     ErrorMessage.AddDebug(Language.main.Get("ExosuitStorageShrinkError"));

@@ -9,13 +9,13 @@
   "Game": "BelowZero",
   "AssemblyName": "PartsFromScanning_BZ.dll",
   "VersionDependencies": {
-    "SMLHelper": "2.9"
+    "SMLHelper": "2.9.6"
   },
   "VersionChecker": {
     "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/IngredientsFromScanning_BZ/mod_BZ.json"
   },
   "NexusId": {
-    "Subnautica": "559"
+    "BelowZero": "161"
   },
   "Enable": true
 }

@@ -8,7 +8,7 @@
     "CustomBatteries"
   ],
   "VersionDependencies": {
-    "SMLHelper": "2.9.3",
+    "SMLHelper": "2.9.6",
     "CustomBatteries": "1.1"
   },
   "Game": "BelowZero",

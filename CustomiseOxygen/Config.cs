@@ -15,7 +15,7 @@ namespace CustomiseOxygen
         const float MIN_MULT = 0.5f;
         const float MAX_MULT = 10f;
 
-        [Toggle("Automatic O2 refill", Tooltip = "If enabled, oxygen tanks refill automatically; if disabled, tanks can only be refilled at fabricators, but have their capacity multiplied by the Manual Mode multiplier below.")]
+        [Toggle("Manual O2 refill", Tooltip = "If enabled, oxygen tanks do not refill automatically, and can only be refilled at fabricators, but have their capacity multiplied by the Manual Mode multiplier below.")]
         public bool bManualRefill = false; // if true, prevents tanks refilling themselves and applies refillableMultiplier on top of the baseOxyMultiplier.
         [Slider("Base oxygen multiplier", MIN_MULT, MAX_MULT, DefaultValue = 1f, Id = "baseMult", Step = 0.05f, Format = "{0:F2}", Tooltip = "Base multiplier applied to all oxygen tank capacities not explicitly-defined in the config.json")]
         public float baseOxyMultiplier = 1f;

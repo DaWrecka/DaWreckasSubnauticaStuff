@@ -36,11 +36,13 @@ namespace CustomiseYourStorage_BZ.Patches
 			if (lowerID == "none.storagecontiner")
 			{
 				// Special processing for the Lifepod storage locker
-				Vector2int newLifepodLockerSize = Main.config.LifepodLockerSize;
+				//Vector2int newLifepodLockerSize = Main.config.LifepodLockerSize;
+				int X = Main.config.DroppodWidth;
+				int Y = Main.config.DroppodHeight;
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Setting LifePod locker to size ({newLifepodLockerSize})"); 
+				Logger.Log(Logger.Level.Debug, $"Setting LifePod locker to size ({X}, {Y})"); 
 #endif
-				__instance.Resize(newLifepodLockerSize.x, newLifepodLockerSize.y);
+				__instance.Resize(X, Y);
 				if (Main.config.defaultLifepodLockerInventoryTypes.Count > 0)
 				{
 					CoroutineHost.StartCoroutine(AddLifepodInventory(__instance, Main.config.defaultLifepodLockerInventoryTypes));
@@ -103,6 +105,7 @@ namespace CustomiseYourStorage_BZ.Patches
 
 			foreach (TechType tt in newTechTypes)
 			{
+				Log.LogDebug($"Adding item {tt.AsString()} to drop pod locker");
 				TaskResult<GameObject> result = new TaskResult<GameObject>();
 				yield return CraftData.InstantiateFromPrefabAsync(tt, result, false);
 
@@ -125,7 +128,7 @@ namespace CustomiseYourStorage_BZ.Patches
 
 			File.Create(file);
 
-			Log.LogDebug("Customised Storage has been initialized in the current save.");
+			Log.LogDebug("Customised Storage newly-initialized in the current save.");
 			return false;
 		}
 	}
@@ -181,9 +184,9 @@ namespace CustomiseYourStorage_BZ.Patches
 	{
 		private static void Postfix(FiltrationMachine __instance)
 		{
-			int maxSalt = Main.config.FiltrationConfig.maxSalt;
-			int maxWater = Main.config.FiltrationConfig.maxWater;
-			Vector2int newContainerSize = Main.config.FiltrationConfig.containerSize;
+			int maxSalt = Main.config.FiltrationSalt;
+			int maxWater = Main.config.FiltrationWater;
+			Vector2int newContainerSize = new Vector2int(Main.config.FiltrationX, Main.config.FiltrationX);
 #if !RELEASE
 			Logger.Log(Logger.Level.Debug, $"Reconfiguring Filtration Machine {__instance.gameObject.name} with configuration values of: maxSalt {maxSalt}, maxWater {maxWater}, new size ({newContainerSize.ToString()})"); 
 #endif
@@ -203,7 +206,7 @@ namespace CustomiseYourStorage_BZ.Patches
 		private static void Postfix(BaseBioReactor __instance)
 		{
 			ItemsContainer container = (ItemsContainer)BaseBioReactor_container.GetValue(__instance);
-			container.Resize(Main.config.BioreactorSize.x, Main.config.BioreactorSize.y);
+			container.Resize(Main.config.BioreactorWidth, Main.config.BioreactorHeight);
 		}
 	}
 }

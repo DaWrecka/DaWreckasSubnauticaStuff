@@ -9,7 +9,7 @@
   "Game": "BelowZero",
   "AssemblyName": "CustomiseOxygen.dll",
   "VersionDependencies": {
-    "SMLHelper": "2.9"
+    "SMLHelper": "2.9.6"
   },
   "VersionChecker": {
     "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/CustomiseOxygen/mod_BZ.json"

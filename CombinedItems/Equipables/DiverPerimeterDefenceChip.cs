@@ -17,8 +17,7 @@ namespace CombinedItems.Equipables
 	{
 		private const float JuicePerDischarge = 100f; // Units of energy consumed by a perimeter discharge.
 
-		private float _charge;
-		private float _capacity;
+		protected float _charge;
 
 		public static readonly Gradient gradient = new Gradient
 		{
@@ -47,8 +46,6 @@ namespace CombinedItems.Equipables
 		{
 			if (newBattery.charge > charge)
 			{
-				if (newBattery.charge > capacity)
-					capacity = newBattery.charge;
 				charge = newBattery.charge;
 				newBattery.charge = 0f;
 			}
@@ -57,7 +54,7 @@ namespace CombinedItems.Equipables
 		public string GetChargeValueText()
 		{
 			int numShots = Mathf.RoundToInt(this._charge / JuicePerDischarge);
-			int maxShots = Mathf.RoundToInt(this._capacity / JuicePerDischarge);
+			int maxShots = Mathf.RoundToInt(this.capacity / JuicePerDischarge);
 			float num = numShots / maxShots;
 			return Language.main.GetFormat<string, float, int, float>("BatteryCharge", ColorUtility.ToHtmlStringRGBA(gradient.Evaluate(num)), num, numShots, maxShots);
 		}
