@@ -15,7 +15,7 @@ namespace CustomiseOxygen
         const float MIN_MULT = 0.5f;
         const float MAX_MULT = 10f;
 
-        [Toggle("Manual O2 refill", Tooltip = "If enabled, oxygen tanks do not refill automatically, and can only be refilled at fabricators, but have their capacity multiplied by the Manual Mode multiplier below.")]
+        [Toggle("Manual O2 refill", Tooltip = "If enabled, oxygen tanks do not refill automatically, and can only be refilled at fabricators, but have their capacity multiplied by the Manual Mode multiplier below.\n\nChanging this setting requires the game to be restarted to take full effect.")]
         public bool bManualRefill = false; // if true, prevents tanks refilling themselves and applies refillableMultiplier on top of the baseOxyMultiplier.
         [Slider("Base oxygen multiplier", MIN_MULT, MAX_MULT, DefaultValue = 1f, Id = "baseMult", Step = 0.05f, Format = "{0:F2}", Tooltip = "Base multiplier applied to all oxygen tank capacities not explicitly-defined in the config.json")]
         public float baseOxyMultiplier = 1f;
@@ -102,7 +102,6 @@ namespace CustomiseOxygen
         public bool SetCapacityOverride(TechType tank, float capacity, bool bUpdateIfPresent = false, bool bIsDefault = false, bool bIsManualMode = false)
         {
             // if bIsDefault, the value should be added to the defaults list, not the active list.
-
             if (bIsDefault)
             {
                 string tankID = tank.AsString(true);
@@ -114,12 +113,12 @@ namespace CustomiseOxygen
                         Save();
                         return true;
                     }
-                    else
-                        return false;
+
+                    return false;
                 }
 
                 Main.TankTypes.AddTank(tank, capacity, null, bUpdateIfPresent);
-                defaultTankCapacities.Add(tank.AsString(false), capacity);
+                defaultTankCapacities[tank.AsString(true)] = capacity;
                 return false;
             }
 
@@ -148,6 +147,11 @@ namespace CustomiseOxygen
         public void Init()
         {
             bool bUpdated = false;
+            if (bManualRefill)
+            {
+                Log.LogDebug($"Config.Init(): Adding tab node for oxygen tank refills");
+                CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "TankRefill", "Tank Refills", SpriteManager.Get(TechType.DoubleTank), new string[] { "Personal" });
+            }
             if (CapacityOverrides == null || CapacityOverrides.Count < 1)
             {
                 CapacityOverrides = new Dictionary<string, float>();
@@ -201,6 +205,8 @@ namespace CustomiseOxygen
                 Logger.Log(Logger.Level.Debug, "All values present and correct"); 
 #endif
             }
+
+
         }
     }
 }

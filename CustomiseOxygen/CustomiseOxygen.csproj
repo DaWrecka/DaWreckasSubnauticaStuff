@@ -74,11 +74,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoRemover.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="OxygenManagerPatches.cs" />
     <Compile Include="OxygenPatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TankCraftHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="mod_BZ.json" />

@@ -50,6 +50,7 @@ namespace CustomiseOxygen
         }
 
         internal static Dictionary<TechType, ExclusionType> Exclusions = new Dictionary<TechType, ExclusionType>();
+        internal static HashSet<TechType> bannedTech = new HashSet<TechType>();
         private static List<PendingTankEntry> pendingTanks = new List<PendingTankEntry>();
         private static bool bWaitingForSpriteHandler;
 
@@ -151,40 +152,51 @@ namespace CustomiseOxygen
                     this.sprite = SpriteManager.Get(tank);
                 this.tankTechType = tank;
                 string tankName = Language.main.Get(tank);
-                this.refillTechType = TechTypeHandler.AddTechType((tank.AsString(false) + "Refill"), tankName+" Refill", "Refilled "+tankName, false);
-                KnownTechHandler.SetAnalysisTechEntry(tank, new TechType[] { this.refillTechType });
-                SpriteHandler.RegisterSprite(this.refillTechType, this.sprite);
-                var techData = new RecipeData()
+                this.BaseO2Capacity = baseO2capacity;
+                if (Main.config.bManualRefill)
                 {
-                    craftAmount = 0,
-                    Ingredients = new List<Ingredient>()
+                    //new TankCraftHelper(tank).Patch();
+                    this.refillTechType = TechTypeHandler.AddTechType((tank.AsString(false) + "Refill"), tankName + " Refill", "Refilled " + tankName, false);
+                    KnownTechHandler.SetAnalysisTechEntry(tank, new TechType[] { this.refillTechType });
+                    SpriteHandler.RegisterSprite(this.refillTechType, this.sprite);
+                    var techData = new RecipeData()
                     {
-                        new Ingredient(tank, 1)
-                    }
-                };
-                techData.LinkedItems.Add(tank);
+                        craftAmount = 0,
+                        Ingredients = new List<Ingredient>()
+                        {
+                            new Ingredient(tank, 1)
+                        }
+                    };
+                    techData.LinkedItems.Add(tank);
 
-                CraftDataHandler.SetTechData(this.refillTechType, techData);
-                CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, this.refillTechType, new string[] {
-                    "Personal",
-                    "Refill",
-                    this.refillTechType.AsString(false)
-                });
-                if (TechData.GetCraftTime(this.tankTechType, out float craftTime))
-                {
+                    CraftDataHandler.SetTechData(this.refillTechType, techData);
+                    CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, this.refillTechType, new string[] {
+                        "Personal",
+                        "TankRefill",
+                        this.refillTechType.AsString(false)
+                    });
+                    if (TechData.GetCraftTime(this.tankTechType, out float craftTime))
+                    {
 #if !RELEASE
-                    Logger.Log(Logger.Level.Debug, $"Setting crafting time of {craftTime} for TechType.{this.refillTechType.AsString()}"); 
+                        Logger.Log(Logger.Level.Debug, $"Setting crafting time of {craftTime} for TechType.{this.refillTechType.AsString()}");
 #endif
-                    CraftDataHandler.SetCraftingTime(this.refillTechType, craftTime);
+                        CraftDataHandler.SetCraftingTime(this.refillTechType, craftTime);
+                    }
+                    else
+                    {
+#if !RELEASE
+                        Logger.Log(Logger.Level.Debug, $"Couldn't find crafting time for TechType.{this.tankTechType}");
+#endif
+                    }
+                    if (!Main.bannedTech.Contains(this.refillTechType))
+                    {
+                        Main.bannedTech.Add(this.refillTechType);
+                    }
                 }
                 else
                 {
-#if !RELEASE
-                    Logger.Log(Logger.Level.Debug, $"Couldn't find crafting time for TechType.{this.tankTechType}"); 
-#endif
+                    this.refillTechType = TechType.None;
                 }
-
-                this.BaseO2Capacity = baseO2capacity;
             }
 
             public void UpdateCapacity(float newCapacity)
@@ -231,7 +243,7 @@ namespace CustomiseOxygen
             {
                 foreach (TankType tt in TankTypes)
                 {
-                    if (tt.tankTechType == tank || tt.refillTechType == tank)
+                    if (tt.tankTechType == tank /*|| tt.refillTechType == tank*/)
                         return tt.BaseO2Capacity;
                 }
 
@@ -255,7 +267,7 @@ namespace CustomiseOxygen
         public static void PostPatch()
         {
             // Calling these in the main Patch() routine is too early, as the sprite atlases have not yet finished loading.
-            CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "Refill", "Tank Refills", SpriteManager.Get(TechType.DoubleTank), new string[] { "Personal" });
+            CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "TankRefill", "Tank Refills", SpriteManager.Get(TechType.DoubleTank), new string[] { "Personal" });
 
             /*AddTank(TechType.Tank, -30f);
             AddTank(TechType.DoubleTank, -90f);

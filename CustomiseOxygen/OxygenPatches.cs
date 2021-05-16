@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Common;
+using HarmonyLib;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -31,24 +32,28 @@ namespace CustomiseOxygen.Patches
             if (this.oxygen == null)
             {
 #if !RELEASE
-                Logger.Log(Logger.Level.Debug, "CustomOxy: Failed to find Oxygen component in parent"); 
+                Log.LogDebug($"CustomOxy: Failed to find Oxygen component in parent"); 
 #endif
                 return;
             }
 
-            if (!this.oxygen.isPlayer)
+            if (this.oxygen.isPlayer)
             {
-                if (Main.config.GetCapacityOverride(this.techType, out float capacityOverride, out float capacityMultiplier))
+                return;
+            }
+
+            if (Main.config.GetCapacityOverride(this.techType, out float capacityOverride, out float capacityMultiplier))
+            {
+                bool bIsManual = Main.config.bManualRefill;
+                Log.LogDebug($"CustomiseOxygen.Main.GetCapacityOverride returned true with values of capacityOverride={capacityOverride}, capacityMultiplier={capacityMultiplier}");
+                if (capacityOverride > 0)
+                    this.oxygen.oxygenCapacity = capacityOverride;
+                else
                 {
-                    Logger.Log(Logger.Level.Debug, $"CustomiseOxygen.Main.GetCapacityOverride returned true with values of capacityOverride={capacityOverride}, capacityMultiplier={capacityMultiplier}");
-                    if (capacityOverride > 0)
-                        this.oxygen.oxygenCapacity = capacityOverride;
-                    else
-                    {
-                        Main.config.SetCapacityOverride(this.techType, this.oxygen.oxygenCapacity, false, true);
-                        this.oxygen.oxygenCapacity *= capacityMultiplier;
-                    }
+                    Main.config.SetCapacityOverride(this.techType, this.oxygen.oxygenCapacity, false, true);
+                    this.oxygen.oxygenCapacity *= capacityMultiplier;
                 }
+                Log.LogDebug($"CustomOxy.Awake(): Oxygen capacity set to {this.oxygen.oxygenCapacity}");
             }
         }
     }

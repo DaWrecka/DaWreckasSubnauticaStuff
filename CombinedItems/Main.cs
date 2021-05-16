@@ -89,7 +89,7 @@ namespace CombinedItems
 			}
 		}
 
-		internal static TechType GetModTechType(string key)
+		public static TechType GetModTechType(string key)
 		{
 			string lowerKey = key.ToLower();
 			TechType tt;
