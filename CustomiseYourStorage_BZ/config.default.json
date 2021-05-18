@@ -1,0 +1,95 @@
+{
+    "StorageSizes": {
+        "quantumlocker.storagecontainer": {
+            "x": 4,
+            "y": 4
+        },
+        "smalllocker.smalllocker": {
+            "x": 5,
+            "y": 6
+        },
+        "locker.locker": {
+            "x": 6,
+            "y": 8
+        },
+        "labtrashcan.labtrashcan": {
+            "x": 3,
+            "y": 4
+        },
+        "trashcans.trashcans": {
+            "x": 4,
+            "y": 5
+        },
+        "vehiclestoragemodule.seamothstoragemodule": {
+            "x": 4,
+            "y": 4
+        },
+        "recyclotron.recyclotron": {
+            "x": 6,
+            "y": 4
+        },
+        "coffeevendingmachine.coffeevendingmachine": {
+            "x": 2,
+            "y": 1
+        },
+        "fridge.fridge": {
+            "x": 5,
+            "y": 7
+        },
+        "seatruckfabricatormodule.storagecontainer (1)": {
+            "x": 6,
+            "y": 2
+        },
+        "seatruckstoragemodule.storagecontainer": {
+            "x": 3,
+            "y": 5
+        },
+        "seatruckstoragemodule.storagecontainer (1)": {
+            "x": 6,
+            "y": 3
+        },
+        "seatruckstoragemodule.storagecontainer (2)": {
+            "x": 4,
+            "y": 3
+        },
+        "seatruckstoragemodule.storagecontainer (3)": {
+            "x": 4,
+            "y": 3
+        },
+        "seatruckstoragemodule.storagecontainer (4)": {
+            "x": 3,
+            "y": 5
+        },
+        "spypenguin.inventory": {
+            "x": 2,
+            "y": 2
+        },
+        "exchanger.exchanger": {
+            "x": 3,
+            "y": 2
+        },
+        "supplydrop.supplydrop": {
+            "x": 8,
+            "y": 8
+        },
+        "smallstorage.storagecontainer": {
+            "x": 4,
+            "y": 4
+        }
+    },
+    "useDropPodInventory": false,
+    "defaultLifepodLockerInventory": [],
+    "DroppodWidth": 6,
+    "DroppodHeight": 8,
+    "ExosuitX": 6,
+    "ExosuitY": 4,
+    "ExosuitModuleHeight": 1,
+    "FiltrationX": 2,
+    "FiltrationY": 2,
+    "FiltrationWater": 2,
+    "FiltrationSalt": 2,
+    "InvWidth": 6,
+    "InvHeight": 8,
+    "BioreactorWidth": 4,
+    "BioreactorHeight": 4
+}

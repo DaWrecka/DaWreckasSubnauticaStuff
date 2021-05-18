@@ -94,7 +94,7 @@ namespace CombinedItems.Equipables
         {
             return new RecipeData()
             {
-                craftAmount = 1,
+                craftAmount = 0,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                     {
                         new Ingredient(TechType.Stillsuit, 1),
@@ -104,6 +104,9 @@ namespace CombinedItems.Equipables
                     }
                 ),
                 LinkedItems = new List<TechType>()
+                {
+                    Main.GetModTechType("SurvivalSuit")
+                }
             };
         }
 

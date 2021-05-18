@@ -35,7 +35,7 @@ namespace CustomiseYourStorage_BZ.Patches
 			string lowerID = ContainerID.ToLower();
 			if (lowerID == "none.storagecontiner")
 			{
-				// Special processing for the Lifepod storage locker
+				// Special processing for the Lifepod storage locker; Note the mis-spelling above.
 				//Vector2int newLifepodLockerSize = Main.config.LifepodLockerSize;
 				int X = Main.config.DroppodWidth;
 				int Y = Main.config.DroppodHeight;
@@ -186,7 +186,7 @@ namespace CustomiseYourStorage_BZ.Patches
 		{
 			int maxSalt = Main.config.FiltrationSalt;
 			int maxWater = Main.config.FiltrationWater;
-			Vector2int newContainerSize = new Vector2int(Main.config.FiltrationX, Main.config.FiltrationX);
+			Vector2int newContainerSize = new Vector2int(Main.config.FiltrationX, Main.config.FiltrationY);
 #if !RELEASE
 			Logger.Log(Logger.Level.Debug, $"Reconfiguring Filtration Machine {__instance.gameObject.name} with configuration values of: maxSalt {maxSalt}, maxWater {maxWater}, new size ({newContainerSize.ToString()})"); 
 #endif

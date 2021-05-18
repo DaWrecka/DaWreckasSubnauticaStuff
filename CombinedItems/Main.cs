@@ -113,25 +113,7 @@ namespace CombinedItems
 		public static void Load()
 		{
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "SuitUpgrades", "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
-			//prefabInsulatedRebreather.Patch();
-			//prefabReinforcedColdGloves.Patch();
-			//prefabReinforcedColdSuit.Patch();
-			//prefabHighCapacityBooster.Patch();
-			//prefabLightningClaw.Patch();
-			//prefabExosuitSprintModule.Patch();
-			//prefabHbWaterTravelModule.Patch();
-			//prefabHbSolarCharger.Patch();
-			//prefabHbHullModule.Patch();
-			//prefabHbEngineModule.Patch();
-			//prefabHbSpeedModule.Patch();
-			//ExoLightningGenerator.Patch();
-			//powerglideFrag.Patch();
-			//prefabSurvivalSuit.Patch();
-			//prefabReinforcedSurvivalSuit.Patch();
 
-			//// prefabHbMobility depends on other prefabs in this list, so must be patched after them
-			//prefabHbMobility.Patch();
-			//prefabPowerglide.Patch();
 			foreach (Spawnable s in new List<Spawnable>() {
 				new InsulatedRebreather(),
 				new ReinforcedColdSuit(),

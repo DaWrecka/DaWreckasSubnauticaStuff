@@ -30,7 +30,7 @@ namespace IngredientsFromScanning_BZ.Configuration
         public int maxComponents = 2; // Maximum number
 
         [Toggle("Show all fragments in Map Room")]
-        public bool bOverrideMapRoom = true;
+        private bool bOverrideMapRoom = true;
 
         private void OnSliderChange(SliderChangedEventArgs e)
         {
@@ -393,7 +393,9 @@ namespace IngredientsFromScanning_BZ.Configuration
                     { "Creepvine", 0f },
                     { "CreepvineSeedCluster", 0f },
                     { "CreepvinePiece", 0f },
-                    { "GasPod", 0f }
+                    { "GasPod", 0f },
+                    { "Kyanite", 0.5f },
+                    { "PrecursorIonCrystal", 0f }
                 };
                 return true;
             }

@@ -27,7 +27,7 @@ namespace IngredientsFromScanning.Configuration
         [Slider("Maximum ingredients", MIN_PRIZE, MAX_PRIZE, DefaultValue = 2, Id = "MaxComponents"), OnChange(nameof(OnSliderChange))]
         public int maxComponents = 2; // Maximum number
 
-        [Toggle("Show all fragments in Map Room")]
+        [Toggle("Show all fragments in Map Room", Tooltip = "By default, scanner rooms will not show fragments when you have the complete blueprint associated with that fragment. If this option is enabled, scanner rooms will show all fragments regardless.")]
         public bool bOverrideMapRoomScanner = true;
 
         private void OnSliderChange(SliderChangedEventArgs e)
@@ -236,7 +236,7 @@ namespace IngredientsFromScanning.Configuration
             if (TechWeights == null)
             {
 #if !RELEASE
-                Logger.Log(Logger.Level.Warn, "No TechWeights found, setting default values"); 
+                Logger.Log(Logger.Level.Warn, "No TechWeights found, setting default values");
 #endif
                 TechWeights = new Dictionary<string, float>() {
                     { "None", 0f },
@@ -390,7 +390,9 @@ namespace IngredientsFromScanning.Configuration
                     { "Creepvine", 0f },
                     { "CreepvineSeedCluster", 0f },
                     { "CreepvinePiece", 0f },
-                    { "GasPod", 0f }
+                    { "GasPod", 0f },
+                    { "Kyanite", 0.5f },
+                    { "PrecursorIonCrystal", 0f }
                 };
                 return true;
             }

@@ -2,7 +2,7 @@
   "Id": "CustomiseYourStorage_BZ",
   "DisplayName": "Customise Your Storage",
   "Author": "DaWrecka",
-  "Version": "1.0.0.0",
+  "Version": "1.0.0.1",
   "Dependencies": [
     "SMLHelper"
   ],

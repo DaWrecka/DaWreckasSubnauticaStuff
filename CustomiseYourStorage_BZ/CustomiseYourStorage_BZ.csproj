@@ -79,6 +79,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="config.default.json" />
     <None Include="mod_SN1.json" />
     <None Include="mod_BZ.json" />
   </ItemGroup>

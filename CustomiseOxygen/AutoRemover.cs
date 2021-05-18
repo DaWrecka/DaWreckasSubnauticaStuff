@@ -8,15 +8,16 @@ using UnityEngine;
 
 namespace CustomiseOxygen
 {
-    internal class AutoRemover : MonoBehaviour, ICraftTarget
-    {
-        public void OnCraftEnd(TechType target)
-        {
-            if (Main.bannedTech.Contains(target))
-            {
-                Log.LogDebug($"AutoRemover: Destroying object");
-                GameObject.Destroy(this.gameObject);
-            }
-        }
-    }
+/*	internal class AutoRemover : MonoBehaviour, ICraftTarget
+	{
+		public void OnCraftEnd(TechType target)
+		{
+			if (Main.bannedTech.Contains(target))
+			{
+				Log.LogDebug($"AutoRemover: Destroying object");
+				GameObject.Destroy(this.gameObject);
+			}
+		}
+	}
+*/
 }
