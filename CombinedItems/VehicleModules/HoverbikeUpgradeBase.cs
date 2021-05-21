@@ -18,7 +18,7 @@ namespace CombinedItems.VehicleModules
         public override TechCategory CategoryForPDA => TechCategory.VehicleUpgrades;
         public override TechType RequiredForUnlock => TechType.Hoverbike;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;
-        public override string[] StepsToFabricatorTab => new string[] { "Machines" };
+        public override string[] StepsToFabricatorTab => new string[] { "Upgrades", "HoverbikeUpgrades" };
         public override float CraftingTime => 10f;
         public override Vector2int SizeInInventory => new Vector2int(1, 1);
 

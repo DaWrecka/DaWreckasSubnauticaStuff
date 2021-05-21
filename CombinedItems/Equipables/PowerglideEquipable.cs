@@ -24,7 +24,7 @@ namespace CombinedItems.Equipables
 		private const float PowerglideColourG = 2f;
 		private const float PowerglideColourB = 1f;
 
-		public PowerglideEquipable() : base("PowerglideEquipable", "Powerglide", $"Hold {GameInput.GetBinding(GameInput.Device.Keyboard, GameInput.Button.Sprint, GameInput.BindingSet.Primary)} for dramatic speed bonus with increased energy consumption")
+		public PowerglideEquipable() : base("PowerglideEquipable", "Powerglide", $"Hold Sprint for dramatic speed bonus underwater with increased energy consumption")
 		{
 			OnFinishedPatching += () =>
 			{

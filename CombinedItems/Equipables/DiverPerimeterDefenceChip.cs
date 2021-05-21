@@ -316,7 +316,13 @@ namespace CombinedItems.Equipables
 
 				yield return new WaitForSecondsRealtime(0.5f);
 			}
+			Log.LogDebug($"DiverPerimeterDefenceChip.PostPatchSetup(): sprite loaded, now waiting for chip slots");
+			while (Inventory.main == null && Inventory.main.equipment == null)
+			{
+				yield return new WaitForSeconds(0.5f);
+			}
 			Inventory.main.equipment.GetSlots(EquipmentType.Chip, Main.chipSlots);
+			Log.LogDebug($"DiverPerimeterDefenceChip.PostPatchSetup(): completed");
 		}
 
 		protected override Sprite GetItemSprite()

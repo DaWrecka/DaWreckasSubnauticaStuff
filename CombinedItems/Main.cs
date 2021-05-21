@@ -27,7 +27,7 @@ namespace CombinedItems
 	public class Main
 	{
 		internal static bool bVerboseLogging = true;
-		internal static bool bLogTranspilers = false;
+		internal static bool bLogTranspilers = true;
 		internal const string version = "0.8.0.3";
 		internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
 
@@ -113,6 +113,13 @@ namespace CombinedItems
 		public static void Load()
 		{
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "SuitUpgrades", "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "HoverbikeUpgrades", "Snowfox Upgrades", SpriteManager.Get(TechType.Hoverbike), new string[] { "Upgrades" });
+			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HighCapacityTank" });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HighCapacityTank, new string[] { "ModTanks" });
+			CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Machines", "HoverbikeSilentModule" });
+			CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Machines", "HoverbikeJumpModule" });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.HoverbikeIceWormReductionModule, new string[] { "Upgrades", "HoverbikeUpgrades" });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.HoverbikeJumpModule, new string[] { "Upgrades", "HoverbikeUpgrades" });
 
 			foreach (Spawnable s in new List<Spawnable>() {
 				new InsulatedRebreather(),

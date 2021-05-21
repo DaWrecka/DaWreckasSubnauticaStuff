@@ -114,6 +114,7 @@
     <Compile Include="Patches\Seaglide.cs" />
     <Compile Include="Patches\Seatruck.cs" />
     <Compile Include="Patches\SpikeyTrap.cs" />
+    <Compile Include="Patches\Survival.cs" />
     <Compile Include="Spawnables\PowerglideFragmentPrefab.cs" />
     <Compile Include="VehicleModules\ExosuitLightningClawGeneratorModule.cs" />
     <Compile Include="VehicleModules\ExosuitSprintModule.cs" />

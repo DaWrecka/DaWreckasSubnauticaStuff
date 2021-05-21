@@ -12,11 +12,13 @@ using SMLHelper.V2.Json;
 using Common;
 using SMLHelper.V2.Options.Attributes;
 using SMLHelper.V2.Options;
+using UnityEngine;
 
 namespace CustomiseYourStorage_BZ.Configuration
 {
 	internal class DWStorageConfig : ConfigFile
 	{
+		private static readonly HashSet<string> heightSliders = new HashSet<string>() { "DroppodHeight", "ExosuitHeight", "ExosuitModuleHeight", "FiltrationHeight", "InvHeight", "BioreactorHeight" };
 		private static readonly bool bHasAdvancedInventory = QModManager.API.QModServices.Main.ModPresent("AdvancedInventory_BZ");
 		private static readonly int MaxHeight = (bHasAdvancedInventory ? 12 : 8);
 		private readonly Vector2int nullVector = new Vector2int(0, 0); // Used for quick comparison
@@ -102,64 +104,74 @@ namespace CustomiseYourStorage_BZ.Configuration
 		//public Vector2int LifepodLockerSize = new Vector2int(0, 0);
 		[Slider("Droppod locker width", 4, 8, DefaultValue = 6, Id = "DroppodWidth",
 			Step = 1f,
-			Tooltip = "Width of the Droppod locker, in inventory units"), OnChange(nameof(OnSliderChange))]
+			Tooltip = "Width of the Droppod locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int DroppodWidth = 6;
 		[Slider("Droppod locker height", 4, 8, DefaultValue = 8, Id = "DroppodHeight",
 			Step = 1f,
-			Tooltip = "Height of the Droppod locker, in inventory units"), OnChange(nameof(OnSliderChange))]
+			Tooltip = "Height of the Droppod locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int DroppodHeight = 8;
 
 		//public ExoConfigStruct ExosuitConfig;
-		[Slider("Exosuit locker width", 4, 8, DefaultValue = 6, Id = "ExosuitX",
+		[Slider("Exosuit locker width", 4, 8, DefaultValue = 6, Id = "ExosuitWidth",
 			Step = 1f,
-			Tooltip = "Width of the Exosuit locker, in inventory units"), OnChange(nameof(OnSliderChange))]
+			Tooltip = "Width of the Exosuit locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int ExosuitX = 6;
-		[Slider("Exosuit locker height", 4, 8, DefaultValue = 4, Id = "ExosuitY",
+		[Slider("Exosuit locker height", 4, 8, DefaultValue = 4, Id = "ExosuitHeight",
 			Step = 1f,
-			Tooltip = "Height of the Exosuit locker, in inventory units"), OnChange(nameof(OnSliderChange))]
+			Tooltip = "Height of the Exosuit locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int ExosuitY = 4;
 		[Slider("Exosuit storage module height", 1, 4, DefaultValue = 1, Id = "ExosuitModuleHeight",
 			Step = 1f,
-			Tooltip = "Number of rows added to the Exosuit locker per Vehicle Storage Module installed"), OnChange(nameof(OnSliderChange))]
+			Tooltip = "Number of rows added to the Exosuit locker per Vehicle Storage Module installed"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int ExosuitModuleHeight = 1;
 
 		//public FiltrationConfigStruct FiltrationConfig;
-		[Slider("Filtration Machine width", 2, 8, DefaultValue = 2, Id = "FiltrationX",
+		[Slider("Filtration Machine width", 2, 8, DefaultValue = 2, Id = "FiltrationWidth",
 			Step = 1f,
-			Tooltip = "Width of the Water Filtration Machine storage container, in inventory units"), OnChange(nameof(OnSliderChange))]
+			Tooltip = "Width of the Water Filtration Machine storage container, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int FiltrationX = 2;
-		[Slider("Filtration Machine height", 2, 8, DefaultValue = 2, Id = "FiltrationY",
+		[Slider("Filtration Machine height", 2, 8, DefaultValue = 2, Id = "FiltrationHeight",
 			Step = 1f,
-			Tooltip = "Height of the Water Filtration Machine storage container, in inventory units"), OnChange(nameof(OnSliderChange))]
+			Tooltip = "Height of the Water Filtration Machine storage container, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int FiltrationY = 2;
 		[Slider("Filtration Machine max water", 2, 8, DefaultValue = 2, Id = "FiltrationWater",
 			Step = 1f,
-			Tooltip = "Maximum number of water bottles that can be held by the Water Filtration Machine"), OnChange(nameof(OnSliderChange))]
+			Tooltip = "Maximum number of water bottles that can be held by the Water Filtration Machine"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int FiltrationWater = 2;
 		[Slider("Filtration Machine max salt", 2, 8, DefaultValue = 2, Id = "FiltrationSalt",
 			Step = 1f,
-			Tooltip = "Maximum number of salt deposits that can be held by the Water Filtration Machine"), OnChange(nameof(OnSliderChange))]
+			Tooltip = "Maximum number of salt deposits that can be held by the Water Filtration Machine"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int FiltrationSalt = 2;
 
 		//public Vector2int InventorySize = new Vector2int(0, 0);
 		[Slider("Inventory width", 4, 8, DefaultValue = 6, Id = "InvWidth",
 			Step = 1f,
-			Tooltip = "Base width of the inventory, in inventory units"), OnChange(nameof(OnSliderChange))]
+			Tooltip = "Base width of the inventory, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int InvWidth = 6;
 		[Slider("Inventory height", 4, 8, DefaultValue = 8, Id = "InvHeight",
 			Step = 1f,
-			Tooltip = "Base height of the inventory, in inventory units"), OnChange(nameof(OnSliderChange))]
+			Tooltip = "Base height of the inventory, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int InvHeight = 8;
 
 		//public Vector2int BioreactorSize = new Vector2int(0, 0);
 		[Slider("Bioreactor width", 3, 8, DefaultValue = 4, Id = "BioreactorWidth",
 			Step = 1f,
-			Tooltip = "Width of the Bioreactor container, in inventory units"), OnChange(nameof(OnSliderChange))]
+			Tooltip = "Width of the Bioreactor container, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int BioreactorWidth = 4;
 		[Slider("Bioreactor height", 3, 8, DefaultValue = 4, Id = "BioreactorHeight",
 			Step = 1f,
-			Tooltip = "Height of the Bioreactor container, in inventory units"), OnChange(nameof(OnSliderChange))]
+			Tooltip = "Height of the Bioreactor container, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int BioreactorHeight = 4;
+
+		public void GameOptionCreated(object sender, GameObjectCreatedEventArgs e)
+		{
+			if (heightSliders.Contains(e.Id))
+			{
+				GameObject go = e.GameObject;
+				GameObject slider = go.transform.Find("Slider").gameObject;
+				slider.GetComponent<uGUI_SnappingSlider>().maxValue = MaxHeight;
+			}
+		}
 
 		internal void OnSliderChange(SliderChangedEventArgs e)
 		{
@@ -372,49 +384,6 @@ namespace CustomiseYourStorage_BZ.Configuration
 #if !RELEASE
 			Log.LogDebug(bUpdated ? "Some values reset to defaults" : "All values present and correct");
 #endif
-			// Set the UI values so that the mod menu starts with the right values
-			/*DroppodWidth = LifepodLockerSize.x;
-			DroppodHeight = LifepodLockerSize.y;
-			ExosuitX = ExosuitConfig.width;
-			ExosuitY = ExosuitConfig.height;
-			ExosuitModuleHeight = ExosuitConfig.heightPerModule;
-			FiltrationX = FiltrationConfig.containerSize.x;
-			FiltrationY = FiltrationConfig.containerSize.y;
-			FiltrationWater = FiltrationConfig.containerSize.x;
-			FiltrationSalt = FiltrationConfig.containerSize.x;
-			InvWidth = InventorySize.x;
-			InvHeight = InventorySize.x;
-			BioreactorWidth = BioreactorSize.x;
-			BioreactorHeight = BioreactorSize.y;*/
 		}
-
-		/*public static bool SaveConfig(DWStorageConfigNonSML configToSave, string SavePath)
-		{
-			using (var writer = new StreamWriter(SavePath))
-			{
-				writer.Write(JsonConvert.SerializeObject(configToSave, Formatting.Indented, new StringEnumConverter()
-				{
-					NamingStrategy = new CamelCaseNamingStrategy(),
-					AllowIntegerValues = true
-				}));
-			}
-			return false;
-		}
-
-		public void Save(string SavePath = "")
-		{
-			if (string.IsNullOrEmpty(SavePath))
-			{
-				SavePath = Path.Combine(new string[] { Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "config.json" });
-			}
-
-			SaveConfig(this, SavePath);
-		}
-
-
-
-		public DWStorageConfigNonSML(string LoadPath = "")
-		{
-		}*/
 	}
 }

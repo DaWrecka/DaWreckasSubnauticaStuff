@@ -11,6 +11,7 @@ using SMLHelper.V2.Utility;
 using UnityEngine;
 using UWE;
 using CombinedItems.MonoBehaviours;
+using CombinedItems.Patches;
 
 namespace CombinedItems.Equipables
 {
@@ -28,7 +29,16 @@ namespace CombinedItems.Equipables
                     Main.AddSubstitution(this.TechType, tt);
                 }
                 Main.AddModTechType(this.TechType);
+                SurvivalPatches.AddNeedsCapOverride(this.TechType, SurvivalCapOverride);
             };
+        }
+
+        protected virtual float SurvivalCapOverride
+        {
+            get
+            {
+                return 150f;
+            }
         }
 
         protected virtual TechType[] substitutions
@@ -72,8 +82,11 @@ namespace CombinedItems.Equipables
     {
         public SurvivalSuit(string classId = "SurvivalSuit",
                 string friendlyName = "Survival Suit",
-                string Description = "Enhanced survival suit provides passive replenishment of calories and fluids, reducing the need for external sources of sustenance.") : base(classId, friendlyName, Description)
+                string Description = "Enhanced survival suit provides passive replenishment of calories and fluids, reducing the need for external sources of sustenance. Also improves bodily water capacity.") : base(classId, friendlyName, Description)
         {
+            OnFinishedPatching += () =>
+            {
+            };
         }
 
         protected override TechType[] substitutions

@@ -13,7 +13,7 @@ namespace CustomiseYourStorage_BZ
 	[QModCore]
 	public class Main
 	{
-		internal const string version = "1.0.0.1";
+		internal const string version = "1.0.0.2";
 
 		internal static DWStorageConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWStorageConfig>();
 		//internal static readonly DWStorageConfigNonSML config = DWStorageConfigNonSML.LoadConfig(Path.Combine(new string[] { Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "config.json" }));

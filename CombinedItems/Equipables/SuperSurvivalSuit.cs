@@ -1,4 +1,5 @@
 ﻿using CombinedItems.MonoBehaviours;
+using CombinedItems.Patches;
 using Common;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
@@ -14,7 +15,7 @@ namespace CombinedItems.Equipables
 {
     internal class SuperSurvivalSuit : SurvivalSuit
     {
-        public SuperSurvivalSuit() : base("SuperSurvivalSuit", "Ultimate Survival Suit", "The ultimate in survival gear. Provides protection from extreme temperatures and physical harm, and reduces the need for external sustenance.")
+        public SuperSurvivalSuit() : base("SuperSurvivalSuit", "Ultimate Survival Suit", "The ultimate in survival gear. Provides protection from extreme temperatures and physical harm, reduces the need for external sustenance, and dramatically improves the body's ability to retain water.")
         {
             OnFinishedPatching += () =>
             {
@@ -39,6 +40,14 @@ namespace CombinedItems.Equipables
                 };
                 Reflection.AddCompoundTech(compound);*/
             };
+        }
+
+        protected override float SurvivalCapOverride
+        {
+            get
+            {
+                return 200f;
+            }
         }
 
         protected override TechType[] substitutions
