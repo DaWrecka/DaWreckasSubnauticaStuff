@@ -3,7 +3,7 @@
   "DisplayName": "Fuel Cells",
   "Author": "DaWrecka",
   "Version": "1.0.0.0",
-  "Dependencies": [
+  "LoadAfter": [
     "SMLHelper",
     "CustomBatteries"
   ],

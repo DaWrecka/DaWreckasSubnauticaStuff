@@ -1,4 +1,5 @@
 ﻿using CombinedItems.Equipables;
+using CombinedItems.MonoBehaviours;
 using Common;
 using HarmonyLib;
 using System;
@@ -38,12 +39,12 @@ namespace CombinedItems.Patches
                             InventoryItem item = e.GetItemInSlot(slot);
                             Log.LogDebug($"MeleeAttackPatches.PostCanBite: Found discharge chip in slot {slot}, checking for associated MonoBehaviour");
                             DiverPerimeterDefenceBehaviour behaviour = item.item.gameObject.GetComponent<DiverPerimeterDefenceBehaviour>();
-                            if (behaviour != null)
-                            {
-                                Log.LogDebug($"MeleeAttackPatches.PostCanBite: MonoBehaviour found, calling Discharge()");
-                                if (behaviour.Discharge(__instance.gameObject))
-                                {
-                                    Log.LogDebug($"MeleeAttackPatches.PostCanBite: Discharge() returned true");
+							if (behaviour != null)
+							{
+								Log.LogDebug($"MeleeAttackPatches.PostCanBite: MonoBehaviour found, calling Discharge()");
+								if (behaviour.Discharge(__instance.gameObject))
+								{
+	                                Log.LogDebug($"MeleeAttackPatches.PostCanBite: Discharge() returned true");
                                     __result = false;
                                     return;
                                 }

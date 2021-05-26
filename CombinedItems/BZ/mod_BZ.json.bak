@@ -1,24 +1,30 @@
 {
-  "Author": "DaWrecka",
-  "DisplayName": "Combined Items",
-  "VersionDependencies": {
-    "SMLHelper": "2.9.3"
-  },
-  "Id": "CombinedItems",
-  "AssemblyName": "CombinedItems.dll",
-  "Version": "0.8.0.3",
-  "Enable": true,
-  "NexusId": {
-    "Subnautica": "610"
-  },
-  "Game": "BelowZero",
-  "LoadAfter": [
-    "CustomiseOxygen"
-  ],
-  "VersionChecker": {
-    "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/ConsoleBatchFiles/mod_BZ.json"
-  },
-  "Dependencies": [
-    "SMLHelper"
-  ]
+	"Author": "DaWrecka",
+	"DisplayName": "Combined Items",
+	"VersionDependencies": {
+		"SMLHelper": "2.9.6"
+	},
+	"Id": "CombinedItems",
+	"AssemblyName": "CombinedItems.dll",
+	"Version": "0.8.0.3",
+	"Enable": true,
+	"NexusId": {
+		"Subnautica": "610"
+	},
+	"Game": "BelowZero",
+	"LoadAfter": [
+		"SMLHelper",
+		"BioChemBatteriesMK2",
+		"CustomBatteries",
+		"CustomiseOxygen",
+		"FuelCells",
+		"MidGameBatteries",
+		"NuclearBatteries",
+		"EasyCraft_BZ"
+	],
+	"VersionChecker": {
+		"LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/ConsoleBatchFiles/mod_BZ.json"
+	},
+	"Dependencies": [
+	]
 }

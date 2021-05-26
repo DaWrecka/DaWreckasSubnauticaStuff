@@ -41,8 +41,8 @@
     <Reference Include="0Harmony">
       <HintPath>$(GameDir)\BepInEx\core\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>$(GameDir)\$(DataFolder)\Managed\Assembly-CSharp.dll</HintPath>
+    <Reference Include="Assembly-CSharp_publicized">
+      <HintPath>$(GameDir)\$(DataFolder)\Managed\publicized_assemblies\Assembly-CSharp_publicized.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>$(GameDir)\$(DataFolder)\Managed\Assembly-CSharp-firstpass.dll</HintPath>
@@ -101,14 +101,17 @@
     <Compile Include="Equipables\ReinforcedColdSuit.cs" />
     <Compile Include="Equipables\SuperSurvivalSuit.cs" />
     <Compile Include="Equipables\SurvivalSuit.cs" />
+    <Compile Include="MonoBehaviours\DiverPerimeterDefenceBehaviour.cs" />
     <Compile Include="MonoBehaviours\HoverbikeStructuralIntegrityModifier.cs" />
     <Compile Include="MonoBehaviours\HoverbikeUpdater.cs" />
     <Compile Include="MonoBehaviours\Powerglide.cs" />
+    <Compile Include="MonoBehaviours\SeaTruckUpdater.cs" />
     <Compile Include="MonoBehaviours\SurvivalsuitBehaviour.cs" />
     <Compile Include="MonoBehaviours\VehicleUpdater.cs" />
     <Compile Include="Patches\BatteryCharger.cs" />
     <Compile Include="Patches\ExosuitClawArm.cs" />
     <Compile Include="Patches\Hoverbike.cs" />
+    <Compile Include="Patches\Inventory.cs" />
     <Compile Include="Patches\MeleeAttackPatches.cs" />
     <Compile Include="Patches\PlayerTool.cs" />
     <Compile Include="Patches\Seaglide.cs" />
@@ -117,6 +120,8 @@
     <Compile Include="Patches\Survival.cs" />
     <Compile Include="Spawnables\PowerglideFragmentPrefab.cs" />
     <Compile Include="VehicleModules\ExosuitLightningClawGeneratorModule.cs" />
+    <Compile Include="VehicleModules\SeatruckThermalModule.cs" />
+    <Compile Include="VehicleModules\SeatruckSolarModule.cs" />
     <Compile Include="VehicleModules\ExosuitSprintModule.cs" />
     <Compile Include="MonoBehaviours\ExosuitLightningClaw.cs" />
     <Compile Include="VehicleModules\ExosuitLightningClawPrefab.cs" />

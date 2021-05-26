@@ -13,15 +13,17 @@ namespace CombinedItems.Patches
 	[HarmonyPatch(typeof(Survival))]
 	internal class SurvivalPatches
 	{
+		/*private const float defaultSurvivalCap = 100f;
+
 		private static Dictionary<TechType, float> NeedsCapOverrides = new Dictionary<TechType, float>()
 		{
-			{ TechType.None, 100f },
-			{ TechType.ColdSuit, 100f },
-			{ TechType.ReinforcedDiveSuit, 100f },
-			{ TechType.Stillsuit, 100f }
+			{ TechType.None, defaultSurvivalCap },
+			{ TechType.ColdSuit, defaultSurvivalCap },
+			{ TechType.ReinforcedDiveSuit, defaultSurvivalCap },
+			{ TechType.Stillsuit, defaultSurvivalCap }
 		}; // Dictionary using suit TechTypes as keys; if the worn suit is present in the dictionary, then we override the water cap with the associated value.
 		private static TechType cachedSuitType; // if the equipped body suit is this, we don't need to check the dictionary.
-		private static float cachedOverride = 100f;
+		private static float cachedOverride = defaultSurvivalCap;
 
 		public static float GetPrimaryNeedsCap()
 		{
@@ -35,12 +37,12 @@ namespace CombinedItems.Patches
 				if (NeedsCapOverrides.TryGetValue(equippedSuit, out float value))
 				{
 					cachedOverride = value;
-					//Log.LogDebug($"SurvivalPatches.GetPrimaryNeedsCap: Using override value of {cachedOverride} for TechType of {equippedSuit.ToString()}");
+					Log.LogDebug($"SurvivalPatches.GetPrimaryNeedsCap: Using override value of {cachedOverride} for TechType of {equippedSuit.ToString()}");
 				}
 				else
 				{
-					cachedOverride = 100f;
-					//Log.LogDebug($"SurvivalPatches.GetPrimaryNeedsCap: Couldn't find override value for TechType of {equippedSuit.ToString()}, using 100");
+					cachedOverride = defaultSurvivalCap;
+					Log.LogDebug($"SurvivalPatches.GetPrimaryNeedsCap: Couldn't find override value for TechType of {equippedSuit.ToString()}, using {defaultSurvivalCap}");
 				}
 			}
 
@@ -73,20 +75,19 @@ namespace CombinedItems.Patches
 			i = -1;
 			while (++i < maxIndex)
 			{
-				/*
-				 Our target pattern is as follows:
-					IL_008F: ldarg.0
-					IL_0090: ldarg.0
-					IL_0091: ldfld     float32 Survival::water
-					IL_0096: ldloc.s   V_4
-					IL_0098: sub
-					IL_0099: ldc.r4    0.0
-					IL_009E: ldc.r4    100
-					IL_00A3: call      float32 [UnityEngine.CoreModule]UnityEngine.Mathf::Clamp(float32, float32, float32)
-					IL_00A8: stfld     float32 Survival::water
+				//Our target pattern is as follows:
+				//	IL_008F: ldarg.0
+				//	IL_0090: ldarg.0
+				//	IL_0091: ldfld     float32 Survival::water
+				//	IL_0096: ldloc.s   V_4
+				//	IL_0098: sub
+				//	IL_0099: ldc.r4    0.0
+				//	IL_009E: ldc.r4    100
+				//	IL_00A3: call      float32 [UnityEngine.CoreModule]UnityEngine.Mathf::Clamp(float32, float32, float32)
+				//	IL_00A8: stfld     float32 Survival::water
 
-				That 'ldc.r4 100' is what we want to change; it loads 100 on the stack as a constant, which is the 'maximum' value passed to Clamp. We want, instead, to put our value on the stack.
-				*/
+				//That 'ldc.r4 100' is what we want to change; it loads 100 on the stack as a constant, which is the 'maximum' value passed to Clamp. We want, instead, to put our value on the stack.
+				
 				if (codes[i].opcode == OpCodes.Ldarg_0
 					&& codes[i + 1].opcode == OpCodes.Ldarg_0
 					&& codes[i + 2].opcode == OpCodes.Ldfld
@@ -131,21 +132,19 @@ namespace CombinedItems.Patches
 			i = -1;
 			while (++i < maxIndex)
 			{
-				/*
-				 Our target pattern is as follows:
-					IL_00C5: ldarg.0
-					IL_00C6: ldarg.0
-					IL_00C7: ldfld     float32 Survival::water
-					IL_00CC: ldloc.2
-					IL_00CD: callvirt  instance float32 Eatable::GetWaterValue()
-					IL_00D2: add
-					IL_00D3: ldc.r4    0.0
-					IL_00D8: ldc.r4    100
-					IL_00DD: call      float32 [UnityEngine.CoreModule]UnityEngine.Mathf::Clamp(float32, float32, float32)
-					IL_00E2: stfld     float32 Survival::water
+				//Our target pattern is as follows:
+				//	IL_00C5: ldarg.0
+				//	IL_00C6: ldarg.0
+				//	IL_00C7: ldfld     float32 Survival::water
+				//	IL_00CC: ldloc.2
+				//	IL_00CD: callvirt  instance float32 Eatable::GetWaterValue()
+				//	IL_00D2: add
+				//	IL_00D3: ldc.r4    0.0
+				//	IL_00D8: ldc.r4    100
+				//	IL_00DD: call      float32 [UnityEngine.CoreModule]UnityEngine.Mathf::Clamp(float32, float32, float32)
+				//	IL_00E2: stfld     float32 Survival::water
 
-				As with UpdateStats, the 'ldc.r4 100' is loading a value of 100 on the stack as the 'max' parameter of Clamp. We want to swap this for our method.
-				*/
+				//As with UpdateStats, the 'ldc.r4 100' is loading a value of 100 on the stack as the 'max' parameter of Clamp. We want to swap this for our method.
 				if (codes[i].opcode == OpCodes.Ldarg_0
 					&& codes[i + 1].opcode == OpCodes.Ldarg_0
 					&& codes[i + 2].opcode == OpCodes.Ldfld
@@ -168,6 +167,6 @@ namespace CombinedItems.Patches
 					Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
 			}
 			return codes.AsEnumerable();
-		}
+		}*/
 	}
 }

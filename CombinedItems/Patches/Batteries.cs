@@ -149,6 +149,13 @@ namespace CombinedItems.Patches
 		internal static Dictionary<TechType, float> typedBatteryValues = new Dictionary<TechType, float>();
 		internal static List<Battery> pendingBatteryList = new List<Battery>();
 
+		private static Dictionary<TechType, float> DefaultBatteryCharges = new Dictionary<TechType, float>();
+		internal static void AddDefaultBatteryCharge(TechType battery, float capacity)
+		{
+			DefaultBatteryCharges[battery] = capacity;
+		}
+
+
 		internal static void PostPatch()
 		{
 			foreach (KeyValuePair<string, float> kvp in BatteryValues)

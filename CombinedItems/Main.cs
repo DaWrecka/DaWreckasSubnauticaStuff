@@ -27,13 +27,16 @@ namespace CombinedItems
 	public class Main
 	{
 		internal static bool bVerboseLogging = true;
-		internal static bool bLogTranspilers = true;
+		internal static bool bLogTranspilers = false;
 		internal const string version = "0.8.0.3";
 		internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
 
 		private static readonly Type CustomiseOxygen = Type.GetType("CustomiseOxygen.Main, CustomiseOxygen", false, false);
 		private static readonly MethodInfo CustomOxyAddExclusionMethod = CustomiseOxygen?.GetMethod("AddExclusion", BindingFlags.Public | BindingFlags.Static);
 		private static readonly MethodInfo CustomOxyAddTankMethod = CustomiseOxygen?.GetMethod("AddTank", BindingFlags.Public | BindingFlags.Static);
+		//private static readonly PropertyInfo compatibleTechInfo = typeof(BatteryCharger).GetProperty("compatibleTech", BindingFlags.NonPublic | BindingFlags.Static);
+		//private static HashSet<TechType> compatibleBatteries => (HashSet<TechType>)compatibleTechInfo.GetValue(null);
+		internal static HashSet<TechType> compatibleBatteries => BatteryCharger.compatibleTech;
 
 		//internal static InsulatedRebreather prefabInsulatedRebreather = new InsulatedRebreather();
 		//internal static ReinforcedColdSuit prefabReinforcedColdSuit = new ReinforcedColdSuit();
@@ -109,52 +112,6 @@ namespace CombinedItems
 			return null;
 		}
 
-		[QModPatch]
-		public static void Load()
-		{
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "SuitUpgrades", "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "HoverbikeUpgrades", "Snowfox Upgrades", SpriteManager.Get(TechType.Hoverbike), new string[] { "Upgrades" });
-			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HighCapacityTank" });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HighCapacityTank, new string[] { "ModTanks" });
-			CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Machines", "HoverbikeSilentModule" });
-			CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Machines", "HoverbikeJumpModule" });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.HoverbikeIceWormReductionModule, new string[] { "Upgrades", "HoverbikeUpgrades" });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.HoverbikeJumpModule, new string[] { "Upgrades", "HoverbikeUpgrades" });
-
-			foreach (Spawnable s in new List<Spawnable>() {
-				new InsulatedRebreather(),
-				new ReinforcedColdSuit(),
-				new ReinforcedColdGloves(),
-				new HighCapacityBooster(),
-				new ExosuitLightningClawPrefab(),
-				new ExosuitSprintModule(),
-				new HoverbikeWaterTravelModule(),
-				new HoverbikeSolarChargerModule(),
-				new HoverbikeStructuralIntegrityModule(),
-				new HoverbikeEngineEfficiencyModule(),
-				new HoverbikeSpeedModule(),
-				new ExosuitLightningClawGeneratorModule(),
-				new PowerglideFragmentPrefab(),
-				new SurvivalSuit(),
-				new SurvivalColdSuit(),
-				new ReinforcedSurvivalSuit(),
-				new HoverbikeMobilityUpgrade(),
-				new PowerglideEquipable(),
-				new SuperSurvivalSuit(),
-				new SurvivalSuitBlueprint_BaseSuits(),
-				new SurvivalSuitBlueprint_FromReinforcedSurvival(),
-				new SurvivalSuitBlueprint_FromReinforcedCold(),
-				new SurvivalSuitBlueprint_FromSurvivalCold(),
-				new DiverPerimeterDefenceChip_Broken(),
-				new DiverPerimeterDefenceChipItem(),
-			})
-			{
-				s.Patch();
-			}
-
-			new Harmony($"DaWrecka_{myAssembly.GetName().Name}").PatchAll(myAssembly);
-		}
-
 		[QModPrePatch]
 		public static void PrePatch()
 		{
@@ -200,22 +157,96 @@ namespace CombinedItems
 			}
 		}
 
+		[QModPatch]
+		public static void Load()
+		{
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "SuitUpgrades", "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "HoverbikeUpgrades", "Snowfox Upgrades", SpriteManager.Get(TechType.Hoverbike), new string[] { "Upgrades" });
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "ChipEquipment", "Chips", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "ChipRecharge", "Chip Recharges", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "DPDTier1", "Diver Perimeter Defence Chip", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal", "ChipRecharge" });
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "DPDTier2", "Diver Perimeter Defence Chip Mk2", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal", "ChipRecharge" });
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "DPDTier3", "Diver Perimeter Defence Chip Mk3", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal", "ChipRecharge" });
+			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HighCapacityTank" });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HighCapacityTank, new string[] { "ModTanks" });
+			CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Machines", "HoverbikeSilentModule" });
+			CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Machines", "HoverbikeJumpModule" });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.HoverbikeIceWormReductionModule, new string[] { "Upgrades", "HoverbikeUpgrades" });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.HoverbikeJumpModule, new string[] { "Upgrades", "HoverbikeUpgrades" });
+
+			foreach (Spawnable s in new List<Spawnable>() {
+				new InsulatedRebreather(),
+				new ReinforcedColdSuit(),
+				new ReinforcedColdGloves(),
+				new HighCapacityBooster(),
+				new ExosuitLightningClawPrefab(),
+				new ExosuitSprintModule(),
+				new HoverbikeWaterTravelModule(),
+				new HoverbikeSolarChargerModule(),
+				new HoverbikeStructuralIntegrityModule(),
+				new HoverbikeEngineEfficiencyModule(),
+				new HoverbikeSpeedModule(),
+				new ExosuitLightningClawGeneratorModule(),
+				new PowerglideFragmentPrefab(),
+				new SurvivalSuit(),
+				new SurvivalColdSuit(),
+				new ReinforcedSurvivalSuit(),
+				new HoverbikeMobilityUpgrade(),
+				new PowerglideEquipable(),
+				new SuperSurvivalSuit(),
+				new SurvivalSuitBlueprint_BaseSuits(),
+				new SurvivalSuitBlueprint_FromReinforcedSurvival(),
+				new SurvivalSuitBlueprint_FromReinforcedCold(),
+				new SurvivalSuitBlueprint_FromSurvivalCold(),
+				new DiverPerimeterDefenceChip_Broken(),
+				new SeatruckSolarModule(),
+				new SeatruckThermalModule()
+			})
+			{
+				s.Patch();
+			}
+
+			var harmony = new Harmony($"DaWrecka_{myAssembly.GetName().Name}");
+			var PreIsCraftRecipeFulfilledAdvancedMethod = AccessTools.Method(typeof(EasyPatches), "PreIsCraftRecipeFulfilledAdvanced");
+			AssemblyUtils.PatchIfExists(harmony, "EasyCraft_BZ", "EasyCraft.Main", "_IsCraftRecipeFulfilledAdvanced", new HarmonyMethod(PreIsCraftRecipeFulfilledAdvancedMethod), null, null);
+			harmony.PatchAll(myAssembly);
+		}
+
 		[QModPostPatch]
 		public static void PostPatch()
 		{
-			//CraftDataHandler.SetBackgroundType(prefabLightningClaw.TechType, CraftData.BackgroundType.ExosuitArm);
-			//CraftDataHandler.SetBackgroundType(prefabExosuitSprintModule.TechType, CraftData.BackgroundType.Normal);
-			CraftDataHandler.SetBackgroundType(GetModTechType("ExosuitSprintModule"), CraftData.BackgroundType.Normal);
+			foreach (Spawnable s in new List<Spawnable>() {
+				new DiverPerimeterDefenceChipItem()
+			})
+			{
+				s.Patch();
+			}
 
-			// This is test code
-			//string PrefabFilename;
-			//if it works, the following changes are made;
 
 			Batteries.PostPatch();
 			LanguageHandler.SetLanguageLine("SeamothWelcomeAboard", "Welcome aboard captain.");
-			//Reflection.PostPatch();
 		}
 	}
+
+	public class EasyPatches
+	{
+		public static bool PreIsCraftRecipeFulfilledAdvanced(TechType parent, TechType techType, int depth, ref bool __result)
+		{
+			if (InventoryPatches.IsChipRecharge(parent))
+			{
+				//Log.LogDebug($"EasyPatches.PreIsCraftRecipeFulfilledAdvanced: parent = {parent.AsString()}, techType = {techType}, __result = {__result.ToString()}, depth = {depth}");
+
+				if (depth > 0)
+				{
+					__result = false;
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
+
 
 	[HarmonyPatch]
 	public class Reflection

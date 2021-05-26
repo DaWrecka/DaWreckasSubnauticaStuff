@@ -23,6 +23,7 @@ namespace CombinedItems.MonoBehaviours
 				this.bindingFlags = BindingFlags.Instance | flags; // There are no static values we're interested in for Hoverbike, so we add the Instance flag.
 			}
 		};
+
 		private static List<HoverbikeField> hoverbikeFields = new List<HoverbikeField>() // This will be used to populate the defaultValues dictionary
 		{
 			new HoverbikeField(nameof(Hoverbike.enginePowerConsumption), BindingFlags.Public),

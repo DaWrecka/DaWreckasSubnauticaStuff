@@ -11,19 +11,19 @@ using System.Reflection;
 
 namespace IngredientsFromScanning_BZ
 {
-    [QModCore]
-    public static class Main
-    {
-        internal const string version = "1.0.0.0";
+	[QModCore]
+	public static class Main
+	{
+		internal const string version = "1.0.0.1";
 
-        internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
+		internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
 
-        [QModPatch]
-        public static void Load()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            new Harmony($"DaWrecka_{assembly.GetName().Name}").PatchAll(assembly);
-            config.Init();
-        }
-    }
+		[QModPatch]
+		public static void Load()
+		{
+			var assembly = Assembly.GetExecutingAssembly();
+			new Harmony($"DaWrecka_{assembly.GetName().Name}").PatchAll(assembly);
+			config.Init();
+		}
+	}
 }

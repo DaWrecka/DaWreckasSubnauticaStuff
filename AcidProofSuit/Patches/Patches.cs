@@ -7,7 +7,7 @@ using Logger = QModManager.Utility.Logger;
 
 namespace AcidProofSuit.Patches
 {
-	[HarmonyPatch(typeof(Equipment), nameof(Equipment.GetCount))]
+	[HarmonyPatch(typeof(Equipment)]
 	internal class Equipment_GetCount_Patch
 	{
 		// This patch allows for "substitutions", as it were; Specifically, it allows the modder to set up certain TechTypes to return results for both itself and another type.
@@ -41,7 +41,8 @@ namespace AcidProofSuit.Patches
 		}
 
 		[HarmonyPostfix]
-		public static void PostFix(ref Equipment __instance, ref int __result, TechType techType)
+		[HarmonyPatch(nameof(Equipment.GetCount))]
+		public static void PostGetCount(ref Equipment __instance, ref int __result, TechType techType)
 		{
 			if (!substitutionTargets.Contains(techType))
 				return; // No need to do anything more.
@@ -118,7 +119,7 @@ namespace AcidProofSuit.Patches
 		}
 	}
 
-	/*[HarmonyPatch(typeof(Player), "EquipmentChanged")]
+	/*[HarmonyPatch(typeof(Player))]
 	internal class Player_EquipmentChanged_Patch
 	{
 		// Original, unmodified materials.
@@ -445,7 +446,7 @@ namespace AcidProofSuit.Patches
 		}
 	}
 
-	[HarmonyPatch(typeof(Player), "UpdateReinforcedSuit")]
+	[HarmonyPatch(typeof(Player))]
 	internal class UpdateReinforcedSuitPatcher
 	{
 		[HarmonyPostfix]
@@ -492,7 +493,7 @@ namespace AcidProofSuit.Patches
 		}
 	}
 
-	[HarmonyPatch(typeof(Player), "OnAcidEnter")]
+	[HarmonyPatch(typeof(Player))]
 	internal class Player_OnAcidEnter_Patch
 	{
 		[HarmonyPrefix]

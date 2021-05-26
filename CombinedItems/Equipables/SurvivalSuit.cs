@@ -29,7 +29,7 @@ namespace CombinedItems.Equipables
                     Main.AddSubstitution(this.TechType, tt);
                 }
                 Main.AddModTechType(this.TechType);
-                SurvivalPatches.AddNeedsCapOverride(this.TechType, SurvivalCapOverride);
+                //SurvivalPatches.AddNeedsCapOverride(this.TechType, SurvivalCapOverride);
             };
         }
 
@@ -166,7 +166,7 @@ namespace CombinedItems.Equipables
                 craftAmount = 1,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                     {
-                        new Ingredient(TechType.Stillsuit, 1),
+                        new Ingredient(Main.GetModTechType("SurvivalSuit"), 1),
                         new Ingredient(TechType.ReinforcedDiveSuit, 1),
                         new Ingredient(TechType.AramidFibers, 1)
                     }
