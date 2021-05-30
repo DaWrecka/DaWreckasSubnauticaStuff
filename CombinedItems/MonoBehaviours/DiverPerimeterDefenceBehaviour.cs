@@ -15,12 +15,22 @@ namespace CombinedItems.MonoBehaviours
 	public class DiverPerimeterDefenceBehaviour : MonoBehaviour, IInventoryDescription, IBattery, ICraftTarget
 	{
 		protected const float JuicePerDischarge = 100f; // Units of energy consumed by a perimeter discharge.
-		protected int MaxDischargeCheat = 0;
+		protected static int MaxDischargeCheat = 0;
 		protected float _charge;
 		protected TechType techType;
 		protected Pickupable thisPickup;
 		protected virtual bool bDestroyWhenEmpty => true;// If true, the chip is destroyed when empty. If false, the chip is just empty and can possibly be recharged
-		protected virtual int MaxDischarges => DiverPerimeterDefenceChipItemBase.GetMaxDischarges(this.techType);
+		protected int _maxDischarges;
+		protected virtual int MaxDischarges
+		{
+			get
+			{
+				if (_maxDischarges <= 0)
+					_maxDischarges = 1;
+
+				return _maxDischarges;
+			}
+		}
 		public TechType ChipTechType { get; protected set; }
 		public static readonly Gradient gradient = new Gradient
 		{
@@ -62,6 +72,11 @@ namespace CombinedItems.MonoBehaviours
 			get { return 1; }
 		}
 
+		public void RuntimeDischargeCheat(int Cheat)
+		{
+			MaxDischargeCheat = Cheat;
+		}
+
 		public void Awake()
 		{
 			if (thisPickup == null)
@@ -78,6 +93,11 @@ namespace CombinedItems.MonoBehaviours
 
 			ChipTechType = tt;
 		}*/
+
+		internal void SetMaxDischarges(int newLimit)
+		{
+			_maxDischarges = newLimit;
+		}
 
 		// Returns true if discharge occurred, false otherwise
 		internal bool Discharge(GameObject attacker)
@@ -192,11 +212,11 @@ namespace CombinedItems.MonoBehaviours
 
 		public string GetChargeValueText()
 		{
-			int numShots = Mathf.RoundToInt(this._charge / JuicePerDischarge);
-			int maxShots = Mathf.RoundToInt(this.capacity / JuicePerDischarge);
+			int numShots = Mathf.FloorToInt(this._charge / JuicePerDischarge);
+			int maxShots = Mathf.FloorToInt(this.capacity / JuicePerDischarge);
 			float num = numShots / maxShots;
 			//return Language.main.GetFormat<string, float, int, float>("BatteryCharge", ColorUtility.ToHtmlStringRGBA(gradient.Evaluate(num)), num, numShots, maxShots);
-			return Language.main.GetFormat<string, float, int, float>("<color=#{0}>{1}u ({2}/{3})</color>", ColorUtility.ToHtmlStringRGBA(gradient.Evaluate(num)), this.charge, numShots, maxShots);
+			return Language.main.GetFormat<string, float, int, int>("<color=#{0}>{1,4}u ({2}/{3})</color>", ColorUtility.ToHtmlStringRGBA(gradient.Evaluate(num)), Mathf.Floor(this.charge), numShots, maxShots);
 		}
 
 		public string GetInventoryDescription()

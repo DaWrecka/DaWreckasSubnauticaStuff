@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Common;
+using HarmonyLib;
 using SMLHelper.V2.Utility;
 using System;
 using System.Collections.Generic;
@@ -85,6 +86,66 @@ namespace CombinedItems.Patches
                 }
                 //}
             }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Equipment), nameof(Equipment.IsCompatible))]
+        public static void PostIsCompatible(EquipmentType itemType, EquipmentType slotType, ref bool __result)
+        {
+            //Log.LogDebug($"itemType = {itemType.ToString()}, slotType = {slotType.ToString()}, __result = {__result}");
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Equipment), nameof(Equipment.AllowedToAdd))]
+        public static bool PreAllowedToAdd(Equipment __instance, ref bool __result, string slot, Pickupable pickupable, bool verbose)
+        {
+            TechType objTechType = pickupable.GetTechType();
+            EquipmentType slotType = Equipment.GetSlotType(slot);
+            if (slotType == EquipmentType.BatteryCharger && InventoryPatches.IsChip(objTechType))
+            {
+#if BELOWZERO
+                EquipmentType eType = TechData.GetEquipmentType(objTechType);
+#else
+                EquipmentType eType = CraftData.GetEquipmentType(objTechType);
+#endif
+                if (eType == EquipmentType.Chip || eType == EquipmentType.BatteryCharger)
+                {
+#if DEBUG_PLACE_TOOL
+                    Logger.Log("DEBUG: AllowedToAdd battery charger for " + objTechType.AsString(false));
+#endif
+                    bool result = ((IItemsContainer)__instance).AllowedToAdd(pickupable, verbose);
+                    __result = result;
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Equipment), nameof(Equipment.AllowedToAdd))]
+        public static void PostAllowedToAdd(string slot, Pickupable pickupable, Equipment __instance, ref bool __result)
+        {
+
+            //Log.LogDebug($"PostAllowedToAdd(): __instance.label = {__instance._label}, slot = {slot}, pickupable = {pickupable.ToString()}, __result = {__result}");
+        }
+
+
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Equipment), "IItemsContainer.AllowedToAdd")]
+        public static void PostIItemsContainerAllowedToAdd(Pickupable pickupable, Equipment __instance, ref bool __result)
+        {
+
+            //Log.LogDebug($"PostIItemsContainerAllowedToAdd(): __instance.label = {__instance._label}, pickupable = {pickupable.ToString()}, __result = {__result}");
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Equipment), nameof(Equipment.AddItem))]
+        public static void PostAddItem(string slot, InventoryItem newItem, ref bool forced, Equipment __instance)
+        {
+            //Log.LogDebug($"PostAddItem(): __instance.label = {__instance._label}, slot = {slot}, newItem = {newItem.ToString()}");
         }
     }
 }

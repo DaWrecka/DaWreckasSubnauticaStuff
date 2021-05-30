@@ -72,7 +72,7 @@ namespace CombinedItems.Equipables
 		}
 
 		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-	  {
+		{
 			if (prefab == null)
 			{
 				var task = CraftData.GetPrefabForTechTypeAsync(TechType.MapRoomHUDChip);
@@ -85,37 +85,9 @@ namespace CombinedItems.Equipables
 		}
 	}
 
-	abstract public class DiverPerimeterDefenceChipItemBase : Equipable
+	abstract public class DiverPerimeterDefenceChipItemBase<T> : Equipable
 	{
 		internal static Dictionary<TechType, int> MaxDischargeDict = new Dictionary<TechType, int>();
-
-		internal static void AddChipData(TechType chip, int MaxDischarges)
-		{
-			MaxDischargeDict[chip] = MaxDischarges;
-		}
-
-		internal static int GetMaxDischarges(TechType chip)
-		{
-			if (MaxDischargeDict.TryGetValue(chip, out int value))
-			{
-				return value;
-			}
-
-			return 1;
-		}
-
-		public DiverPerimeterDefenceChipItemBase(string classId,
-			string friendlyName,
-			string description) : base(classId, friendlyName, description)
-		{
-			OnFinishedPatching += () =>
-			{
-				Main.AddModTechType(this.TechType);
-				InventoryPatches.AddChip(this.TechType);
-				CoroutineHost.StartCoroutine(PostPatchSetup());
-			};
-		}
-
 		public static Sprite icon { get; protected set; }
 		public static GameObject prefab { get; protected set; }
 		public static GameObject brokenPrefab { get; protected set; }
@@ -137,6 +109,32 @@ namespace CombinedItems.Equipables
 		public override QuickSlotType QuickSlotType => QuickSlotType.Passive;
 		public override EquipmentType EquipmentType => EquipmentType.Chip;
 		protected virtual int MaxDischarges => 1;
+		protected virtual List<TechType> RequiredTech => new List<TechType>();
+
+		internal static void AddChipData(TechType chip, int MaxDischarges)
+		{
+			MaxDischargeDict[chip] = MaxDischarges;
+		}
+
+		/*internal static int GetMaxDischarges(TechType chip)
+		{
+			if (MaxDischargeDict.TryGetValue(chip, out int value))
+			{
+				return value;
+			}
+
+			return 1;
+		}*/
+
+		public DiverPerimeterDefenceChipItemBase(string classId,
+			string friendlyName,
+			string description) : base(classId, friendlyName, description)
+		{
+			OnFinishedPatching += () =>
+			{
+				CoroutineHost.StartCoroutine(PostPatchSetup());
+			};
+		}
 
 		/*protected override RecipeData GetBlueprintRecipe()
 		{
@@ -164,13 +162,15 @@ namespace CombinedItems.Equipables
 
 		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
 		{
+			DiverPerimeterDefenceBehaviour behaviour;
 			if (prefab == null)
 			{
 				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.MapRoomHUDChip, true);
 				yield return task;
 
 				prefab = GameObject.Instantiate(task.GetResult());
-				prefab.EnsureComponent<DiverPerimeterDefenceBehaviour>();
+				behaviour = prefab.EnsureComponent<DiverPerimeterDefenceBehaviour>();
+				behaviour.SetMaxDischarges(MaxDischarges);
 
 				TechType brokeChip = Main.GetModTechType("DiverPerimeterDefenceChip_Broken");
 				task = CraftData.GetPrefabForTechTypeAsync(brokeChip);
@@ -183,7 +183,7 @@ namespace CombinedItems.Equipables
 			}
 
 			GameObject go = GameObject.Instantiate(prefab);
-			DiverPerimeterDefenceBehaviour behaviour = go.EnsureComponent<DiverPerimeterDefenceBehaviour>();
+			behaviour = go.EnsureComponent<DiverPerimeterDefenceBehaviour>();
 			//behaviour.SetBattery(battery);
 			//behaviour.SetChipType(this.TechType);
 			gameObject.Set(go);
@@ -196,6 +196,8 @@ namespace CombinedItems.Equipables
 
 			bWaiting = true;
 
+			Main.AddModTechType(this.TechType);
+			InventoryPatches.AddChip(this.TechType);
 			while (bWaiting)
 			{
 				if (icon == null || icon == SpriteManager.defaultSprite)
@@ -215,62 +217,24 @@ namespace CombinedItems.Equipables
 			Log.LogDebug($"DiverPerimeterDefenceChipItemBase.PostPatchSetup(): retrieving available chip slots");
 			Inventory.main.equipment.GetSlots(EquipmentType.Chip, Main.chipSlots);
 			Log.LogDebug($"DiverPerimeterDefenceChipItemBase.PostPatchSetup(): completed");
+
+			if (RequiredTech.Count > 0)
+			{
+				KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
+				compound.techType = this.TechType;
+				compound.dependencies = RequiredTech;
+				Reflection.AddCompoundTech(compound);
+			}
 		}
 
 	}
 
-	public class DiverPerimeterDefenceChipItem : DiverPerimeterDefenceChipItemBase
+	public class DiverPerimeterDefenceChipItem : DiverPerimeterDefenceChipItemBase<DiverPerimeterDefenceChipItem>
 	{
 		public DiverPerimeterDefenceChipItem(string classId = "DiverPerimeterDefenceChipItem",
 			string friendlyName = "Diver Perimeter Defence Chip",
 			string description = "Protects a diver from hostile fauna using electrical discouragement. Discharge damages the chip beyond repair.") : base(classId, friendlyName, description)
 		{
-			OnFinishedPatching += () =>
-			{
-				Main.AddModTechType(this.TechType);
-				InventoryPatches.AddChip(this.TechType);
-				BatteryCharger.compatibleTech.Add(this.TechType);
-				/*
-				Log.LogDebug($"DiverPerimeterDefenceChipItem.OnFinishedPatching, attempting to add tab node {classId} to fabricator");
-				CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, classId, friendlyName, GetItemSprite(), new string[]
-				{
-					"Personal",
-					"ChipRecharge"
-				});
-				// Create the recipes for recharging this chip, based on the batteries that are available.
-				// The goal here is to support Custom Batteries as well as vanilla.
-				foreach (TechType tt in Main.compatibleBatteries)
-				{
-					string recipeClassID = classId + "Recharge" + tt.AsString();
-					Log.LogDebug($"DiverPerimeterDefenceChipItem.OnFinishedPatching, setting up recharge recipe for {classId} with recipeClassID {recipeClassID} and battery {tt.AsString()}");
-					string battName = Language.main.Get(tt);
-					Sprite sprite = SpriteManager.Get(tt);
-
-					TechType newTechType = TechTypeHandler.AddTechType(recipeClassID, $"{friendlyName} Recharge ({battName})", $"{friendlyName} recharged using {battName}");
-					KnownTechHandler.SetAnalysisTechEntry(this.TechType, new TechType[] { newTechType });
-					SpriteHandler.RegisterSprite(newTechType, sprite);
-					var techData = new RecipeData()
-					{
-						craftAmount = 0,
-						Ingredients = new List<Ingredient>()
-						{
-							new Ingredient(tt, 1),
-							new Ingredient(this.TechType, 1)
-						}
-					};
-					techData.LinkedItems.Add(this.TechType);
-					CraftDataHandler.SetTechData(newTechType, techData);
-					CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, newTechType, new string[]
-					{
-						"Personal",
-						"ChipRecharge",
-						classId,
-						newTechType.AsString()
-					});
-					InventoryPatches.AddChipRecharge(newTechType);
-				}
-				*/
-			};
 		}
 
 		public override EquipmentType EquipmentType => EquipmentType.Chip;
@@ -295,6 +259,113 @@ namespace CombinedItems.Equipables
 		private void OnPatchDone()
 		{
 		}
+	}
 
+	public class DiverDefenceSystemMk2 : DiverPerimeterDefenceChipItemBase<DiverDefenceSystemMk2>
+	{
+		public DiverDefenceSystemMk2() : base("DiverDefenceSystemMk2", "Diver Defence System Mk2", "Protects a diver from hostile fauna using electrical discouragement. Can be recharged multiple times.")
+		{
+		}
+
+		protected override List<TechType> RequiredTech => new List<TechType>()
+		{
+			TechType.RadioTowerPPU,
+			Main.GetModTechType("DiverPerimeterDefenceChipItem")
+		};
+
+
+		protected override IEnumerator PostPatchSetup()
+        {
+            yield return base.PostPatchSetup();
+
+			BatteryCharger.compatibleTech.Add(this.TechType);
+			yield break;
+		}
+
+		public override TechType RequiredForUnlock => TechType.RadioTowerPPU;
+
+		protected override int MaxDischarges => 1;
+
+		protected override RecipeData GetBlueprintRecipe()
+		{
+			return new RecipeData()
+			{
+				craftAmount = 1,
+				Ingredients = new List<Ingredient>(new Ingredient[]
+					{
+						new Ingredient(Main.GetModTechType("DiverPerimeterDefenceChipItem"), 1),
+						new Ingredient(TechType.RadioTowerPPU, 1),
+						new Ingredient(TechType.Battery, 1)
+					}
+				)
+			};
+		}
+	}
+
+	public class DiverDefenceMk2_FromBrokenChip : DiverDefenceSystemMk2
+	{
+		public DiverDefenceMk2_FromBrokenChip() : base()
+		{
+		}
+
+		protected override RecipeData GetBlueprintRecipe()
+		{
+			return new RecipeData()
+			{
+				craftAmount = 0,
+				Ingredients = new List<Ingredient>(new Ingredient[]
+					{
+						new Ingredient(Main.GetModTechType("DiverPerimeterDefenceChip_Broken"), 1),
+						new Ingredient(TechType.RadioTowerPPU, 1),
+						new Ingredient(TechType.Battery, 1)
+					}
+				),
+				LinkedItems = new List<TechType>()
+				{
+					Main.GetModTechType("DiverDefenceSystemMk2")
+				}
+			};
+		}
+	}
+
+	public class DiverDefenceSystemMk3 : DiverPerimeterDefenceChipItemBase<DiverDefenceSystemMk3>
+	{
+		public DiverDefenceSystemMk3() : base("DiverDefenceSystemMk3", "Diver Defence System Mk3", "Protects a diver from hostile fauna using electrical discouragement. Can discharge multiple times per charge, and can be recharged multiple times.")
+		{
+		}
+
+		protected override IEnumerator PostPatchSetup()
+		{
+			yield return base.PostPatchSetup();
+
+			BatteryCharger.compatibleTech.Add(this.TechType);
+			yield break;
+		}
+
+		protected override List<TechType> RequiredTech => new List<TechType>()
+		{
+			TechType.PrecursorIonBattery,
+			Main.GetModTechType("DiverDefenceSystemMk2")
+		};
+
+
+		public override TechType RequiredForUnlock => TechType.PrecursorIonBattery;
+
+		protected override int MaxDischarges => 5;
+
+		protected override RecipeData GetBlueprintRecipe()
+		{
+			return new RecipeData()
+			{
+				craftAmount = 1,
+				Ingredients = new List<Ingredient>(new Ingredient[]
+					{
+						new Ingredient(Main.GetModTechType("DiverDefenceSystemMk2"), 1),
+						new Ingredient(TechType.RadioTowerPPU, 1),
+						new Ingredient(TechType.PrecursorIonBattery, 1)
+					}
+				)
+			};
+		}
 	}
 }
