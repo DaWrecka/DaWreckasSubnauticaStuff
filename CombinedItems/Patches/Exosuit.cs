@@ -67,10 +67,6 @@ namespace CombinedItems.Patches
 	[HarmonyPatch(typeof(Exosuit))]
 	public class ExosuitPatches
 	{
-		private const float fGrappleUpgradeModuleRangeMultiplier = 1.5f;
-		private const float fGrappleUpgradeModuleFlightSpeedMultiplier = 2f;
-		private const float fGrappleUpgradeModuleRetractForceMultiplier = 2f;
-
 		private static readonly MethodInfo ApplyJumpForceMethod = typeof(Exosuit).GetMethod("ApplyJumpForce", BindingFlags.Instance | BindingFlags.NonPublic);
 		private static readonly FieldInfo thrustPowerField = typeof(Exosuit).GetField("thrustPower", BindingFlags.Instance | BindingFlags.NonPublic);
 		internal static readonly FieldInfo energyInterfaceField = typeof(Vehicle).GetField("energyInterface", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -436,42 +432,6 @@ namespace CombinedItems.Patches
 			{
 				ApplyJumpForce(exosuit);
 			}
-		}
-
-		public static float GetMaxGrappleDistance(Exosuit exosuit, float fBaseGrappleRange)
-		{
-			float fGrappleRange = fBaseGrappleRange;
-			if (exosuit != null)
-			{
-				if(exosuit.modules.GetCount(Main.GetModTechType("ExosuitGrappleUpgradeModule")) > 0)
-					fGrappleRange *= fGrappleUpgradeModuleRangeMultiplier;
-			}
-
-			return fGrappleRange;
-		}
-
-		public static float GetGrappleHookSpeed(Exosuit exosuit, float fBaseHookSpeed)
-		{
-			float fHookSpeed = fBaseHookSpeed;
-			if (exosuit != null)
-			{
-				if (exosuit.modules.GetCount(Main.GetModTechType("ExosuitGrappleUpgradeModule")) > 0)
-					fHookSpeed *= fGrappleUpgradeModuleFlightSpeedMultiplier;
-			}
-
-			return fHookSpeed;
-		}
-
-		public static float GetGrapplePullSpeed(Exosuit exosuit, float fBasePullSpeed)
-		{
-			float fPullSpeed = fBasePullSpeed;
-			if (exosuit != null)
-			{
-				if (exosuit.modules.GetCount(Main.GetModTechType("ExosuitGrappleUpgradeModule")) > 0)
-					fPullSpeed *= fGrappleUpgradeModuleRetractForceMultiplier;
-			}
-
-			return fPullSpeed;
 		}
 	} 
 }

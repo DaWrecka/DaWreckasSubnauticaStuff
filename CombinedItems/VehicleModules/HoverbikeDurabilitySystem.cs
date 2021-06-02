@@ -9,10 +9,12 @@ using Logger = QModManager.Utility.Logger;
 
 namespace CombinedItems.VehicleModules
 {
-    class HoverbikeWaterTravelModule : HoverbikeUpgradeBase<HoverbikeWaterTravelModule>
+    internal class HoverbikeDurabilitySystem : HoverbikeUpgradeBase<HoverbikeDurabilitySystem>
     {
+        public override float CraftingTime => 10f;
+        protected override TechType spriteTemplate => TechType.VehicleArmorPlating; // Placeholder
+                                                                                                
         //private GameObject prefab;
-        protected override TechType spriteTemplate => TechType.CyclopsHullModule3; // Placeholder
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -42,7 +44,7 @@ namespace CombinedItems.VehicleModules
             gameObject.Set(GameObject.Instantiate(prefab));
         }
 
-        public HoverbikeWaterTravelModule() : base("HoverbikeWaterTravelModule", "Water Travel Module", "Increases the power of the Snowfox's hover pads, allowing travel over water in exchange for increased energy consumption.")
+        public HoverbikeDurabilitySystem() : base("HoverbikeDurabilitySystem", "Hoverbike Durability System", "Energy field reduces incoming damage, and nanotech repair system passively repairs damage to Snowfox systems. Consumes energy while in use.")
         {
             OnFinishedPatching += () =>
             {

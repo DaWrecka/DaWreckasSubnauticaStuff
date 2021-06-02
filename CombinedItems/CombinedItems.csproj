@@ -120,7 +120,10 @@
     <Compile Include="Patches\Survival.cs" />
     <Compile Include="Patches\uGUI_Equipment.cs" />
     <Compile Include="Spawnables\PowerglideFragmentPrefab.cs" />
+    <Compile Include="Spawnables\ShadowLeviathanSample.cs" />
     <Compile Include="VehicleModules\ExosuitLightningClawGeneratorModule.cs" />
+    <Compile Include="VehicleModules\HoverbikeDurabilitySystem.cs" />
+    <Compile Include="VehicleModules\HoverbikeSelfRepairModule.cs" />
     <Compile Include="VehicleModules\SeatruckThermalModule.cs" />
     <Compile Include="VehicleModules\SeatruckSolarModule.cs" />
     <Compile Include="VehicleModules\ExosuitSprintModule.cs" />

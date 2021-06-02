@@ -23,7 +23,7 @@
     "EasyCraft_BZ"
   ],
   "VersionChecker": {
-    "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/ConsoleBatchFiles/mod_BZ.json"
+    "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/CombinedItems/mod_BZ.json"
   },
   "Dependencies": []
 }

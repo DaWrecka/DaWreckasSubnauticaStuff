@@ -15,10 +15,6 @@ namespace CombinedItems.Spawnables
     internal class PowerglideFragmentPrefab : Spawnable
     {
         private static GameObject processedPrefab;
-        // Slightly different colour for the fragments
-        private const float PowerglideColourR = 0f;
-        private const float PowerglideColourG = 1f;
-        private const float PowerglideColourB = 0f;
 
         public PowerglideFragmentPrefab() : base("PowerglideFragment", "Powerglide Fragment", "Damaged Powerglide")
         {
@@ -30,21 +26,21 @@ namespace CombinedItems.Spawnables
 
         public override List<LootDistributionData.BiomeData> BiomesToSpawnIn => GetBiomeDistribution();
 
-        public override WorldEntityInfo EntityInfo => new WorldEntityInfo() { cellLevel = LargeWorldEntity.CellLevel.Medium, classId = ClassID, localScale = Vector3.one, prefabZUp = false, slotType = EntitySlot.Type.Small, techType = TechType };
+        public override WorldEntityInfo EntityInfo => new WorldEntityInfo() { cellLevel = LargeWorldEntity.CellLevel.Medium, classId = ClassID, localScale = Vector3.one, prefabZUp = false, slotType = EntitySlot.Type.Small, techType = this.TechType };
 
         public List<LootDistributionData.BiomeData> GetBiomeDistribution()
         {
             return new List<LootDistributionData.BiomeData>()
             {
-                new LootDistributionData.BiomeData(){ biome = BiomeType.Glacier_Generic, count = 1, probability = 0.2f },
+                new LootDistributionData.BiomeData(){ biome = BiomeType.Glacier_Generic, count = 1, probability = 0.1f },
                 new LootDistributionData.BiomeData(){ biome = BiomeType.GlacialBay, count = 1, probability = 0.2f },
-                new LootDistributionData.BiomeData(){ biome = BiomeType.LilyPads_Deep_Grass, count = 1, probability = 0.2f },
+                new LootDistributionData.BiomeData(){ biome = BiomeType.LilyPads_Deep_Grass, count = 1, probability = 0.1f },
                 new LootDistributionData.BiomeData(){ biome = BiomeType.LilyPads_Deep_Ground, count = 1, probability = 0.2f },
-                new LootDistributionData.BiomeData(){ biome = BiomeType.MiningSite_Ground, count = 1, probability = 0.2f },
-                new LootDistributionData.BiomeData(){ biome = BiomeType.PurpleVents_Deep_Pool_Voxel, count = 1, probability = 0.2f },
-                new LootDistributionData.BiomeData(){ biome = BiomeType.TwistyBridges_Deep_Ground, count = 1, probability = 0.1f },
+                new LootDistributionData.BiomeData(){ biome = BiomeType.MiningSite_Ground, count = 1, probability = 0.1f },
+                new LootDistributionData.BiomeData(){ biome = BiomeType.PurpleVents_Deep_Pool_Voxel, count = 1, probability = 0.1f },
+                //new LootDistributionData.BiomeData(){ biome = BiomeType.TwistyBridges_Deep_Ground, count = 1, probability = 0.1f },
                 new LootDistributionData.BiomeData(){ biome = BiomeType.TwistyBridges_Cave_Ground, count = 1, probability = 0.1f },
-                new LootDistributionData.BiomeData(){ biome = BiomeType.TwistyBridges_Deep_ThermalVentArea_Ground, count = 1, probability = 0.1f }
+                //new LootDistributionData.BiomeData(){ biome = BiomeType.TwistyBridges_Deep_ThermalVentArea_Ground, count = 1, probability = 0.1f }
             };
         }
 
@@ -60,7 +56,7 @@ namespace CombinedItems.Spawnables
 
                 MeshRenderer[] meshRenderers = prefab.GetAllComponentsInChildren<MeshRenderer>();
                 SkinnedMeshRenderer[] skinnedMeshRenderers = prefab.GetAllComponentsInChildren<SkinnedMeshRenderer>();
-                Color powerGlideColour = new Color(PowerglideColourR, PowerglideColourG, PowerglideColourB);
+                Color powerGlideColour = new Color(CombinedItems.Equipables.PowerglideEquipable.PowerglideColourR, CombinedItems.Equipables.PowerglideEquipable.PowerglideColourG, CombinedItems.Equipables.PowerglideEquipable.PowerglideColourB);
 
                 foreach (MeshRenderer mr in meshRenderers)
                 {

@@ -8,6 +8,9 @@ namespace CombinedItems.MonoBehaviours
 {
     internal class HoverbikeUpdater : MonoBehaviour
 	{
+		private const float SelfRepairRate = 0.5f; // Amount of health restored per second when Self Repair is active.
+		private const float SelfRepairEnergyConsumption = 0.5f; // Energy consumed per second when Self Repair is active
+		private const float SelfRepairDisableThreshold = 0.1f; // If battery power is lower than this fraction, disable Self Repair.
 		private Hoverbike parentHoverbike;
 		//private float defaultWaterDampening;
 		//private float defaultWaterOffset;
@@ -89,7 +92,8 @@ namespace CombinedItems.MonoBehaviours
 		private static readonly List<MovementModifierStruct> movementModifiers = new List<MovementModifierStruct>();
 
 		private bool bHasTravelModule;
-		private const float moduleWaterDampening = 1f; // Movement is divided by this value when travelling over water.
+		private bool bHasSelfRepair;
+		private const float moduleWaterDampening = 1f; // Movement is divided by this value when travelling over water. UWE default is 10f.
 													   // Don't set it below 1f, as that makes the Snowfox *more* manoeuvrable over water than over land.
 		private const float moduleWaterOffset = 1f; // The default value for ground travel is 2m.
 		internal float fSolarChargeMultiplier = 0.065f; // Multiplier applied to the local light amount to get amount of power regained from solar charger
@@ -104,6 +108,8 @@ namespace CombinedItems.MonoBehaviours
 		private static TechType techTypeEngineEfficiency => Main.GetModTechType("HoverbikeEngineEfficiencyModule");// Main.prefabHbEngineModule.TechType;
 		private static TechType techTypeSpeed => Main.GetModTechType("HoverbikeSpeedModule");// Main.prefabHbSpeedModule.TechType;
 		private static TechType techTypeMobility => Main.GetModTechType("HoverbikeMobilityUpgrade");// Main.prefabHbMobility.TechType;
+		private static TechType techTypeRepair => Main.GetModTechType("HoverbikeSelfRepairModule");
+		private static TechType techTypeDurability => Main.GetModTechType("HoverbikeDurabilitySystem");
 
 		internal static bool AddEfficiencyMultiplier(TechType module, float multiplier, int priority = 1, int maxUpgrades = 1, bool bUpdateIfPresent = false)
 		{
@@ -153,7 +159,7 @@ namespace CombinedItems.MonoBehaviours
 				return true;
 			}
 
-			value = -2147483648f;
+			value = Mathf.NegativeInfinity;
 			return false;
 		}
 
@@ -223,6 +229,7 @@ namespace CombinedItems.MonoBehaviours
 
 		internal virtual void PreUpdateEnergy(Hoverbike instance = null)
 		{
+			float deltaTime = Time.deltaTime;
 			if (parentHoverbike == null)
 			{
 				if (instance != null)
@@ -242,10 +249,17 @@ namespace CombinedItems.MonoBehaviours
 
 				float depthMultiplier = Mathf.Clamp01((fMaxSolarDepth + parentHoverbike.transform.position.y) / fMaxSolarDepth);
 				float lightScalar = dayNightCycle.GetLocalLightScalar();
-				float deltaTime = Time.deltaTime;
 
 				//Log.LogDebug($"Charging Hoverbike battery with depthMultiplier of {depthMultiplier}, lightScalar = {lightScalar}, fSolarChargeMultiplier = {fSolarChargeMultiplier}, and deltaTime of {deltaTime}");
 				parentHoverbike.energyMixin.AddEnergy(deltaTime * fSolarChargeMultiplier * depthMultiplier * lightScalar);
+			}
+			if (bHasSelfRepair)
+			{
+				if(parentHoverbike.liveMixin.GetHealthFraction() < 1f && parentHoverbike.energyMixin.GetEnergyScalar() > SelfRepairDisableThreshold)
+				{
+					parentHoverbike.energyMixin.ConsumeEnergy(SelfRepairEnergyConsumption * deltaTime);
+					parentHoverbike.liveMixin.AddHealth(SelfRepairRate * deltaTime);
+				}
 			}
 		}
 
@@ -307,6 +321,15 @@ namespace CombinedItems.MonoBehaviours
 					if (jump != null)
 						jump.SetValue(parentHoverbike, added);
 				}
+			}
+			else if (techType == techTypeRepair)
+			{
+				bHasSelfRepair = added;
+			}
+			else if (techType == techTypeDurability)
+			{
+				bHasSelfRepair = added;
+				parentHoverbike.gameObject.EnsureComponent<HoverbikeStructuralIntegrityModifier>().SetActive(added);
 			}
 
 			if (TryGetDefaultFloat("enginePowerConsumption", out float defaultPowerConsumption))

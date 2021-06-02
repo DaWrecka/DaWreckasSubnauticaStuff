@@ -18,9 +18,8 @@ namespace CombinedItems.Patches
 		private static HashSet<TechType> chipRechargeables = new HashSet<TechType>(); // HashSet of the chips which can be recharged. At present, only one such chip is planned, but this allows for expansion
 		private static float lastChipCharge; // Charge of the battery in the last-consumed chip.
 		public static bool IsChip(TechType tt) => chipTechTypes.Contains(tt);
-		public static bool IsChipRecharge(TechType tt) => chipRecharges.Contains(tt);
 		public static bool IsRechargeableChip(TechType tt) => chipRechargeables.Contains(tt);
-		internal static void AddChip(TechType newChip, bool bRechargeable = false)
+		internal static void AddChip(TechType newChip, bool bRechargeable)
 		{
 			if (bRechargeable)
 			{

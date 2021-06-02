@@ -12,7 +12,7 @@ namespace CombinedItems.VehicleModules
     internal class HoverbikeStructuralIntegrityModule : HoverbikeUpgradeBase<HoverbikeStructuralIntegrityModule>
     {
         //private GameObject prefab;
-
+        protected override TechType spriteTemplate => TechType.VehicleArmorPlating; // Placeholder
         protected override RecipeData GetBlueprintRecipe()
         {
             return new RecipeData()
@@ -41,10 +41,10 @@ namespace CombinedItems.VehicleModules
             gameObject.Set(GameObject.Instantiate(prefab));
         }
 
-        protected override Sprite GetItemSprite()
+        /*protected override Sprite GetItemSprite()
         {
             return SpriteManager.Get(TechType.VehicleArmorPlating); // Placeholder
-        }
+        }*/
 
         public HoverbikeStructuralIntegrityModule() : base("HoverbikeStructuralIntegrityModule", "Structural Integrity Field", "Consumes energy to reduce damage taken by the Snowfox by half. Does not stack.")
         {

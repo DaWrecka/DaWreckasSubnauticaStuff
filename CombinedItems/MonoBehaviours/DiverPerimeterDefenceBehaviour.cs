@@ -14,12 +14,15 @@ namespace CombinedItems.MonoBehaviours
 {
 	public class DiverPerimeterDefenceBehaviour : MonoBehaviour, IInventoryDescription, IBattery, ICraftTarget
 	{
+		private static Dictionary<TechType, int> maxDischarges = new Dictionary<TechType, int>();
+		private static Dictionary<TechType, bool> destroyWhenDischarged = new Dictionary<TechType, bool>();
+
 		protected const float JuicePerDischarge = 100f; // Units of energy consumed by a perimeter discharge.
 		protected static int MaxDischargeCheat = 0;
 		protected float _charge;
 		protected TechType techType;
 		protected Pickupable thisPickup;
-		protected virtual bool bDestroyWhenEmpty => true;// If true, the chip is destroyed when empty. If false, the chip is just empty and can possibly be recharged
+		protected bool bDestroyWhenEmpty;// If true, the chip is destroyed when empty. If false, the chip is just empty and can possibly be recharged
 		protected int _maxDischarges;
 		protected virtual int MaxDischarges
 		{
@@ -94,37 +97,72 @@ namespace CombinedItems.MonoBehaviours
 			ChipTechType = tt;
 		}*/
 
-		internal void SetMaxDischarges(int newLimit)
+
+		internal static void AddChipData(TechType chip, int maxDischargeValue, bool bDestroy)
 		{
-			_maxDischarges = newLimit;
+			Log.LogDebug($"DiverPerimeterDefenceBehaviour.AddChipData: chip = {chip.AsString()}, maxDischargeValue = {maxDischargeValue}, bDestroy = {bDestroy}");
+
+			maxDischarges[chip] = maxDischargeValue;
+			destroyWhenDischarged[chip] = bDestroy;
 		}
+
+		internal static (int discharges, bool bDestroy) GetChipData(TechType chip)
+		{
+			int discharges;
+			bool bDestroy = false;
+			(int discharges, bool bDestroy) returnValue = (0, false);
+
+			if (maxDischarges.TryGetValue(chip, out discharges))
+			{
+				returnValue.discharges = discharges;
+			}
+			else
+			{
+				returnValue.discharges = -1;
+			}
+
+			if (destroyWhenDischarged.TryGetValue(chip, out bDestroy))
+			{
+				returnValue.bDestroy = bDestroy;
+			}
+
+			Log.LogDebug($"DiverPerimeterDefenceBehaviour.GetChipData({chip.AsString()}): got values of {returnValue.ToString()}");
+
+			return returnValue;
+		}
+
+		/*internal void Initialise(int newLimit, bool bDestroy)
+		{
+			Log.LogDebug($"DiverPerimeterDefenceBehaviour.Initialise(): chip TechType {techType.AsString()} newLimit = {newLimit}, bDestroy = {bDestroy}");
+			_maxDischarges = newLimit;
+			bDestroyWhenEmpty = bDestroy;
+		}*/
 
 		// Returns true if discharge occurred, false otherwise
 		internal bool Discharge(GameObject attacker)
 		{
 			if (this.charge < 1)
 			{
-				Log.LogDebug($"DiverPerimeterDefenceBehaviour.Discharge(): battery is dead");
+				Log.LogDebug($"DiverPerimeterDefenceBehaviour.Discharge(): chip TechType {techType.AsString()} battery is dead");
 				return false;
 			}
 
 			LiveMixin mixin = attacker.GetComponent<LiveMixin>();
 			if (mixin == null)
 			{
-				Log.LogDebug($"DiverPerimeterDefenceBehaviour.Discharge(): could not find LiveMixin component on attacker");
+				Log.LogDebug($"DiverPerimeterDefenceBehaviour.Discharge(): chip TechType {techType.AsString()} could not find LiveMixin component on attacker");
 				return false;
 			}
 
-			Log.LogDebug($"DiverPerimeterDefenceBehaviour.Discharge(): Discharging");
+			Log.LogDebug($"DiverPerimeterDefenceBehaviour.Discharge(): chip TechType {techType.AsString()} discharging");
 			mixin.TakeDamage(DischargeDamage, gameObject.transform.position, DamageType.Electrical, gameObject);
 			this.charge = Mathf.Max(this.charge - JuicePerDischarge, 0f);
 			Log.LogDebug($"DiverPerimeterDefenceBehaviour.Discharge(): Discharged, available charge now {this.charge}");
 			if (this.charge < 1f)
 			{
-				Equipment e = Inventory.main.equipment;
-				e.RemoveItem(thisPickup != null ? thisPickup : gameObject.GetComponent<Pickupable>());
 				if (bDestroyWhenEmpty)
 				{
+					Log.LogDebug($"DiverPerimeterDefenceBehaviour.Discharge(): bDestroyWhenEmpty = true, destroying chip");
 					CoroutineHost.StartCoroutine(AddBrokenChipAndDestroy());
 				}
 			}
@@ -133,6 +171,11 @@ namespace CombinedItems.MonoBehaviours
 
 		protected IEnumerator AddBrokenChipAndDestroy()
 		{
+			if (!bDestroyWhenEmpty)
+				yield break;
+
+			Equipment e = Inventory.main.equipment;
+			e.RemoveItem(thisPickup != null ? thisPickup : gameObject.GetComponent<Pickupable>());
 			TaskResult<GameObject> result = new TaskResult<GameObject>();
 			yield return AddInventoryAsync(Main.GetModTechType(brokenTechString), result);
 			GameObject.Destroy(gameObject);
@@ -183,6 +226,14 @@ namespace CombinedItems.MonoBehaviours
 		public void OnCraftEnd(TechType techType)
 		{
 			this.techType = techType;
+			(int discharges, bool bDestroy) returnValue = GetChipData(this.techType);
+
+			if (returnValue.discharges > 1)
+				_maxDischarges = returnValue.discharges;
+
+			this.bDestroyWhenEmpty = returnValue.bDestroy;
+
+			this.charge = this.capacity;
 			TechType battery = InventoryPatches.GetCachedBattery();
 			float cachedCharge = InventoryPatches.GetCachedCharge();
 			Log.LogDebug($"DiverPerimeterDefenceBehaviour.OnCraftEnd(): battery = {battery.AsString()}, cachedCharge = {cachedCharge}");

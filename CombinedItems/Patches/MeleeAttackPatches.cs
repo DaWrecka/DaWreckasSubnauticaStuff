@@ -25,8 +25,8 @@ namespace CombinedItems.Patches
                 Player component = target.GetComponent<Player>();
                 if (component != null)
                 {
-                    TechType chipType = Main.GetModTechType("DiverPerimeterDefenceChipItem");
-                    Log.LogDebug($"MeleeAttackPatches.PostCanBite: Target is player, checking for discharge chip {chipType.AsString()}");
+                    //TechType chipType = Main.GetModTechType("DiverPerimeterDefenceChipItem");
+                    Log.LogDebug($"MeleeAttackPatches.PostCanBite: Target is player, checking for discharge chip");
                     Equipment e = Inventory.main.equipment;
                     if (Main.chipSlots.Count < 1)
                         e.GetSlots(EquipmentType.Chip, Main.chipSlots);
@@ -34,10 +34,10 @@ namespace CombinedItems.Patches
                     {
                         TechType tt = e.GetTechTypeInSlot(slot);
                         Log.LogDebug($"MeleeAttackPatches.PostCanBite: found TechType {tt.AsString()} in slot {slot}");
-                        if(e.GetTechTypeInSlot(slot) == chipType)
+                        if(InventoryPatches.IsChip(tt))
                         {
                             InventoryItem item = e.GetItemInSlot(slot);
-                            Log.LogDebug($"MeleeAttackPatches.PostCanBite: Found discharge chip in slot {slot}, checking for associated MonoBehaviour");
+                            Log.LogDebug($"MeleeAttackPatches.PostCanBite: Found discharge chip {tt.AsString()} in slot {slot}, checking for associated MonoBehaviour");
                             DiverPerimeterDefenceBehaviour behaviour = item.item.gameObject.GetComponent<DiverPerimeterDefenceBehaviour>();
 							if (behaviour != null)
 							{

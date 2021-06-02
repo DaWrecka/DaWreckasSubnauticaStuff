@@ -16,8 +16,8 @@
     "Subnautica": "559"
   },
   "AssemblyName": "FuelCells.dll",
-  "VersionChecker": {
-    "LatestVersionURL": "https://github.com/Metious/MetiousSubnauticaMods/raw/master/NuclearBatteries/mod.json"
-  },
+    "VersionChecker": {
+        "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/FuelCells/mod_BZ.json"
+    },
   "Enable": true
 }

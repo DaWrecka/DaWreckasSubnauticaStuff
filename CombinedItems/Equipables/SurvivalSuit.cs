@@ -29,6 +29,7 @@ namespace CombinedItems.Equipables
                     Main.AddSubstitution(this.TechType, tt);
                 }
                 Main.AddModTechType(this.TechType);
+                PlayerPatch.AddSurvivalSuit(this.TechType);
                 //SurvivalPatches.AddNeedsCapOverride(this.TechType, SurvivalCapOverride);
             };
         }
@@ -68,8 +69,8 @@ namespace CombinedItems.Equipables
                 prefab.SetActive(true);
             }
 
-            // Despite the component being removed from the prefab above, testing shows that the Survival Suits still add the water packs when they should.
-            // So we're going to force-remove it here, to be safe.
+            // Despite the component being removed from the prefab above, testing shows that the Survival Suits still add the water packs.
+            // So we're going to force-remove the Stillsuit component here, to be safe.
             GameObject go = GameObject.Instantiate(prefab);
             Stillsuit still = go.GetComponent<Stillsuit>();
             if (still != null)

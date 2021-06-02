@@ -12,12 +12,14 @@ namespace CombinedItems.Patches
 
 	internal class PlayerPatch
     {
+		private static HashSet<TechType> SurvivalSuits = new HashSet<TechType>();
 		private static Dictionary<TechType, TechType> DisplaySubstitutions = new Dictionary<TechType, TechType>();
+		public static bool bHasSurvivalSuit { get; private set; }
+
 		// Used by our Player.EquipmentChanged patch.
 		// If TechType key is equipped, search instead for TechType value
 		// so for example if key is prefabReinforcedColdSuit.TechType, value will be TechType.ColdSuit
 		// This should mean that when the ReinforcedColdSuit is equipped, then the Cold Suit graphics will be displayed.
-
 		public static void AddSubstitution(TechType custom, TechType vanilla, bool bUpdate = false)
 		{
 			//Logger.Log(Logger.Level.Debug, $"Adding substitution: custom TechType {custom.AsString()}, for vanilla {vanilla.AsString()}");
@@ -28,6 +30,12 @@ namespace CombinedItems.Patches
 			}
 			else
 				DisplaySubstitutions.Add(custom, vanilla);
+		}
+
+		public static void AddSurvivalSuit(TechType suit)
+		{
+			if (!SurvivalSuits.Contains(suit))
+				SurvivalSuits.Add(suit);
 		}
 
 		// Because of our patch to Equipment.GetCount, {Inventory.main.equipment.GetCount(TechType.ReinforcedDiveSuit)} will return a value greater than zero if the Reinforced Cold Suit is equipped.
@@ -77,12 +85,16 @@ namespace CombinedItems.Patches
 			}*/
 			Equipment equipment = Inventory.main.equipment;
 			int num = __instance.equipmentModels.Length;
-			for(int i = 0; i < num; i++)
+			for (int i = 0; i < num; i++)
 			{
 				Player.EquipmentType equipmentType = __instance.equipmentModels[i];
 				bool bIsUnderwaterOrNotFlipper = equipmentType.slot != "Foots" || __instance.isUnderwater.value;
 				TechType techTypeInSlot = CheckSubstitute(equipment.GetTechTypeInSlot(equipmentType.slot));
 
+				if (equipmentType.slot == "Body")
+				{
+					bHasSurvivalSuit = SurvivalSuits.Contains(techTypeInSlot);
+				}
 				bool flag2 = false;
 				GameObject y = null;
 				int num2 = equipmentType.equipment.Length;

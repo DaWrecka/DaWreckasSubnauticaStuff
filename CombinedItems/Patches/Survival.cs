@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using CombinedItems.MonoBehaviours;
+using Common;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace CombinedItems.Patches
 {
@@ -168,5 +170,23 @@ namespace CombinedItems.Patches
 			}
 			return codes.AsEnumerable();
 		}*/
+
+		[HarmonyPrefix]
+		[HarmonyPatch("UpdateHunger")]
+		internal static void PreUpdateHunger(Survival __instance)
+		{
+			if (GameModeUtils.RequiresSurvival() && !Player.main.IsFrozenStats())
+			{
+				float deltaTime = __instance.kUpdateHungerInterval;
+
+				// now we can calculate the current calorie/water consumption rates and calibrate based on those.
+				// Assuming the buggers at UWE don't change the algorithm.
+
+				float foodRestore = deltaTime / SurvivalConstants.kFoodTime / SurvivalConstants.kMaxStat * SurvivalsuitBehaviour.SurvivalRegenRate;
+				float waterRestore = deltaTime / SurvivalConstants.kWaterTime / SurvivalConstants.kMaxStat * SurvivalsuitBehaviour.SurvivalRegenRate;
+				__instance.food = Mathf.Clamp(__instance.food + foodRestore, 0f, 200f);
+				__instance.water = Mathf.Clamp(__instance.water + waterRestore, 0f, 100f);
+			}
+		}
 	}
 }

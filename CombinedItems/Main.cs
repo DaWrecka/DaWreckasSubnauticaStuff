@@ -160,15 +160,55 @@ namespace CombinedItems
 		[QModPatch]
 		public static void Load()
 		{
+			// Knives
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "KnifeUpgrades", "Knife Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_knifemenu"));
+			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HeatBlade" });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HeatBlade, new string[] { "KnifeUpgrades" });
+
+			// Tanks
+			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HighCapacityTank" });
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "ModTanks", "Tank Upgrades", SpriteManager.Get(TechType.HighCapacityTank));
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HighCapacityTank, new string[] { "ModTanks" });
+
+			// Fins menu
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "FinUpgrades", "Fin Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_finsmenu"));
+			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "SwimChargeFins" });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SwimChargeFins, new string[] { "FinUpgrades" });
+			CraftDataHandler.SetTechData(TechType.UltraGlideFins, new SMLHelper.V2.Crafting.RecipeData()
+			{
+				craftAmount = 1,
+				Ingredients = new List<Ingredient>()
+				{
+					new Ingredient(TechType.Fins, 1),
+					new Ingredient(TechType.Silicone, 2),
+					new Ingredient(TechType.Titanium, 1),
+					new Ingredient(TechType.Lithium, 1)
+				}
+			});
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.UltraGlideFins, new string[] { "FinUpgrades " });
+			// Test purposes, may be changed to a databox before release
+			KnownTechHandler.SetAnalysisTechEntry(TechType.SwimChargeFins, new TechType[] { TechType.UltraGlideFins});
+
+			// Seatruck Upgrades
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "SeaTruckWBUpgrades", "Seatruck Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "fabricator_seatruckupgrades"));
+			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "SeaTruckUpgradeHull2" });
+			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "SeaTruckUpgradeHull3" });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SeaTruckUpgradeHull2, new string[] { "SeaTruckWBUpgrades" });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SeaTruckUpgradeHull3, new string[] { "SeaTruckWBUpgrades" });
+
+			// Exosuit Upgrades
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "ExoUpgrades", "Exosuit Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_exosuitmenu"));
+			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "ExoHullModule2" });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.ExoHullModule2, new string[] { "ExoUpgrades" });
+
+			// Now our custom stuff
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "SuitUpgrades", "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "HoverbikeUpgrades", "Snowfox Upgrades", SpriteManager.Get(TechType.Hoverbike), new string[] { "Upgrades" });
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "ChipEquipment", "Chips", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "ChipRecharge", "Chip Recharges", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "DPDTier1", "Diver Perimeter Defence Chip", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal", "ChipRecharge" });
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "DPDTier2", "Diver Perimeter Defence Chip Mk2", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal", "ChipRecharge" });
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "DPDTier3", "Diver Perimeter Defence Chip Mk3", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal", "ChipRecharge" });
-			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HighCapacityTank" });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HighCapacityTank, new string[] { "ModTanks" });
+
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Machines", "HoverbikeSilentModule" });
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Machines", "HoverbikeJumpModule" });
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.HoverbikeIceWormReductionModule, new string[] { "Upgrades", "HoverbikeUpgrades" });
@@ -181,11 +221,6 @@ namespace CombinedItems
 				new HighCapacityBooster(),
 				new ExosuitLightningClawPrefab(),
 				new ExosuitSprintModule(),
-				new HoverbikeWaterTravelModule(),
-				new HoverbikeSolarChargerModule(),
-				new HoverbikeStructuralIntegrityModule(),
-				new HoverbikeEngineEfficiencyModule(),
-				new HoverbikeSpeedModule(),
 				new ExosuitLightningClawGeneratorModule(),
 				new PowerglideFragmentPrefab(),
 				new SurvivalSuit(),
@@ -199,24 +234,37 @@ namespace CombinedItems
 				new SurvivalSuitBlueprint_FromReinforcedCold(),
 				new SurvivalSuitBlueprint_FromSurvivalCold(),
 				new DiverPerimeterDefenceChip_Broken(),
+				new DiverPerimeterDefenceChipItem(),
+				new DiverDefenceSystemMk2(),
+				new DiverDefenceMk2_FromBrokenChip(),
+				new DiverDefenceSystemMk3(),
 				new SeatruckSolarModule(),
-				new SeatruckThermalModule()
+				new SeatruckThermalModule(),
+				new ShadowLeviathanSample()
 			})
 			{
 				s.Patch();
 			}
 
 			var harmony = new Harmony($"DaWrecka_{myAssembly.GetName().Name}");
-			var PreIsCraftRecipeFulfilledAdvancedMethod = AccessTools.Method(typeof(EasyPatches), "PreIsCraftRecipeFulfilledAdvanced");
-			AssemblyUtils.PatchIfExists(harmony, "EasyCraft_BZ", "EasyCraft.Main", "_IsCraftRecipeFulfilledAdvanced", new HarmonyMethod(PreIsCraftRecipeFulfilledAdvancedMethod), null, null);
+			//var PreIsCraftRecipeFulfilledAdvancedMethod = AccessTools.Method(typeof(EasyPatches), "PreIsCraftRecipeFulfilledAdvanced");
+			//AssemblyUtils.PatchIfExists(harmony, "EasyCraft_BZ", "EasyCraft.Main", "_IsCraftRecipeFulfilledAdvanced", new HarmonyMethod(PreIsCraftRecipeFulfilledAdvancedMethod), null, null);
 			harmony.PatchAll(myAssembly);
 		}
 
 		[QModPostPatch]
 		public static void PostPatch()
 		{
+			Sprite hoverbike = SpriteManager.Get(SpriteManager.Group.Pings, "Hoverbike");
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "HoverbikeUpgrades", "Snowfox Upgrades", hoverbike, new string[] { "Upgrades" });
 			foreach (Spawnable s in new List<Spawnable>() {
-				new DiverPerimeterDefenceChipItem()
+				new HoverbikeWaterTravelModule(),
+				new HoverbikeSolarChargerModule(),
+				new HoverbikeStructuralIntegrityModule(),
+				new HoverbikeEngineEfficiencyModule(),
+				new HoverbikeSelfRepairModule(),
+				new HoverbikeDurabilitySystem(),
+				new HoverbikeSpeedModule(),
 			})
 			{
 				s.Patch();
@@ -228,7 +276,7 @@ namespace CombinedItems
 		}
 	}
 
-	public class EasyPatches
+	/*public class EasyPatches
 	{
 		public static bool PreIsCraftRecipeFulfilledAdvanced(TechType parent, TechType techType, int depth, ref bool __result)
 		{
@@ -245,8 +293,7 @@ namespace CombinedItems
 
 			return true;
 		}
-	}
-
+	}*/
 
 	[HarmonyPatch]
 	public class Reflection

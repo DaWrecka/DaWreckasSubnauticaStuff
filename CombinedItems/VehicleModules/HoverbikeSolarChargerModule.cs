@@ -12,7 +12,7 @@ namespace CombinedItems.VehicleModules
     internal class HoverbikeSolarChargerModule : HoverbikeUpgradeBase<HoverbikeSolarChargerModule>
     {
         //private GameObject prefab;
-
+        protected override TechType spriteTemplate => TechType.SeamothSolarCharge;
         protected override RecipeData GetBlueprintRecipe()
         {
             return new RecipeData()
@@ -37,11 +37,6 @@ namespace CombinedItems.VehicleModules
             }
 
             gameObject.Set(GameObject.Instantiate(prefab));
-        }
-
-        protected override Sprite GetItemSprite()
-        {
-            return SpriteManager.Get(TechType.SeamothSolarCharge); // Placeholder
         }
 
         public HoverbikeSolarChargerModule() : base("HoverbikeSolarChargerModule", "Snowfox Solar Charger", "Recharges the Snowfox's battery while in sunlight. Does not stack.")

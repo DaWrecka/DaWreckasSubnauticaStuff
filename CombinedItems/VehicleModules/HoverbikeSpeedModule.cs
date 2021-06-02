@@ -18,7 +18,7 @@ namespace CombinedItems.VehicleModules
         private const int maxStack = 1;
 
         //private GameObject prefab;
-
+        protected override TechType spriteTemplate => TechType.SeaTruckUpgradeAfterburner; // Placeholder
         protected override RecipeData GetBlueprintRecipe()
         {
             return new RecipeData()
@@ -43,11 +43,6 @@ namespace CombinedItems.VehicleModules
             }
 
             gameObject.Set(GameObject.Instantiate(prefab));
-        }
-
-        protected override Sprite GetItemSprite()
-        {
-            return SpriteManager.Get(TechType.SeaTruckUpgradeAfterburner); // Placeholder
         }
 
         public HoverbikeSpeedModule() : base("HoverbikeSpeedModule", "Snowfox Speed Module", "Increases Snowfox speed, but also significantly increases power consumption. Does not stack.")

@@ -20,9 +20,9 @@ namespace CombinedItems.Equipables
 	{
 		protected static GameObject prefab;
 		protected static Sprite icon;
-		private const float PowerglideColourR = 0f;
-		private const float PowerglideColourG = 2f;
-		private const float PowerglideColourB = 1f;
+		internal const float PowerglideColourR = 0f;
+		internal const float PowerglideColourG = 2f;
+		internal const float PowerglideColourB = 1f;
 
 		public PowerglideEquipable() : base("PowerglideEquipable", "Powerglide", $"Hold Sprint for dramatic speed bonus underwater with increased energy consumption")
 		{

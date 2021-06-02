@@ -123,29 +123,46 @@ namespace CombinedItems.Patches
         }
 
 
-        [HarmonyPostfix]
+        /*[HarmonyPostfix]
         [HarmonyPatch(typeof(Equipment), nameof(Equipment.AllowedToAdd))]
         public static void PostAllowedToAdd(string slot, Pickupable pickupable, Equipment __instance, ref bool __result)
         {
 
             //Log.LogDebug($"PostAllowedToAdd(): __instance.label = {__instance._label}, slot = {slot}, pickupable = {pickupable.ToString()}, __result = {__result}");
+        }*/
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Equipment), "IItemsContainer.AllowedToAdd")]
+        public static bool PreIItemsContainerAllowedToAdd(Pickupable pickupable, Equipment __instance, ref bool __result)
+        {
+            Log.LogDebug($"PreIItemsContainerAllowedToAdd(): __instance.label = {__instance._label}, pickupable = {pickupable.ToString()}, __result = {__result}");
+            TechType tt = pickupable.GetTechType();
+            if (__instance._label.Contains("BatteryCharger") && InventoryPatches.IsRechargeableChip(tt))
+            {
+                __result = true;
+                return false;
+            }
+
+            return true;
         }
 
-
-
-        [HarmonyPostfix]
+        /*[HarmonyPostfix]
         [HarmonyPatch(typeof(Equipment), "IItemsContainer.AllowedToAdd")]
         public static void PostIItemsContainerAllowedToAdd(Pickupable pickupable, Equipment __instance, ref bool __result)
         {
+            Log.LogDebug($"PostIItemsContainerAllowedToAdd(): __instance.label = {__instance._label}, pickupable = {pickupable.ToString()}, __result = {__result}");
+            TechType tt = pickupable.GetTechType();
+            if (__instance._label.Contains("BatteryCharger") && InventoryPatches.IsRechargeableChip(tt))
+            {
+                __result = true;
+            }
+        }*/
 
-            //Log.LogDebug($"PostIItemsContainerAllowedToAdd(): __instance.label = {__instance._label}, pickupable = {pickupable.ToString()}, __result = {__result}");
-        }
-
-        [HarmonyPostfix]
+        /*[HarmonyPostfix]
         [HarmonyPatch(typeof(Equipment), nameof(Equipment.AddItem))]
         public static void PostAddItem(string slot, InventoryItem newItem, ref bool forced, Equipment __instance)
         {
             //Log.LogDebug($"PostAddItem(): __instance.label = {__instance._label}, slot = {slot}, newItem = {newItem.ToString()}");
-        }
+        }*/
     }
 }

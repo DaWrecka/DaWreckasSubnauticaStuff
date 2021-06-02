@@ -14,6 +14,7 @@ namespace CombinedItems.VehicleModules
     {
         private const float efficiencyModifier = 0.65f;
         private const int maxUpgrades = 2;
+        protected override TechType spriteTemplate => TechType.SeaTruckUpgradeEnergyEfficiency; // Placeholder
 
         //private GameObject prefab;
 
@@ -41,11 +42,6 @@ namespace CombinedItems.VehicleModules
             }
 
             gameObject.Set(GameObject.Instantiate(prefab));
-        }
-
-        protected override Sprite GetItemSprite()
-        {
-            return SpriteManager.Get(TechType.SeaTruckUpgradeEnergyEfficiency); // Placeholder
         }
 
         public HoverbikeEngineEfficiencyModule() : base("HoverbikeEngineEfficiencyModule", "Snowfox Engine Efficiency Module", "Optimises Snowfox power use, reducing battery consumption by 35%. Stacks up to twice.")

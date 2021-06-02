@@ -18,6 +18,9 @@ namespace CombinedItems.VehicleModules
         private const int maxStack = 1;
         private const int upgradePriority = 2;
 
+        public override float CraftingTime => 10f;
+        protected override TechType spriteTemplate => TechType.SeaTruckUpgradeHorsePower; // Placeholder
+                                                                                    
         //private GameObject prefab;
 
         protected override RecipeData GetBlueprintRecipe()
@@ -47,11 +50,6 @@ namespace CombinedItems.VehicleModules
             }
 
             gameObject.Set(GameObject.Instantiate(prefab));
-        }
-
-        protected override Sprite GetItemSprite()
-        {
-            return SpriteManager.Get(TechType.SeaTruckUpgradeHorsePower); // Placeholder
         }
 
         public HoverbikeMobilityUpgrade() : base("HoverbikeMobilityUpgrade", "Snowfox Mobility Upgrade", "Allows Snowfox to jump, travel on water, and provides a modest bonus to speed, without increasing power consumption. Does not stack with Speed Module or Efficiency Upgrade.")

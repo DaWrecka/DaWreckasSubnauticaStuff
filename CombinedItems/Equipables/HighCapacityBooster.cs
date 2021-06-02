@@ -23,7 +23,6 @@ namespace CombinedItems.Equipables
         {
             OnFinishedPatching += () =>
             {
-                CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "ModTanks", "Tank Upgrades", GetItemSprite());
                 Main.AddSubstitution(this.TechType, TechType.SuitBoosterTank);
                 Main.AddSubstitution(this.TechType, TechType.HighCapacityTank);
                 Main.AddModTechType(this.TechType);

@@ -10,7 +10,7 @@ namespace CombinedItems.MonoBehaviours
     {
         private Seaglide tool;
         private EnergyMixin power;
-        private float PowerglideColourR = 0f;
+        private float PowerglideColourR = 1f;
         private float PowerglideColourG = 2f;
         private float PowerglideColourB = 0f;
 
@@ -63,6 +63,7 @@ namespace CombinedItems.MonoBehaviours
             tool.powerGlideActive = Player.main.IsUnderwaterForSwimming()
                 && tool.HasEnergy()
                 && GameInput.GetButtonHeld(GameInput.Button.Sprint);
+            
             tool.powerGlideParam = Mathf.Lerp(tool.powerGlideParam, tool.powerGlideActive ? 1f : 0f, Time.deltaTime * 3f);
             powerSeaglideForce = Mathf.Lerp(powerSeaglideForce, tool.powerGlideActive ? powerGlideForce : 0f, Time.deltaTime * powerLerpRate);
             tool.powerGlideForce = powerSeaglideForce;
