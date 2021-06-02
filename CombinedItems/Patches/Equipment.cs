@@ -135,7 +135,7 @@ namespace CombinedItems.Patches
         [HarmonyPatch(typeof(Equipment), "IItemsContainer.AllowedToAdd")]
         public static bool PreIItemsContainerAllowedToAdd(Pickupable pickupable, Equipment __instance, ref bool __result)
         {
-            Log.LogDebug($"PreIItemsContainerAllowedToAdd(): __instance.label = {__instance._label}, pickupable = {pickupable.ToString()}, __result = {__result}");
+            //Log.LogDebug($"PreIItemsContainerAllowedToAdd(): __instance.label = {__instance._label}, pickupable = {pickupable.ToString()}, __result = {__result}");
             TechType tt = pickupable.GetTechType();
             if (__instance._label.Contains("BatteryCharger") && InventoryPatches.IsRechargeableChip(tt))
             {
