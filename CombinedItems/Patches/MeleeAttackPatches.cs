@@ -22,8 +22,7 @@ namespace CombinedItems.Patches
             if (__result) // No point doing anything if the game has already concluded that it can't bite!
             {
                 //GameObject target = __instance.GetTarget(collider);
-                Player component = target.GetComponent<Player>();
-                if (component != null)
+                if(target.TryGetComponent<Player>(out Player component))
                 {
                     //TechType chipType = Main.GetModTechType("DiverPerimeterDefenceChipItem");
                     Log.LogDebug($"MeleeAttackPatches.PostCanBite: Target is player, checking for discharge chip");
@@ -38,8 +37,9 @@ namespace CombinedItems.Patches
                         {
                             InventoryItem item = e.GetItemInSlot(slot);
                             Log.LogDebug($"MeleeAttackPatches.PostCanBite: Found discharge chip {tt.AsString()} in slot {slot}, checking for associated MonoBehaviour");
-                            DiverPerimeterDefenceBehaviour behaviour = item.item.gameObject.GetComponent<DiverPerimeterDefenceBehaviour>();
-							if (behaviour != null)
+                            /*DiverPerimeterDefenceBehaviour behaviour = item.item.gameObject.GetComponent<DiverPerimeterDefenceBehaviour>();
+							if (behaviour != null)*/
+                            if(item.item.gameObject.TryGetComponent<DiverPerimeterDefenceBehaviour>(out DiverPerimeterDefenceBehaviour behaviour))
 							{
 								Log.LogDebug($"MeleeAttackPatches.PostCanBite: MonoBehaviour found, calling Discharge()");
 								if (behaviour.Discharge(__instance.gameObject))

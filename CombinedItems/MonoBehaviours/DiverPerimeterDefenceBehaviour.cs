@@ -12,14 +12,16 @@ using UWE;
 
 namespace CombinedItems.MonoBehaviours
 {
-	public class DiverPerimeterDefenceBehaviour : MonoBehaviour, IInventoryDescription, IBattery, ICraftTarget
+	public class DiverPerimeterDefenceBehaviour : MonoBehaviour, IInventoryDescription, IBattery, ICraftTarget, ISerializationCallbackReceiver
 	{
 		private static Dictionary<TechType, int> maxDischarges = new Dictionary<TechType, int>();
 		private static Dictionary<TechType, bool> destroyWhenDischarged = new Dictionary<TechType, bool>();
 
 		protected const float JuicePerDischarge = 100f; // Units of energy consumed by a perimeter discharge.
 		protected static int MaxDischargeCheat = 0;
+		[SerializeField]
 		protected float _charge;
+		[SerializeField]
 		protected TechType techType;
 		protected Pickupable thisPickup;
 		protected bool bDestroyWhenEmpty;// If true, the chip is destroyed when empty. If false, the chip is just empty and can possibly be recharged
@@ -52,7 +54,7 @@ namespace CombinedItems.MonoBehaviours
 		public float charge
 		{
 			get { return _charge; }
-			set { _charge = System.Math.Min(capacity, value); }
+			set { _charge = Mathf.Clamp(value, 0f, capacity); }
 		}
 		public float capacity
 		{
@@ -82,21 +84,39 @@ namespace CombinedItems.MonoBehaviours
 
 		public void Awake()
 		{
-			if (thisPickup == null)
-				thisPickup = gameObject.GetComponent<Pickupable>();
+			if (thisPickup == null && gameObject.TryGetComponent<Pickupable>(out Pickupable component))
+				thisPickup = component;
 		}
 
-		/*internal void SetChipType(TechType tt)
+		public void OnBeforeSerialize()
 		{
-			if (tt == TechType.None)
+		}
+
+		public void OnAfterDeserialize()
+		{
+			if (this.techType == TechType.None)
 			{
-				Log.LogError($"DiverPerimeterDefenceBehaviour.SetChipType() called with null TechType");
+				Log.LogError($"DiverPerimeterDefenceBehaviour deserialised with null TechType!");
 				return;
 			}
 
-			ChipTechType = tt;
-		}*/
+			(int discharges, bool bDestroy) returnValue = GetChipData(this.techType);
 
+			if (returnValue.discharges > 1)
+				this._maxDischarges = returnValue.discharges;
+
+			this.bDestroyWhenEmpty = returnValue.bDestroy;
+			if (thisPickup == null && gameObject.TryGetComponent<Pickupable>(out Pickupable pickupable))
+				thisPickup = pickupable;
+		}
+
+		public void OnProtoSerialize(ProtobufSerializer serializer)
+		{
+		}
+
+		public void OnProtoDeserialize(ProtobufSerializer serializer)
+		{
+		}
 
 		internal static void AddChipData(TechType chip, int maxDischargeValue, bool bDestroy)
 		{
@@ -131,12 +151,12 @@ namespace CombinedItems.MonoBehaviours
 			return returnValue;
 		}
 
-		/*internal void Initialise(int newLimit, bool bDestroy)
+		internal void Initialise(TechType newTechType)
 		{
-			Log.LogDebug($"DiverPerimeterDefenceBehaviour.Initialise(): chip TechType {techType.AsString()} newLimit = {newLimit}, bDestroy = {bDestroy}");
-			_maxDischarges = newLimit;
-			bDestroyWhenEmpty = bDestroy;
-		}*/
+			Log.LogDebug($"DiverPerimeterDefenceBehaviour.Initialise(): existing chip TechType {this.techType.AsString()}, passed TechType {newTechType.AsString()}");
+			if (this.techType == TechType.None)
+				this.OnCraftEnd(newTechType);
+		}
 
 		// Returns true if discharge occurred, false otherwise
 		internal bool Discharge(GameObject attacker)
@@ -208,8 +228,9 @@ namespace CombinedItems.MonoBehaviours
 			TaskResult<GameObject> result = new TaskResult<GameObject>();
 			yield return AddInventoryAsync(techType, result);
 
-			IBattery component = result.Get().GetComponent<IBattery>();
-			if (component != null)
+			//IBattery component = result.Get().GetComponent<IBattery>();
+
+			if (result.Get().TryGetComponent<IBattery>(out IBattery component))
 			{
 				if (setCharge == 0f)
 					component.charge = 0f;
@@ -223,25 +244,31 @@ namespace CombinedItems.MonoBehaviours
 			yield break;
 		}
 
-		public void OnCraftEnd(TechType techType)
+		public void OnCraftEnd(TechType craftedTechType)
 		{
-			this.techType = techType;
-			(int discharges, bool bDestroy) returnValue = GetChipData(this.techType);
+			(int discharges, bool bDestroy) returnValue = GetChipData(craftedTechType);
 
-			if (returnValue.discharges > 1)
-				_maxDischarges = returnValue.discharges;
+			if (returnValue.discharges < 1)
+			{
+				Log.LogError($"DiverPerimeterDefenceBehaviour.OnCraftEnd(): craftedTechType of {craftedTechType.AsString()} returned invalid data! This is not a chip.");
+				return;
+			}
 
+			this.techType = craftedTechType;
+			this._maxDischarges = returnValue.discharges;
 			this.bDestroyWhenEmpty = returnValue.bDestroy;
 
-			this.charge = this.capacity;
 			TechType battery = InventoryPatches.GetCachedBattery();
 			float cachedCharge = InventoryPatches.GetCachedCharge();
-			Log.LogDebug($"DiverPerimeterDefenceBehaviour.OnCraftEnd(): battery = {battery.AsString()}, cachedCharge = {cachedCharge}");
+			Log.LogDebug($"DiverPerimeterDefenceBehaviour.OnCraftEnd({craftedTechType.AsString()}): battery = {battery.AsString()}, cachedCharge = {cachedCharge}");
 			if (battery != TechType.None)
 			{
-				if (cachedCharge > 0)
+				if (cachedCharge >= 0f)
 				{
-					this.charge = cachedCharge;
+					if (cachedCharge <= 1f)
+						this.charge = this.capacity * cachedCharge;
+					else
+						this.charge = cachedCharge;
 				}
 				CoroutineHost.StartCoroutine(AddBattery(battery, 0f));
 			}
@@ -249,16 +276,7 @@ namespace CombinedItems.MonoBehaviours
 			{
 				this.charge = this.capacity;
 			}
-		}
-
-		// Charge the internal battery using a provided battery.
-		public void ChargeWithBattery(IBattery newBattery)
-		{
-			if (newBattery.charge > charge)
-			{
-				charge += newBattery.charge;
-				newBattery.charge = 0f;
-			}
+			Log.LogDebug($"DiverPerimeterDefenceBehaviour.OnCraftEnd({craftedTechType.AsString()}): completed");
 		}
 
 		public string GetChargeValueText()
@@ -279,6 +297,7 @@ namespace CombinedItems.MonoBehaviours
 				arg0 = Language.main.Get(this.techType);
 				arg1 = Language.main.Get(TooltipFactory.techTypeTooltipStrings.Get(this.techType));
 			}
+			Log.LogDebug($"For techType of {this.techType.AsString()} got arg0 or '{arg0}' and arg1 of '{arg1}'");
 			return string.Format("{0}\n{1}\n", arg0, arg1);
 		}
 	}

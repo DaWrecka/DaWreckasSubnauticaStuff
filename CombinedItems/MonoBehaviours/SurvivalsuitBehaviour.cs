@@ -10,9 +10,12 @@ namespace CombinedItems.MonoBehaviours
 {
     public class SurvivalsuitBehaviour : MonoBehaviour, IEquippable
     {
-        internal static float SurvivalRegenRate = 0.75f; // The proportion of primary needs to replenish every time interval, relative to consumption.
+        internal static float SurvivalRegenRate = 0.5f; // The proportion of primary needs to replenish every time interval, relative to consumption.
         // Consumption is calculated based on the algorithm used in Survival.UpdateStats() as of the Seaworthy update, and unless those numbers are changed
         // this should remain workable.
+        // This value should always be greater than 0 and less than 1.
+        // If less than 0, the Survival Suit would make primary needs drain faster.
+        // If greater than 1, the Survival Suit would replenish primary needs faster than they drain.
         internal const float foodDivisor = 25.2f; // UWE code divides by 2520 but then multiplies by 100. This might be from 2520 having been one named constant and 100 being a second.
                                                          // Either way, I'm simplifying the result.
         internal const float waterDivisor = 18f;  // see above.
@@ -22,8 +25,10 @@ namespace CombinedItems.MonoBehaviours
         public void OnUnequip(GameObject sender, string slot) { }
         public void UpdateEquipped(GameObject sender, string slot)
         {
-            // Moved to a Survival.UpdateHunger prefix in hopes of avoiding multiple "Calorie intake recommended/seek fluid intake" messages
-            /*
+        }
+
+        public void UpdateHunger(GameObject sender)
+        {
             if (GameModeUtils.RequiresSurvival() && !Player.main.IsFrozenStats())
             {
                 float deltaTime = Time.deltaTime;
@@ -33,10 +38,9 @@ namespace CombinedItems.MonoBehaviours
 
                 float foodRestore = deltaTime / foodDivisor * SurvivalRegenRate;
                 float waterRestore = deltaTime / waterDivisor * SurvivalRegenRate;
-                primaryNeeds.food  = Mathf.Clamp(primaryNeeds.food  + foodRestore, 0f, 200f);
-                primaryNeeds.water = Mathf.Clamp(primaryNeeds.water + waterRestore, 0f, 100f);
+                primaryNeeds.food  = primaryNeeds.food  + foodRestore; // We don't need to clamp these values - Survival.UpdateHunger will do it for us.
+                primaryNeeds.water = primaryNeeds.water + waterRestore;
             }
-            */
         }
     }
 }

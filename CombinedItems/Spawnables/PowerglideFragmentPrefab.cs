@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using CombinedItems.Equipables;
+using Common;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Utility;
@@ -32,14 +33,12 @@ namespace CombinedItems.Spawnables
         {
             return new List<LootDistributionData.BiomeData>()
             {
-                new LootDistributionData.BiomeData(){ biome = BiomeType.Glacier_Generic, count = 1, probability = 0.1f },
-                new LootDistributionData.BiomeData(){ biome = BiomeType.GlacialBay, count = 1, probability = 0.2f },
-                new LootDistributionData.BiomeData(){ biome = BiomeType.LilyPads_Deep_Grass, count = 1, probability = 0.1f },
-                new LootDistributionData.BiomeData(){ biome = BiomeType.LilyPads_Deep_Ground, count = 1, probability = 0.2f },
-                new LootDistributionData.BiomeData(){ biome = BiomeType.MiningSite_Ground, count = 1, probability = 0.1f },
-                new LootDistributionData.BiomeData(){ biome = BiomeType.PurpleVents_Deep_Pool_Voxel, count = 1, probability = 0.1f },
+                new LootDistributionData.BiomeData(){ biome = BiomeType.LilyPads_Deep_Grass, count = 1, probability = 0.01f },
+                new LootDistributionData.BiomeData(){ biome = BiomeType.LilyPads_Deep_Ground, count = 1, probability = 0.02f },
+                new LootDistributionData.BiomeData(){ biome = BiomeType.MiningSite_Ground, count = 1, probability = 0.01f },
+                new LootDistributionData.BiomeData(){ biome = BiomeType.PurpleVents_Deep_Pool_Voxel, count = 1, probability = 0.01f },
                 //new LootDistributionData.BiomeData(){ biome = BiomeType.TwistyBridges_Deep_Ground, count = 1, probability = 0.1f },
-                new LootDistributionData.BiomeData(){ biome = BiomeType.TwistyBridges_Cave_Ground, count = 1, probability = 0.1f },
+                new LootDistributionData.BiomeData(){ biome = BiomeType.TwistyBridges_Cave_Ground, count = 1, probability = 0.01f },
                 //new LootDistributionData.BiomeData(){ biome = BiomeType.TwistyBridges_Deep_ThermalVentArea_Ground, count = 1, probability = 0.1f }
             };
         }
@@ -56,7 +55,7 @@ namespace CombinedItems.Spawnables
 
                 MeshRenderer[] meshRenderers = prefab.GetAllComponentsInChildren<MeshRenderer>();
                 SkinnedMeshRenderer[] skinnedMeshRenderers = prefab.GetAllComponentsInChildren<SkinnedMeshRenderer>();
-                Color powerGlideColour = new Color(CombinedItems.Equipables.PowerglideEquipable.PowerglideColourR, CombinedItems.Equipables.PowerglideEquipable.PowerglideColourG, CombinedItems.Equipables.PowerglideEquipable.PowerglideColourB);
+                Color powerGlideColour = new Color(PowerglideEquipable.PowerglideColourR, PowerglideEquipable.PowerglideColourG, PowerglideEquipable.PowerglideColourB);
 
                 foreach (MeshRenderer mr in meshRenderers)
                 {

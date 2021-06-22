@@ -25,8 +25,10 @@ namespace CombinedItems
 		[HarmonyPostfix]
 		public static void PostUpdate(Seaglide __instance)
 		{
-			PowerglideBehaviour behaviour = __instance.gameObject.GetComponent<PowerglideBehaviour>();
-			if(behaviour != null)
+			//PowerglideBehaviour behaviour = __instance.gameObject.GetComponent<PowerglideBehaviour>();
+			//if(behaviour != null)
+
+			if(__instance.gameObject.TryGetComponent<PowerglideBehaviour>(out PowerglideBehaviour behaviour))
 				behaviour.PostUpdate(__instance);
 		}
 

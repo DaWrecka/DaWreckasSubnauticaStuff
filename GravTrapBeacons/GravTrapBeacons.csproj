@@ -6,12 +6,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C5E29C24-D05F-4321-A886-1EFF69D01C46}</ProjectGuid>
+    <ProjectGuid>{23CF2B33-EB9A-45CA-B84B-8968B5777B2B}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <OutputPath>$(SolutionDir)$(AssemblyName)\$(Configuration)\</OutputPath>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FuelCells</RootNamespace>
-    <AssemblyName>FuelCells</AssemblyName>
+    <RootNamespace>GravTrapBeacons</RootNamespace>
+    <AssemblyName>GravTrapBeacons</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -28,23 +27,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config.cs" />
+    <Compile Include="Gravsphere.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="Patches\Battery.cs" />
-    <Compile Include="Patches\Knife.cs" />
-    <Compile Include="Patches\Pickupable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Spawnables\CoralSample.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="mod_BZ.json" />
     <None Include="mod_SN1.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="CustomBatteries">
-      <HintPath>$(GameDir)\QMods\CustomBatteries\CustomBatteries.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
   </ItemGroup>
   <Import Project="..\Common\Common.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

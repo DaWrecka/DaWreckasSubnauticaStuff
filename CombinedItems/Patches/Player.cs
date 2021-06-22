@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Common;
+using HarmonyLib;
 using SMLHelper.V2.Utility;
 using System;
 using System.Collections.Generic;
@@ -34,6 +35,7 @@ namespace CombinedItems.Patches
 
 		public static void AddSurvivalSuit(TechType suit)
 		{
+			Log.LogDebug($"AddSurvivalSuit: called with TechType {suit.AsString()}");
 			if (!SurvivalSuits.Contains(suit))
 				SurvivalSuits.Add(suit);
 		}
@@ -89,12 +91,14 @@ namespace CombinedItems.Patches
 			{
 				Player.EquipmentType equipmentType = __instance.equipmentModels[i];
 				bool bIsUnderwaterOrNotFlipper = equipmentType.slot != "Foots" || __instance.isUnderwater.value;
-				TechType techTypeInSlot = CheckSubstitute(equipment.GetTechTypeInSlot(equipmentType.slot));
+				TechType techTypeInSlot = equipment.GetTechTypeInSlot(equipmentType.slot);
 
 				if (equipmentType.slot == "Body")
 				{
 					bHasSurvivalSuit = SurvivalSuits.Contains(techTypeInSlot);
+					Log.LogDebug($"PlayerPatches.EquipmentChanged(): TechType in slot Body = '{techTypeInSlot}', bHasSurvivalSuit = {bHasSurvivalSuit}");
 				}
+				techTypeInSlot = CheckSubstitute(techTypeInSlot);
 				bool flag2 = false;
 				GameObject y = null;
 				int num2 = equipmentType.equipment.Length;

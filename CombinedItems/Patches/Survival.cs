@@ -171,22 +171,42 @@ namespace CombinedItems.Patches
 			return codes.AsEnumerable();
 		}*/
 
+		//private static float preHunger;
+		//private static float preWater;
+
 		[HarmonyPrefix]
-		[HarmonyPatch("UpdateHunger")]
-		internal static void PreUpdateHunger(Survival __instance)
+		[HarmonyPatch("UpdateStats")]
+		internal static void PreUpdateStats(Survival __instance, float timePassed)
 		{
-			if (GameModeUtils.RequiresSurvival() && !Player.main.IsFrozenStats())
+			bool bHasSurvivalSuit = PlayerPatch.bHasSurvivalSuit;
+			if (bHasSurvivalSuit && GameModeUtils.RequiresSurvival() && !Player.main.IsFrozenStats())
 			{
-				float deltaTime = __instance.kUpdateHungerInterval;
+				//preHunger = __instance.food;
+				//preWater = __instance.water;
+				float regenRate = SurvivalsuitBehaviour.SurvivalRegenRate;
+				float kMaxStat = SurvivalConstants.kMaxStat;
+				/*float kFoodTime = SurvivalConstants.kFoodTime;
+				float kWaterTime = SurvivalConstants.kWaterTime;
+				Log.LogDebug($"SurvivalPatches.PreUpdateStats: food = {__instance.food}, water = {__instance.water}, bHasSurvivalSuit = {bHasSurvivalSuit}\nkFoodTime = {kFoodTime}, kWaterTime = {kWaterTime}, kMaxStat = {kMaxStat}, regenRate = {regenRate}");*/
 
 				// now we can calculate the current calorie/water consumption rates and calibrate based on those.
 				// Assuming the buggers at UWE don't change the algorithm.
 
-				float foodRestore = deltaTime / SurvivalConstants.kFoodTime / SurvivalConstants.kMaxStat * SurvivalsuitBehaviour.SurvivalRegenRate;
-				float waterRestore = deltaTime / SurvivalConstants.kWaterTime / SurvivalConstants.kMaxStat * SurvivalsuitBehaviour.SurvivalRegenRate;
-				__instance.food = Mathf.Clamp(__instance.food + foodRestore, 0f, 200f);
-				__instance.water = Mathf.Clamp(__instance.water + waterRestore, 0f, 100f);
+				float foodRestore = (timePassed / SurvivalConstants.kFoodTime * kMaxStat) * regenRate;
+				float waterRestore = (timePassed / SurvivalConstants.kWaterTime * kMaxStat) * regenRate;
+				__instance.food = __instance.food + foodRestore;
+				__instance.water = __instance.water + waterRestore;
+				//Log.LogDebug($"SurvivalPatches.PreUpdateStats: done running Survival Suit routine; food = {__instance.food}, water = {__instance.water}, foodRestore = {foodRestore}, waterRestore = {waterRestore}");
 			}
+		}
+
+		[HarmonyPostfix]
+		[HarmonyPatch("UpdateStats")]
+		internal static void PostUpdateStats(Survival __instance)
+		{
+			//float foodDelta = preHunger - __instance.food;
+			//float waterDelta = preWater - __instance.water;
+			//Log.LogDebug($"SurvivalPatches.PostUpdateStats: food = {__instance.food}, water = {__instance.water}, foodDelta = {foodDelta}, waterDelta = {waterDelta}");
 		}
 	}
 }

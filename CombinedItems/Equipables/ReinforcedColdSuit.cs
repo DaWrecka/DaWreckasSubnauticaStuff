@@ -10,6 +10,7 @@ using SMLHelper.V2.Utility;
 using UnityEngine;
 using UWE;
 using Logger = QModManager.Utility.Logger;
+using Common;
 
 namespace CombinedItems.Equipables
 {
@@ -22,7 +23,7 @@ namespace CombinedItems.Equipables
                 int coldResist = TechData.GetColdResistance(TechType.ColdSuitGloves);
                 CombinedItems.Reflection.AddColdResistance(this.TechType, System.Math.Max(10, coldResist));
                 CombinedItems.Reflection.SetItemSize(this.TechType, 2, 2);
-                Logger.Log(Logger.Level.Debug, $"Finished patching, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
+                Log.LogDebug($"Finished patching {this.TechType.AsString()}, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
                 Main.AddSubstitution(this.TechType, TechType.ColdSuitGloves);
                 Main.AddSubstitution(this.TechType, TechType.ReinforcedGloves);
                 Main.AddModTechType(this.TechType);
@@ -52,7 +53,7 @@ namespace CombinedItems.Equipables
         {
             if (prefab == null)
             {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuitGloves, true);
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuitGloves, verbose: true);
                 yield return task;
 
                 prefab = task.GetResult();
@@ -77,7 +78,7 @@ namespace CombinedItems.Equipables
                 int coldResist = TechData.GetColdResistance(TechType.ColdSuitHelmet);
                 CombinedItems.Reflection.AddColdResistance(this.TechType, System.Math.Max(20, coldResist));
                 CombinedItems.Reflection.SetItemSize(this.TechType, 2, 2);
-                Logger.Log(Logger.Level.Debug, $"Finished patching, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
+                Log.LogDebug($"Finished patching {this.TechType.AsString()}, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
                 Main.AddSubstitution(this.TechType, TechType.ColdSuitHelmet);
                 Main.AddSubstitution(this.TechType, TechType.Rebreather);
                 Main.AddModTechType(this.TechType);
@@ -96,7 +97,7 @@ namespace CombinedItems.Equipables
         public override EquipmentType EquipmentType => EquipmentType.Head;
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
-        public override TechType RequiredForUnlock => TechType.Warper;
+        public override TechType RequiredForUnlock => TechType.Unobtanium;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
         public override string[] StepsToFabricatorTab => new string[] { "SuitUpgrades" };
 
@@ -122,7 +123,7 @@ namespace CombinedItems.Equipables
         {
             if (prefab == null)
             {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuitGloves, true);
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuitGloves, verbose: true);
                 yield return task;
 
                 prefab = task.GetResult();
@@ -145,9 +146,9 @@ namespace CombinedItems.Equipables
             OnFinishedPatching += () =>
             {
                 int coldResist = TechData.GetColdResistance(TechType.ColdSuit);
-                CombinedItems.Reflection.AddColdResistance(this.TechType, System.Math.Max(50, coldResist));
-                CombinedItems.Reflection.SetItemSize(this.TechType, 2, 3);
-                Logger.Log(Logger.Level.Debug, $"Finished patching, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
+                Reflection.AddColdResistance(this.TechType, System.Math.Max(50, coldResist));
+                Reflection.SetItemSize(this.TechType, 2, 3);
+                Log.LogDebug($"Finished patching {this.TechType.AsString()}, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
                 Main.AddSubstitution(this.TechType, TechType.ColdSuit);
                 Main.AddSubstitution(this.TechType, TechType.ReinforcedDiveSuit);
                 Main.AddModTechType(this.TechType);
@@ -165,7 +166,7 @@ namespace CombinedItems.Equipables
         protected static GameObject prefab;
 
         public override EquipmentType EquipmentType => EquipmentType.Body;
-        public override TechType RequiredForUnlock => TechType.Warper;
+        public override TechType RequiredForUnlock => TechType.Unobtanium;
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
@@ -200,7 +201,7 @@ namespace CombinedItems.Equipables
         {
             if (prefab == null)
             {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuit, true);
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuit, verbose: true);
                 yield return task;
 
                 prefab = task.GetResult();

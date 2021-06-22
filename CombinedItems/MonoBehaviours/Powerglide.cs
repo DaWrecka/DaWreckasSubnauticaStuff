@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
 using System;
+using CombinedItems.Equipables;
 
 namespace CombinedItems.MonoBehaviours
 {
@@ -10,12 +11,9 @@ namespace CombinedItems.MonoBehaviours
     {
         private Seaglide tool;
         private EnergyMixin power;
-        private float PowerglideColourR = 1f;
-        private float PowerglideColourG = 2f;
-        private float PowerglideColourB = 0f;
 
-        public static float powerGlideForce = 3000f;
-        public static float powerLerpRate = 1200f;
+        public static float powerGlideForce = 3500f;
+        public static float powerLerpRate = 900f;
         public float powerSeaglideForce;
 
         private void OnConsoleCommand_powerglideforce(NotificationCenter.Notification n)
@@ -69,7 +67,7 @@ namespace CombinedItems.MonoBehaviours
             tool.powerGlideForce = powerSeaglideForce;
             MeshRenderer[] meshRenderers = tool.GetAllComponentsInChildren<MeshRenderer>();
             SkinnedMeshRenderer[] skinnedMeshRenderers = tool.GetAllComponentsInChildren<SkinnedMeshRenderer>();
-            Color powerGlideColour = new Color(PowerglideColourR, PowerglideColourG, PowerglideColourB);
+            Color powerGlideColour = new Color(PowerglideEquipable.PowerglideColourR, PowerglideEquipable.PowerglideColourG, PowerglideEquipable.PowerglideColourB);
 
             foreach (MeshRenderer mr in meshRenderers)
             {

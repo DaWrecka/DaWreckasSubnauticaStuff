@@ -170,6 +170,17 @@ namespace CombinedItems.Patches
 			ExosuitUpdater exosuitUpdate = __instance.gameObject.EnsureComponent<ExosuitUpdater>();
 			Vehicle vehicle = __instance;
 			exosuitUpdate.Initialise(ref vehicle);
+
+			if(__instance.gameObject != null && __instance.gameObject.TryGetComponent<LiveMixin>(out LiveMixin mixin))
+			{
+				float defaultHealth = mixin.defaultHealth;
+				float instanceHealthPct = Mathf.Min(mixin.GetHealthFraction(), 1f);
+				float maxHealth = defaultHealth;
+					maxHealth *= Main.config.ExosuitHealthMult;
+
+				mixin.data.maxHealth = maxHealth;
+				mixin.health = maxHealth * instanceHealthPct;
+			}
 		}
 
 		/*

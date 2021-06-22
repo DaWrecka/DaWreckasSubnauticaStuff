@@ -20,6 +20,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json.Converters;
 using System.Collections;
+using CustomDataboxes.API;
 
 namespace CombinedItems
 {
@@ -81,7 +82,7 @@ namespace CombinedItems
 
 		internal static void AddModTechType(TechType tech, GameObject prefab = null)
 		{
-			string key = tech.AsString(true);
+			/*string key = tech.AsString(true);
 			if (!ModTechTypes.ContainsKey(key))
 			{
 				ModTechTypes.Add(key, tech);
@@ -89,49 +90,36 @@ namespace CombinedItems
 			if (prefab != null)
 			{
 				ModPrefabs[key] = prefab;
-			}
+			}*/
+			TechTypeUtils.AddModTechType(tech, prefab);
 		}
 
 		public static TechType GetModTechType(string key)
 		{
-			string lowerKey = key.ToLower();
+			/*string lowerKey = key.ToLower();
 			TechType tt;
 			if(ModTechTypes.TryGetValue(lowerKey, out tt))
 				return tt;
 
-			return TechTypeUtils.GetTechType(key);
+			return TechTypeUtils.GetTechType(key);*/
+			return TechTypeUtils.GetModTechType(key);
 		}
 
 		internal static GameObject GetModPrefab(string key)
 		{
-			string lowerKey = key.ToLower();
+			/*string lowerKey = key.ToLower();
 			GameObject modPrefab;
 			if (ModPrefabs.TryGetValue(lowerKey, out modPrefab))
 				return modPrefab;
 
-			return null;
+			return null;*/
+			return TechTypeUtils.GetModPrefab(key);
 		}
 
 		[QModPrePatch]
 		public static void PrePatch()
 		{
-			// Preston's Plant becomes 2x2 instead of 1x1
-			//WorldEntities/Flora/Expansion/Shared/vegetable_plant_01_fruit.prefab
-			/*
-			CraftDataHandler.SetItemSize(TechType.SnowStalkerPlant, new Vector2int(2, 2)); // this affects the inventory only, or more specifically how much space the plant requires in a planter.
-				// It does nothing about the actual growing size of the plant; other methods are required for that.
-				// We need to know the prefab ahead of time; there is no known method to get the following prefab filename from the plant's TechType. The methods we can use for batteries
-				// won't work for Preston's Plant, and likely other plantables too.
-			AddressablesUtility.LoadAsync<GameObject>("WorldEntities/Flora/Expansion/Shared/vegetable_plant_01_fruit.prefab").Completed += (x) =>
-			{
-				GameObject gameObject1 = x.Result;
-				Plantable component = gameObject1?.GetComponent<Plantable>();
-				if (component != null)
-					component.size = Plantable.PlantSize.Large;
-			};*/
-
-
-			foreach (TechType tt in new List<TechType>()
+			/*foreach (TechType tt in new List<TechType>()
 				{
 					TechType.Battery,
 					TechType.LithiumIonBattery,
@@ -154,7 +142,7 @@ namespace CombinedItems
 				}
 				else
 					Log.LogError($"Could not get prefab for classId '{classId}' for TechType {tt.AsString()}");
-			}
+			}*/
 		}
 
 		[QModPatch]
@@ -171,9 +159,6 @@ namespace CombinedItems
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HighCapacityTank, new string[] { "ModTanks" });
 
 			// Fins menu
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "FinUpgrades", "Fin Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_finsmenu"));
-			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "SwimChargeFins" });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SwimChargeFins, new string[] { "FinUpgrades" });
 			CraftDataHandler.SetTechData(TechType.UltraGlideFins, new SMLHelper.V2.Crafting.RecipeData()
 			{
 				craftAmount = 1,
@@ -185,6 +170,9 @@ namespace CombinedItems
 					new Ingredient(TechType.Lithium, 1)
 				}
 			});
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "FinUpgrades", "Fin Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_finsmenu"));
+			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "SwimChargeFins" });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SwimChargeFins, new string[] { "FinUpgrades" });
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.UltraGlideFins, new string[] { "FinUpgrades " });
 			// Test purposes, may be changed to a databox before release
 			KnownTechHandler.SetAnalysisTechEntry(TechType.SwimChargeFins, new TechType[] { TechType.UltraGlideFins});
@@ -229,26 +217,38 @@ namespace CombinedItems
 				new HoverbikeMobilityUpgrade(),
 				new PowerglideEquipable(),
 				new SuperSurvivalSuit(),
-				new SurvivalSuitBlueprint_BaseSuits(),
+				//new SurvivalSuitBlueprint_BaseSuits(),
 				new SurvivalSuitBlueprint_FromReinforcedSurvival(),
 				new SurvivalSuitBlueprint_FromReinforcedCold(),
 				new SurvivalSuitBlueprint_FromSurvivalCold(),
+				new SeatruckSolarModule(),
+				new SeatruckThermalModule(),
 				new DiverPerimeterDefenceChip_Broken(),
 				new DiverPerimeterDefenceChipItem(),
 				new DiverDefenceSystemMk2(),
+				new ShadowLeviathanSample(),
 				new DiverDefenceMk2_FromBrokenChip(),
 				new DiverDefenceSystemMk3(),
-				new SeatruckSolarModule(),
-				new SeatruckThermalModule(),
-				new ShadowLeviathanSample()
+				new SeaTruckSonarModule()
 			})
 			{
 				s.Patch();
 			}
 
+			Databox powerglideDatabox = new Databox()
+			{
+				DataboxID = "PowerglideDatabox",
+				PrimaryDescription = PowerglideEquipable.friendlyName + " Databox",
+				SecondaryDescription = PowerglideEquipable.description,
+				TechTypeToUnlock = GetModTechType("PowerglideEquipable"),
+				CoordinatedSpawns = new Dictionary<Vector3, Vector3>()
+				{
+					{ new Vector3(285f, -242.07f, -1299f), new Vector3(344f, 3.77f, 14f) }
+				}
+			};
+			powerglideDatabox.Patch();
+
 			var harmony = new Harmony($"DaWrecka_{myAssembly.GetName().Name}");
-			//var PreIsCraftRecipeFulfilledAdvancedMethod = AccessTools.Method(typeof(EasyPatches), "PreIsCraftRecipeFulfilledAdvanced");
-			//AssemblyUtils.PatchIfExists(harmony, "EasyCraft_BZ", "EasyCraft.Main", "_IsCraftRecipeFulfilledAdvanced", new HarmonyMethod(PreIsCraftRecipeFulfilledAdvancedMethod), null, null);
 			harmony.PatchAll(myAssembly);
 		}
 
@@ -271,7 +271,7 @@ namespace CombinedItems
 			}
 
 
-			Batteries.PostPatch();
+			//Batteries.PostPatch();
 			LanguageHandler.SetLanguageLine("SeamothWelcomeAboard", "Welcome aboard captain.");
 		}
 	}

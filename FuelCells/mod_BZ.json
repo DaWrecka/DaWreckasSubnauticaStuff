@@ -16,8 +16,8 @@
     "Subnautica": "559"
   },
   "AssemblyName": "FuelCells.dll",
-    "VersionChecker": {
-        "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/FuelCells/mod_BZ.json"
-    },
+  "VersionChecker": {
+    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/FuelCells/mod_BZ.json"
+  },
   "Enable": true
 }

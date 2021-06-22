@@ -20,11 +20,13 @@ namespace CombinedItems.Equipables
 	{
 		protected static GameObject prefab;
 		protected static Sprite icon;
-		internal const float PowerglideColourR = 0f;
-		internal const float PowerglideColourG = 2f;
-		internal const float PowerglideColourB = 1f;
+		public static float PowerglideColourR = 1f;
+		public static float PowerglideColourG = 0f;
+		public static float PowerglideColourB = 1f;
+		internal static string friendlyName => "PowerGlide";
+		internal static string description => "Hold Sprint for dramatic speed bonus underwater with increased energy consumption.";
 
-		public PowerglideEquipable() : base("PowerglideEquipable", "Powerglide", $"Hold Sprint for dramatic speed bonus underwater with increased energy consumption")
+		public PowerglideEquipable() : base("PowerglideEquipable", friendlyName, description)
 		{
 			OnFinishedPatching += () =>
 			{
@@ -43,9 +45,9 @@ namespace CombinedItems.Equipables
 		public override string[] StepsToFabricatorTab => new string[] { "Machines" };
 		public override float CraftingTime => 5f;
 		public override QuickSlotType QuickSlotType => QuickSlotType.Selectable;
-		//public override TechType RequiredForUnlock => Main.powerglideFrag.TechType;
-		public override TechType RequiredForUnlock => Main.GetModTechType("PowerglideFragment");
-		public override string DiscoverMessage => $"{this.FriendlyName} Unlocked!";
+        //public override TechType RequiredForUnlock => Main.powerglideFrag.TechType;
+        public override TechType RequiredForUnlock => Main.GetModTechType("PowerglideFragment");
+        public override string DiscoverMessage => $"{this.FriendlyName} Unlocked!";
 		public override bool AddScannerEntry => true;
 		public override int FragmentsToScan => 4;
 		public override float TimeToScanFragment => 5f;
@@ -82,7 +84,7 @@ namespace CombinedItems.Equipables
 		{
 			if (prefab == null)
 			{
-				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.Seaglide, true);
+				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.Seaglide, verbose: true);
 				yield return task;
 
 				prefab = GameObject.Instantiate(task.GetResult());

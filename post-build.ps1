@@ -16,22 +16,22 @@ Write-Host $s
 
 $jsonName = "mod_" + $Config + ".json"
 $jsonPath = $ProjectDir + $jsonName
-$SolutionItem = Get-Item $SolutionPath
+$SolutionItem = Get-Item -Path $SolutionDir
 $modPath = $SolutionDir + "QMods\" + $Config + $dirSeparator + $ProjectName
 
-if(!Test-Path $jsonPath)
+if(!(Test-Path $jsonPath))
 {
 	$jsonName = "mod.json"
 	$jsonPath = $ProjectDir + $dirSeparator + "\mod.json"
 }
 
-if(!Test-Path $jsonPath)
+if(!(Test-Path $jsonPath))
 {
 	Write-Host Could not find path to existing Json $jsonPath
 	Exit
 }
 
-if(!Test-Path $TargetPath)
+if(!(Test-Path $TargetPath))
 {
 	Write-Host Could not find path to DLL $TargetPath
 	Exit

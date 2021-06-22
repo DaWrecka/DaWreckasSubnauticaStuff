@@ -2,13 +2,49 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 namespace Common
 {
     class TechTypeUtils
     {
-        // Useful function provided by PrimeSonic. Ta!
-        public static TechType GetTechType(string value)
+		public static Dictionary<string, GameObject> ModPrefabs = new Dictionary<string, GameObject>();
+		public static Dictionary<string, TechType> ModTechTypes = new Dictionary<string, TechType>();
+
+		internal static void AddModTechType(TechType tech, GameObject prefab = null)
+		{
+			string key = tech.AsString(true);
+			if (!ModTechTypes.ContainsKey(key))
+			{
+				ModTechTypes.Add(key, tech);
+			}
+			if (prefab != null)
+			{
+				ModPrefabs[key] = prefab;
+			}
+		}
+
+		public static TechType GetModTechType(string key)
+		{
+			string lowerKey = key.ToLower();
+			TechType tt;
+			if (ModTechTypes.TryGetValue(lowerKey, out tt))
+				return tt;
+
+			return TechTypeUtils.GetTechType(key);
+		}
+
+		internal static GameObject GetModPrefab(string key)
+		{
+			string lowerKey = key.ToLower();
+			GameObject modPrefab;
+			if (ModPrefabs.TryGetValue(lowerKey, out modPrefab))
+				return modPrefab;
+
+			return null;
+		}
+		// Useful function provided by PrimeSonic. Ta!
+		public static TechType GetTechType(string value)
         {
             if (string.IsNullOrEmpty(value))
                 return TechType.None;

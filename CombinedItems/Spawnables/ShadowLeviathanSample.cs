@@ -1,5 +1,6 @@
 ﻿using SMLHelper.V2.Assets;
 using SMLHelper.V2.Handlers;
+using Story;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -33,9 +34,11 @@ namespace CombinedItems.Spawnables
                 yield return task;
 
                 prefab = task.GetResult();
+                GameObject.DestroyImmediate(prefab.GetComponent<CompleteGoalOnExamine>());
             }
 
-            gameObject.Set(GameObject.Instantiate(prefab));
+            var obj = GameObject.Instantiate(prefab);
+            gameObject.Set(obj);
         }
 
         public ShadowLeviathanSample()
@@ -44,6 +47,7 @@ namespace CombinedItems.Spawnables
             /*sprite = Main.assetBundle.LoadAsset<Sprite>("BioPlasmaMK2");*/
             OnFinishedPatching += () =>
             {
+                Main.AddModTechType(this.TechType);
                 CraftDataHandler.SetHarvestOutput(TechType.ShadowLeviathan, this.TechType);
                 CraftDataHandler.SetHarvestType(TechType.ShadowLeviathan, HarvestType.DamageAlive);
             };

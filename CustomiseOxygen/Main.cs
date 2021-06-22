@@ -11,6 +11,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UWE;
 using Logger = QModManager.Utility.Logger;
+using static HandReticle;
 #if SUBNAUTICA
 using RecipeData = SMLHelper.V2.Crafting.TechData;
 using Sprite = Atlas.Sprite;
@@ -37,13 +38,11 @@ namespace CustomiseOxygen
 
         private struct PendingTankEntry
         {
-            public TechType techType;
             public float capacity;
             public Sprite icon;
 
-            public PendingTankEntry(TechType tt, float cap, Sprite icon)
+            public PendingTankEntry(float cap, Sprite icon)
             {
-                this.techType = tt;
                 this.capacity = cap;
                 this.icon = icon;
             }
@@ -51,7 +50,8 @@ namespace CustomiseOxygen
 
         internal static Dictionary<TechType, ExclusionType> Exclusions = new Dictionary<TechType, ExclusionType>();
         internal static HashSet<TechType> bannedTech = new HashSet<TechType>();
-        private static List<PendingTankEntry> pendingTanks = new List<PendingTankEntry>();
+        //private static List<PendingTankEntry> pendingTanks = new List<PendingTankEntry>();
+        private static Dictionary<TechType, PendingTankEntry> pendingTanks = new Dictionary<TechType, PendingTankEntry>();
         private static bool bWaitingForSpriteHandler;
 
         public static void AddExclusion(TechType excludedTank, bool bExcludeMultipliers, bool bExcludeOverride)
@@ -72,12 +72,15 @@ namespace CustomiseOxygen
         public static void AddTank(TechType tank, float capacity, Sprite sprite = null)
         {
             Logger.Log(Logger.Level.Debug, $"Registering new tank TechType.{tank.AsString()} with capacity {capacity}");
-            for (int i = 0; i < pendingTanks.Count; i++)
+            /*for (int i = 0; i < pendingTanks.Count; i++)
             {
                 if(pendingTanks[i].techType == tank)
                     return;
-            }
-            pendingTanks.Add(new PendingTankEntry(tank, capacity, sprite));
+            }*/
+            if (pendingTanks.ContainsKey(tank))
+                return;
+
+            pendingTanks[tank] = new PendingTankEntry(capacity, sprite);
             CoroutineHost.StartCoroutine(WaitForSpriteHandler());
         }
 
@@ -95,26 +98,29 @@ namespace CustomiseOxygen
                 {
                     yield return new WaitForSeconds(0.5f);
                 }
-                Log.LogDebug($"WaitForSpriteHandler(): Sprite manager initialisation complete");
             }
+
+            Log.LogDebug($"WaitForSpriteHandler(): Sprite manager initialisation complete. pendingTanks.Count == {pendingTanks.Count}");
+            HashSet<TechType> removals = new HashSet<TechType>();
             while (pendingTanks.Count > 0)
             {
-                Log.LogDebug($"WaitForSpriteHandler(): Beginning iteration, pendingTanks.Count == {pendingTanks.Count}");
-                for (int i = pendingTanks.Count - 1; i >= 0; i--)
+                removals.Clear();
+                foreach (KeyValuePair<TechType, PendingTankEntry> kvp in pendingTanks)
                 {
                     try
                     {
-                        Log.LogDebug($"WaitForSpriteHandler(): index {i}, pendingTanks.Count == {pendingTanks.Count}");
-                        TechType key = pendingTanks[i].techType;
-                        Log.LogDebug($"WaitForSpriteHandler(): Processing TechType {key.AsString(false)}");
-                        float capacity = pendingTanks[i].capacity;
-                        Sprite icon = pendingTanks[i].icon;
+                        //Log.LogDebug($"WaitForSpriteHandler(): key {kvp.Key.AsString()}");
+                        TechType key = kvp.Key;
+                        Log.LogDebug($"WaitForSpriteHandler(): key {key.AsString()}");
+                        
+                        float capacity = kvp.Value.capacity;
+                        Sprite icon = kvp.Value.icon;
                         if (icon == null || icon == SpriteManager.defaultSprite)
                         {
                             Log.LogDebug($"WaitForSpriteHandler(): Searching for icon for TechType {key.AsString(false)}");
                             if (icon == null || icon == SpriteManager.defaultSprite)
                             {
-                                icon = SpriteManager.Get(key);
+                                icon = SpriteManager.Get(kvp.Key);
                             }
 
                         }
@@ -122,15 +128,19 @@ namespace CustomiseOxygen
                         {
                             Log.LogDebug($"WaitForSpriteHandler(): Found icon for TechType {key.AsString(false)}: {icon.texture.name}");
                             TankTypes.AddTank(key, capacity, icon);
-                            pendingTanks.RemoveAt(i);
+                            removals.Add(key);
                         }
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
-                        Log.LogDebug($"WaitForSpriteHandler(): Caught exception {e.ToString()} at index {i}");
+                        Log.LogDebug($"WaitForSpriteHandler(): Caught exception: {e.ToString()}\nat key {kvp.Key.AsString()}");
                     }
-                    yield return new WaitForEndOfFrame();
                 }
+
+                foreach (TechType tt in removals)
+                    pendingTanks.Remove(tt);
+
+                yield return new WaitForEndOfFrame();
             }
 
             bWaitingForSpriteHandler = false;

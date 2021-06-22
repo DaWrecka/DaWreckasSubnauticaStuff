@@ -30,6 +30,8 @@ namespace CombinedItems
 		private const float HEATBLADE_TENTACLE_DAMAGE_MIN = 2f;
 		private const float HEATBLADE_TENTACLE_DAMAGE_MAX = 10f;
 		private const float HEATBLADE_TENTACLE_DAMAGE_DEFAULT = 2f;
+		private const float VEHICLE_HEALTH_MIN = 0.2f;
+		private const float VEHICLE_HEALTH_MAX = 5f;
 
 		[Slider("Spikey Trap tentacle health", SPIKEY_TRAP_HEALTH_MIN, SPIKEY_TRAP_HEALTH_MAX, DefaultValue = SPIKEY_TRAP_HEALTH_DEFAULT, Id = "SpikeyTrapHealth",
 			Step = 1f,
@@ -58,5 +60,25 @@ namespace CombinedItems
 
 		[Toggle("Absolute values on HUD", Tooltip = "If enabled, vehicle HUDs (Exosuit, Seatruck and Hoverbike) will show absolute values on the HUD, instead of percentages. (so a Hoverbike with a full, unmodified Ion Battery would show 500 energy, instead of 100)")]
 		public bool bHUDAbsoluteValues = true;
+
+		[Slider("SeaTruck vehicle health multiplier", VEHICLE_HEALTH_MIN, VEHICLE_HEALTH_MAX, DefaultValue = 1f, Id = "SeatruckVehicleHealthMult",
+			Step = 0.05f, Format = "{0:F2}",
+			Tooltip = "Maximum health of the SeaTruck vehicle (not modules); The default health of 500 is multiplied by this value.\nThe game must be restarted for this change to take effect.")]
+		public float SeatruckVehicleHealthMult = 1f;
+
+		[Slider("SeaTruck modules health multiplier", VEHICLE_HEALTH_MIN, VEHICLE_HEALTH_MAX, DefaultValue = 1f, Id = "SeatruckModulesHealthMult",
+			Step = 0.05f, Format = "{0:F2}",
+			Tooltip = "Maximum health of SeaTruck modules; The default health of 500 is multiplied by this value.\nThe game must be restarted for this change to take effect.")]
+		public float SeatruckModulesHealthMult = 1f;
+
+		[Slider("Exosuit health multiplier", VEHICLE_HEALTH_MIN, VEHICLE_HEALTH_MAX, DefaultValue = 1f, Id = "ExosuitHealthMult",
+			Step = 0.05f, Format = "{0:F2}",
+			Tooltip = "Maximum health of Exosuit; The default health of 600 is multiplied by this value.\nThe game must be restarted for this change to take effect.")]
+		public float ExosuitHealthMult = 1f;
+
+		[Slider("Snowfox health multiplier", VEHICLE_HEALTH_MIN, VEHICLE_HEALTH_MAX, DefaultValue = 1f, Id = "SnowfoxHealthMult",
+			Step = 0.05f, Format = "{0:F2}",
+			Tooltip = "Maximum health of Snowfox; The default health of 200 is multiplied by this value.\nThe game must be restarted for this change to take effect.")]
+		public float SnowfoxHealthMult = 1f;
 	}
 }

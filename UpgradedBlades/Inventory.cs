@@ -79,7 +79,7 @@ namespace UpgradedBlades
 
             var component = obj.GetComponent<Knife>();
             if (component != null)
-                Object.Destroy(component);
+                GameObject.DestroyImmediate(component);
 
             VibrobladeBehaviour blade = obj.EnsureComponent<VibrobladeBehaviour>();
             if (blade != null)
@@ -129,6 +129,7 @@ namespace UpgradedBlades
 
             return GameObject.Instantiate(prefab);
         }
+
 #elif BELOWZERO
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {

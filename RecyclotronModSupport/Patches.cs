@@ -173,8 +173,9 @@ namespace RecyclotronModSupport.Patches
 							}
 						}
 					}
-					EnergyMixin component = gameObject.GetComponent<EnergyMixin>();
-					if (component)
+					//EnergyMixin component = gameObject.GetComponent<EnergyMixin>();
+					//if (component)
+					if(gameObject.TryGetComponent<EnergyMixin>(out EnergyMixin component))
 					{
 						GameObject battery = component.GetBatteryGameObject();
 						if (battery)

@@ -37,7 +37,7 @@ namespace CombinedItems.Equipables
 		public override Vector2int SizeInInventory => new Vector2int(1, 1);
 		public override TechGroup GroupForPDA => TechGroup.Personal;
 		public override TechCategory CategoryForPDA => TechCategory.Equipment;
-		public override TechType RequiredForUnlock => TechType.Polyaniline;
+		public override TechType RequiredForUnlock => TechType.Unobtanium;
 
 		protected override RecipeData GetBlueprintRecipe()
 		{
@@ -135,6 +135,9 @@ namespace CombinedItems.Equipables
 		{
 			OnFinishedPatching += () =>
 			{
+				Main.AddModTechType(this.TechType);
+				InventoryPatches.AddChip(this.TechType, !this.bDestroyedOnDischarge);
+				DiverPerimeterDefenceBehaviour.AddChipData(this.TechType, this.MaxDischarges, this.bDestroyedOnDischarge);
 				if (RequiredTech.Count > 0)
 				{
 					Log.LogDebug($"{this.TechType.AsString()}.OnFinishedPatching(): Setting up CompoundTech with RequiredTech of:" + JsonConvert.SerializeObject(RequiredTech, Formatting.Indented));
@@ -144,7 +147,7 @@ namespace CombinedItems.Equipables
 					compound.dependencies = RequiredTech;
 					Reflection.AddCompoundTech(compound);
 				}
-				CoroutineHost.StartCoroutine(PostPatchSetup());
+				CoroutineHost.StartCoroutine(this.PostPatchSetup());
 			};
 		}
 
@@ -177,25 +180,18 @@ namespace CombinedItems.Equipables
 			DiverPerimeterDefenceBehaviour behaviour;
 			if (prefab == null)
 			{
-				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.MapRoomHUDChip, true);
+				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.MapRoomHUDChip, verbose: true);
 				yield return task;
 
 				prefab = GameObject.Instantiate(task.GetResult());
 				behaviour = prefab.EnsureComponent<DiverPerimeterDefenceBehaviour>();
 				//behaviour.Initialise(this.MaxDischarges, this.bDestroyedOnDischarge);
-
-				TechType brokeChip = Main.GetModTechType("DiverPerimeterDefenceChip_Broken");
-				task = CraftData.GetPrefabForTechTypeAsync(brokeChip);
-				yield return task;
-				brokenPrefab = task.GetResult();
-				if (brokenPrefab == null)
-				{
-					Log.LogError($"Could not get prefab for TechType {brokeChip.AsString()}");
-				}
+				prefab.SetActive(false);
 			}
 
 			GameObject go = GameObject.Instantiate(prefab);
 			behaviour = go.EnsureComponent<DiverPerimeterDefenceBehaviour>();
+			behaviour.Initialise(this.TechType);
 			//behaviour.Initialise(this.MaxDischarges, this.bDestroyedOnDischarge);
 			//behaviour.SetBattery(battery);
 			//behaviour.SetChipType(this.TechType);
@@ -209,9 +205,6 @@ namespace CombinedItems.Equipables
 
 			bWaiting = true;
 
-			Main.AddModTechType(this.TechType);
-			InventoryPatches.AddChip(this.TechType, !this.bDestroyedOnDischarge);
-			DiverPerimeterDefenceBehaviour.AddChipData(this.TechType, this.MaxDischarges, this.bDestroyedOnDischarge);
 			while (bWaiting)
 			{
 				if (icon == null || icon == SpriteManager.defaultSprite)
@@ -270,36 +263,6 @@ namespace CombinedItems.Equipables
 				)
 			};
 		}
-
-		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-		{
-			DiverPerimeterDefenceBehaviour behaviour;
-			if (prefab == null)
-			{
-				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.MapRoomHUDChip, true);
-				yield return task;
-
-				prefab = GameObject.Instantiate(task.GetResult());
-				behaviour = prefab.EnsureComponent<DiverPerimeterDefenceBehaviour>();
-				//behaviour.Initialise(this.MaxDischarges, this.bDestroyedOnDischarge);
-
-				TechType brokeChip = Main.GetModTechType("DiverPerimeterDefenceChip_Broken");
-				task = CraftData.GetPrefabForTechTypeAsync(brokeChip);
-				yield return task;
-				brokenPrefab = task.GetResult();
-				if (brokenPrefab == null)
-				{
-					Log.LogError($"Could not get prefab for TechType {brokeChip.AsString()}");
-				}
-			}
-
-			GameObject go = GameObject.Instantiate(prefab);
-			behaviour = go.EnsureComponent<DiverPerimeterDefenceBehaviour>();
-			//behaviour.Initialise(this.MaxDischarges, this.bDestroyedOnDischarge);
-			//behaviour.SetBattery(battery);
-			//behaviour.SetChipType(this.TechType);
-			gameObject.Set(go);
-		}
 	}
 
 	public class DiverDefenceSystemMk2 : DiverPerimeterDefenceChipItemBase<DiverDefenceSystemMk2>
@@ -314,11 +277,11 @@ namespace CombinedItems.Equipables
 			};
 		}
 
-		protected override List<TechType> RequiredTech => new List<TechType>()
+		/*protected override List<TechType> RequiredTech => new List<TechType>()
 		{
 			TechType.RadioTowerPPU,
 			Main.GetModTechType("DiverPerimeterDefenceChipItem")
-		};
+		};*/
 
 
 		protected override IEnumerator PostPatchSetup()
@@ -330,7 +293,7 @@ namespace CombinedItems.Equipables
 			yield break;
 		}
 
-		public override TechType RequiredForUnlock => TechType.RadioTowerPPU;
+		public override TechType RequiredForUnlock => Main.GetModTechType("DiverPerimeterDefenceChipItem");
 
 		protected override int MaxDischarges => 1;
 
@@ -348,45 +311,15 @@ namespace CombinedItems.Equipables
 				)
 			};
 		}
-
-		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-		{
-			DiverPerimeterDefenceBehaviour behaviour;
-			if (prefab == null)
-			{
-				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.MapRoomHUDChip, true);
-				yield return task;
-
-				prefab = GameObject.Instantiate(task.GetResult());
-				behaviour = prefab.EnsureComponent<DiverPerimeterDefenceBehaviour>();
-				//behaviour.Initialise(this.MaxDischarges, this.bDestroyedOnDischarge);
-
-				TechType brokeChip = Main.GetModTechType("DiverPerimeterDefenceChip_Broken");
-				task = CraftData.GetPrefabForTechTypeAsync(brokeChip);
-				yield return task;
-				brokenPrefab = task.GetResult();
-				if (brokenPrefab == null)
-				{
-					Log.LogError($"Could not get prefab for TechType {brokeChip.AsString()}");
-				}
-			}
-
-			GameObject go = GameObject.Instantiate(prefab);
-			behaviour = go.EnsureComponent<DiverPerimeterDefenceBehaviour>();
-			//behaviour.Initialise(this.MaxDischarges, this.bDestroyedOnDischarge);
-			//behaviour.SetBattery(battery);
-			//behaviour.SetChipType(this.TechType);
-			gameObject.Set(go);
-		}
 	}
 
-	public class DiverDefenceMk2_FromBrokenChip : DiverDefenceSystemMk2
+	public class DiverDefenceMk2_FromBrokenChip : Craftable
 	{
-		public DiverDefenceMk2_FromBrokenChip() : base("DiverDefenceMk2_FromBrokenChip")
+		public DiverDefenceMk2_FromBrokenChip() : base("DiverDefenceMk2_FromBrokenChip", "Diver Defence System Mk2", "Protects a diver from hostile fauna using electrical discouragement. Can be recharged multiple times.")
 		{
 			OnFinishedPatching += () =>
 			{
-				CoroutineHost.StartCoroutine(PostPatchSetup());
+				Main.AddModTechType(this.TechType);
 			};
 		}
 
@@ -428,15 +361,14 @@ namespace CombinedItems.Equipables
 			yield break;
 		}
 
-		protected override List<TechType> RequiredTech => new List<TechType>()
+		/*protected override List<TechType> RequiredTech => new List<TechType>()
 		{
 			TechType.PrecursorIonBattery,
-			Main.GetModTechType("DiverDefenceSystemMk2"),
-			Main.GetModTechType("ShadowLeviathanSample")
-		};
+			Main.GetModTechType("DiverDefenceSystemMk2")
+		};*/
 
 
-		public override TechType RequiredForUnlock => TechType.Warper;
+		public override TechType RequiredForUnlock => Main.GetModTechType("DiverDefenceSystemMk2");
 
 		protected override int MaxDischarges => 5;
 
@@ -454,36 +386,6 @@ namespace CombinedItems.Equipables
 					}
 				)
 			};
-		}
-
-		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-		{
-			DiverPerimeterDefenceBehaviour behaviour;
-			if (prefab == null)
-			{
-				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.MapRoomHUDChip, true);
-				yield return task;
-
-				prefab = GameObject.Instantiate(task.GetResult());
-				behaviour = prefab.EnsureComponent<DiverPerimeterDefenceBehaviour>();
-				//behaviour.Initialise(this.MaxDischarges, this.bDestroyedOnDischarge);
-
-				TechType brokeChip = Main.GetModTechType("DiverPerimeterDefenceChip_Broken");
-				task = CraftData.GetPrefabForTechTypeAsync(brokeChip);
-				yield return task;
-				brokenPrefab = task.GetResult();
-				if (brokenPrefab == null)
-				{
-					Log.LogError($"Could not get prefab for TechType {brokeChip.AsString()}");
-				}
-			}
-
-			GameObject go = GameObject.Instantiate(prefab);
-			behaviour = go.EnsureComponent<DiverPerimeterDefenceBehaviour>();
-			//behaviour.Initialise(this.MaxDischarges, this.bDestroyedOnDischarge);
-			//behaviour.SetBattery(battery);
-			//behaviour.SetChipType(this.TechType);
-			gameObject.Set(go);
 		}
 	}
 }

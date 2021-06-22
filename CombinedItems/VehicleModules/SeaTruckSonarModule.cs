@@ -9,10 +9,12 @@ using Logger = QModManager.Utility.Logger;
 
 namespace CombinedItems.VehicleModules
 {
-    internal class SeatruckThermalModule : Equipable
+    internal class SeaTruckSonarModule : Equipable
     {
+        internal const float EnergyCost = 20f;
+
         public override EquipmentType EquipmentType => EquipmentType.SeaTruckModule;
-        public override QuickSlotType QuickSlotType => QuickSlotType.Passive;
+        public override QuickSlotType QuickSlotType => QuickSlotType.Selectable;
         public override TechGroup GroupForPDA => TechGroup.VehicleUpgrades;
         public override TechCategory CategoryForPDA => TechCategory.VehicleUpgrades;
         public override TechType RequiredForUnlock => TechType.BaseUpgradeConsole;
@@ -30,9 +32,8 @@ namespace CombinedItems.VehicleModules
                 craftAmount = 1,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                     {
-                        new Ingredient(TechType.Kyanite, 2),
-                        new Ingredient(TechType.Polyaniline, 2),
-                        new Ingredient(TechType.WiringKit, 1)
+                        new Ingredient(TechType.Magnetite, 2),
+                        new Ingredient(TechType.CopperWire, 1)
                     }
                 )
             };
@@ -53,14 +54,15 @@ namespace CombinedItems.VehicleModules
 
         protected override Sprite GetItemSprite()
         {
-            return SpriteManager.Get(TechType.ExosuitThermalReactorModule);
+            return SpriteManager.Get(TechType.SeamothSonarModule);
         }
 
-        public SeatruckThermalModule() : base("SeatruckThermalModule", "SeaTruck Thermal Charger", "Recharges SeaTruck power cells in hot zones. Does not stack.")
+        public SeaTruckSonarModule() : base("SeaTruckSonarModule", "SeaTruck Sonar Module", "A dedicated system for detecting and displaying topographical data on the HUD.")
         {
             OnFinishedPatching += () =>
             {
                 Main.AddModTechType(this.TechType);
+                CraftDataHandler.SetEnergyCost(this.TechType, EnergyCost);
             };
         }
     }

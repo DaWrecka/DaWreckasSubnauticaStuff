@@ -16,6 +16,33 @@ using TMPro;
 
 namespace CombinedItems.Patches
 {
+	[HarmonyPatch(typeof(SeaTruckMotor))]
+	internal class SeaTruckMotorPatches
+	{
+		[HarmonyPatch(nameof(SeaTruckMotor.Start))]
+		[HarmonyPostfix]
+		public static void PostStart(ref SeaTruckMotor __instance)
+		{
+			if(__instance.gameObject != null && __instance.gameObject.TryGetComponent<LiveMixin>(out LiveMixin mixin))
+			{
+				float defaultHealth = mixin.defaultHealth;
+				float instanceHealthPct = Mathf.Min(mixin.GetHealthFraction(), 1f);
+				float maxHealth = defaultHealth;
+				if (__instance.gameObject.GetComponent<SeaTruckUpgrades>() != null)
+				{
+					maxHealth *= Main.config.SeatruckVehicleHealthMult;
+				}
+				else
+				{
+					maxHealth *= Main.config.SeatruckModulesHealthMult;
+				}
+
+				mixin.data.maxHealth = maxHealth;
+				mixin.health = maxHealth * instanceHealthPct;
+			}
+		}
+	}
+
 	[HarmonyPatch(typeof(uGUI_SeaTruckHUD))]
 	internal class SeaTruckHUDPatches
 	{
@@ -84,6 +111,20 @@ namespace CombinedItems.Patches
 			__instance.gameObject.EnsureComponent<SeaTruckUpdater>()?.PostUpgradeModuleChange(slotID, techType, added, __instance);
 		}
 
+		[HarmonyPatch("OnUpgradeModuleUse")]
+		[HarmonyPostfix]
+		public static void PostOnUpgradeModuleUse(SeaTruckUpgrades __instance, TechType techType, int slotID)
+		{
+			__instance.gameObject.EnsureComponent<SeaTruckUpdater>()?.PostUpgradeModuleUse(__instance, techType, slotID);
+		}
+
+		[HarmonyPatch("NotifySelectSlot")]
+		[HarmonyPostfix]
+		public static void PostNotifySelectSlot(SeaTruckUpgrades __instance, int slotID)
+		{
+			__instance.gameObject.EnsureComponent<SeaTruckUpdater>()?.PostNotifySelectSlot(__instance, slotID);
+		}
+
 		[HarmonyPatch("IsAllowedToAdd")]
 		[HarmonyPrefix]
 		public static bool PreIsAllowedToAdd(SeaTruckUpgrades __instance, Pickupable pickupable, bool verbose, ref bool __result)
@@ -100,6 +141,34 @@ namespace CombinedItems.Patches
 			}
 
 			return true;
+		}
+
+		[HarmonyPatch("OnPilotEnd")]
+		[HarmonyPostfix]
+		public static void PostOnPilotEnd(SeaTruckUpgrades __instance)
+		{
+			__instance.gameObject.EnsureComponent<SeaTruckUpdater>()?.PostOnPilotEnd();
+		}
+
+		[HarmonyPatch("IQuickSlots.IsToggled")]
+		[HarmonyPrefix]
+		public static bool PreSeatruckIsToggled(SeaTruckUpgrades __instance, ref bool __result, int slotID)
+		{
+			//__result = slotID >= 0 && slotID < SeaTruckUpgrades.slotIDs.Length && (TechData.GetSlotType(__instance.GetSlotBinding(slotID)) == QuickSlotType.Passive || this.quickSlotToggled[slotID]);
+			__result = __result || __instance.gameObject.EnsureComponent<SeaTruckUpdater>().PreQuickSlotIsToggled(__instance, slotID);
+			//Log.LogDebug($"PreSeatruckIsToggled: slotID = {slotID}, __result = {__result}");
+			if(__result)
+				return false;
+
+			return true;
+		}
+
+		[HarmonyPatch("IQuickSlots.IsToggled")]
+		[HarmonyPostfix]
+		public static void PostSeatruckIsToggled(SeaTruckUpgrades __instance, ref bool __result, int slotID)
+		{
+			//__result = slotID >= 0 && slotID < SeaTruckUpgrades.slotIDs.Length && (TechData.GetSlotType(__instance.GetSlotBinding(slotID)) == QuickSlotType.Passive || this.quickSlotToggled[slotID]);
+			//Log.LogDebug($"PostSeatruckIsToggled: slotID = {slotID}, __result = {__result}");
 		}
 	}
 }

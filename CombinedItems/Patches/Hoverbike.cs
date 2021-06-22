@@ -24,6 +24,17 @@ namespace CombinedItems.Patches
         {
             HoverbikeUpdater component = __instance.gameObject.EnsureComponent<HoverbikeUpdater>();
             component.Initialise(ref __instance);
+
+            if (__instance.gameObject != null && __instance.gameObject.TryGetComponent<LiveMixin>(out LiveMixin mixin))
+            {
+                float defaultHealth = mixin.defaultHealth;
+                float instanceHealthPct = Mathf.Min(mixin.GetHealthFraction(), 1f);
+                float maxHealth = defaultHealth;
+                maxHealth *= Main.config.SnowfoxHealthMult;
+
+                mixin.data.maxHealth = maxHealth;
+                mixin.health = maxHealth * instanceHealthPct;
+            }
         }
 
         [HarmonyPatch("Update")]

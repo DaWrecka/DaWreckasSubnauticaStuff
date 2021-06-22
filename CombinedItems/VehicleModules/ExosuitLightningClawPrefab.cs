@@ -50,22 +50,18 @@ namespace CombinedItems.VehicleModules
                 prefab = GameObject.Instantiate<GameObject>(task.GetResult());
 
                 // Adapted from Senna's SeaTruckArms mod
-                task = CraftData.GetPrefabForTechTypeAsync(TechType.Exosuit, true);
+                task = CraftData.GetPrefabForTechTypeAsync(TechType.Exosuit, verbose: true);
                 yield return task;
-                Exosuit exosuit = task.GetResult().GetComponent<Exosuit>();
-                if (exosuit != null)
+                if (task.GetResult().TryGetComponent<Exosuit>(out Exosuit exosuit))
                 {
                     GameObject armPrefab = null;
-                    if (exosuit != null)
+                    for (int i = 0; i < exosuit.armPrefabs.Length; i++)
                     {
-                        for (int i = 0; i < exosuit.armPrefabs.Length; i++)
+                        if (exosuit.armPrefabs[i].techType == TechType.ExosuitClawArmModule)
                         {
-                            if (exosuit.armPrefabs[i].techType == TechType.ExosuitClawArmModule)
-                            {
-                                //Log.LogDebug($"Found claw arm prefab in Exosuit armPrefabs at index {i}");
-                                armPrefab = exosuit.armPrefabs[i].prefab;
-                                break;
-                            }
+                            //Log.LogDebug($"Found claw arm prefab in Exosuit armPrefabs at index {i}");
+                            armPrefab = exosuit.armPrefabs[i].prefab;
+                            break;
                         }
                     }
 

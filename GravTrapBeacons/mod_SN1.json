@@ -1,0 +1,21 @@
+{
+  "Id": "GravTrapBeacons",
+  "DisplayName": "Grav Trap Beacons",
+  "Author": "DaWrecka",
+  "Version": "1.0.0.0",
+  "LoadAfter": [
+    "SMLHelper"
+  ],
+  "VersionDependencies": {
+    "SMLHelper": "2.9.6"
+  },
+  "Game": "Subnautica",
+  "NexusId": {
+    "Subnautica": "559"
+  },
+  "AssemblyName": "GravTrapBeacons.dll",
+  "VersionChecker": {
+    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/GravTrapBeacons/mod_SN1.json"
+  },
+  "Enable": true
+}

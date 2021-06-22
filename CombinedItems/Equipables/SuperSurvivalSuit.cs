@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace CombinedItems.Equipables
 {
-    internal class SuperSurvivalSuit : SurvivalSuit
+    internal class SuperSurvivalSuit : SurvivalSuitBase<SuperSurvivalSuit>
     {
         public SuperSurvivalSuit() : base("SuperSurvivalSuit", "Ultimate Survival Suit", "The ultimate in survival gear. Provides protection from extreme temperatures and physical harm, reduces the need for external sustenance, and dramatically improves the body's ability to retain water.")
         {
@@ -22,26 +22,15 @@ namespace CombinedItems.Equipables
                 int coldResist = TechData.GetColdResistance(TechType.ColdSuit);
                 Reflection.AddColdResistance(this.TechType, System.Math.Max(55, coldResist));
                 Reflection.SetItemSize(this.TechType, 2, 3);
-                Log.LogDebug($"Finished patching, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
+                Log.LogDebug($"Finished patching {this.TechType.AsString()}, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
 
                 // the SurvivalSuit constructor will call AddModTechType already.
-                // It has also been set up to add substitutions based on the value of the 'substitutions' property below.
-
-                //Main.AddModTechType(this.TechType);
-                //Main.AddSubstitution(this.TechType, TechType.ReinforcedDiveSuit);
-                //Main.AddSubstitution(this.TechType, TechType.ColdSuit);
-                /*KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
-                compound.techType = this.TechType;
-                compound.dependencies = new List<TechType>()
-                {
-                    TechType.ReinforcedDiveSuit,
-                    TechType.Stillsuit,
-                    TechType.ColdSuit
-                };
-                Reflection.AddCompoundTech(compound);*/
+                // It has also been set up to add substitutions based on the value of the 'substitutions' property below,
+                // as well as set up CompoundTech based on the value of CompoundDependencies
             };
         }
 
+        public override EquipmentType EquipmentType => EquipmentType.Body;
         protected override float SurvivalCapOverride
         {
             get
@@ -58,11 +47,37 @@ namespace CombinedItems.Equipables
             }
         }
 
+        protected override List<TechType> CompoundDependencies
+        {
+            get
+            {
+                return new List<TechType>()
+                {
+                    TechType.ReinforcedDiveSuit,
+                    TechType.Stillsuit,
+                    TechType.ColdSuit
+                };
+            }
+        }
+
         protected override RecipeData GetBlueprintRecipe()
         {
             return new RecipeData()
             {
-                craftAmount = 0
+                craftAmount = 1,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                    {
+                        new Ingredient(TechType.ReinforcedDiveSuit, 1),
+                        new Ingredient(Main.GetModTechType("SurvivalSuit"), 1),
+                        new Ingredient(TechType.ColdSuit, 1),
+                        new Ingredient(TechType.ColdSuitGloves, 1),
+                        new Ingredient(TechType.ReinforcedGloves, 1)
+                    }
+                ),
+                LinkedItems = new List<TechType>()
+                {
+                    Main.GetModTechType("ReinforcedColdGloves")
+                }
             };
         }
 
@@ -75,7 +90,7 @@ namespace CombinedItems.Equipables
         {
             if (prefab == null)
             {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuit, true);
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuit, verbose: true);
                 yield return task;
 
                 prefab = task.GetResult();
@@ -88,8 +103,7 @@ namespace CombinedItems.Equipables
             }
 
             GameObject go = GameObject.Instantiate(prefab);
-            Stillsuit still = go.GetComponent<Stillsuit>();
-            if (still != null)
+            if(go.TryGetComponent<Stillsuit>(out Stillsuit still))
                 GameObject.DestroyImmediate(still);
             gameObject.Set(go);
         }
@@ -115,47 +129,6 @@ namespace CombinedItems.Equipables
         }
     }
 
-    internal class SurvivalSuitBlueprint_BaseSuits : SurvivalSuitBlueprint
-    {
-        public SurvivalSuitBlueprint_BaseSuits() : base("SurvivalSuitBlueprint_BaseSuits")
-        {
-            OnFinishedPatching += () =>
-            {
-                KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
-                compound.techType = this.TechType;
-                compound.dependencies = new List<TechType>()
-                {
-                    TechType.ReinforcedDiveSuit,
-                    TechType.Stillsuit,
-                    TechType.ColdSuit
-                };
-                Reflection.AddCompoundTech(compound);
-            };
-        }
-
-        protected override RecipeData GetBlueprintRecipe()
-        {
-            return new RecipeData()
-            {
-                craftAmount = 0,
-                Ingredients = new List<Ingredient>(new Ingredient[]
-                    {
-                        new Ingredient(TechType.ReinforcedDiveSuit, 1),
-                        new Ingredient(Main.GetModTechType("SurvivalSuit"), 1),
-                        new Ingredient(TechType.ColdSuit, 1),
-                        new Ingredient(TechType.ColdSuitGloves, 1),
-                        new Ingredient(TechType.ReinforcedGloves, 1)
-                    }
-                ),
-                LinkedItems = new List<TechType>()
-                {
-                    Main.GetModTechType("SuperSurvivalSuit"),
-                    Main.GetModTechType("ReinforcedColdGloves")
-                }
-            };
-        }
-    }
-
     internal class SurvivalSuitBlueprint_FromReinforcedSurvival : SurvivalSuitBlueprint
     {
         public SurvivalSuitBlueprint_FromReinforcedSurvival() : base("SurvivalSuitBlueprint_FromReinforcedSurvival")
@@ -174,7 +147,7 @@ namespace CombinedItems.Equipables
             };
         }
 
-        public override TechType RequiredForUnlock => TechType.Warper;
+        public override TechType RequiredForUnlock => TechType.Unobtanium;
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -216,7 +189,7 @@ namespace CombinedItems.Equipables
             };
         }
 
-        public override TechType RequiredForUnlock => TechType.Warper;
+        public override TechType RequiredForUnlock => TechType.Unobtanium;
         protected override RecipeData GetBlueprintRecipe()
         {
             return new RecipeData()
@@ -246,15 +219,15 @@ namespace CombinedItems.Equipables
                 compound.techType = this.TechType;
                 compound.dependencies = new List<TechType>()
                 {
+                    TechType.ReinforcedDiveSuit,
                     TechType.Stillsuit,
-                    TechType.ColdSuit,
-                    TechType.ReinforcedDiveSuit
+                    TechType.ColdSuit
                 };
                 Reflection.AddCompoundTech(compound);
             };
         }
 
-        public override TechType RequiredForUnlock => TechType.Warper;
+        public override TechType RequiredForUnlock => TechType.Unobtanium;
         protected override RecipeData GetBlueprintRecipe()
         {
             return new RecipeData()

@@ -66,6 +66,7 @@ namespace IngredientsFromScanning_BZ.Patches
             {
                 GameObject gameObject = CraftData.InstantiateFromPrefab(null, techType, false);
                 Pickupable component = gameObject.GetComponent<Pickupable>();
+                component?.Initialize();
 
                 if (thisVehicle is Exosuit exo)
                 {
@@ -77,7 +78,6 @@ namespace IngredientsFromScanning_BZ.Patches
                         ErrorMessage.AddMessage(Language.main.GetFormat("VehicleAddedToStorage", name));
 
                         uGUI_IconNotifier.main.Play(component.GetTechType(), uGUI_IconNotifier.AnimationType.From, null);
-                        component.Initialize();
                         var item = new InventoryItem(component);
                         storageContainer.container.UnsafeAdd(item);
                         component.PlayPickupSound();
@@ -99,7 +99,6 @@ namespace IngredientsFromScanning_BZ.Patches
 
                                 uGUI_IconNotifier.main.Play(component.GetTechType(), uGUI_IconNotifier.AnimationType.From, null);
 
-                                component.Initialize();
                                 var item = new InventoryItem(component);
                                 storage.UnsafeAdd(item);
                                 component.PlayPickupSound();

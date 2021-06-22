@@ -31,9 +31,7 @@ namespace CustomiseOxygen.Patches
             this.oxygen = base.GetComponent<Oxygen>();
             if (this.oxygen == null)
             {
-#if !RELEASE
                 Log.LogDebug($"CustomOxy: Failed to find Oxygen component in parent"); 
-#endif
                 return;
             }
 

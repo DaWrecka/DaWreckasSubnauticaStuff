@@ -258,7 +258,7 @@ namespace IngredientsFromScanning_BZ.Configuration
 					{ "Battery", 0.5f },
 					{ "BatteryAcidOld", 0f },
 					{ "TitaniumIngot", 0.5f },
-					{ "AdvancedWiringKit", 0.5f },
+					{ "AdvancedWiringKit", 0.25f },
 					{ "PlasteelIngot", 0.5f },
 					{ "EnameledGlass", 0.5f },
 					{ "Enamel", 0f },
@@ -269,10 +269,10 @@ namespace IngredientsFromScanning_BZ.Configuration
 					{ "Uranium", 0f },
 					{ "HydrochloricAcid", 0.5f },
 					{ "AminoAcids", 0f },
-					{ "Polyaniline", 0.5f },
+					{ "Polyaniline", 0.25f },
 					{ "Graphene", 0f },
 					{ "Nanowires", 0f },
-					{ "Lubricant", 0.5f },
+					{ "Lubricant", 0.25f },
 					{ "ReactorRod", 0f },
 					{ "DepletedReactorRod", 0f },
 					{ "PrecursorIonCrystalMatrix", 0f },
@@ -482,14 +482,14 @@ namespace IngredientsFromScanning_BZ.Configuration
 					new SSubstitutionEntry(
 						"PlasteelIngot",
 						new List<StringIngredient>{
-							new StringIngredient("ScrapMetal", 2),
-							new StringIngredient("Lithium", 2)
+							new StringIngredient("ScrapMetal", 1),
+							new StringIngredient("Lithium", 1)
 						}
 					),
 					new SSubstitutionEntry(
 						"TitaniumIngot",
 						new List<StringIngredient>{
-							new StringIngredient("ScrapMetal", 2)
+							new StringIngredient("ScrapMetal", 1)
 						}
 					),
 					new SSubstitutionEntry(
@@ -502,6 +502,22 @@ namespace IngredientsFromScanning_BZ.Configuration
 						"PowerCell",
 						new List<StringIngredient>{
 							new StringIngredient("Copper", 2)
+						}
+					),
+					new SSubstitutionEntry(
+						"Tank",
+						new List<StringIngredient>{
+							new StringIngredient("Titanium", 1),
+							new StringIngredient("FiberMesh", 1)
+						}
+					),
+					new SSubstitutionEntry(
+						"DoubleTank",
+						new List<StringIngredient>{
+							new StringIngredient("Titanium", 3),
+							new StringIngredient("Glass", 1),
+							new StringIngredient("Silver", 1),
+							new StringIngredient("FiberMesh", 1)
 						}
 					)
 				};

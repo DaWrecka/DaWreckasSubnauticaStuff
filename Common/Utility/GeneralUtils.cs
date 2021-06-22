@@ -9,12 +9,14 @@ namespace Common
 	{
 		public static void LogDebug(string message)
 		{
+#if !RELEASE
 			Logger.Log(Logger.Level.Debug, message);
+#endif
 		}
 
-		public static void LogError(string message)
+		public static void LogError(string message, Exception ex = null, bool bShowOnScreen = false)
 		{
-			Logger.Log(Logger.Level.Error, message);
+			Logger.Log(Logger.Level.Error, message, ex, bShowOnScreen);
 		}
 
 		public static void LogWarning(string message)

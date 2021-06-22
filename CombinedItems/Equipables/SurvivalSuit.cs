@@ -21,19 +21,10 @@ namespace CombinedItems.Equipables
                 string friendlyName,
                 string Description) : base(classId, friendlyName, Description)
         {
-            OnFinishedPatching += () =>
-            {
-                //Main.AddSubstitution(this.TechType, TechType.Stillsuit);
-                foreach (TechType tt in substitutions)
-                {
-                    Main.AddSubstitution(this.TechType, tt);
-                }
-                Main.AddModTechType(this.TechType);
-                PlayerPatch.AddSurvivalSuit(this.TechType);
-                //SurvivalPatches.AddNeedsCapOverride(this.TechType, SurvivalCapOverride);
-            };
+            OnFinishedPatching += () => OnFinishedPatch();
         }
 
+        public override Vector2int SizeInInventory => new Vector2int(2, 3);
         protected virtual float SurvivalCapOverride
         {
             get
@@ -52,29 +43,52 @@ namespace CombinedItems.Equipables
 
         protected static GameObject prefab;
 
+        protected virtual List<TechType> CompoundDependencies
+        {
+            get
+            {
+                return new List<TechType>();
+            }
+        }
+
+        protected virtual void OnFinishedPatch()
+        {
+            //Main.AddSubstitution(this.TechType, TechType.Stillsuit);
+            foreach (TechType tt in substitutions)
+            {
+                Main.AddSubstitution(this.TechType, tt);
+            }
+            Main.AddModTechType(this.TechType);
+            PlayerPatch.AddSurvivalSuit(this.TechType);
+
+            if (CompoundDependencies.Count > 0)
+            {
+                KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
+                compound.techType = this.TechType;
+                compound.dependencies = CompoundDependencies;
+                Reflection.AddCompoundTech(compound);
+            }
+            //SurvivalPatches.AddNeedsCapOverride(this.TechType, SurvivalCapOverride);
+        }
+
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             if (prefab == null)
             {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.Stillsuit, true);
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.Stillsuit, verbose: true);
                 yield return task;
 
                 prefab = task.GetResult();
                 //prefab.SetActive(false); // Keep the prefab inactive until we're done editing it.
 
                 // Editing prefab
-                GameObject.Destroy(prefab.GetComponent<Stillsuit>());
+                GameObject.DestroyImmediate(prefab.GetComponent<Stillsuit>());
                 prefab.EnsureComponent<SurvivalsuitBehaviour>();
 
                 prefab.SetActive(true);
             }
 
-            // Despite the component being removed from the prefab above, testing shows that the Survival Suits still add the water packs.
-            // So we're going to force-remove the Stillsuit component here, to be safe.
             GameObject go = GameObject.Instantiate(prefab);
-            Stillsuit still = go.GetComponent<Stillsuit>();
-            if (still != null)
-                GameObject.DestroyImmediate(still);
             gameObject.Set(go);
         }
     }
@@ -130,35 +144,33 @@ namespace CombinedItems.Equipables
         }
     }
 
-    public class ReinforcedSurvivalSuit : SurvivalSuit
+    public class ReinforcedSurvivalSuit : SurvivalSuitBase<ReinforcedSurvivalSuit>
     {
         public ReinforcedSurvivalSuit(string classId = "ReinforcedSurvivalSuit",
                 string friendlyName = "Reinforced Survival Suit",
                 string Description = "Enhanced survival suit with reinforcing fibres provides passive primary needs reduction and protection from physical force and high temperatures") : base(classId, friendlyName, Description)
         {
-            OnFinishedPatching += () =>
-            {
-                //Main.AddSubstitution(this.TechType, TechType.Stillsuit);
-                //Main.AddSubstitution(this.TechType, TechType.ReinforcedDiveSuit);
-                //Main.AddModTechType(this.TechType);
-                KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
-                compound.techType = this.TechType;
-                compound.dependencies = new List<TechType>()
-                {
-                    TechType.ReinforcedDiveSuit,
-                    Main.GetModTechType("SurvivalSuit")
-                };
-                Reflection.AddCompoundTech(compound);
-            };
         }
 
+        protected override List<TechType> CompoundDependencies
+        {
+            get
+            {
+                return new List<TechType>()
+                {
+                    Main.GetModTechType("SurvivalSuit"),
+                    TechType.ReinforcedDiveSuit
+                };
+            }
+        }
         protected override TechType[] substitutions
         {
             get
             {
-                return new TechType[] { TechType.Stillsuit };
+                return new TechType[] { TechType.Stillsuit, TechType.ReinforcedDiveSuit };
             }
         }
+        public override EquipmentType EquipmentType => EquipmentType.Body;
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -176,6 +188,20 @@ namespace CombinedItems.Equipables
             };
         }
 
+        protected override void OnFinishedPatch()
+        {
+            base.OnFinishedPatch();
+
+            KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
+            compound.techType = this.TechType;
+            compound.dependencies = new List<TechType>()
+                {
+                    TechType.ReinforcedDiveSuit,
+                    Main.GetModTechType("SurvivalSuit")
+                };
+            Reflection.AddCompoundTech(compound);
+        }
+
         protected override Sprite GetItemSprite()
         {
             return SpriteManager.Get(TechType.Stillsuit);
@@ -183,30 +209,12 @@ namespace CombinedItems.Equipables
     }
 
 
-    public class SurvivalColdSuit : SurvivalSuit
+    public class SurvivalColdSuit : SurvivalSuitBase<SurvivalColdSuit>
     {
         public SurvivalColdSuit(string classId = "SurvivalColdSuit",
                 string friendlyName = "Insulated Survival Suit",
                 string Description = "Enhanced survival suit provides passive primary needs reduction and protection from extreme cold.") : base(classId, friendlyName, Description)
         {
-            OnFinishedPatching += () =>
-            {
-                int coldResist = TechData.GetColdResistance(TechType.ColdSuit);
-                Reflection.AddColdResistance(this.TechType, System.Math.Max(55, coldResist));
-                Reflection.SetItemSize(this.TechType, 2, 3);
-                Log.LogDebug($"Finished patching, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
-                //Main.AddSubstitution(this.TechType, TechType.Stillsuit);
-                //Main.AddSubstitution(this.TechType, TechType.ColdSuit);
-                //Main.AddModTechType(this.TechType);
-                KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
-                compound.techType = this.TechType;
-                compound.dependencies = new List<TechType>()
-                {
-                    Main.GetModTechType("SurvivalSuit"),
-                    TechType.ColdSuit
-                };
-                Reflection.AddCompoundTech(compound);
-            };
         }
 
         protected override TechType[] substitutions
@@ -215,6 +223,30 @@ namespace CombinedItems.Equipables
             {
                 return new TechType[] { TechType.ColdSuit };
             }
+        }
+
+        public override EquipmentType EquipmentType => EquipmentType.Body;
+
+        protected override List<TechType> CompoundDependencies
+        {
+            get
+            {
+                return new List<TechType>()
+                {
+                    Main.GetModTechType("SurvivalSuit"),
+                    TechType.ColdSuit
+                };
+            }
+        }
+
+        protected override void OnFinishedPatch()
+        {
+            base.OnFinishedPatch();
+
+            int coldResist = TechData.GetColdResistance(TechType.ColdSuit);
+            Reflection.AddColdResistance(this.TechType, System.Math.Max(55, coldResist));
+            Reflection.SetItemSize(this.TechType, 2, 3);
+            Log.LogDebug($"Finished patching {this.TechType.AsString()}, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
         }
 
         protected override RecipeData GetBlueprintRecipe()
@@ -236,14 +268,15 @@ namespace CombinedItems.Equipables
         {
             if (prefab == null)
             {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuit, true);
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuit, verbose: true);
                 yield return task;
 
                 prefab = task.GetResult();
                 //prefab.SetActive(false); // Keep the prefab inactive until we're done editing it.
 
                 // Editing prefab
-                //GameObject.Destroy(prefab.GetComponent<Stillsuit>());
+                if(prefab.TryGetComponent<Stillsuit>(out Stillsuit s))
+                    GameObject.DestroyImmediate(s);
                 prefab.EnsureComponent<SurvivalsuitBehaviour>();
 
                 prefab.SetActive(true);

@@ -26,8 +26,9 @@ namespace IngredientsFromScanning.Patches
             __result = false;
             //Logger.Log(Logger.Level.Debug, $"PDAScanner.CanScan Override: checking GameObject: {JsonConvert.SerializeObject(go.GetInstanceID(), Oculus.Newtonsoft.Json.Formatting.Indented)}");
             
-            UniqueIdentifier component = go.GetComponent<UniqueIdentifier>();
-            if (component != null)
+            //UniqueIdentifier component = go.GetComponent<UniqueIdentifier>();
+            //if (component != null)
+            if(go.TryGetComponent<UniqueIdentifier>(out UniqueIdentifier component))
             {
                 TechType techType = CraftData.GetTechType(go);
                 string id = component.Id;
