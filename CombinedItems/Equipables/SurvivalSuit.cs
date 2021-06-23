@@ -78,14 +78,13 @@ namespace CombinedItems.Equipables
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.Stillsuit, verbose: true);
                 yield return task;
 
-                prefab = task.GetResult();
-                //prefab.SetActive(false); // Keep the prefab inactive until we're done editing it.
+                prefab = GameObject.Instantiate(task.GetResult());
 
                 // Editing prefab
                 GameObject.DestroyImmediate(prefab.GetComponent<Stillsuit>());
                 prefab.EnsureComponent<SurvivalsuitBehaviour>();
 
-                prefab.SetActive(true);
+                prefab.SetActive(false);
             }
 
             GameObject go = GameObject.Instantiate(prefab);
@@ -266,6 +265,7 @@ namespace CombinedItems.Equipables
 
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
+            Stillsuit s;
             if (prefab == null)
             {
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuit, verbose: true);
@@ -275,7 +275,7 @@ namespace CombinedItems.Equipables
                 //prefab.SetActive(false); // Keep the prefab inactive until we're done editing it.
 
                 // Editing prefab
-                if(prefab.TryGetComponent<Stillsuit>(out Stillsuit s))
+                if(prefab.TryGetComponent<Stillsuit>(out s))
                     GameObject.DestroyImmediate(s);
                 prefab.EnsureComponent<SurvivalsuitBehaviour>();
 
@@ -285,9 +285,8 @@ namespace CombinedItems.Equipables
             // Despite the component being removed from the prefab above, testing shows that the Survival Suits still add the water packs when they should.
             // So we're going to force-remove it here, to be safe.
             GameObject go = GameObject.Instantiate(prefab);
-            Stillsuit still = go.GetComponent<Stillsuit>();
-            if (still != null)
-                GameObject.DestroyImmediate(still);
+            if (go.TryGetComponent<Stillsuit>(out s))
+                GameObject.DestroyImmediate(s);
             gameObject.Set(go);
         }
 

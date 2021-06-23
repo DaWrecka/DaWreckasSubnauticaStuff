@@ -7,7 +7,7 @@ using Logger = QModManager.Utility.Logger;
 
 namespace AcidProofSuit.Patches
 {
-	[HarmonyPatch(typeof(Equipment)]
+	[HarmonyPatch(typeof(Equipment))]
 	internal class Equipment_GetCount_Patch
 	{
 		// This patch allows for "substitutions", as it were; Specifically, it allows the modder to set up certain TechTypes to return results for both itself and another type.

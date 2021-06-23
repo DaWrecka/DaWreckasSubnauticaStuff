@@ -7,10 +7,10 @@ namespace Common
 {
 	class Log
 	{
-		public static void LogDebug(string message)
+		public static void LogDebug(string message, Exception ex = null, bool showOnScreen = false)
 		{
 #if !RELEASE
-			Logger.Log(Logger.Level.Debug, message);
+			Logger.Log(Logger.Level.Debug, message, ex, showOnScreen);
 #endif
 		}
 

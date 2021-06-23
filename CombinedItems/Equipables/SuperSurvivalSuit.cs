@@ -88,23 +88,23 @@ namespace CombinedItems.Equipables
 
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
+            Stillsuit s;
             if (prefab == null)
             {
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuit, verbose: true);
                 yield return task;
 
-                prefab = task.GetResult();
-                prefab.SetActive(false); // Keep the prefab inactive until we're done editing it.
-
+                prefab = GameObject.Instantiate(task.GetResult());
                 // Editing prefab
+                if (prefab.TryGetComponent<Stillsuit>(out s))
+                    GameObject.DestroyImmediate(s);
                 prefab.EnsureComponent<SurvivalsuitBehaviour>();
-
-                prefab.SetActive(true);
+                prefab.SetActive(false);
             }
 
             GameObject go = GameObject.Instantiate(prefab);
-            if(go.TryGetComponent<Stillsuit>(out Stillsuit still))
-                GameObject.DestroyImmediate(still);
+            if(go.TryGetComponent<Stillsuit>(out s))
+                GameObject.DestroyImmediate(s);
             gameObject.Set(go);
         }
     }

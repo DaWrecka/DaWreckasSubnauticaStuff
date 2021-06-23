@@ -33,8 +33,9 @@ namespace CombinedItems.Spawnables
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.FrozenCreatureAntidote);
                 yield return task;
 
-                prefab = task.GetResult();
+                prefab = GameObject.Instantiate(task.GetResult());
                 GameObject.DestroyImmediate(prefab.GetComponent<CompleteGoalOnExamine>());
+                prefab.SetActive(false);
             }
 
             var obj = GameObject.Instantiate(prefab);

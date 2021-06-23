@@ -101,6 +101,7 @@ namespace CustomiseOxygen
 				prefab = task.GetResult();
 				//prefab.EnsureComponent<AutoRemover>();
 				prefabs.Add(this.TechType, prefab);
+				prefab.SetActive(false);
 			}
 
 			gameObject.Set(GameObject.Instantiate(prefab));

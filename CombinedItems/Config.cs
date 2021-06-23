@@ -40,7 +40,7 @@ namespace CombinedItems
 
 		[Slider("Knife damage", KNIFE_DAMAGE_MIN, KNIFE_DAMAGE_MAX, DefaultValue = KNIFE_DAMAGE_DEFAULT, Id = "KnifeDamage",
 			Step = 0.1f, Format = "{0:F1}",
-			Tooltip = "Base damage dealt by Survival Knife (UWE default: 20)")]
+			Tooltip = "Base damage dealt by Survival Knife (UWE default: 20)\nNote that this will affect how many times a harvestable plant can be struck with a Knife before it is destroyed, and thus how many resources you will get.")]
 		public float KnifeDamage = KNIFE_DAMAGE_DEFAULT;
 
 		[Slider("Knife Tentacle damage", KNIFE_TENTACLE_DAMAGE_MIN, KNIFE_TENTACLE_DAMAGE_MAX, DefaultValue = KNIFE_TENTACLE_DAMAGE_DEFAULT, Id = "KnifeTentacleDamage",
@@ -50,7 +50,7 @@ namespace CombinedItems
 
 		[Slider("Heatblade damage", HEATBLADE_DAMAGE_MIN, HEATBLADE_DAMAGE_MAX, DefaultValue = HEATBLADE_DAMAGE_DEFAULT, Id = "HeatbladeDamage",
 			Step = 0.1f, Format = "{0:F1}",
-			Tooltip = "Base damage dealt by Heatblade. (UWE default: 20.0)")]
+			Tooltip = "Base damage dealt by Heatblade. (UWE default: 20.0)\nNote that this will affect how many times a harvestable plant can be struck with a HeatBlade before it is destroyed, and thus how many resources you will get.")]
 		public float HeatbladeDamage = HEATBLADE_DAMAGE_DEFAULT;
 
 		[Slider("Heatblade Tentacle damage", HEATBLADE_TENTACLE_DAMAGE_MIN, HEATBLADE_TENTACLE_DAMAGE_MAX, DefaultValue = HEATBLADE_TENTACLE_DAMAGE_DEFAULT, Id = "HeatbladeTentacleDamage",

@@ -39,6 +39,7 @@ namespace CombinedItems.VehicleModules
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.HoverbikeJumpModule);
                 yield return task;
                 prefab = GameObject.Instantiate<GameObject>(task.GetResult());
+                prefab.SetActive(false);
             }
 
             gameObject.Set(GameObject.Instantiate(prefab));

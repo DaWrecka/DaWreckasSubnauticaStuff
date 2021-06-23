@@ -46,6 +46,7 @@ namespace CombinedItems.VehicleModules
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ExosuitThermalReactorModule);
                 yield return task;
                 prefab = GameObject.Instantiate<GameObject>(task.GetResult());
+                prefab.SetActive(false);
 
             }
 

@@ -35,7 +35,8 @@ namespace FuelCells.Spawnables
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.CoralChunk);
                 yield return task;
 
-                prefab = task.GetResult();
+                prefab = GameObject.Instantiate(task.GetResult());
+                prefab.SetActive(false);
             }
 
             var obj = GameObject.Instantiate(prefab);
@@ -52,7 +53,7 @@ namespace FuelCells.Spawnables
             /*sprite = Main.assetBundle.LoadAsset<Sprite>("BioPlasmaMK2");*/
             OnFinishedPatching += () =>
             {
-                KnifePatches.AddHarvestable(TechType.TwistyBridgesCoralShelf, 100f);
+                KnifePatches.AddHarvestable(TechType.TwistyBridgesCoralShelf, 200f);
                 Main.AddModTechType(this.TechType);
                 CraftDataHandler.SetHarvestOutput(TechType.TwistyBridgesCoralShelf, this.TechType);
                 CraftDataHandler.SetHarvestType(TechType.TwistyBridgesCoralShelf, HarvestType.DamageAlive);

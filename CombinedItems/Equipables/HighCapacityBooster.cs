@@ -89,7 +89,7 @@ namespace CombinedItems.Equipables
             var highCapPrefab = task.GetResult();
             if (highCapPrefab != null)
             {
-                highCapTank = GameObject.Instantiate(task.GetResult());
+                highCapTank = GameObject.Instantiate(highCapPrefab);
                 highCapTank.SetActive(false);
             }
             else
@@ -115,7 +115,8 @@ namespace CombinedItems.Equipables
                 task = CraftData.GetPrefabForTechTypeAsync(TechType.SuitBoosterTank, verbose: true);
                 yield return task;
 
-                prefab = task.GetResult();
+                prefab = GameObject.Instantiate(task.GetResult());
+                prefab.SetActive(false);
                 //HighCapacityBooster.prefab = prefab;
             }
 

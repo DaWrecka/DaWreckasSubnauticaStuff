@@ -40,7 +40,7 @@ namespace AcidProofSuit.Module
 
         protected GameObject ModifyAndInstantiateGameObject(GameObject prefab)
         {
-            var obj = Object.Instantiate(prefab);
+            var obj = GameObject.Instantiate(prefab);
             Shader shader = Shader.Find("MarmosetUBER");
             Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
             foreach (var renderer in renderers)
@@ -255,7 +255,7 @@ namespace AcidProofSuit.Module
 
         public override GameObject GetGameObject()
         {
-            return Object.Instantiate(CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit));
+            return GameObject.Instantiate(CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit));
         }
 
         protected override Sprite GetItemSprite()

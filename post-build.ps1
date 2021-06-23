@@ -11,13 +11,20 @@ param
 $dirSeparator = "\"
 Write-Host ("Using directory separator '" + $dirSeparator + "'")
 
-[string]$s = "Executing with parameters ProjectDir '" + $ProjectDir + "', TargetPath '" + $TargetPath + "', ProjectName '" + $ProjectName + "', SolutionPath '" + $SolutionDir + "', Config '" + $Config + "'"
+# Sanity-checking; remove all " symbols from the parameters, because clearly Visual Studio and Powershell can't be trusted not to include them.
+$ProjectDir = $ProjectDir -replace '"',''
+$TargetPath = $TargetPath -replace '"',''
+$ProjectName = $ProjectName -replace '"',''
+$SolutionDir = $SolutionDir -replace '"',''
+$Config = $Config -replace '"',''
+
+[string]$s = "Executing with parameters:`nProjectDir '" + $ProjectDir + "'`nTargetPath '" + $TargetPath + "'`nProjectName '" + $ProjectName + "'`nSolutionPath '" + $SolutionDir + "'`nConfig '" + $Config + "'"
 Write-Host $s
 
 $jsonName = "mod_" + $Config + ".json"
 $jsonPath = $ProjectDir + $jsonName
 $SolutionItem = Get-Item -Path $SolutionDir
-$modPath = $SolutionDir + "QMods\" + $Config + $dirSeparator + $ProjectName
+$modPath = $SolutionDir + $dirSeparator + "QMods" + $dirSeparator + $Config + $dirSeparator + $ProjectName
 
 if(!(Test-Path $jsonPath))
 {
@@ -47,7 +54,7 @@ $modJson | ConvertTo-Json | Out-File $jsonPath
 if(!(Test-Path $modPath))
 {
 	Write-Host Creating directory $modPath
-	New-Item -Type Directory -LiteralPath $modPath
+	New-Item -Type Directory -Path $modPath
 }
 Write-Host Creating hard links in $modPath
 New-Item -Type HardLink -Path (($modPath,"mod.json") -join $dirSeparator) -Target $jsonPath -Force

@@ -56,12 +56,8 @@ namespace CombinedItems.Equipables
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuitGloves, verbose: true);
                 yield return task;
 
-                prefab = task.GetResult();
-                prefab.SetActive(false); // Keep the prefab inactive until we're done editing it.
-
-                // Editing prefab
-
-                prefab.SetActive(true);
+                prefab = GameObject.Instantiate(task.GetResult());
+                prefab.SetActive(false);
             }
 
             GameObject go = GameObject.Instantiate(prefab);
@@ -126,12 +122,8 @@ namespace CombinedItems.Equipables
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuitGloves, verbose: true);
                 yield return task;
 
-                prefab = task.GetResult();
-                prefab.SetActive(false); // Keep the prefab inactive until we're done editing it.
-
-                // Editing prefab
-
-                prefab.SetActive(true);
+                prefab = GameObject.Instantiate(task.GetResult());
+                prefab.SetActive(false);
             }
 
             GameObject go = GameObject.Instantiate(prefab);
@@ -204,12 +196,8 @@ namespace CombinedItems.Equipables
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuit, verbose: true);
                 yield return task;
 
-                prefab = task.GetResult();
-                prefab.SetActive(false); // Keep the prefab inactive until we're done editing it.
-
-                // Editing prefab
-
-                prefab.SetActive(true);
+                prefab = GameObject.Instantiate(task.GetResult());
+                prefab.SetActive(false);
             }
 
             GameObject go = GameObject.Instantiate(prefab);

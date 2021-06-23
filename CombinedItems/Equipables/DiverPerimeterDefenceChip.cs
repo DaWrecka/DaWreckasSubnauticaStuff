@@ -80,7 +80,8 @@ namespace CombinedItems.Equipables
 				var task = CraftData.GetPrefabForTechTypeAsync(TechType.MapRoomHUDChip);
 				yield return task;
 
-				prefab = task.GetResult();
+				prefab = GameObject.Instantiate(task.GetResult());
+				prefab.SetActive(false);
 			}
 
 			gameObject.Set(GameObject.Instantiate(prefab));

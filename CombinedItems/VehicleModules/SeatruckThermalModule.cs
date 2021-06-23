@@ -46,6 +46,7 @@ namespace CombinedItems.VehicleModules
                 yield return task;
                 prefab = GameObject.Instantiate<GameObject>(task.GetResult());
                 // The code is handled by the SeatruckUpdater component, rather than anything here.
+                prefab.SetActive(false);
             }
 
             gameObject.Set(GameObject.Instantiate(prefab));

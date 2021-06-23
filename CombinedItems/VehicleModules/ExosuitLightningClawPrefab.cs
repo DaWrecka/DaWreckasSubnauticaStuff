@@ -103,6 +103,8 @@ namespace CombinedItems.VehicleModules
                     }
                     else
                         Log.LogDebug($"Failed to find arm prefab in Exosuit prefab");
+
+                    prefab.SetActive(false);
                 }
                 else
                     Log.LogDebug($"Failed to find Exosuit prefab");
