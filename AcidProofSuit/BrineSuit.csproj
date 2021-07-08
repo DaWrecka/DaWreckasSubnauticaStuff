@@ -38,7 +38,7 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'SN1|AnyCPU'">
-    <DefineConstants>SN1;SUBNAUTICA</DefineConstants>
+    <DefineConstants>SN1;SUBNAUTICA_STABLE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <GameDir>$(CommonDir)Subnautica.Stable</GameDir>
@@ -179,10 +179,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="mod.json" />
+    <None Include="mod_SN1.json" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\" />
   </ItemGroup>
+  <Import Project="..\Common\Common.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>pwsh "$(SolutionDir)post-build.ps1" -Config $(ConfigurationName) -ProjectDir "$(ProjectDir)\" -TargetPath "$(TargetPath)" -ProjectName "$(ProjectName)" -SolutionDir "$(SolutionDir)"

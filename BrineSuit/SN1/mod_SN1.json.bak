@@ -2,7 +2,7 @@
   "LoadAfter": [
     "NitrogenMod"
   ],
-  "Enable": true,
+  "Enable": false,
   "Id": "BrineSuit",
   "NexusId": {
     "Subnautica": "597"

@@ -24,6 +24,12 @@ namespace Common
 			}
 		}
 
+		public static bool TryGetModTechType(string key, out TechType techType)
+		{
+			techType = GetModTechType(key);
+			return (techType != TechType.None);
+		}
+
 		public static TechType GetModTechType(string key)
 		{
 			string lowerKey = key.ToLower();
@@ -31,7 +37,7 @@ namespace Common
 			if (ModTechTypes.TryGetValue(lowerKey, out tt))
 				return tt;
 
-			return TechTypeUtils.GetTechType(key);
+			return GetTechType(key);
 		}
 
 		internal static GameObject GetModPrefab(string key)

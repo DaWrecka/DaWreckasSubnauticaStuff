@@ -65,7 +65,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>$(GameDir)\$(DataFolder)\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(GameDir)\$(DataFolder)\Managed\publicized_assemblies\Assembly-CSharp_publicized.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
@@ -78,10 +78,6 @@
     </Reference>
     <Reference Include="QModInstaller">
       <HintPath>$(GameDir)\BepInEx\plugins\QModManager\QModInstaller.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="QModManager.QMMLoader">
-      <HintPath>$(GameDir)\BepInEx\plugins\QModManager\QModManager.QMMLoader.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="SMLHelper">
@@ -108,7 +104,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="Patches.cs" />
+    <Compile Include="Patches\Patches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

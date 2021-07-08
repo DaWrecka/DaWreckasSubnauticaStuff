@@ -15,6 +15,7 @@ using Common;
 
 namespace CombinedItems.Equipables
 {
+#if BELOWZERO
     internal class HighCapacityBooster : Equipable
     {
         protected static Sprite icon;
@@ -90,7 +91,7 @@ namespace CombinedItems.Equipables
             if (highCapPrefab != null)
             {
                 highCapTank = GameObject.Instantiate(highCapPrefab);
-                highCapTank.SetActive(false);
+                ModPrefabCache.AddPrefab(highCapTank, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
             }
             else
             {
@@ -116,7 +117,7 @@ namespace CombinedItems.Equipables
                 yield return task;
 
                 prefab = GameObject.Instantiate(task.GetResult());
-                prefab.SetActive(false);
+                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
                 //HighCapacityBooster.prefab = prefab;
             }
 
@@ -127,7 +128,7 @@ namespace CombinedItems.Equipables
                 yield return task;
                 highCapTank = GameObject.Instantiate(task.GetResult()); // The "capacity expansion" code in Customise Your Oxygen can't run unless the thing is instantiated. The prefabs can't be altered.
                                                                         // So unless we instantiate, we only get default capacities.
-                highCapTank.SetActive(false);
+                ModPrefabCache.AddPrefab(highCapTank, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
             }
 
             GameObject go = GameObject.Instantiate(prefab);
@@ -157,4 +158,5 @@ namespace CombinedItems.Equipables
             gameObject.Set(go);
         }
     }
+#endif
 }

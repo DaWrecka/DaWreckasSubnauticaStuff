@@ -47,7 +47,8 @@ namespace CombinedItems.VehicleModules
                 yield return task;
                 prefab = GameObject.Instantiate<GameObject>(task.GetResult());
                 // The code is handled by the SeatruckUpdater component, rather than anything here.
-                prefab.SetActive(false);
+                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
+                                                         // but it can still be instantiated. [unlike with SetActive(false)]
             }
 
             gameObject.Set(GameObject.Instantiate(prefab));

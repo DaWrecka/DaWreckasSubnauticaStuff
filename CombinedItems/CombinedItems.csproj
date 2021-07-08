@@ -16,6 +16,9 @@
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BZ|AnyCPU'">
+    <OutputPath>..\..\Qmods\DaWrecka\BZ\CombinedItems\</OutputPath>
+  </PropertyGroup>
   <Import Project="..\Configurations.targets" />
   <ItemGroup>
     <Compile Include="Config.cs" />
@@ -75,7 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="CustomDataboxes">
-      <HintPath>$(GameDir)\QMods\CustomDataboxesBZ\CustomDataboxes.dll</HintPath>
+      <HintPath>$(GameDir)\QMods\CustomDataboxes\CustomDataboxes.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>

@@ -23,9 +23,9 @@ namespace CombinedItems.VehicleModules
                 craftAmount = 1,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                     {
+                        new Ingredient(Main.GetModTechType("HoverbikeStructuralIntegrityModule"), 1),
+                        new Ingredient(Main.GetModTechType("HoverbikeSelfRepairModule"), 1),
                         new Ingredient(TechType.PrecursorIonCrystal, 1),
-                        new Ingredient(TechType.AdvancedWiringKit, 1),
-                        new Ingredient(TechType.Magnetite, 1),
                         new Ingredient(TechType.Polyaniline, 1)
                     }
                 )

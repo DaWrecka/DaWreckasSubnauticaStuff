@@ -69,7 +69,7 @@ namespace FuelCells.Patches
 				GameObject go = b.gameObject;
 				if (go != null)
 				{
-#if SUBNAUTICA
+#if SUBNAUTICA_STABLE
 					TechTag tt = go.GetComponent<TechTag>();
 					if(tt != null)
 #elif BELOWZERO
@@ -112,32 +112,38 @@ namespace FuelCells.Patches
 		[HarmonyPatch(nameof(Battery.OnAfterDeserialize))]
 		public static void PostDeserialize(ref Battery __instance)
 		{
-			bool bIsFull = (__instance.charge == __instance._capacity);
+			float batteryChargePct = (__instance.charge / __instance._capacity);
 			Log.LogDebug($"BatteryPatches.PostDeserialise: Processing battery instance {__instance.GetInstanceID()}");
-#if SUBNAUTICA
+#if SUBNAUTICA_STABLE
 			TechTag tt = __instance.gameObject?.GetComponent<TechTag>();
 			if(tt != null)
 #elif BELOWZERO
 			if (__instance.gameObject != null && __instance.gameObject.TryGetComponent<TechTag>(out TechTag tt))
 #endif
 			{
+				Log.LogDebug($"BatteryPatches.PostDeserialise: Got TechTag");
 				TechType batteryTech = tt.type; //CraftData.GetTechType(__instance.gameObject);
 
 				Log.LogDebug($"Batteries.PostDeserialise(): Found battery TechType {batteryTech.AsString()}");
-				if (typedBatteryValues.ContainsKey(batteryTech))
+				if (batteryTech == TechType.None)
 				{
-					float newCapacity = typedBatteryValues[batteryTech];
+					Log.LogDebug($"Failed to get TechType from TechTag, deferring processing");
+					pendingBatteryList.Add(__instance);
+					CoroutineHost.StartCoroutine(ProcessPendingBatteries());
+				}
+				else if (typedBatteryValues.TryGetValue(batteryTech, out float newCapacity))
+				{
 					if (__instance._capacity != newCapacity)
 					{
 						Log.LogDebug($"Batteries.PostDeserialise(): Updating battery with new capacity {newCapacity}");
 						__instance._capacity = newCapacity;
-						if (bIsFull)
-							__instance._charge = newCapacity;
+						__instance._charge = (batteryChargePct * newCapacity);
 					}
 				}
 			}
 			else
 			{
+				Log.LogDebug($"Failed to get TechTag, deferring processing");
 				pendingBatteryList.Add(__instance);
 				CoroutineHost.StartCoroutine(ProcessPendingBatteries());
 			}

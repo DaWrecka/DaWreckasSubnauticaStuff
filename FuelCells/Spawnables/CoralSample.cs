@@ -36,9 +36,11 @@ namespace FuelCells.Spawnables
                 yield return task;
 
                 prefab = GameObject.Instantiate(task.GetResult());
-                prefab.SetActive(false);
+                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
+                                                         // but it can still be instantiated. [unlike with SetActive(false)]
             }
 
+            // In BZ, the coral chunk has faulty collision. We fix it here.
             var obj = GameObject.Instantiate(prefab);
             if(obj.TryGetComponent<LargeWorldEntity>(out LargeWorldEntity largeWorldEntity))
             {
@@ -50,7 +52,6 @@ namespace FuelCells.Spawnables
         public CoralSample()
             : base("CoralSample", "Coral Shelf Sample", "A sample of coral from the Twisty Bridges.")
         {
-            /*sprite = Main.assetBundle.LoadAsset<Sprite>("BioPlasmaMK2");*/
             OnFinishedPatching += () =>
             {
                 KnifePatches.AddHarvestable(TechType.TwistyBridgesCoralShelf, 200f);
@@ -77,8 +78,9 @@ namespace FuelCells.Spawnables
                 }
                 });
                 CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.DisinfectedWater, new string[] { "Survival", "Water" });
-                KnownTechHandler.SetAnalysisTechEntry(TechType.None, new TechType[] { TechType.Bleach });
+                KnownTechHandler.SetAnalysisTechEntry(this.TechType, new TechType[] { TechType.Bleach });
                 KnownTechHandler.SetAnalysisTechEntry(TechType.Bleach, new TechType[] { TechType.DisinfectedWater });
+                LanguageHandler.Main.SetTechTypeTooltip(TechType.Bleach, "NaClO. Sodium hypochlorite bleach. Sanitizing applications.");
             };
         }
     }

@@ -12,7 +12,7 @@ using UnityEngine.SceneManagement;
 using UWE;
 using Logger = QModManager.Utility.Logger;
 using static HandReticle;
-#if SUBNAUTICA
+#if SUBNAUTICA_STABLE
 using RecipeData = SMLHelper.V2.Crafting.TechData;
 using Sprite = Atlas.Sprite;
 using Object = UnityEngine.Object;
@@ -149,7 +149,7 @@ namespace CustomiseOxygen
         public struct TankType
         {
             internal Sprite sprite;
-            internal TechType tankTechType;
+            //internal TechType tankTechType;
             internal TechType refillTechType;
             internal float BaseO2Capacity;
 
@@ -160,7 +160,6 @@ namespace CustomiseOxygen
                     this.sprite = sprite;
                 else
                     this.sprite = SpriteManager.Get(tank);
-                this.tankTechType = tank;
                 string tankName = Language.main.Get(tank);
                 this.BaseO2Capacity = baseO2capacity;
                 if (Main.config.bManualRefill)
@@ -185,7 +184,7 @@ namespace CustomiseOxygen
                         "TankRefill",
                         this.refillTechType.AsString(false)
                     });
-                    if (TechData.GetCraftTime(this.tankTechType, out float craftTime))
+                    if (TechData.GetCraftTime(tank, out float craftTime))
                     {
 #if !RELEASE
                         Logger.Log(Logger.Level.Debug, $"Setting crafting time of {craftTime} for TechType.{this.refillTechType.AsString()}");
@@ -195,7 +194,7 @@ namespace CustomiseOxygen
                     else
                     {
 #if !RELEASE
-                        Logger.Log(Logger.Level.Debug, $"Couldn't find crafting time for TechType.{this.tankTechType}");
+                        Logger.Log(Logger.Level.Debug, $"Couldn't find crafting time for TechType.{tank}");
 #endif
                     }
                     if (!Main.bannedTech.Contains(this.refillTechType))
@@ -211,50 +210,45 @@ namespace CustomiseOxygen
 
             public void UpdateCapacity(float newCapacity)
             {
-#if !RELEASE
-                Logger.Log(Logger.Level.Debug, $"UpdateCapacity() called for TechType '{this.tankTechType.AsString()}' with value of {newCapacity}"); 
-#endif
                 this.BaseO2Capacity = newCapacity;
             }
         }
 
         public struct TankTypesStruct
         {
-            private List<TankType> TankTypes;
+            private Dictionary<TechType, TankType> TankTypes;
 
             public bool AddTank(TechType tank, float baseCapacity, Sprite sprite = null, bool bUpdate = false)
             {
                 if (TankTypes == null)
-                    TankTypes = new List<TankType>();
+                    TankTypes = new Dictionary<TechType, TankType>();
 
-                for(int i = 0; i < TankTypes.Count; i++)
-                {
-                    if (TankTypes[i].tankTechType == tank)
+                    //if (TankTypes[i].tankTechType == tank)
+                    if(TankTypes.TryGetValue(tank, out TankType tt))
                     {
                         if (bUpdate)
                         {
 #if !RELEASE
                             Logger.Log(Logger.Level.Debug, $"Updating tank type for TechType '{tank.AsString()}' with value {baseCapacity}"); 
 #endif
-                            TankTypes[i].UpdateCapacity(baseCapacity);
+                            TankTypes[tank].UpdateCapacity(baseCapacity);
                         }
                         return false;
                     }
-                }
 #if !RELEASE
 
                 Logger.Log(Logger.Level.Debug, $"Adding Tank '{tank.AsString()}' with capacity of {baseCapacity}"); 
 #endif
-                TankTypes.Add(new TankType(tank, baseCapacity));
+                TankTypes[tank] = new TankType(tank, baseCapacity);
                 return true;
             }
 
             public float GetCapacity(TechType tank)
             {
-                foreach (TankType tt in TankTypes)
+                //foreach (TankType tt in TankTypes)
+                if(TankTypes.TryGetValue(tank, out TankType tt))
                 {
-                    if (tt.tankTechType == tank /*|| tt.refillTechType == tank*/)
-                        return tt.BaseO2Capacity;
+                    return tt.BaseO2Capacity;
                 }
 
                 return -1f;
@@ -277,7 +271,7 @@ namespace CustomiseOxygen
         public static void PostPatch()
         {
             // Calling these in the main Patch() routine is too early, as the sprite atlases have not yet finished loading.
-            CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "TankRefill", "Tank Refills", SpriteManager.Get(TechType.DoubleTank), new string[] { "Personal" });
+            //CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "TankRefill", "Tank Refills", SpriteManager.Get(TechType.DoubleTank), new string[] { "Personal" });
 
             /*AddTank(TechType.Tank, -30f);
             AddTank(TechType.DoubleTank, -90f);

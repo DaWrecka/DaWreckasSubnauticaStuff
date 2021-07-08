@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Common;
+using HarmonyLib;
 using SMLHelper.V2.Utility;
 using System.Collections.Generic;
 using System.Reflection;
@@ -19,6 +20,11 @@ namespace AcidProofSuit.Patches
         private static Material brineArmsMaterial;
         private static TechType lastBodyTechType = TechType.None;
         private static TechType lastGlovesTechType = TechType.None;
+        private static TechType ttGloves => TechTypeUtils.GetModTechType("AcidGloves");
+        private static TechType ttHelmet => TechTypeUtils.GetModTechType("AcidHelmet");
+        private static TechType ttSuit => TechTypeUtils.GetModTechType("AcidSuit");
+        private static TechType ttSuitMk2 => TechTypeUtils.GetModTechType("NitrogenBrineSuit2");
+        private static TechType ttSuitMk3 => TechTypeUtils.GetModTechType("NitrogenBrineSuit3");
 
         // The gloves texture is used for the suit as well, on the arms, so we need to do something about that.
         // The block that generates the glove texture is sizable, so it's made into a function here.
@@ -127,9 +133,9 @@ namespace AcidProofSuit.Patches
                 {
                     bChangeTex = (techTypeInSlot != lastBodyTechType);
                     lastBodyTechType = techTypeInSlot;
-                    if (techTypeInSlot == Main.prefabSuitMk1.TechType
-                        || (Main.prefabSuitMk2 != null && techTypeInSlot == Main.prefabSuitMk2.TechType)
-                        || (Main.prefabSuitMk3 != null && techTypeInSlot == Main.prefabSuitMk3.TechType))
+                    if (techTypeInSlot == ttSuit
+                        || (TechTypeUtils.TryGetModTechType("NitrogenBrineSuit2", out TechType tt2) && techTypeInSlot == tt2)
+                        || (TechTypeUtils.TryGetModTechType("NitrogenBrineSuit3", out TechType tt3) && techTypeInSlot == tt3))
                     {
                         techTypeInSlot = TechType.ReinforcedDiveSuit;
                     }
@@ -142,7 +148,7 @@ namespace AcidProofSuit.Patches
                 {
                     bChangeTex = (techTypeInSlot != lastGlovesTechType);
                     lastGlovesTechType = techTypeInSlot;
-                    if (techTypeInSlot == Main.prefabGloves.TechType)
+                    if (techTypeInSlot == ttGloves)
                         techTypeInSlot = TechType.ReinforcedGloves;
                     else
                         bUseCustomTex = false;
@@ -341,19 +347,19 @@ namespace AcidProofSuit.Patches
             if (__instance != null)
             {
                 int flags = 0;
-                if (Main.EquipmentGetCount(Inventory.main.equipment, new TechType[] { Main.prefabSuitMk1.TechType, Main.prefabSuitMk2.TechType, Main.prefabSuitMk3.TechType }) > 0)
+                if (Main.EquipmentGetCount(Inventory.main.equipment, new TechType[] { ttSuit, ttSuitMk2, ttSuitMk3 }) > 0)
                 {
                     flags += 1;
                     __instance.temperatureDamage.minDamageTemperature += 9f;
                 }
 
-                if (Inventory.main.equipment.GetCount(Main.prefabGloves.TechType) > 0)
+                if (Inventory.main.equipment.GetCount(ttGloves) > 0)
                 {
                     flags += 2;
                     __instance.temperatureDamage.minDamageTemperature += 1f;
                 }
 
-                if (Inventory.main.equipment.GetCount(Main.prefabHelmet.TechType) > 0)
+                if (Inventory.main.equipment.GetCount(ttHelmet) > 0)
                 {
                     flags += 4;
                     __instance.temperatureDamage.minDamageTemperature += 5f;
@@ -388,9 +394,9 @@ namespace AcidProofSuit.Patches
             if (__instance != null)
             {
                 // For debugging
-                if (Main.EquipmentGetCount(Inventory.main.equipment, new TechType[] { Main.prefabSuitMk1.TechType, Main.prefabSuitMk2.TechType, Main.prefabSuitMk3.TechType }) > 0
-                    && Inventory.main.equipment.GetCount(Main.prefabGloves.TechType) > 0
-                    && Inventory.main.equipment.GetCount(Main.prefabHelmet.TechType) > 0)
+                if (Main.EquipmentGetCount(Inventory.main.equipment, new TechType[] { ttSuit, ttSuitMk2, ttSuitMk3 }) > 0
+                    && Inventory.main.equipment.GetCount(ttGloves) > 0
+                    && Inventory.main.equipment.GetCount(ttHelmet) > 0)
                     return false;
             }
 
@@ -414,7 +420,7 @@ namespace AcidProofSuit.Patches
             [HarmonyPatch(nameof(Player.HasReinforcedSuit))]
             public static void Postfix(ref bool __result)
             {
-                __result = (__result || Main.EquipmentGetCount(Inventory.main.equipment, new TechType[] { Main.prefabSuitMk1.TechType, Main.prefabSuitMk2.TechType, Main.prefabSuitMk3.TechType }) > 0);
+                __result = (__result || Main.EquipmentGetCount(Inventory.main.equipment, new TechType[] { ttSuit, ttSuitMk2, ttSuitMk3 }) > 0);
             }
         }
 
@@ -422,7 +428,7 @@ namespace AcidProofSuit.Patches
         [HarmonyPatch(nameof(Player.HasReinforcedGloves))]
         public static void PostHasReinforcedGloves(ref bool __result)
         {
-            __result = (__result || Inventory.main.equipment.GetCount(Main.prefabGloves.TechType) > 0);
+            __result = (__result || Inventory.main.equipment.GetCount(ttGloves) > 0);
         }
     }
 }

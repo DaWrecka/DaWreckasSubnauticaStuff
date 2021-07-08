@@ -1,0 +1,254 @@
+{
+  "Spanish (Latin America)": {
+    "CoralChunk": "Coral tube sample",
+    "Goal_Bleach": "Bleach is an essential chemical used for cleaning wounds and purifying water.",
+    "Bleach": "Bleach",
+    "Tooltip_Bleach": "NaClO. Sodium hypochlorite bleach. Sanitizing applications.",
+    "Tooltip_CoralChunk": "Sample containing CaCO₃. Calcium carbonate is a base ingredient for bleach."
+  },
+  "Bulgarian": {
+    "CoralChunk": "Образец от коралова тръба",
+    "Goal_Bleach": "Белината е химическо вещество, използвано за почистване на рани и пречистване на вода.",
+    "Bleach": "Белина",
+    "Tooltip_Bleach": "Натриева хипохлоритна белина. За санитарно приложение.",
+    "Tooltip_CoralChunk": "Проба, съдържаща калциев карбонат. Той е основна съставка на белината."
+  },
+  "Czech": {
+    "CoralChunk": "Kousek korálové roury",
+    "Goal_Bleach": "Bělidlo je důležitou chemikálií používanou pro čištění ran a vody.",
+    "Bleach": "Dezinfekce",
+    "Tooltip_Bleach": "NaClO. Chlornan sodný pro desinfekci a čištění.",
+    "Tooltip_CoralChunk": "Vzorek obsahuje CaCO₃. Uhličitan vápenatý je základní složka pro výrobu desinfekce."
+  },
+  "Turkish": {
+    "CoralChunk": "Mercan örneği",
+    "Goal_Bleach": "Ağartıcı, yaraları temizlemek ve suyu saflaştırmak için temel bir kimyasaldır.",
+    "Bleach": "Ağartıcı",
+    "Tooltip_Bleach": "NaClO. Sodyum hipoklorit ağartıcı. Arındırıcı olarak kullanılır.",
+    "Tooltip_CoralChunk": "CaCO₃ içeren örnek. Kalsiyum karbonat, ağartıcının temel bir bileşenidir."
+  },
+  "Spanish": {
+    "CoralChunk": "Muestra de tubo de coral",
+    "Goal_Bleach": "El cloro es un químico esencial usado para limpiar heridas y purificar el agua.",
+    "Bleach": "Cloro",
+    "Tooltip_Bleach": "NaClO. Hipoclorito de sodio. Tiene aplicaciones desinfectantes.",
+    "Tooltip_CoralChunk": "Muestra que contiene CaCO₃. El carbonato de calcio es un ingrediente básico para el cloro."
+  },
+  "Slovenian": {
+    "CoralChunk": "Coral tube sample",
+    "Goal_Bleach": "Bleach is an essential chemical used for cleaning wounds and purifying water.",
+    "Bleach": "Bleach",
+    "Tooltip_Bleach": "NaClO. Sodium hypochlorite bleach. Sanitizing applications.",
+    "Tooltip_CoralChunk": "Sample containing CaCO₃. Calcium carbonate is a base ingredient for bleach."
+  },
+  "Japanese": {
+    "CoralChunk": "コーラルチューブのサンプル",
+    "Goal_Bleach": "漂白剤は傷口の消毒や水の浄化に必須の化学素材です。",
+    "Bleach": "漂白剤",
+    "Tooltip_Bleach": "NaClO。次亜塩素酸ナトリウム漂白剤。消毒に使用する。",
+    "Tooltip_CoralChunk": "CaCO₃を含むサンプル。炭酸カルシウムは漂白剤の基礎原料。"
+  },
+  "Dutch": {
+    "CoralChunk": "Koraalbuis-specimen",
+    "Goal_Bleach": "Bleekmiddel is van groot belang voor het zuiveren van water en desinfecteren van wonden.",
+    "Bleach": "Bleekmiddel",
+    "Tooltip_Bleach": "NaClO. Natriumhypochloriet bleekmiddel dat voor desinfecteren gebruikt kan worden.",
+    "Tooltip_CoralChunk": "Specimen dat CaCO₃  bevat. Calciumcarbonaat is een basisingrediënt voor bleekmiddel."
+  },
+  "Romanian": {
+    "CoralChunk": "Mostră de tub de coral",
+    "Goal_Bleach": "Clorul este o chimicală esențială folosită pentru curățarea rănilor si purificarea apei.",
+    "Bleach": "Înălbitor",
+    "Tooltip_Bleach": "NaCIO. Înalbitor de hipoclorit de sodiu. Utilizări sanitare.",
+    "Tooltip_CoralChunk": "Mostră ce conține CaCO₃. Carbonatul de calciu este elementul de bază pentru înălbitor."
+  },
+  "German": {
+    "CoralChunk": "Röhrenkorallenprobe",
+    "Goal_Bleach": "Chlorbleiche ist eine wichtige Chemikalie zur Wundreinigung und Wasseraufbereitung.",
+    "Bleach": "Chlorbleiche",
+    "Tooltip_Bleach": "NaClO. Natriumhypochlorit-Bleiche. Wird zur Desinfektion verwendet.",
+    "Tooltip_CoralChunk": "Eine Probe, die CaCO₃ enthält. Kalziumkarbonat ist ein Grundbestandteil der Chlorbleiche."
+  },
+  "Estonian": {
+    "CoralChunk": "Coral tube sample",
+    "Goal_Bleach": "Bleach is an essential chemical used for cleaning wounds and purifying water.",
+    "Bleach": "Bleach",
+    "Tooltip_Bleach": "NaClO. Sodium hypochlorite bleach. Sanitizing applications.",
+    "Tooltip_CoralChunk": "Sample containing CaCO₃. Calcium carbonate is a base ingredient for bleach."
+  },
+  "Greek": {
+    "CoralChunk": "Δείγμα κοραλοειδούς σωλήνα",
+    "Goal_Bleach": "Bleach is an essential chemical used for cleaning wounds and purifying water.",
+    "Bleach": "Χλωρίνη",
+    "Tooltip_Bleach": "NaClO. Υποχλωριώδες νάτριο. Εφαρμογές σε απολύμανση.",
+    "Tooltip_CoralChunk": "Δείγμα που περιέχει CaCO₃. Το ανθρακικό ασβέστιο είναι βασικό συστατικό για χλωρίνη."
+  },
+  "Danish": {
+    "CoralChunk": "Koralrør-eksemplar",
+    "Goal_Bleach": "Desinficeringsmiddel er et vigtigt element for at rense sår og fremstille drikkevand.",
+    "Bleach": "Desinficeringsmiddel",
+    "Tooltip_Bleach": "NaClO. Natriumhypoklorit desinficeringsmiddel. Hygiejniske anvendelser.",
+    "Tooltip_CoralChunk": "Prøve der indeholder CaCO₃. Kalciumkarbonat er en hovedingrediens i desinficeringsmiddel."
+  },
+  "Latvian": {
+    "CoralChunk": "Koraļļu caurules paraugs",
+    "Goal_Bleach": "Balinātājs ir būtiska ūdens attīrīšanas un brūču tīrīšanas ķimikālija.",
+    "Bleach": "Balinātājs",
+    "Tooltip_Bleach": "NaClO. Nātrija hipohlorīta balinātājs. Sanitāri pelietojumi.",
+    "Tooltip_CoralChunk": "CaCO₃ saturošs paraugs. Kalcija karbonāts ir balinātāja pamatsastāvdaļa."
+  },
+  "Portuguese (Brazil)": {
+    "CoralChunk": "Amostra de Tubo de Coral",
+    "Goal_Bleach": "O alvejante é um componente essencial para a limpeza de feridas e purificação da água.",
+    "Bleach": "Alvejante",
+    "Tooltip_Bleach": "NaCIO. Alvejante de hipocloreto de sódio. Aplicações desinfetantes.",
+    "Tooltip_CoralChunk": "Amostra contendo CaCO₃. Carbonato de cálcio é um ingrediente base para alvejante."
+  },
+  "Portuguese": {
+    "CoralChunk": "Coral tube sample",
+    "Goal_Bleach": "Bleach is an essential chemical used for cleaning wounds and purifying water.",
+    "Bleach": "Bleach",
+    "Tooltip_Bleach": "NaClO. Sodium hypochlorite bleach. Sanitizing applications.",
+    "Tooltip_CoralChunk": "Sample containing CaCO₃. Calcium carbonate is a base ingredient for bleach."
+  },
+  "Afrikaans": {
+    "CoralChunk": "Coral tube sample",
+    "Goal_Bleach": "Bleach is an essential chemical used for cleaning wounds and purifying water.",
+    "Bleach": "Bleach",
+    "Tooltip_Bleach": "NaClO. Sodium hypochlorite bleach. Sanitizing applications.",
+    "Tooltip_CoralChunk": "Sample containing CaCO₃. Calcium carbonate is a base ingredient for bleach."
+  },
+  "Irish": {
+    "CoralChunk": "Coral tube sample",
+    "Goal_Bleach": "Bleach is an essential chemical used for cleaning wounds and purifying water.",
+    "Bleach": "Bleach",
+    "Tooltip_Bleach": "NaClO. Sodium hypochlorite bleach. Sanitizing applications.",
+    "Tooltip_CoralChunk": "Sample containing CaCO₃. Calcium carbonate is a base ingredient for bleach."
+  },
+  "English": {
+    "CoralChunk": "Coral tube sample",
+    "Goal_Bleach": "Bleach is an essential chemical used for cleaning wounds and purifying water.",
+    "Bleach": "Bleach",
+    "Tooltip_Bleach": "NaClO. Sodium hypochlorite bleach. Sanitizing applications.",
+    "Tooltip_CoralChunk": "Sample containing CaCO₃. Calcium carbonate is a base ingredient for bleach."
+  },
+  "Italian": {
+    "CoralChunk": "Campione di tubo corallino",
+    "Goal_Bleach": "Il cloro è un elemento chimico essenziale per pulire le ferite e purificare l'acqua.",
+    "Bleach": "Cloro",
+    "Tooltip_Bleach": "NaClO. Ipoclorito di sodio. Disinfettante.",
+    "Tooltip_CoralChunk": "Campione contenente CaCO3. Il carbonato di calcio è un ingrediente essenziale per ottenere il cloro."
+  },
+  "Finnish": {
+    "CoralChunk": "Koralliputkinäyte",
+    "Goal_Bleach": "Valkaisuaine on tarpeellinen kemikaali, jota käytetään haavojen ja veden puhdistamiseen.",
+    "Bleach": "Valkaisuaine",
+    "Tooltip_Bleach": " NaClO. Natriumhypokloriittia. Valkaisuaine desinfioimiseen.",
+    "Tooltip_CoralChunk": "Näyte, joka sisältää CaCO₃:ta. Kalsiumkarbonaatti on valkaisuaineen pääainesosa."
+  },
+  "Ukrainian": {
+    "CoralChunk": "Взірець коралової труби",
+    "Goal_Bleach": "Знезаражувач – важлива хімічна сполука для загоєння ран і очищення води.",
+    "Bleach": "Знезаражувач",
+    "Tooltip_Bleach": "NaClO. Гіпохлорит натрію. Знищує шкідливі мікроорганізми.",
+    "Tooltip_CoralChunk": "Взірець містить CaCO₃ – вуглекислий кальцій – який є основним складником знезаражувача."
+  },
+  "Norwegian": {
+    "CoralChunk": "Korallrørprøve",
+    "Goal_Bleach": "Bleach is an essential chemical used for cleaning wounds and purifying water.",
+    "Bleach": "Blekemiddel",
+    "Tooltip_Bleach": "NaCIO. Natriumhypoklorittblekemiddel. Desinfiserende bruksområder.",
+    "Tooltip_CoralChunk": "Prøve som inneholder CaCO₃. Kalsiumkarbonat er en grunnleggende ingrediens i blekemiddel."
+  },
+  "Polish": {
+    "CoralChunk": "Próbka tuby koralowej",
+    "Goal_Bleach": "Utleniacz jest niezbędnym składnikiem chemicznym używanym do odkażania ran i wody.",
+    "Bleach": "Utleniacz",
+    "Tooltip_Bleach": "NaClO. Utleniacz z podchlorynu sodu. Stosowany przy dezynfekcji.",
+    "Tooltip_CoralChunk": "Próbka zawierająca CaCO₃. Węglan wapnia jest podstawowym składnikiem utleniacza."
+  },
+  "Serbian": {
+    "CoralChunk": "Coral tube sample",
+    "Goal_Bleach": "Bleach is an essential chemical used for cleaning wounds and purifying water.",
+    "Bleach": "Izbeljivač",
+    "Tooltip_Bleach": "NaClO. Sodium hypochlorite bleach. Sanitizing applications.",
+    "Tooltip_CoralChunk": "Sample containing CaCO₃. Calcium carbonate is a base ingredient for bleach."
+  },
+  "French": {
+    "CoralChunk": "Échantillon de corail tubulaire",
+    "Goal_Bleach": "La javel est un produit chimique indispensable pour nettoyer les blessures et purifier l'eau.",
+    "Bleach": "Javel",
+    "Tooltip_Bleach": "Javel d'hypochlorite de sodium (NaClO). Pour utilisations sanitaires.",
+    "Tooltip_CoralChunk": "Échantillon contenant du CaCO₃. Le carbonate de calcium est un ingrédient de base pour la javel."
+  },
+  "Hungarian": {
+    "CoralChunk": "Korallcső minta",
+    "Goal_Bleach": "A fehérítő nélkülözhetetlen vegyszer, amelyet sebek tisztítására és víz fertőtlenítésére használnak.",
+    "Bleach": "Fehérítő",
+    "Tooltip_Bleach": "NaClO. Nátrium-hipoklorit fehérítő. Fertőtlenítőként való alkalmazáshoz.",
+    "Tooltip_CoralChunk": "A minta CaCO ³-at tartalmaz. A kalcium-karbonát a fehérítő egyik alapvető összetevője."
+  },
+  "Thai": {
+    "CoralChunk": "ตัวอย่าง ท่อปะการัง",
+    "Goal_Bleach": "Bleach is an essential chemical used for cleaning wounds and purifying water.",
+    "Bleach": "ยาฟอกขาว",
+    "Tooltip_Bleach": "NaClO สารฟอกขาวโซเดียมไฮโปคลอไรท์ ใช้สำหรับฆ่าเชื้อ",
+    "Tooltip_CoralChunk": "ตัวอย่างที่มี CaCO₃ เป็นส่วนประกอบ แคลเซียมคาร์บอเนตเป็นส่วนผสมหลักสำหรับสารฟอกขาว"
+  },
+  "Lithuanian": {
+    "CoralChunk": "Koralinio vamzdžio mėginys",
+    "Goal_Bleach": "Bleach is an essential chemical used for cleaning wounds and purifying water.",
+    "Bleach": "Baliklis",
+    "Tooltip_Bleach": "NaClO. Natrio hipochlorito baliklis. Dezinfekuojantis elementas.",
+    "Tooltip_CoralChunk": "Mėginys, turintis CaCO₃. Kalcio karbonatas yra pagrindinis ingridientas gaminant baliklį."
+  },
+  "Croatian": {
+    "CoralChunk": "Coral tube sample",
+    "Goal_Bleach": "Bleach is an essential chemical used for cleaning wounds and purifying water.",
+    "Bleach": "Izbjeljivač",
+    "Tooltip_Bleach": "NaClO. Izbjeljivač na bazi natrijevog hipoklorita. Sterilizacijska primjena.",
+    "Tooltip_CoralChunk": "Uzorak sadržava CaCO₃. Kalcijev karbonat je osnovni sastojak izbjeljivača."
+  },
+  "Swedish": {
+    "CoralChunk": "Prov från rörkorall",
+    "Goal_Bleach": "Blekmedel är en väsentlig kemikalie för att rengöra sår och rena vatten.",
+    "Bleach": "Blekmedel",
+    "Tooltip_Bleach": "NaClO. Natriumhypoklorit-blekmedel. Tillämpningar inom sterilisering.",
+    "Tooltip_CoralChunk": "Prov innehållande CaCO₃. Kalciumkarbonat är en grundläggande ingrediens i blekningsmedel."
+  },
+  "Russian": {
+    "CoralChunk": "Образец коралловой трубы",
+    "Goal_Bleach": "Антисептик является важным химическим веществом, используемым для очистки ран и дезинфекции воды.",
+    "Bleach": "Антисептик",
+    "Tooltip_Bleach": "NaClO. Антисептик из гипохлорита натрия. Применяется для санобработки.",
+    "Tooltip_CoralChunk": "Образец содержит CaCO₃. Карбонат кальция — основной ингредиент в производстве антисептика."
+  },
+  "Chinese (Simplified)": {
+    "CoralChunk": "珊瑚管样本",
+    "Goal_Bleach": "碳酸钙制造的漂白剂: 被发现,漂白剂是用于清洁伤口和净化水的基本化学药品。",
+    "Bleach": "漂白剂",
+    "Tooltip_Bleach": "NaClO。次氯酸钠漂白剂。用于对液体进行消毒。",
+    "Tooltip_CoralChunk": "含碳酸钙，是制作漂白剂的基本原料之一。"
+  },
+  "Slovak": {
+    "CoralChunk": "Vzorka koralovej rúry",
+    "Goal_Bleach": "Bielidlo je dôležitá chemikália na čistenie vody a rán.",
+    "Bleach": "Bielidlo",
+    "Tooltip_Bleach": "NaClO. Chlórové bielidlo. Dezinfekčné využitie.",
+    "Tooltip_CoralChunk": "Vzorka obsahuje CaCO₃. Uhličitan vápenatý je základná zložka bielidla."
+  },
+  "Vietnamese": {
+    "CoralChunk": "Mẫu vật san hô ống",
+    "Goal_Bleach": "Chất tẩy là nguyên tố hóa học chính được sử dụng để làm sạch vết thương và khử trùng nước.",
+    "Bleach": "Chất tẩy",
+    "Tooltip_Bleach": "NaClO. Chất tẩy natri hypoclorit. Ứng dụng vệ sinh.",
+    "Tooltip_CoralChunk": "Mẫu vật chứa CaCO₃. Canxi cacbonat là thành phần cơ bản của thuốc tẩy."
+  },
+  "Korean": {
+    "CoralChunk": "산호관 표본",
+    "Goal_Bleach": "표백제는 물을 정화하고 상처를 치료하는 데 쓰이는 필수 화학 물질입니다.",
+    "Bleach": "표백제",
+    "Tooltip_Bleach": "NaClO. 염소산나트륨계 표백제입니다. 각종 살균처리에 사용됩니다.",
+    "Tooltip_CoralChunk": "CaCO₃를 포함하고 있습니다. 탄산 칼슘은 표백제의 기본 재료입니다."
+  }
+}

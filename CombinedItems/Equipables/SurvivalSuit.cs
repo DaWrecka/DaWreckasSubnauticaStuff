@@ -84,7 +84,7 @@ namespace CombinedItems.Equipables
                 GameObject.DestroyImmediate(prefab.GetComponent<Stillsuit>());
                 prefab.EnsureComponent<SurvivalsuitBehaviour>();
 
-                prefab.SetActive(false);
+                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
             }
 
             GameObject go = GameObject.Instantiate(prefab);
@@ -279,7 +279,8 @@ namespace CombinedItems.Equipables
                     GameObject.DestroyImmediate(s);
                 prefab.EnsureComponent<SurvivalsuitBehaviour>();
 
-                prefab.SetActive(true);
+                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
+                                                         // but it can still be instantiated. [unlike with SetActive(false)]
             }
 
             // Despite the component being removed from the prefab above, testing shows that the Survival Suits still add the water packs when they should.

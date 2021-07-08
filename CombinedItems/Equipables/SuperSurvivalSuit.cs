@@ -10,6 +10,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+#if SUBNAUTICA_STABLE
+    using RecipeData = SMLHelper.V2.Crafting.TechData;
+    using Sprite = Atlas.Sprite;
+    using Object = UnityEngine.Object;
+#elif BELOWZERO
+#endif
 
 namespace CombinedItems.Equipables
 {
@@ -19,10 +25,16 @@ namespace CombinedItems.Equipables
         {
             OnFinishedPatching += () =>
             {
+#if BELOWZERO
                 int coldResist = TechData.GetColdResistance(TechType.ColdSuit);
                 Reflection.AddColdResistance(this.TechType, System.Math.Max(55, coldResist));
+#endif
                 Reflection.SetItemSize(this.TechType, 2, 3);
+#if SUBNAUTICA_STABLE
+                Log.LogDebug($"Finished patching {this.TechType.AsString()}");
+#elif BELOWZERO
                 Log.LogDebug($"Finished patching {this.TechType.AsString()}, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
+#endif
 
                 // the SurvivalSuit constructor will call AddModTechType already.
                 // It has also been set up to add substitutions based on the value of the 'substitutions' property below,
@@ -43,7 +55,12 @@ namespace CombinedItems.Equipables
         {
             get
             {
-                return new TechType[] { TechType.ColdSuit, TechType.ReinforcedDiveSuit };
+                return new TechType[] {
+#if BELOWZERO
+                    TechType.ColdSuit,
+#endif
+                    TechType.ReinforcedDiveSuit
+                };
             }
         }
 
@@ -55,7 +72,9 @@ namespace CombinedItems.Equipables
                 {
                     TechType.ReinforcedDiveSuit,
                     TechType.Stillsuit,
-                    TechType.ColdSuit
+#if BELOWZERO
+                    TechType.ColdSuit,
+#endif
                 };
             }
         }
@@ -69,8 +88,10 @@ namespace CombinedItems.Equipables
                     {
                         new Ingredient(TechType.ReinforcedDiveSuit, 1),
                         new Ingredient(Main.GetModTechType("SurvivalSuit"), 1),
+#if BELOWZERO
                         new Ingredient(TechType.ColdSuit, 1),
                         new Ingredient(TechType.ColdSuitGloves, 1),
+#endif
                         new Ingredient(TechType.ReinforcedGloves, 1)
                     }
                 ),
@@ -83,9 +104,25 @@ namespace CombinedItems.Equipables
 
         protected override Sprite GetItemSprite()
         {
+#if SUBNAUTICA_STABLE
+            return SpriteManager.Get(TechType.Stillsuit);
+#elif BELOWZERO
             return SpriteManager.Get(TechType.ColdSuit);
+#endif
         }
 
+#if SUBNAUTICA_STABLE
+        public override GameObject GetGameObject()
+        {
+            if (prefab == null)
+            {
+                prefab = InstantiateAndModifyGameObject(CraftData.GetPrefabForTechType(TechType.Stillsuit));
+            }
+
+            return prefab;
+        }
+
+#elif BELOWZERO
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             Stillsuit s;
@@ -94,18 +131,26 @@ namespace CombinedItems.Equipables
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuit, verbose: true);
                 yield return task;
 
-                prefab = GameObject.Instantiate(task.GetResult());
-                // Editing prefab
-                if (prefab.TryGetComponent<Stillsuit>(out s))
-                    GameObject.DestroyImmediate(s);
-                prefab.EnsureComponent<SurvivalsuitBehaviour>();
-                prefab.SetActive(false);
+                prefab = InstantiateAndModifyGameObject(task.GetResult());
             }
 
             GameObject go = GameObject.Instantiate(prefab);
             if(go.TryGetComponent<Stillsuit>(out s))
                 GameObject.DestroyImmediate(s);
             gameObject.Set(go);
+        }
+#endif
+
+        private GameObject InstantiateAndModifyGameObject(GameObject thisPrefab)
+        {
+            GameObject obj = GameObject.Instantiate(thisPrefab);
+            // Editing prefab
+            if (obj.TryGetComponent<Stillsuit>(out Stillsuit s))
+                GameObject.DestroyImmediate(s);
+            obj.EnsureComponent<SurvivalsuitBehaviour>();
+            ModPrefabCache.AddPrefab(obj, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
+
+            return obj;
         }
     }
 

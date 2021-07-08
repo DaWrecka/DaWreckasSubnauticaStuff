@@ -51,7 +51,6 @@ namespace CombinedItems.Spawnables
                 yield return task;
 
                 GameObject prefab = GameObject.Instantiate(task.GetResult());
-                prefab.SetActive(false);
 
                 MeshRenderer[] meshRenderers = prefab.GetAllComponentsInChildren<MeshRenderer>();
                 SkinnedMeshRenderer[] skinnedMeshRenderers = prefab.GetAllComponentsInChildren<SkinnedMeshRenderer>();
@@ -92,6 +91,8 @@ namespace CombinedItems.Spawnables
 
                 prefab.SetActive(true);
                 processedPrefab = prefab;
+                ModPrefabCache.AddPrefab(processedPrefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
+                                                         // but it can still be instantiated. [unlike with SetActive(false)]
             }
 
             gameObject.Set(processedPrefab);

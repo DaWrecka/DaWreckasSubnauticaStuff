@@ -61,7 +61,8 @@ namespace FuelCells.Patches
 					IL_0021: call      bool ['Assembly-CSharp-firstpass']UWE.Utils::TraceFPSTargetPosition(class [UnityEngine.CoreModule]UnityEngine.GameObject, float32, class [UnityEngine.CoreModule]UnityEngine.GameObject&, valuetype [UnityEngine.CoreModule]UnityEngine.Vector3&, valuetype [UnityEngine.CoreModule]UnityEngine.Vector3&, bool)
 				The call is all we need to change.
 				*/
-				if(codes[i].opcode == OpCodes.Call && object.Equals(TraceMethod, codes[i].operand))
+				//if(codes[i].opcode == OpCodes.Call && object.Equals(TraceMethod, codes[i].operand))
+				if(codes[i].Calls(TraceMethod))
                 {
                     Log.LogDebug($"ToolUseTranspiler found Call in IL at index {i}");
                     codes[i] = new CodeInstruction(OpCodes.Call, interceptMethod);
@@ -85,6 +86,7 @@ namespace FuelCells.Patches
 					Log.LogDebug($"Adding LiveMixin data to object {closestObj.GetInstanceID()} with TechType {key}", null, true);
 					component.data = new LiveMixinData();
 					component.data.maxHealth = value;
+					component.health = value;
 				}
             }
 

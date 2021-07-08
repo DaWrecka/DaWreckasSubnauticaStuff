@@ -4,12 +4,13 @@ using System.Reflection;
 
 namespace CustomiseOxygen
 {
-    [HarmonyPatch(typeof(OxygenManager), nameof(OxygenManager.AddOxygen))]
+    [HarmonyPatch(typeof(OxygenManager))]
     internal static class OxygenManagerPatches
     {
         private static readonly FieldInfo sourcesInfo = typeof(OxygenManager).GetField("sources", BindingFlags.Instance | BindingFlags.NonPublic);
 
         [HarmonyPrefix]
+        [HarmonyPatch(nameof(OxygenManager.AddOxygen))]
         public static bool Prefix(ref OxygenManager __instance, float __result, float secondsToAdd)
         {
             if (Main.config.bManualRefill)

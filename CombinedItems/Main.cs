@@ -203,33 +203,35 @@ namespace CombinedItems
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.HoverbikeJumpModule, new string[] { "Upgrades", "HoverbikeUpgrades" });
 
 			foreach (Spawnable s in new List<Spawnable>() {
+				new ExosuitLightningClawPrefab(),
+				//new ExosuitSprintModule(),
+				//new ExosuitLightningClawGeneratorModule(),
+				new PowerglideFragmentPrefab(),
+				new SurvivalSuit(),
+#if BELOWZERO
 				new InsulatedRebreather(),
 				new ReinforcedColdSuit(),
 				new ReinforcedColdGloves(),
 				new HighCapacityBooster(),
-				new ExosuitLightningClawPrefab(),
-				new ExosuitSprintModule(),
-				new ExosuitLightningClawGeneratorModule(),
-				new PowerglideFragmentPrefab(),
-				new SurvivalSuit(),
 				new SurvivalColdSuit(),
-				new ReinforcedSurvivalSuit(),
+				new SurvivalSuitBlueprint_FromReinforcedCold(),
+				new SurvivalSuitBlueprint_FromSurvivalCold(),
 				new HoverbikeMobilityUpgrade(),
+				new SeatruckSolarModule(),
+				new SeatruckThermalModule(),
+				new SeaTruckSonarModule(),
+#endif
+				new ReinforcedSurvivalSuit(),
 				new PowerglideEquipable(),
 				new SuperSurvivalSuit(),
 				//new SurvivalSuitBlueprint_BaseSuits(),
 				new SurvivalSuitBlueprint_FromReinforcedSurvival(),
-				new SurvivalSuitBlueprint_FromReinforcedCold(),
-				new SurvivalSuitBlueprint_FromSurvivalCold(),
-				new SeatruckSolarModule(),
-				new SeatruckThermalModule(),
+				new ShadowLeviathanSample(),
 				new DiverPerimeterDefenceChip_Broken(),
 				new DiverPerimeterDefenceChipItem(),
 				new DiverDefenceSystemMk2(),
-				new ShadowLeviathanSample(),
 				new DiverDefenceMk2_FromBrokenChip(),
 				new DiverDefenceSystemMk3(),
-				new SeaTruckSonarModule()
 			})
 			{
 				s.Patch();
@@ -255,6 +257,7 @@ namespace CombinedItems
 		[QModPostPatch]
 		public static void PostPatch()
 		{
+#if BELOWZERO
 			Sprite hoverbike = SpriteManager.Get(SpriteManager.Group.Pings, "Hoverbike");
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "HoverbikeUpgrades", "Snowfox Upgrades", hoverbike, new string[] { "Upgrades" });
 			foreach (Spawnable s in new List<Spawnable>() {
@@ -273,38 +276,23 @@ namespace CombinedItems
 
 			//Batteries.PostPatch();
 			LanguageHandler.SetLanguageLine("SeamothWelcomeAboard", "Welcome aboard captain.");
+#endif
 		}
 	}
-
-	/*public class EasyPatches
-	{
-		public static bool PreIsCraftRecipeFulfilledAdvanced(TechType parent, TechType techType, int depth, ref bool __result)
-		{
-			if (InventoryPatches.IsChipRecharge(parent))
-			{
-				//Log.LogDebug($"EasyPatches.PreIsCraftRecipeFulfilledAdvanced: parent = {parent.AsString()}, techType = {techType}, __result = {__result.ToString()}, depth = {depth}");
-
-				if (depth > 0)
-				{
-					__result = false;
-					return false;
-				}
-			}
-
-			return true;
-		}
-	}*/
 
 	[HarmonyPatch]
 	public class Reflection
 	{
+#if BELOWZERO
 		private static readonly MethodInfo addJsonPropertyInfo = typeof(CraftDataHandler).GetMethod("AddJsonProperty", BindingFlags.NonPublic | BindingFlags.Static);
 		private static readonly MethodInfo playerUpdateReinforcedSuitInfo = typeof(Player).GetMethod("UpdateReinforcedSuit", BindingFlags.NonPublic | BindingFlags.Instance);
 		private static readonly MethodInfo playerCheckColdsuitGoalInfo = typeof(Player).GetMethod("CheckColdsuitGoal", BindingFlags.NonPublic | BindingFlags.Instance);
+#endif
 		private static readonly FieldInfo knownTechCompoundTech = typeof(KnownTech).GetField("compoundTech", BindingFlags.NonPublic | BindingFlags.Static);
 		private static List<KnownTech.CompoundTech> pendingCompoundTech = new List<KnownTech.CompoundTech>();
 		private static bool bProcessingCompounds;
 
+#if BELOWZERO
 		public static void AddJsonProperty(TechType techType, string key, JsonValue newValue)
 		{
 			addJsonPropertyInfo.Invoke(null, new object[] { techType, key, newValue });
@@ -315,6 +303,7 @@ namespace CombinedItems
 			//AddJsonProperty(techType, "coldResistance", new JsonValue(newValue));
 			CraftDataHandler.SetColdResistance(techType, newValue);
 		}
+#endif
 
 		public static void SetItemSize(TechType techType, int width, int height)
 		{

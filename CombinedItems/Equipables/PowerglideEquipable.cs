@@ -13,6 +13,16 @@ using UWE;
 using Logger = QModManager.Utility.Logger;
 using FMODUnity;
 using CombinedItems.Patches;
+#if SUBNAUTICA_STABLE
+using RecipeData = SMLHelper.V2.Crafting.TechData;
+using Sprite = Atlas.Sprite;
+using Object = UnityEngine.Object;
+using Oculus.Newtonsoft;
+using Oculus.Newtonsoft.Json;
+#elif BELOWZERO
+using Newtonsoft;
+using Newtonsoft.Json;
+#endif
 
 namespace CombinedItems.Equipables
 {
@@ -89,7 +99,6 @@ namespace CombinedItems.Equipables
 
 				prefab = GameObject.Instantiate(task.GetResult());
 				prefab.EnsureComponent<PowerglideBehaviour>();
-				prefab.SetActive(false);
 
 				/*
 				MeshRenderer[] meshRenderers = prefab.GetAllComponentsInChildren<MeshRenderer>();
@@ -113,7 +122,7 @@ namespace CombinedItems.Equipables
 					}
 				}
 				*/
-				prefab.SetActive(true);
+				ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
 			}
 
 			GameObject go = GameObject.Instantiate(prefab);

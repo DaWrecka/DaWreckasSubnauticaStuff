@@ -34,8 +34,10 @@ namespace CombinedItems.Spawnables
                 yield return task;
 
                 prefab = GameObject.Instantiate(task.GetResult());
-                GameObject.DestroyImmediate(prefab.GetComponent<CompleteGoalOnExamine>());
-                prefab.SetActive(false);
+                if(prefab.TryGetComponent<CompleteGoalOnExamine>(out CompleteGoalOnExamine cgoe))
+                    GameObject.DestroyImmediate(cgoe);
+                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
+                                                         // but it can still be instantiated. [unlike with SetActive(false)]
             }
 
             var obj = GameObject.Instantiate(prefab);
@@ -45,7 +47,6 @@ namespace CombinedItems.Spawnables
         public ShadowLeviathanSample()
             : base("ShadowLeviathanSample", "Shadow Leviathan Sample", "A sample of chitin and ichor from a deadly predator.")
         {
-            /*sprite = Main.assetBundle.LoadAsset<Sprite>("BioPlasmaMK2");*/
             OnFinishedPatching += () =>
             {
                 Main.AddModTechType(this.TechType);

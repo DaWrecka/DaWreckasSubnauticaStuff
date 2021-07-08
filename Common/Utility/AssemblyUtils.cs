@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Common
 {
-	internal class AssemblyUtils
+	internal static class AssemblyUtils
 	{
 		// Copied from weskey007's ShowAvailableItems code, this can be used to patch methods from a different assembly without making a hard dependency on that assembly.
 

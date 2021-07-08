@@ -1,4 +1,5 @@
 using AcidProofSuit.Module;
+using Common;
 using HarmonyLib;
 using QModManager.API;
 using QModManager.API.ModLoading;
@@ -29,12 +30,12 @@ namespace AcidProofSuit
             "Tank"
         };
 
-        internal static AcidSuit prefabSuitMk1 = new AcidSuit();
-        internal static AcidGloves prefabGloves = new AcidGloves();
-        internal static AcidHelmet prefabHelmet = new AcidHelmet();
+//        internal static AcidSuit prefabSuitMk1 = new AcidSuit();
+//        internal static AcidGloves prefabGloves = new AcidGloves();
+//        internal static AcidHelmet prefabHelmet = new AcidHelmet();
         // We could fit these into the prefabs list, but given that we want to access them frequently, we want them as publicly-accessible types anyway.
-        internal static NitrogenBrineSuit2 prefabSuitMk2;
-        internal static NitrogenBrineSuit3 prefabSuitMk3;
+//        internal static NitrogenBrineSuit2 prefabSuitMk2;
+//        internal static NitrogenBrineSuit3 prefabSuitMk3;
 
         private static readonly Assembly myAssembly = Assembly.GetExecutingAssembly();
         private static readonly string modPath = Path.GetDirectoryName(myAssembly.Location);
@@ -48,6 +49,7 @@ namespace AcidProofSuit
         internal static readonly Texture2D suitIllumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitillum.png"));
 
         public static bool bUseNitrogenAPI; // If true, use the Nitrogen API instead of patching GetTechTypeInSlot. Overrides bNoPatchTechTypeInSlot.
+        private static Dictionary<string, TechType> NitrogenTechtypes = new Dictionary<string, TechType>();
 
         // Get total amount equipped from a list
         public static int EquipmentGetCount(Equipment e, TechType[] techTypes)
@@ -63,10 +65,6 @@ namespace AcidProofSuit
             }
             return count;
         }
-
-#pragma warning disable IDE0044 // Add readonly modifier
-        private static Dictionary<string, TechType> NitrogenTechtypes = new Dictionary<string, TechType>();
-#pragma warning restore IDE0044 // Add readonly modifier
 
         public static TechType GetNitrogenTechtype(string name)
         {
@@ -119,24 +117,23 @@ namespace AcidProofSuit
         // For example, you could add a chip that projects a sort of shield that protects from environmental damage, such as Acid, Radiation, Heat, Poison, or others.
         // Although the system would need to be extended to allow, say, a shield that drains a battery when resisting damage.
         //Interfaces would be the way I think, but I've not yet wrapped my brain around that.
-        internal static List<DamageResistance> DamageResistances;
+        // BZ has a DamageModifier component available that does basically this.
+        internal static Dictionary<TechType, List<DamageInfo> > DamageResistances;
         public static float ModifyDamage(TechType tt, float damage, DamageType type)
         {
             float baseDamage = damage;
             float damageMod = 0f;
             //Logger.Log(Logger.Level.Debug, $"Main.ModifyDamage called: tt = {tt.ToString()}, damage = {damage}; DamageType = {type}");
-            foreach (DamageResistance r in DamageResistances)
+            //foreach (DamageResistance r in DamageResistances)
+            if(DamageResistances.TryGetValue(tt, out List<DamageInfo> diList))
             {
                 //Logger.Log(Logger.Level.Debug, $"Found DamageResistance with TechType: {r.TechType.ToString()}");
-                if (r.TechType == tt)
+                foreach (DamageInfo d in diList)
                 {
-                    foreach (DamageInfo d in r.damageInfoList)
+                    if (d.damageType == type)
                     {
-                        if (d.damageType == type)
-                        {
-                            damageMod += baseDamage * d.damageMult;
-                            //Logger.Log(Logger.Level.Debug, $"Player has equipped armour of TechType {tt.ToString()}, base damage = {baseDamage}, type = {type}, modifying damage by {d.damageMult}x with result of {damageMod}");
-                        }
+                        damageMod += baseDamage * d.damageMult;
+                        //Logger.Log(Logger.Level.Debug, $"Player has equipped armour of TechType {tt.ToString()}, base damage = {baseDamage}, type = {type}, modifying damage by {d.damageMult}x with result of {damageMod}");
                     }
                 }
             }
@@ -157,16 +154,19 @@ namespace AcidProofSuit
 
             List<Craftable> Prefabs = new List<Craftable>()
             {
-                prefabGloves,
-                prefabHelmet,
-                prefabSuitMk1,
-                new Blueprint_OnlyRadSuit(),
-                new Blueprint_OnlyRebreather(),
-                new Blueprint_OnlyReinforcedSuit(),
+                //prefabGloves,
+                //prefabHelmet,
+                //prefabSuitMk1,
+                new AcidSuit(),
+                new AcidGloves(),
+                new AcidHelmet(),
+                //new Blueprint_OnlyRadSuit(),
+                //new Blueprint_OnlyRebreather(),
+                //new Blueprint_OnlyReinforcedSuit(),
                 new Blueprint_Suits(),
-                new Blueprint_RebreatherRad(),
-                new Blueprint_RebreatherReinforced(),
-                new Blueprint_RadReinforced()
+                //new Blueprint_RebreatherRad(),
+                //new Blueprint_RebreatherReinforced(),
+                //new Blueprint_RadReinforced()
             };
 
             // There doesn't appear to be any handler function for verifying whether a certain tab node already exists. This is relevant since I'm deliberately using a node with the same
@@ -192,10 +192,10 @@ namespace AcidProofSuit
 #endif
                     }
                 }
-                prefabSuitMk2 = new NitrogenBrineSuit2();
-                prefabSuitMk3 = new NitrogenBrineSuit3();
-                Prefabs.Add(prefabSuitMk2);
-                Prefabs.Add(prefabSuitMk3);
+                //prefabSuitMk2 = new NitrogenBrineSuit2();
+                //prefabSuitMk3 = new NitrogenBrineSuit3();
+                Prefabs.Add(new NitrogenBrineSuit2());
+                Prefabs.Add(new NitrogenBrineSuit3());
                 Prefabs.Add(new Blueprint_BrineMk1toMk2());
                 Prefabs.Add(new Blueprint_BrineMk2toMk3());
                 Prefabs.Add(new Blueprint_BrineMk1toMk3());
@@ -210,46 +210,47 @@ namespace AcidProofSuit
 #endif
                 c.Patch();
             }
-#if !RELEASE
 
+#if !RELEASE
             Logger.Log(Logger.Level.Debug, $"Adding basic EquipmentGetCount substitutions"); 
 #endif
-            Patches.Equipment_GetCount_Patch.AddSubstitution(prefabHelmet.TechType, TechType.Rebreather);
-            Patches.Equipment_GetCount_Patch.AddSubstitution(prefabHelmet.TechType, TechType.RadiationHelmet);
-            Patches.Equipment_GetCount_Patch.AddSubstitution(prefabSuitMk1.TechType, TechType.RadiationSuit);
-            Patches.Equipment_GetCount_Patch.AddSubstitution(prefabGloves.TechType, TechType.RadiationGloves);
-            Patches.Equipment_GetCount_Patch.AddSubstitution(prefabGloves.TechType, TechType.ReinforcedGloves);
-            Patches.Equipment_GetCount_Patch.AddSubstitution(prefabSuitMk1.TechType, TechType.ReinforcedDiveSuit);
+            Patches.EquipmentPatches.AddSubstitution(TechTypeUtils.GetModTechType("AcidHelmet"), TechType.Rebreather);
+            Patches.EquipmentPatches.AddSubstitution(TechTypeUtils.GetModTechType("AcidHelmet"), TechType.RadiationHelmet);
+            Patches.EquipmentPatches.AddSubstitution(TechTypeUtils.GetModTechType("AcidSuit"), TechType.RadiationSuit);
+            Patches.EquipmentPatches.AddSubstitution(TechTypeUtils.GetModTechType("AcidGloves"), TechType.RadiationGloves);
+            Patches.EquipmentPatches.AddSubstitution(TechTypeUtils.GetModTechType("AcidGloves"), TechType.ReinforcedGloves);
+            Patches.EquipmentPatches.AddSubstitution(TechTypeUtils.GetModTechType("AcidSuit"), TechType.ReinforcedDiveSuit);
+            
 #if !RELEASE
 
             Logger.Log(Logger.Level.Debug, $"Setting up DamageResistances list"); 
 #endif
-            Main.DamageResistances = new List<DamageResistance> {
-            // Gloves
-                new DamageResistance(
-                    prefabGloves.TechType,
-                    new DamageInfo[] {
+            Main.DamageResistances = new Dictionary<TechType, List<DamageInfo> > {
+                // Gloves
+                {
+                    TechTypeUtils.GetModTechType("AcidGloves"), new List<DamageInfo> {
                         new DamageInfo(DamageType.Acid, -0.15f)/*,
                         new DamageInfo(DamageType.Radiation, -0.10f)*/
-                    }),
+                    }
+                },
 
 
-            // Helmet
-                new DamageResistance(
-                    prefabHelmet.TechType,
-                    new DamageInfo[] {
+                // Helmet
+                {
+                    TechTypeUtils.GetModTechType("AcidHelmet"), new List<DamageInfo> {
                         new DamageInfo(DamageType.Acid, -0.25f)/*,
                         new DamageInfo(DamageType.Radiation, -0.20f)*/
-                    }),
+                    }
+                },
 
 
             // Suit
-                new DamageResistance(
-                    prefabSuitMk1.TechType,
-                    new DamageInfo[] {
+                {
+                    TechTypeUtils.GetModTechType("AcidSuit"), new List<DamageInfo> {
                         new DamageInfo(DamageType.Acid, -0.6f)/*,
                         new DamageInfo(DamageType.Radiation, -0.70f)*/
-                    })
+                    }
+                }
             };
             Harmony.CreateAndPatchAll(myAssembly, $"DaWrecka_{myAssembly.GetName().Name}");
         }
@@ -259,20 +260,21 @@ namespace AcidProofSuit
         {
             if (HasNitrogenMod())
             {
+                TechType suitMk1 = TechTypeUtils.GetModTechType("AcidSuit");
+                TechType suitMk2 = TechTypeUtils.GetModTechType("NitrogenBrineSuit2");
+                TechType suitMk3 = TechTypeUtils.GetModTechType("NitrogenBrineSuit3");
 #if !RELEASE
-                Logger.Log(Logger.Level.Debug, $"Setting up Nitrogen suit TechTypes"); 
+                Logger.Log(Logger.Level.Debug, $"Setting up Nitrogen suit TechTypes");
 #endif
-                if (prefabSuitMk2.TechType != TechType.None)
+                if (suitMk2 != TechType.None)
                 {
-                    Main.DamageResistances.Add(new DamageResistance(
-                        prefabSuitMk2.TechType,
-                        new DamageInfo[] {
+                    Main.DamageResistances.Add(suitMk2, new List<DamageInfo> {
                             new DamageInfo(DamageType.Acid, -0.6f)/*,
                             new DamageInfo(DamageType.Radiation, -0.70f)*/
-                        }));
+                        });
 
-                    Patches.Equipment_GetCount_Patch.AddSubstitution(prefabSuitMk2.TechType, TechType.RadiationSuit);
-                    Patches.Equipment_GetCount_Patch.AddSubstitution(prefabSuitMk2.TechType, TechType.ReinforcedDiveSuit);
+                    Patches.EquipmentPatches.AddSubstitution(suitMk2, TechType.RadiationSuit);
+                    Patches.EquipmentPatches.AddSubstitution(suitMk2, TechType.ReinforcedDiveSuit);
                 }
                 else
                 {
@@ -281,16 +283,15 @@ namespace AcidProofSuit
 #endif
                 }
 
-                if (prefabSuitMk3.TechType != TechType.None)
+                if (suitMk3 != TechType.None)
                 {
-                    Main.DamageResistances.Add(new DamageResistance(
-                        prefabSuitMk3.TechType,
-                        new DamageInfo[] {
+                    Main.DamageResistances.Add(suitMk3, new List<DamageInfo> {
                             new DamageInfo(DamageType.Acid, -0.6f)/*,
                             new DamageInfo(DamageType.Radiation, -0.70f)*/
-                        }));
-                    Patches.Equipment_GetCount_Patch.AddSubstitution(prefabSuitMk3.TechType, TechType.RadiationSuit);
-                    Patches.Equipment_GetCount_Patch.AddSubstitution(prefabSuitMk3.TechType, TechType.ReinforcedDiveSuit);
+                        });
+
+                    Patches.EquipmentPatches.AddSubstitution(suitMk3, TechType.RadiationSuit);
+                    Patches.EquipmentPatches.AddSubstitution(suitMk3, TechType.ReinforcedDiveSuit);
                 }
                 else
                 {
@@ -303,9 +304,9 @@ namespace AcidProofSuit
 #if !RELEASE
                     Logger.Log(Logger.Level.Debug, $"Found Nitrogen API, adding dive suits."); 
 #endif
-                    NitroAddDiveSuit.Invoke(null, new object[] { prefabSuitMk1.TechType, 800f, 0.85f, 15f });
-                    NitroAddDiveSuit.Invoke(null, new object[] { prefabSuitMk2.TechType, 1300f, 0.75f, 20f });
-                    NitroAddDiveSuit.Invoke(null, new object[] { prefabSuitMk3.TechType, 8000f, 0.55f, 35f });
+                    NitroAddDiveSuit.Invoke(null, new object[] { suitMk1, 800f, 0.85f, 15f });
+                    NitroAddDiveSuit.Invoke(null, new object[] { suitMk2, 1300f, 0.75f, 20f });
+                    NitroAddDiveSuit.Invoke(null, new object[] { suitMk3, 8000f, 0.55f, 35f });
                 }
             }
         }

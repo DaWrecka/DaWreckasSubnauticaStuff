@@ -37,6 +37,7 @@
     <Compile Include="Spawnables\CoralSample.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Language.json" />
     <None Include="mod_BZ.json" />
     <None Include="mod_SN1.json" />
   </ItemGroup>

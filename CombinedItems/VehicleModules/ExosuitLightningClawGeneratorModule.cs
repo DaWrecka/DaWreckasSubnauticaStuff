@@ -46,7 +46,8 @@ namespace CombinedItems.VehicleModules
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ExosuitThermalReactorModule);
                 yield return task;
                 prefab = GameObject.Instantiate<GameObject>(task.GetResult());
-                prefab.SetActive(false);
+                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
+                                                         // but it can still be instantiated. [unlike with SetActive(false)]
 
             }
 

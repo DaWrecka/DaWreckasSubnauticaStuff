@@ -32,6 +32,10 @@ namespace IngredientsFromScanning_BZ.Configuration
 		[Toggle("Show all fragments in Map Room")]
 		private bool bOverrideMapRoom = true;
 
+		[Toggle("Intercept Databoxes", Tooltip = "If true, opening a databox whose tech is already in the PDA will give parts from the blueprint's recipe, as if it were a fragment. If false, opening such a databox will only give two Titanium, as normal.")]
+		// Disabling this because it doesn't work right now
+		private bool bInterceptDataboxes = false;
+
 		private void OnSliderChange(SliderChangedEventArgs e)
 		{
 			if (e.Id == "MinComponents")
@@ -62,7 +66,7 @@ namespace IngredientsFromScanning_BZ.Configuration
 			maxComponents = Clamp(maxComponents, MIN_PRIZE, MAX_PRIZE);
 			minComponents = Clamp(minComponents, MIN_PRIZE, maxComponents);
 #if !RELEASE
-			Logger.Log(Logger.Level.Debug, $"Generating prize value between {minComponents} and {maxComponents}"); 
+			Logger.Log(Logger.Level.Debug, $"Generating prize value between {minComponents} and {maxComponents}");
 #endif
 			// maxComponents is intended to be inclusive, but Random.Next(1, X) will always return an integer less than X. So we need to add 1 to maxComponents here to get the results we want.
 			return rng.Next(minComponents, maxComponents + 1);
@@ -142,7 +146,7 @@ namespace IngredientsFromScanning_BZ.Configuration
 						else
 						{
 #if !RELEASE
-							Logger.Log(Logger.Level.Error, $"Could not parse {s.techType} as TechType; check the spelling and/or case"); 
+							Logger.Log(Logger.Level.Error, $"Could not parse {s.techType} as TechType; check the spelling and/or case");
 #endif
 							outRecipe = null;
 							return false;
@@ -201,7 +205,7 @@ namespace IngredientsFromScanning_BZ.Configuration
 						else
 						{
 #if !RELEASE
-							Logger.Log(Logger.Level.Error, $"Failed to parse string '{si.techType}' as TechType; check to make sure the entry is spelled correctly, and using the correct case"); 
+							Logger.Log(Logger.Level.Error, $"Failed to parse string '{si.techType}' as TechType; check to make sure the entry is spelled correctly, and using the correct case");
 #endif
 						}
 					}
@@ -221,14 +225,14 @@ namespace IngredientsFromScanning_BZ.Configuration
 			if (InitWeights() | InitRecipeOverrides() | InitSubstitutions())
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Info, "Some configuration settings have been reset to defaults."); 
+				Logger.Log(Logger.Level.Info, "Some configuration settings have been reset to defaults.");
 #endif
 				Save();
 			}
 			else
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, "All values present and correct"); 
+				Logger.Log(Logger.Level.Debug, "All values present and correct");
 #endif
 			}
 		}
@@ -237,8 +241,8 @@ namespace IngredientsFromScanning_BZ.Configuration
 		{
 			if (TechWeights == null)
 			{
-#if !RELEASE                
-				Logger.Log(Logger.Level.Warn, "No TechWeights found, setting default values"); 
+#if !RELEASE
+				Logger.Log(Logger.Level.Warn, "No TechWeights found, setting default values");
 #endif
 				TechWeights = new Dictionary<string, float>() {
 					{ "None", 0f },
@@ -407,7 +411,7 @@ namespace IngredientsFromScanning_BZ.Configuration
 			if (RecipeOverrides == null)
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Warn, "No RecipeOverrides found, setting default values"); 
+				Logger.Log(Logger.Level.Warn, "No RecipeOverrides found, setting default values");
 #endif
 				RecipeOverrides = new List<RecipeOverride>() {
 					new RecipeOverride(
@@ -469,7 +473,7 @@ namespace IngredientsFromScanning_BZ.Configuration
 			if (SubstitutionList == null)
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Warn, "No SubstitutionList found, setting default values"); 
+				Logger.Log(Logger.Level.Warn, "No SubstitutionList found, setting default values");
 #endif
 				SubstitutionList = new List<SSubstitutionEntry>() {
 					new SSubstitutionEntry(

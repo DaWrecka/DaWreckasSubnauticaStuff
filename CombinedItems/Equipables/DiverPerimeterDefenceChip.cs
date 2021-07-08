@@ -13,8 +13,16 @@ using Common;
 using CombinedItems.Patches;
 using CombinedItems.MonoBehaviours;
 using SMLHelper.V2.Handlers;
+#if SUBNAUTICA_STABLE
+using RecipeData = SMLHelper.V2.Crafting.TechData;
+using Sprite = Atlas.Sprite;
+using Object = UnityEngine.Object;
+using Oculus.Newtonsoft;
+using Oculus.Newtonsoft.Json;
+#elif BELOWZERO
 using Newtonsoft;
 using Newtonsoft.Json;
+#endif
 
 namespace CombinedItems.Equipables
 {
@@ -81,7 +89,7 @@ namespace CombinedItems.Equipables
 				yield return task;
 
 				prefab = GameObject.Instantiate(task.GetResult());
-				prefab.SetActive(false);
+				ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
 			}
 
 			gameObject.Set(GameObject.Instantiate(prefab));
@@ -187,7 +195,7 @@ namespace CombinedItems.Equipables
 				prefab = GameObject.Instantiate(task.GetResult());
 				behaviour = prefab.EnsureComponent<DiverPerimeterDefenceBehaviour>();
 				//behaviour.Initialise(this.MaxDischarges, this.bDestroyedOnDischarge);
-				prefab.SetActive(false);
+				ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
 			}
 
 			GameObject go = GameObject.Instantiate(prefab);

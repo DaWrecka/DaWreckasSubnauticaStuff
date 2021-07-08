@@ -14,6 +14,7 @@ using Common;
 
 namespace CombinedItems.Equipables
 {
+#if BELOWZERO
     internal class ReinforcedColdGloves : Equipable
     {
         public ReinforcedColdGloves() : base("ReinforcedColdGloves", "Reinforced Cold Gloves", "Reinforced insulating gloves provide physical protection and insulation from extreme temperatures.")
@@ -57,7 +58,7 @@ namespace CombinedItems.Equipables
                 yield return task;
 
                 prefab = GameObject.Instantiate(task.GetResult());
-                prefab.SetActive(false);
+                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
             }
 
             GameObject go = GameObject.Instantiate(prefab);
@@ -123,7 +124,7 @@ namespace CombinedItems.Equipables
                 yield return task;
 
                 prefab = GameObject.Instantiate(task.GetResult());
-                prefab.SetActive(false);
+                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
             }
 
             GameObject go = GameObject.Instantiate(prefab);
@@ -197,11 +198,12 @@ namespace CombinedItems.Equipables
                 yield return task;
 
                 prefab = GameObject.Instantiate(task.GetResult());
-                prefab.SetActive(false);
+                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
             }
 
             GameObject go = GameObject.Instantiate(prefab);
             gameObject.Set(go);
         }
     }
+#endif
 }

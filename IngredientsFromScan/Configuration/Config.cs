@@ -19,6 +19,7 @@ namespace IngredientsFromScanning.Configuration
 	[Menu("Ingredients from Scanning")]
 	public class DWConfig : ConfigFile
 	{
+		public static Version ConfigVersion;
 		private const int MAX_PRIZE = 10;
 		private const int MIN_PRIZE = 1;
 		[Slider("Minimum ingredients", MIN_PRIZE, MAX_PRIZE, DefaultValue = 2, Id = "MinComponents"), OnChange(nameof(OnSliderChange))]
@@ -504,7 +505,7 @@ namespace IngredientsFromScanning.Configuration
 #endif
 							new StringIngredient("ScrapMetal", 1)
 						}
-					)
+					),
 				};
 				return true;
 			}

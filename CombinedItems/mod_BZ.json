@@ -3,17 +3,17 @@
   "DisplayName": "Combined Items",
   "VersionDependencies": {
     "SMLHelper": "2.9.6",
-    "CustomDataboxesBZ": "1.1.3"
+    "CustomDataboxes": "1.1.3"
   },
   "Id": "CombinedItems",
   "AssemblyName": "CombinedItems.dll",
   "Version": "0.8.0.3",
-  "Enable": true,
+  "Enable": false,
   "NexusId": {},
   "Game": "BelowZero",
   "LoadAfter": [
     "SMLHelper",
-    "CustomDataboxesBZ",
+    "CustomDataboxes",
     "BioChemBatteriesMK2",
     "CustomBatteries",
     "CustomiseOxygen",
