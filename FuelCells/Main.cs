@@ -124,7 +124,14 @@ namespace FuelCells
                 ID = "CbLithiumBattery",
                 Name = "Lithium-Ion Battery",
                 FlavorText = "High-capacity mobile power source",
-                CraftingMaterials = { TechType.Lithium, TechType.Copper, TechType.GenericRibbon, TechType.GenericRibbon },
+                CraftingMaterials = {
+                    TechType.Lithium, TechType.Copper,
+#if SUBNAUTICA_STABLE
+                    TechType.AcidMushroom, TechType.AcidMushroom
+#elif BELOWZERO
+                    TechType.GenericRibbon, TechType.GenericRibbon
+#endif
+                },
                 UnlocksWith = TechType.Lithium
             };
             cbLithiumBattery.Patch();

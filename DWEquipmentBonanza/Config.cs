@@ -19,7 +19,7 @@ using SMLHelper.V2.Handlers;
 
 namespace DWEquipmentBonanza
 {
-	[Menu("Combined Items")]
+	[Menu("DW's Equipment Bonanza")]
 	public class DWConfig : ConfigFile
 	{
 		private const float SPIKEY_TRAP_HEALTH_MIN = 1f;

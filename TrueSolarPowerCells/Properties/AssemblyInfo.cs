@@ -5,17 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-#if SUBNAUTICA_STABLE
-[assembly: AssemblyTitle("CustomiseYourStorage")]
-[assembly: AssemblyProduct("CustomiseYourStorage")]
-#elif BELOWZERO
-[assembly: AssemblyTitle("CustomiseYourStorage_BZ")]
-[assembly: AssemblyProduct("CustomiseYourStorage_BZ")]
-#endif
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyTitle("TrueSolarPowerCells")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("TrueSolarPowerCells")]
+[assembly: AssemblyCopyright("Copyright ©  2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -25,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("8d0989f2-9427-454c-af7a-e24e73ea9d44")]
+[assembly: Guid("102b0ca1-992c-4e50-92bf-cdf1f0ce8acf")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -37,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion(CustomiseYourStorage_BZ.Main.version)]
-[assembly: AssemblyFileVersion(CustomiseYourStorage_BZ.Main.version)]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]

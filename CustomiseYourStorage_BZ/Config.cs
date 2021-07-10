@@ -1,12 +1,18 @@
 ﻿//using SMLHelper.V2.Json;
 //using SMLHelper.V2.Options;
 //using SMLHelper.V2.Options.Attributes;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using Logger = QModManager.Utility.Logger;
 using System.IO;
+#if SUBNAUTICA_STABLE
+using Oculus.Newtonsoft.Json;
+using Oculus.Newtonsoft.Json.Converters;
+using Oculus.Newtonsoft.Json.Serialization;
+#elif BELOWZERO
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+#endif
 using System.Reflection;
 using SMLHelper.V2.Json;
 using Common;
@@ -18,20 +24,26 @@ namespace CustomiseYourStorage_BZ.Configuration
 {
 	internal class DWStorageConfig : ConfigFile
 	{
-		private static readonly HashSet<string> heightSliders = new HashSet<string>() { "DroppodHeight", "ExosuitHeight", "ExosuitModuleHeight", "FiltrationHeight", "InvHeight", "BioreactorHeight" };
-		private static readonly bool bHasAdvancedInventory = QModManager.API.QModServices.Main.ModPresent("AdvancedInventory_BZ");
-		private static readonly int MaxHeight = (bHasAdvancedInventory ? 12 : 8);
+#if SUBNAUTICA_STABLE
+		private const string AdvancedInventoryAssembly = "AdvancedInventory";
+#elif BELOWZERO
+		private const string AdvancedInventoryAssembly = "AdvancedInventory_BZ";
+#endif
+
+		private static readonly HashSet<string> heightSliders = new HashSet<string>() { "DroppodHeight", "ExosuitHeight", "ExosuitModuleHeight", "FiltrationHeight", "InvHeight", "BioreactorHeight", "CyclopsHeight" };
+		private static bool bHasAdvancedInventory => QModManager.API.QModServices.Main.ModPresent(AdvancedInventoryAssembly);
+		private static int MaxHeight => (bHasAdvancedInventory ? 12 : 8);
 		private readonly Vector2int nullVector = new Vector2int(0, 0); // Used for quick comparison
 
 		private Dictionary<string, Vector2int> defaultStorageSizes = new Dictionary<string, Vector2int>(System.StringComparer.OrdinalIgnoreCase)
 		{
-			{ "quantumlocker.storagecontainer", new Vector2int(4, 4) },
 			{ "smalllocker.smalllocker", new Vector2int(5, 6) },
 			{ "locker.locker", new Vector2int(6, 8) },
 			{ "labtrashcan.labtrashcan", new Vector2int(3, 4) },
 			{ "trashcans.trashcans", new Vector2int(4, 5) },
 			{ "vehiclestoragemodule.seamothstoragemodule", new Vector2int(4, 4) },
 #if BELOWZERO
+			{ "quantumlocker.storagecontainer", new Vector2int(4, 4) },
 			{ "recyclotron.recyclotron", new Vector2int(6, 4) },
 			{ "coffeevendingmachine.coffeevendingmachine", new Vector2int(2, 1) },
 			{ "fridge.fridge", new Vector2int(5, 7) },
@@ -100,16 +112,49 @@ namespace CustomiseYourStorage_BZ.Configuration
 		internal List<TechType> defaultLifepodLockerInventoryTypes = new List<TechType>();
 		public bool useDropPodInventory = false;
 		public List<string> defaultLifepodLockerInventory = new List<string>();
-		
+
+#if SUBNAUTICA_STABLE
+		private const string PodName = "LifePod";
+#elif BELOWZERO
+		private const string PodName = "Drop pod";
+#endif
+
 		//public Vector2int LifepodLockerSize = new Vector2int(0, 0);
+#if SUBNAUTICA_STABLE
+		[Slider("LifePod locker width", 4, 8, DefaultValue = 4, Id = "DroppodWidth",
+			Step = 1f,
+			Tooltip = "Width of the LifePod locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
+		public int DroppodWidth = 4;
+#elif BELOWZERO
 		[Slider("Droppod locker width", 4, 8, DefaultValue = 6, Id = "DroppodWidth",
 			Step = 1f,
 			Tooltip = "Width of the Droppod locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int DroppodWidth = 6;
+#endif
+
+#if SUBNAUTICA_STABLE
+		[Slider("LifePod locker height", 4, 8, DefaultValue = 6, Id = "DroppodWidth",
+			Step = 1f,
+			Tooltip = "Width of the LifePod locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
+		public int DroppodHeight = 8;
+#elif BELOWZERO
 		[Slider("Droppod locker height", 4, 8, DefaultValue = 8, Id = "DroppodHeight",
 			Step = 1f,
 			Tooltip = "Height of the Droppod locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int DroppodHeight = 8;
+#endif
+
+#if SUBNAUTICA_STABLE
+		[Slider("Cyclops locker width", 4, 8, DefaultValue = 3, Id = "CyclopsWidth",
+			Step = 1f,
+			Tooltip = "Width of the Cyclops lockers, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
+		public int CyclopsWidth = 3;
+
+		[Slider("Cyclops locker height", 4, 8, DefaultValue = 6, Id = "CyclopsHeight",
+			Step = 1f,
+			Tooltip = "Height of the Cyclops lockers, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
+		public int CyclopsHeight = 6;
+#endif
 
 		//public ExoConfigStruct ExosuitConfig;
 		[Slider("Exosuit locker width", 4, 8, DefaultValue = 6, Id = "ExosuitWidth",

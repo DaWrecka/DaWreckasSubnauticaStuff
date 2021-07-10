@@ -1,0 +1,19 @@
+{
+  "Id": "TrueSolarPowerCells",
+  "DisplayName": "True Solar Power Cells",
+  "Author": "DaWrecka w/ MrPurple6411",
+  "Version": "1.0.0.0",
+  "Dependencies": [
+    "SMLHelper"
+  ],
+  "Game": "Subnautica",
+  "AssemblyName": "TrueSolarPowerCells.dll",
+  "VersionDependencies": {
+    "SMLHelper": "2.9"
+  },
+  "VersionChecker": {
+    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/TrueSolarPowerCells/master/mod.json"
+  },
+  "NexusId": {},
+  "Enable": true
+}

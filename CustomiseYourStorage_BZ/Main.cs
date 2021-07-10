@@ -19,7 +19,7 @@ namespace CustomiseYourStorage_BZ
 		//internal static readonly DWStorageConfigNonSML config = DWStorageConfigNonSML.LoadConfig(Path.Combine(new string[] { Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "config.json" }));
 
 		// The actual TechTypes used for the blacklist, populated at post-patch time.
-		internal static List<TechType> StorageBlacklist = new List<TechType>();
+		internal static HashSet<TechType> StorageBlacklist = new HashSet<TechType>();
 
 		internal static List<string> stringBlacklist = new List<string>()
 		// If the TechType is on this list, don't do anything.
@@ -29,9 +29,16 @@ namespace CustomiseYourStorage_BZ
 		// The values *could* likely be changed, certainly decreased, but if the result is more than 8 slots, hello Mr Null Reference.
 		// Similarly, we exclude the planters because they, too, have visuals associated with them that are likely to go ka-ka if we expand the storage.
 		{
-#if BELOWZERO
+#if SUBNAUTICA_STABLE
+			"EscapePod.StorageContainer", // We've given the DropPod special treatment, so we're keeping it for the the Lifepod.
+					// This might seem counter-intuitive, but the BZ version of this mod was developed before the SN1 version.
+					// So the Droppod code was implemented before the SN1 version of the mod.
+#elif BELOWZERO
 			"SeaTruckAquariumModule",
 #endif
+			"BagEquipment1",
+			"BagEquipment2",
+			"BagEquipment3",
 			"Aquarium",
 			"FarmingTray",
 			"PlanterBox",
@@ -80,7 +87,10 @@ namespace CustomiseYourStorage_BZ
 			{
 				TechType tt = TechTypeUtils.GetTechType(s);
 				if (tt != TechType.None)
-					StorageBlacklist.Add(tt);
+				{
+					if(!StorageBlacklist.Contains(tt))
+						StorageBlacklist.Add(tt);
+				}
 				else
 					Logger.Log(Logger.Level.Debug, $"Could not find TechType for string '{s}' in blacklist. Is associated mod installed?");
 			}

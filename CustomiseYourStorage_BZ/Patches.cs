@@ -33,9 +33,14 @@ namespace CustomiseYourStorage_BZ.Patches
 
 			string ContainerID = (techType.ToString() + "." + name).Replace("(Clone)", "");
 			string lowerID = ContainerID.ToLower();
-			if (lowerID == "none.storagecontiner")
+
+#if SUBNAUTICA_STABLE
+			if(lowerID == "escapepod.storagecontainer")
+#elif BELOWZERO
+			if (lowerID == "none.storagecontiner") //(sic)
+#endif
 			{
-				// Special processing for the Lifepod storage locker; Note the mis-spelling above.
+				// Special processing for the Lifepod storage locker; Note the mis-spelling of the BZ string above.
 				//Vector2int newLifepodLockerSize = Main.config.LifepodLockerSize;
 				int X = Main.config.DroppodWidth;
 				int Y = Main.config.DroppodHeight;
@@ -49,6 +54,16 @@ namespace CustomiseYourStorage_BZ.Patches
 				}
 				return;
 			}
+
+#if SUBNAUTICA_STABLE
+			if (lowerID == "none.submarine_locker_01_door")
+			{
+				int x = Main.config.CyclopsWidth;
+				int y = Main.config.CyclopsHeight;
+				Logger.Log(Logger.Level.Debug, $"Setting Cyclops locker to size ({x}, {y})");
+				__instance.Resize(x, y);
+			}
+#endif
 
 			if (techType == TechType.None)
 			{
@@ -74,7 +89,7 @@ namespace CustomiseYourStorage_BZ.Patches
 			if (Main.config.TryGetModSize(lowerID, out NewSize))
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Configuration for storage container {ContainerID} was found with value of ({NewSize.ToString()})"); 
+				Logger.Log(Logger.Level.Debug, $"Configuration for storage container {ContainerID} was found with value of ({NewSize.x}, {NewSize.y})"); 
 #endif
 				__instance.Resize(NewSize.x, NewSize.y);
 				return;
@@ -106,10 +121,15 @@ namespace CustomiseYourStorage_BZ.Patches
 			foreach (TechType tt in newTechTypes)
 			{
 				Log.LogDebug($"Adding item {tt.AsString()} to drop pod locker");
+#if SUBNAUTICA_STABLE
+				GameObject go = CraftData.InstantiateFromPrefab(tt);
+				InventoryItem inventoryItem2 = new InventoryItem(go.GetComponent<Pickupable>());
+#elif BELOWZERO
 				TaskResult<GameObject> result = new TaskResult<GameObject>();
 				yield return CraftData.InstantiateFromPrefabAsync(tt, result, false);
-
 				InventoryItem inventoryItem2 = new InventoryItem(result.Get().GetComponent<Pickupable>());
+#endif
+
 				inventoryItem2.item.Initialize();
 				container.container.UnsafeAdd(inventoryItem2);
 			}
@@ -157,7 +177,7 @@ namespace CustomiseYourStorage_BZ.Patches
 			if (Main.config.TryGetModSize(ContainerID, out NewSize))
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Configuration for items container {ContainerID} was found with value of ({NewSize.ToString()})"); 
+				Logger.Log(Logger.Level.Debug, $"Configuration for items container {ContainerID} was found with value of ({NewSize.x}, {NewSize.y})"); 
 #endif
 				__instance.container.Resize(NewSize.x, NewSize.y);
 				return;
@@ -188,7 +208,7 @@ namespace CustomiseYourStorage_BZ.Patches
 			int maxWater = Main.config.FiltrationWater;
 			Vector2int newContainerSize = new Vector2int(Main.config.FiltrationX, Main.config.FiltrationY);
 #if !RELEASE
-			Logger.Log(Logger.Level.Debug, $"Reconfiguring Filtration Machine {__instance.gameObject.name} with configuration values of: maxSalt {maxSalt}, maxWater {maxWater}, new size ({newContainerSize.ToString()})"); 
+			Logger.Log(Logger.Level.Debug, $"Reconfiguring Filtration Machine {__instance.gameObject.name} with configuration values of: maxSalt {maxSalt}, maxWater {maxWater}, new size ({newContainerSize.x}, {newContainerSize.y})"); 
 #endif
 
 			__instance.maxSalt = maxSalt;

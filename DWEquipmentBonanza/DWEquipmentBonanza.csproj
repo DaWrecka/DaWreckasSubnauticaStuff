@@ -11,13 +11,13 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DWEquipmentBonanza</RootNamespace>
     <AssemblyName>DWEquipmentBonanza</AssemblyName>
-    <OutputPath>$(SolutionDir)$(AssemblyName)\$(Configuration)\</OutputPath>
+    <OutputPath>$(SolutionDir)Qmods\$(AssemblyName)\$(Configuration)\</OutputPath>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BZ|AnyCPU'">
-    <OutputPath>..\..\Qmods\BZ\DWEquipmentBonanza\</OutputPath>
+    <OutputPath>$(SolutionDir)Qmods\BZ\DWEquipmentBonanza\</OutputPath>
   </PropertyGroup>
   <Import Project="..\Configurations.targets" />
   <ItemGroup>

@@ -19,12 +19,12 @@ using SMLHelper.V2.Assets;
 using System.Collections;
 using System.IO;
 using SMLHelper.V2.Utility;
+using CustomDataboxes.API;
 #if SUBNAUTICA_STABLE
-	using Oculus.Newtonsoft.Json;
+using Oculus.Newtonsoft.Json;
 	using Oculus.Newtonsoft.Json.Serialization;
 	using Oculus.Newtonsoft.Json.Converters;
 #elif BELOWZERO
-	using CustomDataboxes.API;
 	using Newtonsoft.Json;
 	using Newtonsoft.Json.Serialization;
 	using Newtonsoft.Json.Converters;
@@ -371,22 +371,38 @@ namespace DWEquipmentBonanza
 				s.Patch();
 			}
 
-#if BELOWZERO
 			Databox powerglideDatabox = new Databox()
 			{
 				DataboxID = "PowerglideDatabox",
 				PrimaryDescription = PowerglideEquipable.friendlyName + " Databox",
 				SecondaryDescription = PowerglideEquipable.description,
 				TechTypeToUnlock = GetModTechType("PowerglideEquipable"),
-				CoordinatedSpawns = new Dictionary<Vector3, Vector3>()
+#if SUBNAUTICA_STABLE
+				/*BiomesToSpawnIn = new List<LootDistributionData.BiomeData>()
 				{
-					{ new Vector3(285f, -242.07f, -1299f), new Vector3(344f, 3.77f, 14f) }
+					new LootDistributionData.BiomeData()
+					{
+						biome = BiomeType.Dunes_TechSite,
+						count = 1,
+						probability = 0.1f
+					}
+				},*/
+				CoordinatedSpawns = new List<Spawnable.SpawnLocation>()
+				{
+					new Spawnable.SpawnLocation(new Vector3(-1407.51f, -332.47f, 740.66f), new Vector3(6.93f, 275.67f, 0.00f)),
+					//new Spawnable.SpawnLocation(new Vector3(-1384.79f, -330.18f, 718.84f), new Vector3(1.22f, 194.60f, 357.64f))
 				}
+#elif BELOWZERO
+				CoordinatedSpawns = new List<Spawnable.SpawnLocation>()
+				{
+					new Spawnable.SpawnLocation(new Vector3(285f, -242.07f, -1299f), new Vector3(344f, 3.77f, 14f))
+				}
+#endif
 			};
 			powerglideDatabox.Patch();
 
 
-#elif SUBNAUTICA_STABLE
+#if SUBNAUTICA_STABLE
 			Log.LogDebug($"Setting up DamageResistances list");
 			Main.DamageResistances = new Dictionary<TechType, List<DamageInfo>> {
                 // Gloves
