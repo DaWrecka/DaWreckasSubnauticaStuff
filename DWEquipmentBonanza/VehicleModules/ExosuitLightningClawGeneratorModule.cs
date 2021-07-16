@@ -48,21 +48,24 @@ namespace DWEquipmentBonanza.VehicleModules
         {
             if (prefab == null)
             {
-                prefab = GameObject.Instantiate<GameObject>(CraftData.GetPrefabForTechType(TechType.ExosuitThermalReactorModule));
+                prefab = CraftData.InstantiateFromPrefab(TechType.ExosuitThermalReactorModule);
                 ModPrefabCache.AddPrefab(prefab, false);
             }
 
             return prefab;
         }
-#endif
+#elif BELOWZERO
 
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             if (prefab == null)
             {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ExosuitThermalReactorModule);
-                yield return task;
-                prefab = GameObject.Instantiate<GameObject>(task.GetResult());
+                TaskResult<GameObject> instResult = new TaskResult<GameObject>();
+                yield return CraftData.InstantiateFromPrefabAsync(techType, instResult, false);
+
+                //GameObject go = instResult.Get();
+                //prefab = GameObject.Instantiate<GameObject>(task.GetResult());
+                prefab = instResult.Get();
                 ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
                                                          // but it can still be instantiated. [unlike with SetActive(false)]
 
@@ -70,6 +73,7 @@ namespace DWEquipmentBonanza.VehicleModules
 
             gameObject.Set(GameObject.Instantiate(prefab));
         }
+#endif
 
         protected override Sprite GetItemSprite()
         {

@@ -38,9 +38,9 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
         internal virtual void PostUpgradeModuleChange(TechType changedTechType = TechType.None) { }
 
-        internal virtual void PreUpdate() { }
+        internal virtual void PreUpdate(Vehicle instance = null) { }
 
-        internal virtual void Update() { }
+        internal virtual void Update(Vehicle instance = null) { }
 
         internal virtual void PostUpdate() { }
 

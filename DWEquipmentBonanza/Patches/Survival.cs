@@ -171,8 +171,8 @@ namespace DWEquipmentBonanza.Patches
 			return codes.AsEnumerable();
 		}*/
 
-		//private static float preHunger;
-		//private static float preWater;
+		private static float preHunger;
+		private static float preWater;
 
 		[HarmonyPrefix]
 		[HarmonyPatch("UpdateStats")]
@@ -181,8 +181,8 @@ namespace DWEquipmentBonanza.Patches
 			bool bHasSurvivalSuit = PlayerPatch.bHasSurvivalSuit;
 			if (bHasSurvivalSuit && GameModeUtils.RequiresSurvival() && !Player.main.IsFrozenStats())
 			{
-				//preHunger = __instance.food;
-				//preWater = __instance.water;
+				preHunger = __instance.food;
+				preWater = __instance.water;
 				float regenRate = SurvivalsuitBehaviour.SurvivalRegenRate;
 				float kMaxStat = SurvivalConstants.kMaxStat;
 				/*float kFoodTime = SurvivalConstants.kFoodTime;
@@ -204,9 +204,9 @@ namespace DWEquipmentBonanza.Patches
 		[HarmonyPatch("UpdateStats")]
 		internal static void PostUpdateStats(Survival __instance)
 		{
-			//float foodDelta = preHunger - __instance.food;
-			//float waterDelta = preWater - __instance.water;
-			//Log.LogDebug($"SurvivalPatches.PostUpdateStats: food = {__instance.food}, water = {__instance.water}, foodDelta = {foodDelta}, waterDelta = {waterDelta}");
+			float foodDelta = preHunger - __instance.food;
+			float waterDelta = preWater - __instance.water;
+			Log.LogDebug($"SurvivalPatches.PostUpdateStats: food = {__instance.food}, water = {__instance.water}, foodDelta = {foodDelta}, waterDelta = {waterDelta}");
 		}
 	}
 }

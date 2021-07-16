@@ -93,7 +93,7 @@ namespace DWEquipmentBonanza.Patches
 		[HarmonyPrefix]
 		internal static void PreRemoveItem(ItemsContainer __instance, TechType techType)
 		{
-			//Log.LogDebug($"InventoryPatches.PreRemoveItem: techType = {techType.AsString()}");
+			Log.LogDebug($"InventoryPatches.PreRemoveItem: techType = {techType.AsString()}");
 			if (Main.compatibleBatteries.Contains(techType))
 			{
 				//Log.LogDebug($"InventoryPatches.RemoveItemPrefix: battery TechType is being consumed, caching TechType");
@@ -111,7 +111,7 @@ namespace DWEquipmentBonanza.Patches
 			float lastRemovedBatteryCharge = __instance == null ? -1f : __instance.lastRemovedBatteryCharge;
 #endif
 			bool bIsChip = chipTechTypes.Contains(techType);
-			//Log.LogDebug($"InventoryPatches.PostRemoveItem: found lastRemovedBatteryCharge of {lastRemovedBatteryCharge} and bIsChip: {bIsChip}");
+			Log.LogDebug($"InventoryPatches.PostRemoveItem: found lastRemovedBatteryCharge of {lastRemovedBatteryCharge} and bIsChip: {bIsChip}");
 			if (lastRemovedBatteryCharge > 1f)
 			{
 				if (bIsChip)
@@ -186,6 +186,7 @@ namespace DWEquipmentBonanza.Patches
 			return true;
 		}
 
+		/*
 		[HarmonyPostfix]
 		[HarmonyPatch(typeof(Inventory), nameof(Inventory.AddOrSwap), new Type[] { typeof(InventoryItem), typeof(Equipment), typeof(string) })]
 		internal static void PostAddOrSwap(InventoryItem itemA, Equipment equipmentB, string slotB, Inventory __instance, ref bool __result)
@@ -198,6 +199,6 @@ namespace DWEquipmentBonanza.Patches
 		internal static void PostAddOrSwap(InventoryItem itemA, IItemsContainer containerB, Inventory __instance, ref bool __result)
 		{
 			//Log.LogDebug($"InventoryPatches.PostAddOrSwap(): itemA = {itemA.ToString()}, containerB = {containerB.ToString()}, containerB.label = {containerB.label}, __result = {__result}");
-		}
+		}*/
 	}
 }

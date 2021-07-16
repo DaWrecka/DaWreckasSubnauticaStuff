@@ -66,8 +66,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			return 1f;
 		}
 
-		internal override void PreUpdate()
+		internal override void PreUpdate(Vehicle __instance = null)
 		{
+			Log.LogDebug("ExosuitUpdater.PreUpdate() begin");
+			if (parentVehicle == null)
+				parentVehicle = __instance;
+
 			if (parentVehicle is Exosuit parentExosuit)
 			{
 				lastMoveDirection = AvatarInputHandler.main.IsEnabled() ? GameInput.GetMoveDirection() : Vector3.zero;
@@ -80,10 +84,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				//    Log.LogDebug($"ExosuitUpdater.PostUpdate(): Applying forwardForce of {parentVehicle.forwardForce} to Exosuit with defaultForwardForce of {defaultForwardForce}");
 				fLastForce = forceMultiplier;
 			}
-		}
-
-		internal override void Update()
-		{
+			Log.LogDebug("ExosuitUpdater.PreUpdate() end");
 		}
 
 		internal override void PostOverrideAcceleration(ref Vector3 acceleration)

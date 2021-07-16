@@ -71,15 +71,11 @@ namespace DWEquipmentBonanza.Patches
         {
             if (!Substitutions.ContainsKey(techType))
                 return; // No need to do anything more.
+            Log.LogDebug($"Equipment_GetCount_Patch.PostFix: executing with parameters __result {__result.ToString()}, techType {techType.AsString()}");
+
             Dictionary<TechType, int> equipCount = __instance.GetInstanceField("equippedCount", BindingFlags.NonPublic | BindingFlags.Instance) as Dictionary<TechType, int>;
             // equipCount.TryGetValue(techType, out result);
 
-#if !RELEASE
-            if (Main.bVerboseLogging)
-            {
-                //Logger.Log(Logger.Level.Debug, $"Equipment_GetCount_Patch.PostFix: executing with parameters __result {__result.ToString()}, techType {techType.AsString()}");
-            }
-#endif
 /*
             //foreach (TechTypeSub t in Substitutions)
             int count = Substitutions.Count;
@@ -127,14 +123,17 @@ namespace DWEquipmentBonanza.Patches
         [HarmonyPatch(typeof(Equipment), nameof(Equipment.IsCompatible))]
         public static void PostIsCompatible(EquipmentType itemType, EquipmentType slotType, ref bool __result)
         {
-            //Log.LogDebug($"itemType = {itemType.ToString()}, slotType = {slotType.ToString()}, __result = {__result}");
+            Log.LogDebug($"itemType = {itemType.ToString()}, slotType = {slotType.ToString()}, __result = {__result}");
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(Equipment), nameof(Equipment.AllowedToAdd))]
         public static bool PreAllowedToAdd(Equipment __instance, ref bool __result, string slot, Pickupable pickupable, bool verbose)
         {
+            Log.LogDebug($"EquipmentPatches.PreAllowedToAdd(): __result = {__result}, slot = '{slot}'");
+
             TechType objTechType = pickupable.GetTechType();
+            Log.LogDebug($"EquipmentPatches.PreAllowedToAdd(): objTechType = {objTechType.AsString()}");
             EquipmentType slotType = Equipment.GetSlotType(slot);
             if (slotType == EquipmentType.BatteryCharger && InventoryPatches.IsChip(objTechType))
             {
@@ -161,7 +160,7 @@ namespace DWEquipmentBonanza.Patches
         [HarmonyPatch(typeof(Equipment), "IItemsContainer.AllowedToAdd")]
         public static bool PreIItemsContainerAllowedToAdd(Pickupable pickupable, Equipment __instance, ref bool __result)
         {
-            //Log.LogDebug($"PreIItemsContainerAllowedToAdd(): __instance.label = {__instance._label}, pickupable = {pickupable.ToString()}, __result = {__result}");
+            Log.LogDebug($"PreIItemsContainerAllowedToAdd(): __instance.label = {__instance._label}, pickupable = {pickupable.ToString()}, __result = {__result}");
             TechType tt = pickupable.GetTechType();
             // IsRechargeableChip() is probably faster than a string.Contains() so we're doing that first, so that the slower check doesn't even happen if it's not needed.
             if (InventoryPatches.IsRechargeableChip(tt) && __instance._label.Contains("BatteryCharger"))

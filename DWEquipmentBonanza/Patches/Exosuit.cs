@@ -38,6 +38,8 @@ namespace DWEquipmentBonanza.Patches
 				return;
 			}
 
+			Log.LogDebug($"ExosuitHUDPatches.PostUpdate() begin");
+
 			int charge;
 			//float capacity;
 
@@ -61,6 +63,7 @@ namespace DWEquipmentBonanza.Patches
 				__instance.textPower.text = IntStringCache.GetStringForInt(charge);
 				__instance.textPower.fontSize = (charge > 9999 ? 28 : 36);
 			}
+			Log.LogDebug($"ExosuitHUDPatches.PostUpdate() finish");
 		}
 	}
 
@@ -198,6 +201,7 @@ namespace DWEquipmentBonanza.Patches
 		[HarmonyPatch("OnUpgradeModuleChange")]
 		public static void PostUpgradeChange(ref Exosuit __instance, int slotID, TechType techType, bool added)
 		{
+			Log.LogDebug($"ExosuitPatches.OnUpgradeModuleChange(): slotID = {slotID}, techType = {techType.AsString()}, added = {added}");
 			__instance.gameObject.EnsureComponent<ExosuitUpdater>().PostUpgradeModuleChange(techType);
 			//if (techType == lightningClawTechType)
 			//	__instance.MarkArmsDirty();
@@ -207,10 +211,13 @@ namespace DWEquipmentBonanza.Patches
 		[HarmonyPatch("OverrideAcceleration")]
 		public static void PostOverrideAcceleration(ref Exosuit __instance, ref Vector3 acceleration)
 		{
+			Log.LogDebug($"ExosuitPatches.PostOverrideAcceleration() begin");
+
 			__instance.gameObject.EnsureComponent<ExosuitUpdater>().PostOverrideAcceleration(ref acceleration);
+			Log.LogDebug($"ExosuitPatches.PostOverrideAcceleration() end");
 		}
 
-		
+
 		/* These transpilers were disabled after the Seaworthy update made them obsolete - they served to allow my Sprint Module to function, but the Seaworthy update
 		 improved the Exosuit speed considerably, at least when it wasn't on the ground. 
 		 However, they still serve as useful reference material in the making of transpilers, and so they haven't been deleted for that reason.
@@ -353,8 +360,11 @@ namespace DWEquipmentBonanza.Patches
 		[HarmonyPatch("Update")]
 		public static void PreUpdate(ref Exosuit __instance)
 		{
-			__instance.gameObject.EnsureComponent<ExosuitUpdater>().PreUpdate();
+			Log.LogDebug($"ExosuitPatches.PreUpdate() begin");
+			if(__instance?.gameObject != null)
+				__instance.gameObject.EnsureComponent<ExosuitUpdater>().PreUpdate(__instance);
 			//Vector3 vector = AvatarInputHandler.main.IsEnabled() ? GameInput.GetMoveDirection() : Vector3.zero;
+			Log.LogDebug("ExosuitPatches.PreUpdate() end");
 		}
 		/*
 			* Methods which may need to be patched to accomodate future plans:

@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Common;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace DWEquipmentBonanza.Patches
         [HarmonyPatch(nameof(uGUI_Equipment.CanSwitchOrSwap))]
         internal static bool PreCanSwitchOrSwap(uGUI_Equipment __instance, ref ItemAction __result, string slotB)
         {
+            Log.LogDebug($"uGUI_EquipmentPatches.PreCanSwitchOrSwap(): __result = {__result.ToString()}, slotB = {slotB}");
+
             if (!ItemDragManager.isDragging)
                 return true;
             InventoryItem draggedItem = ItemDragManager.draggedItem;

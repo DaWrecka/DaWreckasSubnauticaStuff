@@ -19,6 +19,7 @@ namespace DWEquipmentBonanza.Patches
         [HarmonyPostfix]
         internal static void PostCanBite(MeleeAttack __instance, ref bool __result, GameObject target)
         {
+            Log.LogDebug($"MeleeAttackPatches.PostCanBite(): __result = {__result}, target = {target.name}");
             if (__result) // No point doing anything if the game has already concluded that it can't bite!
             {
                 //GameObject target = __instance.GetTarget(collider);
