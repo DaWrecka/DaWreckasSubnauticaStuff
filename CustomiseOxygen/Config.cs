@@ -35,7 +35,9 @@ namespace CustomiseOxygen
         {
             { "Tank", 30f },
             { "DoubleTank", 90f },
+#if BELOWZERO
             { "SuitBoosterTank", 90f },
+#endif
             { "PlasteelTank", 90f },
             { "HighCapacityTank", 180f }
         };

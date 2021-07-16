@@ -17,8 +17,8 @@ namespace CustomiseYourStorage_BZ
 		public static bool UpdateStorageSize(ref Exosuit __instance)
 		{
 			//var exoConfig = Main.config.ExosuitConfig;
-			var X = Main.config.ExosuitX;
-			var Y = Main.config.ExosuitY;
+			var X = Main.config.ExosuitWidth;
+			var Y = Main.config.ExosuitHeight;
 			var perModule = Main.config.ExosuitModuleHeight;
 			int moduleCount = __instance.modules.GetCount(TechType.VehicleStorageModule);
 			var height = Y + (moduleCount * perModule);
@@ -36,7 +36,7 @@ namespace CustomiseYourStorage_BZ
 		{
 			if (pickupable.GetTechType() == TechType.VehicleStorageModule)
 			{
-				__result = __instance.storageContainer.container.HasRoomFor(Main.config.ExosuitX, Main.config.ExosuitModuleHeight);
+				__result = __instance.storageContainer.container.HasRoomFor(Main.config.ExosuitWidth, Main.config.ExosuitModuleHeight);
 				if (verbose && !__result)
 				{
 					ErrorMessage.AddDebug(Language.main.Get("ExosuitStorageShrinkError"));

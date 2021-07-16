@@ -187,8 +187,8 @@ namespace IngredientsFromScanning_BZ.Patches
                 RecipeData recipe = null;
                 if (BlueprintHandTargetPatches.bIsDatabox)
                 {
-                    if (!Main.config.bInterceptDataboxes)
-                        return true;
+                    //if (!Main.config.bInterceptDataboxes)
+                    //    return true;
 
                     scannedFragment = BlueprintHandTargetPatches.databoxUnlock;
                     if (Main.config.TryOverrideRecipe(scannedFragment, out recipe))

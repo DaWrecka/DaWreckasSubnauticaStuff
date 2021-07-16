@@ -14,7 +14,6 @@
   "VersionChecker": {
     "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/CustomiseYourStorage_BZ/mod_SN1.json"
   },
-  "NexusId": {
-  },
+  "NexusId": {},
   "Enable": true
 }

@@ -171,19 +171,17 @@ namespace DWEquipmentBonanza.Patches
 			Vehicle vehicle = __instance;
 			exosuitUpdate.Initialise(ref vehicle);
 
-			if(__instance.gameObject != null && __instance.gameObject.TryGetComponent<LiveMixin>(out LiveMixin mixin))
+			if(__instance.gameObject != null && __instance.gameObject.TryGetComponent<LiveMixin>(out LiveMixin mixin) && Main.defaultHealth.TryGetValue(TechType.Exosuit, out float defaultHealth))
 			{
-#if SUBNAUTICA_STABLE
-				float defaultHealth = mixin.initialHealth;
-#elif BELOWZERO
-				float defaultHealth = mixin.defaultHealth;
-#endif
 				float instanceHealthPct = Mathf.Min(mixin.GetHealthFraction(), 1f);
 				float maxHealth = defaultHealth;
 					maxHealth *= Main.config.ExosuitHealthMult;
 
 				mixin.data.maxHealth = maxHealth;
 				mixin.health = maxHealth * instanceHealthPct;
+#if SUBNAUTICA_STABLE
+				mixin.initialHealth = defaultHealth;
+#endif
 			}
 		}
 

@@ -30,9 +30,6 @@ namespace DWEquipmentBonanza.Equipables
 	{
 		protected static GameObject prefab;
 		protected static Sprite icon;
-		public static float PowerglideColourR = 1f;
-		public static float PowerglideColourG = 0f;
-		public static float PowerglideColourB = 1f;
 		internal static string friendlyName => "PowerGlide";
 		internal static string description => "Hold Sprint for dramatic speed bonus underwater with increased energy consumption.";
 
@@ -114,28 +111,6 @@ namespace DWEquipmentBonanza.Equipables
 				prefab = GameObject.Instantiate(task.GetResult());
 				prefab.EnsureComponent<PowerglideBehaviour>();
 
-				/*
-				MeshRenderer[] meshRenderers = prefab.GetAllComponentsInChildren<MeshRenderer>();
-				SkinnedMeshRenderer[] skinnedMeshRenderers = prefab.GetAllComponentsInChildren<SkinnedMeshRenderer>();
-				Color powerGlideColour = new Color(PowerglideColourR, PowerglideColourG, PowerglideColourB);
-
-				foreach (MeshRenderer mr in meshRenderers)
-				{
-					// MeshRenderers have the third-person mesh, apparently?
-					if (mr.name.Contains("SeaGlide_01_TP"))
-					{
-						mr.material.color = powerGlideColour;
-					}
-				}
-
-				foreach (SkinnedMeshRenderer smr in skinnedMeshRenderers)
-				{
-					if (smr.name.Contains("SeaGlide_Geo"))
-					{
-						smr.material.color = powerGlideColour;
-					}
-				}
-				*/
 				ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
 			}
 

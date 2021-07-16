@@ -13,7 +13,7 @@ namespace TrueSolarPowerCells
     internal class SolarRegeneratePowerSource : MonoBehaviour
     {
         private bool bInitialised;
-        protected float regenerationRate;
+        protected float regenerationRate => Main.config.regenerationRate;
         public PowerSource powerSource;
 
         public float regenerationThreshhold = 25f;
@@ -21,7 +21,6 @@ namespace TrueSolarPowerCells
         public void Start()
         {
             this.regenerationThreshhold = Main.config.regenerationThreshold;
-            this.regenerationRate = Main.config.regenerationRate;
             CoroutineHost.StartCoroutine(SetupPowerSource());
         }
 
@@ -98,7 +97,7 @@ namespace TrueSolarPowerCells
             float depthScalar = Mathf.Clamp01((Constants.kMaxSolarChargeDepth + gameObject.transform.position.y) / Constants.kMaxSolarChargeDepth);
             float localLightScalar = main.GetLocalLightScalar();
             float rechargeAmount = this.regenerationRate * delta * localLightScalar * depthScalar;
-            Log.LogDebug($"Adding rechargeAmount {rechargeAmount} to solar cell; delta = {delta}, regenerationRate = {this.regenerationRate}, localLightScalar = {localLightScalar}, depthScalar = {depthScalar}");
+            //Log.LogDebug($"Adding rechargeAmount {rechargeAmount} to solar cell; delta = {delta}, regenerationRate = {this.regenerationRate}, localLightScalar = {localLightScalar}, depthScalar = {depthScalar}");
             this.powerSource.SetPower(Mathf.Min(power + rechargeAmount, this.regenerationThreshhold));
         }
     }

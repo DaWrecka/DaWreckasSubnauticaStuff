@@ -10,6 +10,7 @@ using System.Reflection;
 using UnityEngine;
 using UWE;
 using Random = UnityEngine.Random;
+using DWEquipmentBonanza.MonoBehaviours;
 
 namespace DWEquipmentBonanza.Spawnables
 {
@@ -51,59 +52,83 @@ namespace DWEquipmentBonanza.Spawnables
             };
         }
 
+#if SUBNAUTICA_STABLE
+        public override GameObject GetGameObject()
+        {
+            if (processedPrefab == null)
+            {
+                processedPrefab = ModifyInstantiatedPrefab(CraftData.InstantiateFromPrefab(TechType.SeaglideFragment));
+            }
+
+            return processedPrefab;
+        }
+#elif BELOWZERO
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             if (processedPrefab == null)
             {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.SeaglideFragment);
-                yield return task;
+                TaskResult<GameObject> result = new TaskResult<GameObject>();
+                IEnumerator enumerator = CraftData.InstantiateFromPrefabAsync(TechType.SeaglideFragment, result, false);
+                yield return enumerator;
 
-                GameObject prefab = GameObject.Instantiate(task.GetResult());
-
-                MeshRenderer[] meshRenderers = prefab.GetAllComponentsInChildren<MeshRenderer>();
-                SkinnedMeshRenderer[] skinnedMeshRenderers = prefab.GetAllComponentsInChildren<SkinnedMeshRenderer>();
-                Color powerGlideColour = new Color(PowerglideEquipable.PowerglideColourR, PowerglideEquipable.PowerglideColourG, PowerglideEquipable.PowerglideColourB);
-
-                foreach (MeshRenderer mr in meshRenderers)
-                {
-                    // MeshRenderers have the third-person mesh, apparently?
-                    if (mr.name.Contains("SeaGlide_01_damaged"))
-                    {
-                        mr.material.color = powerGlideColour;
-                    }
-                }
-
-                foreach (SkinnedMeshRenderer smr in skinnedMeshRenderers)
-                {
-                    if (smr.name.Contains("SeaGlide_geo"))
-                    {
-                        smr.material.color = powerGlideColour;
-                    }
-                }
-
-                PrefabIdentifier prefabIdentifier = prefab.GetComponent<PrefabIdentifier>();
-                prefabIdentifier.ClassId = this.ClassID;
-                prefab.GetComponent<LargeWorldEntity>().cellLevel = LargeWorldEntity.CellLevel.VeryFar;
-                prefab.EnsureComponent<TechTag>().type = this.TechType;
-
-                Pickupable pickupable = prefab.GetComponent<Pickupable>();
-                pickupable.isPickupable = false;
-
-                ResourceTracker resourceTracker = prefab.EnsureComponent<ResourceTracker>();
-                resourceTracker.prefabIdentifier = prefabIdentifier;
-                typeof(ResourceTracker).GetField("techType", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(resourceTracker, this.TechType);
-                //resourceTracker.techType = this.TechType;
-                resourceTracker.overrideTechType = TechType.Fragment;
-                resourceTracker.rb = prefab.GetComponent<Rigidbody>();
-                resourceTracker.pickupable = pickupable;
-
-                prefab.SetActive(true);
-                processedPrefab = prefab;
-                ModPrefabCache.AddPrefab(processedPrefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
-                                                         // but it can still be instantiated. [unlike with SetActive(false)]
+                processedPrefab = ModifyInstantiatedPrefab(result.Get());
             }
 
             gameObject.Set(processedPrefab);
+        }
+#endif
+
+        private GameObject ModifyInstantiatedPrefab(GameObject prefab)
+        {
+            if (prefab == null)
+            {
+                Log.LogError("ModifyInstantiatedPrefab called with null prefab!");
+                return null;
+            }
+
+            MeshRenderer[] meshRenderers = prefab.GetAllComponentsInChildren<MeshRenderer>();
+            SkinnedMeshRenderer[] skinnedMeshRenderers = prefab.GetAllComponentsInChildren<SkinnedMeshRenderer>();
+            Color powerGlideColour = PowerglideBehaviour.PowerGlideColour;
+
+            foreach (MeshRenderer mr in meshRenderers)
+            {
+                // MeshRenderers have the third-person mesh, apparently?
+                if (mr.name.Contains("SeaGlide_01_damaged"))
+                {
+                    mr.material.color = powerGlideColour;
+                }
+            }
+
+            foreach (SkinnedMeshRenderer smr in skinnedMeshRenderers)
+            {
+                if (smr.name.Contains("SeaGlide_geo"))
+                {
+                    smr.material.color = powerGlideColour;
+                }
+            }
+
+            PrefabIdentifier prefabIdentifier = prefab.GetComponent<PrefabIdentifier>();
+            prefabIdentifier.ClassId = this.ClassID;
+            prefab.GetComponent<LargeWorldEntity>().cellLevel = LargeWorldEntity.CellLevel.VeryFar;
+            prefab.EnsureComponent<TechTag>().type = this.TechType;
+
+            Pickupable pickupable = prefab.GetComponent<Pickupable>();
+            pickupable.isPickupable = false;
+
+            ResourceTracker resourceTracker = prefab.EnsureComponent<ResourceTracker>();
+            resourceTracker.prefabIdentifier = prefabIdentifier;
+            typeof(ResourceTracker).GetField("techType", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(resourceTracker, this.TechType);
+            //resourceTracker.techType = this.TechType;
+            resourceTracker.overrideTechType = TechType.Fragment;
+            resourceTracker.rb = prefab.GetComponent<Rigidbody>();
+            resourceTracker.pickupable = pickupable;
+
+            prefab.SetActive(true);
+            processedPrefab = prefab;
+            ModPrefabCache.AddPrefab(processedPrefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
+                                                              // but it can still be instantiated. [unlike with SetActive(false)]
+
+            return prefab;
         }
     }
 }

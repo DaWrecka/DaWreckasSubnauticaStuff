@@ -48,7 +48,8 @@ namespace CustomiseYourStorage_BZ
 			"PlanterShelf",
 			"AutoSorter",
 			"AutosortTarget",
-			"AutosortTargetStanding"
+			"AutosortTargetStanding",
+			"DockedVehicleStorageAccess"
 		};
 
 

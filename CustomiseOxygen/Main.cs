@@ -92,9 +92,15 @@ namespace CustomiseOxygen
 
             bWaitingForSpriteHandler = true;
 
+#if SUBNAUTICA_STABLE
+            if(SpriteManager.GetWithNoDefault(TechType.Cutefish) == null)
+            {
+                while(SpriteManager.GetWithNoDefault(TechType.Cutefish) == null)
+#elif BELOWZERO
             if (!SpriteManager.hasInitialized)
             {
                 while (!SpriteManager.hasInitialized)
+#endif
                 {
                     yield return new WaitForSeconds(0.5f);
                 }
@@ -184,19 +190,17 @@ namespace CustomiseOxygen
                         "TankRefill",
                         this.refillTechType.AsString(false)
                     });
+#if BELOWZERO
                     if (TechData.GetCraftTime(tank, out float craftTime))
                     {
-#if !RELEASE
                         Logger.Log(Logger.Level.Debug, $"Setting crafting time of {craftTime} for TechType.{this.refillTechType.AsString()}");
-#endif
                         CraftDataHandler.SetCraftingTime(this.refillTechType, craftTime);
                     }
                     else
                     {
-#if !RELEASE
                         Logger.Log(Logger.Level.Debug, $"Couldn't find crafting time for TechType.{tank}");
-#endif
                     }
+#endif
                     if (!Main.bannedTech.Contains(this.refillTechType))
                     {
                         Main.bannedTech.Add(this.refillTechType);
@@ -278,7 +282,15 @@ namespace CustomiseOxygen
             AddTank(TechType.SuitBoosterTank, -90f);
             AddTank(TechType.PlasteelTank, -90f);
             AddTank(TechType.HighCapacityTank, -180f);*/
-            foreach (TechType tt in new TechType[] { TechType.Tank, TechType.DoubleTank, TechType.SuitBoosterTank, TechType.PlasteelTank, TechType.HighCapacityTank })
+            foreach (TechType tt in new TechType[] {
+                TechType.Tank,
+                TechType.DoubleTank,
+#if BELOWZERO
+                TechType.SuitBoosterTank,
+#endif
+                TechType.PlasteelTank,
+                TechType.HighCapacityTank
+                })
             {
                 Logger.Log(Logger.Level.Debug, $"Initial processing, TechType.{tt.AsString()}");
                 AddTank(tt, -1f);

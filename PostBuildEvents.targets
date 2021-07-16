@@ -2,6 +2,10 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
-    <PostBuildEvent>pwsh "$(SolutionDir)post-build.ps1" -Config $(ConfigurationName) -ProjectDir "$(ProjectDir)\" -TargetPath "$(TargetPath)" -ProjectName "$(ProjectName)" -SolutionDir "$(SolutionDir)"</PostBuildEvent>
+    <PreBuildEvent>echo GameDir: $(GameDir)
+echo DataFolder: $(DataFolder)
+echo SMLHelperFolder: $(SMLHelperFolder)</PreBuildEvent>
+    <PostBuildEvent>echo on
+pwsh "$(SolutionDir)post-build.ps1" -Config $(ConfigurationName) -ProjectDir "$(ProjectDir)\" -TargetPath "$(TargetPath)" -ProjectName "$(ProjectName)" -SolutionDir "$(SolutionDir)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

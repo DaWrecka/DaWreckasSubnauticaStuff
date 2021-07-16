@@ -121,89 +121,89 @@ namespace CustomiseYourStorage_BZ.Configuration
 
 		//public Vector2int LifepodLockerSize = new Vector2int(0, 0);
 #if SUBNAUTICA_STABLE
-		[Slider("LifePod locker width", 4, 8, DefaultValue = 4, Id = "DroppodWidth",
+		[Slider("LifePod locker width", 4, 8, DefaultValue = 4, Id = nameof(DroppodWidth),
 			Step = 1f,
 			Tooltip = "Width of the LifePod locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int DroppodWidth = 4;
 #elif BELOWZERO
-		[Slider("Droppod locker width", 4, 8, DefaultValue = 6, Id = "DroppodWidth",
+		[Slider("Droppod locker width", 4, 8, DefaultValue = 6, Id = nameof(DroppodWidth),
 			Step = 1f,
 			Tooltip = "Width of the Droppod locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int DroppodWidth = 6;
 #endif
 
 #if SUBNAUTICA_STABLE
-		[Slider("LifePod locker height", 4, 8, DefaultValue = 6, Id = "DroppodWidth",
+		[Slider("LifePod locker height", 4, 8, DefaultValue = 6, Id = nameof(DroppodHeight),
 			Step = 1f,
 			Tooltip = "Width of the LifePod locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int DroppodHeight = 8;
 #elif BELOWZERO
-		[Slider("Droppod locker height", 4, 8, DefaultValue = 8, Id = "DroppodHeight",
+		[Slider("Droppod locker height", 4, 8, DefaultValue = 8, Id = nameof(DroppodHeight),
 			Step = 1f,
 			Tooltip = "Height of the Droppod locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int DroppodHeight = 8;
 #endif
 
 #if SUBNAUTICA_STABLE
-		[Slider("Cyclops locker width", 4, 8, DefaultValue = 3, Id = "CyclopsWidth",
+		[Slider("Cyclops locker width", 4, 8, DefaultValue = 3, Id = nameof(CyclopsWidth),
 			Step = 1f,
 			Tooltip = "Width of the Cyclops lockers, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int CyclopsWidth = 3;
 
-		[Slider("Cyclops locker height", 4, 8, DefaultValue = 6, Id = "CyclopsHeight",
+		[Slider("Cyclops locker height", 4, 8, DefaultValue = 6, Id = nameof(CyclopsHeight),
 			Step = 1f,
 			Tooltip = "Height of the Cyclops lockers, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int CyclopsHeight = 6;
 #endif
 
 		//public ExoConfigStruct ExosuitConfig;
-		[Slider("Exosuit locker width", 4, 8, DefaultValue = 6, Id = "ExosuitWidth",
+		[Slider("Exosuit locker width", 4, 8, DefaultValue = 6, Id = nameof(ExosuitWidth),
 			Step = 1f,
 			Tooltip = "Width of the Exosuit locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
-		public int ExosuitX = 6;
-		[Slider("Exosuit locker height", 4, 8, DefaultValue = 4, Id = "ExosuitHeight",
+		public int ExosuitWidth = 6;
+		[Slider("Exosuit locker height", 4, 8, DefaultValue = 4, Id = nameof(ExosuitHeight),
 			Step = 1f,
 			Tooltip = "Height of the Exosuit locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
-		public int ExosuitY = 4;
-		[Slider("Exosuit storage module height", 1, 4, DefaultValue = 1, Id = "ExosuitModuleHeight",
+		public int ExosuitHeight = 4;
+		[Slider("Exosuit storage module height", 1, 4, DefaultValue = 1, Id = nameof(ExosuitModuleHeight),
 			Step = 1f,
 			Tooltip = "Number of rows added to the Exosuit locker per Vehicle Storage Module installed"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int ExosuitModuleHeight = 1;
 
 		//public FiltrationConfigStruct FiltrationConfig;
-		[Slider("Filtration Machine width", 2, 8, DefaultValue = 2, Id = "FiltrationWidth",
+		[Slider("Filtration Machine width", 2, 8, DefaultValue = 2, Id = nameof(FiltrationWidth),
 			Step = 1f,
 			Tooltip = "Width of the Water Filtration Machine storage container, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
-		public int FiltrationX = 2;
-		[Slider("Filtration Machine height", 2, 8, DefaultValue = 2, Id = "FiltrationHeight",
+		public int FiltrationWidth = 2;
+		[Slider("Filtration Machine height", 2, 8, DefaultValue = 2, Id = nameof(FiltrationHeight),
 			Step = 1f,
 			Tooltip = "Height of the Water Filtration Machine storage container, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
-		public int FiltrationY = 2;
-		[Slider("Filtration Machine max water", 2, 8, DefaultValue = 2, Id = "FiltrationWater",
+		public int FiltrationHeight = 2;
+		[Slider("Filtration Machine max water", 2, 8, DefaultValue = 2, Id = nameof(FiltrationWater),
 			Step = 1f,
 			Tooltip = "Maximum number of water bottles that can be held by the Water Filtration Machine"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int FiltrationWater = 2;
-		[Slider("Filtration Machine max salt", 2, 8, DefaultValue = 2, Id = "FiltrationSalt",
+		[Slider("Filtration Machine max salt", 2, 8, DefaultValue = 2, Id = nameof(FiltrationSalt),
 			Step = 1f,
 			Tooltip = "Maximum number of salt deposits that can be held by the Water Filtration Machine"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int FiltrationSalt = 2;
 
 		//public Vector2int InventorySize = new Vector2int(0, 0);
-		[Slider("Inventory width", 4, 8, DefaultValue = 6, Id = "InvWidth",
+		[Slider("Inventory width", 4, 8, DefaultValue = 6, Id = nameof(InvWidth),
 			Step = 1f,
 			Tooltip = "Base width of the inventory, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int InvWidth = 6;
-		[Slider("Inventory height", 4, 8, DefaultValue = 8, Id = "InvHeight",
+		[Slider("Inventory height", 4, 8, DefaultValue = 8, Id = nameof(InvHeight),
 			Step = 1f,
 			Tooltip = "Base height of the inventory, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int InvHeight = 8;
 
 		//public Vector2int BioreactorSize = new Vector2int(0, 0);
-		[Slider("Bioreactor width", 3, 8, DefaultValue = 4, Id = "BioreactorWidth",
+		[Slider("Bioreactor width", 3, 8, DefaultValue = 4, Id = nameof(BioreactorWidth),
 			Step = 1f,
 			Tooltip = "Width of the Bioreactor container, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int BioreactorWidth = 4;
-		[Slider("Bioreactor height", 3, 8, DefaultValue = 4, Id = "BioreactorHeight",
+		[Slider("Bioreactor height", 3, 8, DefaultValue = 4, Id = nameof(BioreactorHeight),
 			Step = 1f,
 			Tooltip = "Height of the Bioreactor container, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int BioreactorHeight = 4;
@@ -228,19 +228,19 @@ namespace CustomiseYourStorage_BZ.Configuration
 				case "DroppodHeight":
 					LifepodLockerSize.y = e.IntegerValue;
 					break;
-				case "ExosuitX":
+				case "ExosuitWidth":
 					ExosuitConfig.width = e.IntegerValue;
 					break;
-				case "ExosuitY":
+				case "ExosuitHeight":
 					ExosuitConfig.height = e.IntegerValue;
 					break;
 				case "ExosuitModuleHeight":
 					ExosuitConfig.heightPerModule = e.IntegerValue;
 					break;
-				case "FiltrationX":
+				case "FiltrationWidth":
 					FiltrationConfig.containerSize.x = e.IntegerValue;
 					break;
-				case "FiltrationY":
+				case "FiltrationHeight":
 					FiltrationConfig.containerSize.y = e.IntegerValue;
 					break;
 				case "FiltrationWater":

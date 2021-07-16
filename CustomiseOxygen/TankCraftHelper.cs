@@ -9,6 +9,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+#if SUBNAUTICA_STABLE
+using RecipeData = SMLHelper.V2.Crafting.TechData;
+using Sprite = Atlas.Sprite;
+using Object = UnityEngine.Object;
+#endif
 
 namespace CustomiseOxygen
 {

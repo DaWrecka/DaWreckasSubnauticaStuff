@@ -73,8 +73,16 @@
   </ItemGroup>
   <Import Project="..\Common\Common.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\PostBuildEvents.targets" />
   <PropertyGroup>
-    <PostBuildEvent>pwsh "$(SolutionDir)post-build.ps1" -Config $(ConfigurationName) -ProjectDir "$(ProjectDir)\" -TargetPath "$(TargetPath)" -ProjectName "$(ProjectName)" -SolutionDir "$(SolutionDir)"
-</PostBuildEvent>
+    <PostBuildEvent>echo on
+
+pwsh "$(SolutionDir)post-build.ps1" -Config $(ConfigurationName) -ProjectDir "$(ProjectDir)\" -TargetPath "$(TargetPath)" -ProjectName "$(ProjectName)" -SolutionDir "$(SolutionDir)"</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>echo GameDir: $(GameDir)
+echo DataFolder: $(DataFolder)
+echo SMLHelperFolder: $(SMLHelperFolder)
+</PreBuildEvent>
   </PropertyGroup>
 </Project>

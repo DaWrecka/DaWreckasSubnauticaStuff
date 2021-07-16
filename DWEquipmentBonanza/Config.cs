@@ -94,10 +94,10 @@ namespace DWEquipmentBonanza
 			Tooltip = "Maximum health of SeaTruck modules; The default health of 500 is multiplied by this value.\nThe game must be restarted for this change to take effect.")]
 		public float SeatruckModulesHealthMult = 1f;
 
-		[Slider("Snowfox health multiplier", VEHICLE_HEALTH_MIN, VEHICLE_HEALTH_MAX, DefaultValue = 1f, Id = "SnowfoxHealthMult",
+		[Slider("Snowfox health multiplier", VEHICLE_HEALTH_MIN, VEHICLE_HEALTH_MAX, DefaultValue = 1f, Id = "HoverbikeHealthMult",
 			Step = 0.05f, Format = "{0:F2}",
 			Tooltip = "Maximum health of Snowfox; The default health of 200 is multiplied by this value.\nThe game must be restarted for this change to take effect.")]
-		public float SnowfoxHealthMult = 1f;
+		public float HoverbikeHealthMult = 1f;
 #endif
 	}
 }

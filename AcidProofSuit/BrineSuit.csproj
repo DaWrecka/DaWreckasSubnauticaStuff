@@ -186,8 +186,5 @@
   </ItemGroup>
   <Import Project="..\Common\Common.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>pwsh "$(SolutionDir)post-build.ps1" -Config $(ConfigurationName) -ProjectDir "$(ProjectDir)\" -TargetPath "$(TargetPath)" -ProjectName "$(ProjectName)" -SolutionDir "$(SolutionDir)"
-</PostBuildEvent>
-  </PropertyGroup>
+  <Import Project="..\PostBuildEvents.targets" />
 </Project>

@@ -2,8 +2,8 @@
   "Author": "DaWrecka",
   "DisplayName": "DW's Equipment Bonanza'",
   "VersionDependencies": {
-    "SMLHelper": "2.9.6",
-    "CustomDataboxes": "1.1.3"
+    "SMLHelper": "2.10.1",
+    "CustomDataboxesBZ": "1.2"
   },
   "Id": "DWEquipmentBonanza",
   "AssemblyName": "DWEquipmentBonanza.dll",

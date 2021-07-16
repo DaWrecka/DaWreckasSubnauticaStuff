@@ -15,6 +15,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
         public static float powerGlideForce = 3500f;
         public static float powerLerpRate = 900f;
         public float powerSeaglideForce;
+        public static Color PowerGlideColour = new Color(1f, 0f, 1f);
 
         private void OnConsoleCommand_powerglideforce(NotificationCenter.Notification n)
         {
@@ -70,22 +71,22 @@ namespace DWEquipmentBonanza.MonoBehaviours
             tool.powerGlideForce = powerSeaglideForce;
             MeshRenderer[] meshRenderers = tool.GetAllComponentsInChildren<MeshRenderer>();
             SkinnedMeshRenderer[] skinnedMeshRenderers = tool.GetAllComponentsInChildren<SkinnedMeshRenderer>();
-            Color powerGlideColour = new Color(PowerglideEquipable.PowerglideColourR, PowerglideEquipable.PowerglideColourG, PowerglideEquipable.PowerglideColourB);
 
             foreach (MeshRenderer mr in meshRenderers)
             {
                 // MeshRenderers have the third-person mesh, apparently?
                 if (mr.name.Contains("SeaGlide_01_TP"))
                 {
-                    mr.material.color = powerGlideColour;
+                    mr.material.color = PowerglideBehaviour.PowerGlideColour;
                 }
+                
             }
 
             foreach (SkinnedMeshRenderer smr in skinnedMeshRenderers)
             {
                 if (smr.name.Contains("SeaGlide_geo"))
                 {
-                    smr.material.color = powerGlideColour;
+                    smr.material.color = PowerglideBehaviour.PowerGlideColour;
                 }
             }
         }

@@ -78,6 +78,7 @@ namespace DWEquipmentBonanza
 		//internal static ReinforcedSurvivalSuit prefabReinforcedSurvivalSuit = new ReinforcedSurvivalSuit();
 		private static readonly Dictionary<string, TechType> ModTechTypes = new Dictionary<string, TechType>(StringComparer.OrdinalIgnoreCase);
 		private static readonly Dictionary<string, GameObject> ModPrefabs = new Dictionary<string, GameObject>(StringComparer.OrdinalIgnoreCase);
+		internal static readonly Dictionary<TechType, float> defaultHealth = new Dictionary<TechType, float>();
 
 		internal static List<string> _chipSlots = new List<string>();
 		internal static List<string> chipSlots
@@ -436,6 +437,8 @@ namespace DWEquipmentBonanza
 			harmony.PatchAll(myAssembly);
 		}
 
+
+
 		[QModPostPatch]
 		public static void PostPatch()
 		{
@@ -459,6 +462,40 @@ namespace DWEquipmentBonanza
 			//Batteries.PostPatch();
 			LanguageHandler.SetLanguageLine("SeamothWelcomeAboard", "Welcome aboard captain.");
 #endif
+			CoroutineHost.StartCoroutine(GetVehicleHealthValues());
+		}
+
+		internal static IEnumerator GetVehicleHealthValues()
+		{
+			foreach (TechType tt in new HashSet<TechType>() {
+			TechType.Exosuit,
+#if SUBNAUTICA_STABLE
+			TechType.Seamoth,
+			TechType.Cyclops,
+#elif BELOWZERO
+			TechType.SeaTruck,
+			TechType.Hoverbike
+#endif
+		})
+			{
+				GameObject prefab;
+
+				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(tt);
+				yield return task;
+
+				prefab = task.GetResult();
+				if (prefab != null)
+				{
+					LiveMixin mixin = prefab.GetComponent<LiveMixin>();
+					if (mixin?.data != null)
+					{
+						Main.defaultHealth.Add(tt, mixin.data.maxHealth);
+						Log.LogDebug($"For TechType {tt.AsString()}, got default health of {mixin.data.maxHealth}");
+					}
+				}
+			}
+
+			yield break;
 		}
 	}
 

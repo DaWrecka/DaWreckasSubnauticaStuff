@@ -15,15 +15,14 @@ namespace DWEquipmentBonanza.Patches
 		[HarmonyPostfix]
 		public static void PostStart(SeaMoth __instance)
 		{
-			if (__instance.gameObject != null && __instance.gameObject.TryGetComponent<LiveMixin>(out LiveMixin mixin))
+			if (__instance.gameObject != null && __instance.gameObject.TryGetComponent<LiveMixin>(out LiveMixin mixin) && Main.defaultHealth.TryGetValue(TechType.Seamoth, out float defaultHealth))
 			{
-				float defaultHealth = mixin.initialHealth;
 				float instanceHealthPct = Mathf.Min(mixin.GetHealthFraction(), 1f);
-				float maxHealth = defaultHealth;
-				maxHealth *= Main.config.SeaMothHealthMult;
+				float maxHealth = defaultHealth * Main.config.SeaMothHealthMult;
 
 				mixin.data.maxHealth = maxHealth;
 				mixin.health = maxHealth * instanceHealthPct;
+				mixin.initialHealth = defaultHealth;
 			}
 		}
 	}

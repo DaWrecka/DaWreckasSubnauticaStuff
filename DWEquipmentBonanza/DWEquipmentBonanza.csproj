@@ -2,6 +2,7 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\GameDir.targets" />
+  <Import Project="..\Configurations.targets" />
   <Import Project="..\References.targets" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -19,7 +20,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BZ|AnyCPU'">
     <OutputPath>$(SolutionDir)Qmods\BZ\DWEquipmentBonanza\</OutputPath>
   </PropertyGroup>
-  <Import Project="..\Configurations.targets" />
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Equipables\DiverPerimeterDefenceChip.cs" />
@@ -81,7 +81,11 @@
     <None Include="mod_BZ.json" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="CustomDataboxes">
+    <Reference Include="CustomDataboxes" Condition="$(Configuration.StartsWith('BZ')) Or $(Configuration.EndsWith('EXP'))">
+      <HintPath>$(GameDir)\QMods\CustomDataboxesBZ\CustomDataboxes.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="CustomDataboxes" Condition="$(Configuration.StartsWith('SN1'))">
       <HintPath>$(GameDir)\QMods\CustomDataboxes\CustomDataboxes.dll</HintPath>
       <Private>False</Private>
     </Reference>

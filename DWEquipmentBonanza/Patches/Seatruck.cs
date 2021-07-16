@@ -26,19 +26,10 @@ namespace DWEquipmentBonanza.Patches
 		[HarmonyPostfix]
 		public static void PostStart(ref SeaTruckMotor __instance)
 		{
-			if(__instance.gameObject != null && __instance.gameObject.TryGetComponent<LiveMixin>(out LiveMixin mixin))
+			if (__instance.gameObject != null && __instance.gameObject.TryGetComponent<LiveMixin>(out LiveMixin mixin) && Main.defaultHealth.TryGetValue(TechType.SeaTruck, out float defaultHealth))
 			{
-				float defaultHealth = mixin.defaultHealth;
 				float instanceHealthPct = Mathf.Min(mixin.GetHealthFraction(), 1f);
-				float maxHealth = defaultHealth;
-				if (__instance.gameObject.GetComponent<SeaTruckUpgrades>() != null)
-				{
-					maxHealth *= Main.config.SeatruckVehicleHealthMult;
-				}
-				else
-				{
-					maxHealth *= Main.config.SeatruckModulesHealthMult;
-				}
+				float maxHealth = defaultHealth * Main.config.SeatruckVehicleHealthMult;
 
 				mixin.data.maxHealth = maxHealth;
 				mixin.health = maxHealth * instanceHealthPct;

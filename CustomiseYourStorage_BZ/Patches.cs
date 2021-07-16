@@ -62,6 +62,7 @@ namespace CustomiseYourStorage_BZ.Patches
 				int y = Main.config.CyclopsHeight;
 				Logger.Log(Logger.Level.Debug, $"Setting Cyclops locker to size ({x}, {y})");
 				__instance.Resize(x, y);
+				return;
 			}
 #endif
 
@@ -206,7 +207,7 @@ namespace CustomiseYourStorage_BZ.Patches
 		{
 			int maxSalt = Main.config.FiltrationSalt;
 			int maxWater = Main.config.FiltrationWater;
-			Vector2int newContainerSize = new Vector2int(Main.config.FiltrationX, Main.config.FiltrationY);
+			Vector2int newContainerSize = new Vector2int(Main.config.FiltrationWidth, Main.config.FiltrationHeight);
 #if !RELEASE
 			Logger.Log(Logger.Level.Debug, $"Reconfiguring Filtration Machine {__instance.gameObject.name} with configuration values of: maxSalt {maxSalt}, maxWater {maxWater}, new size ({newContainerSize.x}, {newContainerSize.y})"); 
 #endif
