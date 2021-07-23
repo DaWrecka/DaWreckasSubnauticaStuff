@@ -38,7 +38,7 @@ namespace DWEquipmentBonanza.Patches
 				return;
 			}
 
-			Log.LogDebug($"ExosuitHUDPatches.PostUpdate() begin");
+			//Log.LogDebug($"ExosuitHUDPatches.PostUpdate() begin");
 
 			int charge;
 			//float capacity;
@@ -63,7 +63,7 @@ namespace DWEquipmentBonanza.Patches
 				__instance.textPower.text = IntStringCache.GetStringForInt(charge);
 				__instance.textPower.fontSize = (charge > 9999 ? 28 : 36);
 			}
-			Log.LogDebug($"ExosuitHUDPatches.PostUpdate() finish");
+			//Log.LogDebug($"ExosuitHUDPatches.PostUpdate() finish");
 		}
 	}
 
@@ -360,12 +360,24 @@ namespace DWEquipmentBonanza.Patches
 		[HarmonyPatch("Update")]
 		public static void PreUpdate(ref Exosuit __instance)
 		{
-			Log.LogDebug($"ExosuitPatches.PreUpdate() begin");
+			//Log.LogDebug($"ExosuitPatches.PreUpdate() begin");
 			if(__instance?.gameObject != null)
 				__instance.gameObject.EnsureComponent<ExosuitUpdater>().PreUpdate(__instance);
 			//Vector3 vector = AvatarInputHandler.main.IsEnabled() ? GameInput.GetMoveDirection() : Vector3.zero;
-			Log.LogDebug("ExosuitPatches.PreUpdate() end");
+			//Log.LogDebug("ExosuitPatches.PreUpdate() end");
 		}
+
+		[HarmonyPostfix]
+		[HarmonyPatch("Update")]
+		public static void PostUpdate(ref Exosuit __instance)
+		{
+			//Log.LogDebug($"ExosuitPatches.PostUpdate() begin");
+			if (__instance?.gameObject != null)
+				__instance.gameObject.EnsureComponent<ExosuitUpdater>().PostUpdate(__instance);
+			//Vector3 vector = AvatarInputHandler.main.IsEnabled() ? GameInput.GetMoveDirection() : Vector3.zero;
+			//Log.LogDebug("ExosuitPatches.PostUpdate() end");
+		}
+
 		/*
 			* Methods which may need to be patched to accomodate future plans:
 

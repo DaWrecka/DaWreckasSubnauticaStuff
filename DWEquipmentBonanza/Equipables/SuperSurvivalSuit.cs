@@ -10,8 +10,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using System.Reflection;
+using UWE;
 #if SUBNAUTICA_STABLE
-    using RecipeData = SMLHelper.V2.Crafting.TechData;
+using RecipeData = SMLHelper.V2.Crafting.TechData;
     using Sprite = Atlas.Sprite;
     using Object = UnityEngine.Object;
 #elif BELOWZERO
@@ -23,8 +25,10 @@ namespace DWEquipmentBonanza.Equipables
     {
         public SuperSurvivalSuit() : base("SuperSurvivalSuit", "Ultimate Survival Suit", "The ultimate in survival gear. Provides protection from extreme temperatures and physical harm, reduces the need for external sustenance, and dramatically improves the body's ability to retain water.")
         {
+            Log.LogDebug($"SuperSurvivalSuit(): constructor begin");
             OnFinishedPatching += () =>
             {
+                Log.LogDebug($"SuperSurvivalSuit(): OnFinishedPatching begin");
                 KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
                 compound.techType = this.TechType;
                 compound.dependencies = new List<TechType>()
@@ -41,7 +45,7 @@ namespace DWEquipmentBonanza.Equipables
 
 #if SUBNAUTICA_STABLE
                 Main.AddSubstitution(this.TechType, TechType.RadiationSuit);
-                Main.NitroAddDiveSuit?.Invoke(null, new object[] { this.TechType, 8000f, 0.55f, 35f });
+                Main.AddDiveSuit(this.TechType, 8000f, 0.55f, 35f);
                 Log.LogDebug($"Finished patching {this.TechType.AsString()}");
                 Main.DamageResistances[this.TechType] = new List<Main.DamageInfo>()
                 {
@@ -60,37 +64,27 @@ namespace DWEquipmentBonanza.Equipables
                 // the SurvivalSuit constructor will call AddModTechType already.
                 // It has also been set up to add substitutions based on the value of the 'substitutions' property below,
                 // as well as set up CompoundTech based on the value of CompoundDependencies
+                Log.LogDebug($"SuperSurvivalSuit(): OnFinishedPatching end");
             };
+            Log.LogDebug($"SuperSurvivalSuit(): constructor end");
         }
 
         public override TechType RequiredForUnlock => TechType.Unobtanium;
         public override EquipmentType EquipmentType => EquipmentType.Body;
-        protected override float SurvivalCapOverride
-        {
-            get
-            {
-                return 200f;
-            }
-        }
+        [Obsolete]
+        protected override float SurvivalCapOverride => 200f;
+#if BELOWZERO
+        protected override TechType prefabTechType => TechType.ColdSuit;
+#endif
 
-        protected override TechType[] substitutions
-        {
-            get
-            {
-                return new TechType[] {
+        protected override TechType[] substitutions => new TechType[] {
 #if BELOWZERO
                     TechType.ColdSuit,
 #endif
                     TechType.ReinforcedDiveSuit
                 };
-            }
-        }
 
-        protected override List<TechType> CompoundDependencies
-        {
-            get
-            {
-                return new List<TechType>()
+        protected override List<TechType> CompoundDependencies => new List<TechType>()
                 {
                     TechType.ReinforcedDiveSuit,
                     TechType.Stillsuit,
@@ -100,8 +94,6 @@ namespace DWEquipmentBonanza.Equipables
                     TechType.ColdSuit,
 #endif
                 };
-            }
-        }
 
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
         public override string[] StepsToFabricatorTab => new string[] { "BodyMenu" };
@@ -131,8 +123,6 @@ namespace DWEquipmentBonanza.Equipables
                     new Ingredient(Main.GetModTechType("SurvivalSuit"), 1),
 #if SUBNAUTICA_STABLE
                     new Ingredient(Main.GetModTechType("AcidSuit"), 1),
-                    new Ingredient(TechType.RadiationSuit, 1),
-                    new Ingredient(Main.GetModTechType("AcidGloves"), 1)
 #elif BELOWZERO
                     new Ingredient(TechType.ReinforcedDiveSuit, 1),
                     new Ingredient(TechType.ColdSuit, 1),
@@ -157,49 +147,77 @@ namespace DWEquipmentBonanza.Equipables
 #endif
         }
 
-#if SUBNAUTICA_STABLE
-        public override GameObject GetGameObject()
+        /*public override GameObject GetGameObject()
         {
+            Log.LogDebug($"SuperSurvivalSuit.GetGameObject(): begin");
             if (prefab == null)
             {
+                Log.LogDebug($"SuperSurvivalSuit.GetGameObject(): caching new prefab");
                 prefab = InstantiateAndModifyGameObject(CraftData.GetPrefabForTechType(TechType.Stillsuit));
             }
+            else
+            {
+                Log.LogDebug($"SuperSurvivalSuit.GetGameObject(): using existing prefab");
+            }
 
+            Log.LogDebug($"SuperSurvivalSuit.GetGameObject(): done");
             return prefab;
         }
 
-#elif BELOWZERO
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
+            MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
             Stillsuit s;
             if (prefab == null)
             {
+                Log.LogDebug("SuperSurvivalSuit.GetGameObjectAsync(): Caching new prefab");
+#if SUBNAUTICA_STABLE
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.Stillsuit, verbose: true);
+#elif BELOWZERO
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuit, verbose: true);
+#endif
                 yield return task;
 
                 prefab = InstantiateAndModifyGameObject(task.GetResult());
+            }
+            else
+            {
+                Log.LogDebug("SuperSurvivalSuit.GetGameObjectAsync(): Using existing prefab");
             }
 
             GameObject go = GameObject.Instantiate(prefab);
             if(go.TryGetComponent<Stillsuit>(out s))
                 GameObject.DestroyImmediate(s);
             gameObject.Set(go);
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
         }
-#endif
 
         private GameObject InstantiateAndModifyGameObject(GameObject thisPrefab)
         {
+            MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
             GameObject obj = GameObject.Instantiate(thisPrefab);
+            Log.LogDebug($"SuperSurvivalSuit.InstantiateAndModifyGameObject(): prefab instantiated, modifying");
             // Editing prefab
+#if SUBNAUTICA_STABLE
+            Stillsuit s = obj.GetComponent<Stillsuit>();
+            if(s != null)
+#elif BELOWZERO
             if (obj.TryGetComponent<Stillsuit>(out Stillsuit s))
+#endif
                 GameObject.DestroyImmediate(s);
             obj.EnsureComponent<SurvivalsuitBehaviour>();
-            ModPrefabCache.AddPrefab(obj, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
+            Log.LogDebug($"SuperSurvivalSuit.InstantiateAndModifyGameObject(): prefab modified, invoking ModPrefabCache.AddPrefab()");
+            ModPrefabCache.AddPrefab(obj); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
 
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
             return obj;
-        }
+        }*/
     }
 
+#if SUBNAUTICA_STABLE
+#elif BELOWZERO
     internal abstract class SurvivalSuitBlueprint : Craftable
     {
         public SurvivalSuitBlueprint(string classId) : base(classId,
@@ -220,8 +238,6 @@ namespace DWEquipmentBonanza.Equipables
         }
     }
 
-#if SUBNAUTICA_STABLE
-#elif BELOWZERO
     internal class SurvivalSuitBlueprint_FromReinforcedSurvival : SurvivalSuitBlueprint
     {
         public SurvivalSuitBlueprint_FromReinforcedSurvival() : base("SurvivalSuitBlueprint_FromReinforcedSurvival")

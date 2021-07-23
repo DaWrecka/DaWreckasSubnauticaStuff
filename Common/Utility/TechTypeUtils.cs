@@ -13,6 +13,7 @@ namespace Common
 
 		internal static void AddModTechType(TechType tech, GameObject prefab = null)
 		{
+			Log.LogDebug($"Adding mod TechType {tech.AsString()}");
 			string key = tech.AsString(true);
 			if (!ModTechTypes.ContainsKey(key))
 			{

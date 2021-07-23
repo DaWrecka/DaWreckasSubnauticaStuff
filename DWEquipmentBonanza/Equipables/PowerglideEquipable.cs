@@ -13,6 +13,7 @@ using UWE;
 using Logger = QModManager.Utility.Logger;
 using FMODUnity;
 using DWEquipmentBonanza.Patches;
+using Common;
 #if SUBNAUTICA_STABLE
 using RecipeData = SMLHelper.V2.Crafting.TechData;
 using Sprite = Atlas.Sprite;
@@ -90,12 +91,15 @@ namespace DWEquipmentBonanza.Equipables
 #if SUBNAUTICA_STABLE
 		public override GameObject GetGameObject()
         {
-			if (prefab == null)
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin"); if (prefab == null)
 			{
 				prefab = CraftData.InstantiateFromPrefab(TechType.Seaglide);
 				prefab.EnsureComponent<PowerglideBehaviour>();
 				ModPrefabCache.AddPrefab(prefab, false);
 			}
+
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
 
 			return prefab;
         }

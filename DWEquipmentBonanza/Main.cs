@@ -36,7 +36,7 @@ namespace DWEquipmentBonanza
 	public class Main
 	{
 		internal static bool bVerboseLogging = true;
-		internal static bool bLogTranspilers = false;
+		internal static bool bLogTranspilers = true;
 		internal const string version = "0.8.0.3";
 		public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
 		public static List<string> playerSlots = new List<string>()
@@ -99,7 +99,7 @@ namespace DWEquipmentBonanza
 		internal static readonly string AssetsFolder = Path.Combine(modPath, "Assets");
 
 		private static readonly Type NitrogenMain = Type.GetType("NitrogenMod.Main, NitrogenMod", false, false);
-		internal static readonly MethodInfo NitroAddDiveSuit = NitrogenMain?.GetMethod("AddDiveSuit", BindingFlags.Public | BindingFlags.Static);
+		private static readonly MethodInfo NitroAddDiveSuit = NitrogenMain?.GetMethod("AddDiveSuit", BindingFlags.Public | BindingFlags.Static);
 		internal static readonly Texture2D glovesTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesskin.png"));
 		internal static readonly Texture2D suitTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitskin.png"));
 		internal static readonly Texture2D glovesIllumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesillum.png"));
@@ -136,6 +136,11 @@ namespace DWEquipmentBonanza
 			return TechTypeUtils.GetModTechType(key);
 		}
 
+		public static void AddDiveSuit(TechType diveSuit, float depth, float breathMultiplier = 1f, float minTempBonus = 0f)
+		{
+			NitroAddDiveSuit?.Invoke(null, new object[] { diveSuit, depth, breathMultiplier, minTempBonus });
+		}
+			
 		internal static GameObject GetModPrefab(string key)
 		{
 			return TechTypeUtils.GetModPrefab(key);
@@ -199,7 +204,7 @@ namespace DWEquipmentBonanza
 		// For example, you could add a chip that projects a sort of shield that protects from environmental damage, such as Acid, Radiation, Heat, Poison, or others.
 		// Although the system would need to be extended to allow, say, a shield that drains a battery when resisting damage.
 		//Interfaces would be the way I think, but I've not yet wrapped my brain around that.
-		// BZ has a DamageModifier component available that does basically this.
+		// BZ has a DamageModifier component available that does basically this, but it's unclear to what extent, if any, it works in SN1.
 		internal static Dictionary<TechType, List<DamageInfo>> DamageResistances = new Dictionary<TechType, List<DamageInfo>>();
 		public static float ModifyDamage(TechType tt, float damage, DamageType type)
 		{
@@ -238,10 +243,11 @@ namespace DWEquipmentBonanza
 #if SUBNAUTICA_STABLE
 			Log.LogDebug("Checking for Nitrogen mod");
 			bool bHasN2 = QModServices.Main.ModPresent("NitrogenMod");
-			string sStatus = "Nitrogen mod " + (bHasN2 ? "" : "not ") + "present";
-			Log.LogDebug(sStatus);
+			//string sStatus = "Nitrogen mod " + (bHasN2 ? "" : "not ") + "present";
+			Log.LogDebug("Nitrogen mod " + (bHasN2 ? "" : "not ") + "present");
 
 #elif BELOWZERO
+			// We're going to try and remove crafting nodes from the root of the workbench menu and move them into tabs.
 			// Knives
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "KnifeUpgrades", "Knife Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_knifemenu"));
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HeatBlade" });
@@ -284,11 +290,6 @@ namespace DWEquipmentBonanza
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.ExoHullModule2, new string[] { "ExoUpgrades" });
 
 			// Now our custom stuff
-			/*
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "DPDTier1", "Diver Perimeter Defence Chip", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal", "ChipRecharge" });
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "DPDTier2", "Diver Perimeter Defence Chip Mk2", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal", "ChipRecharge" });
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "DPDTier3", "Diver Perimeter Defence Chip Mk3", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal", "ChipRecharge" });
-			*/
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Machines", "HoverbikeSilentModule" });
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Machines", "HoverbikeJumpModule" });
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.HoverbikeIceWormReductionModule, new string[] { "Upgrades", "HoverbikeUpgrades" });
@@ -301,18 +302,13 @@ namespace DWEquipmentBonanza
 
 			var prefabs = new List<Spawnable>() {
 				//new ExosuitLightningClawPrefab(),
-				new ExosuitLightningClawGeneratorModule(),
-				new PowerglideFragmentPrefab(),
-				new SurvivalSuit(),
-				new PowerglideEquipable(),
-				new ReinforcedSurvivalSuit(),
 #if SUBNAUTICA_STABLE
-                new AcidSuit(),
                 new AcidGloves(),
-                new AcidHelmet(),
+				new AcidHelmet(),
+				new AcidSuit(),
                 //new Blueprint_Suits(),
 #elif BELOWZERO
-			new InsulatedRebreather(),
+				new InsulatedRebreather(),
 				new ReinforcedColdSuit(),
 				new ReinforcedColdGloves(),
 				new HighCapacityBooster(),
@@ -329,9 +325,14 @@ namespace DWEquipmentBonanza
 				//new SurvivalSuitBlueprint_BaseSuits(),
 				new DiverPerimeterDefenceChip_Broken(),
 				new DiverPerimeterDefenceChipItem(),
-				new DiverDefenceSystemMk2(),
-				new DiverDefenceMk2_FromBrokenChip(),
-				new DiverDefenceSystemMk3()
+				//new DiverDefenceSystemMk2(),
+				//new DiverDefenceMk2_FromBrokenChip(),
+				//new DiverDefenceSystemMk3()
+				new PowerglideFragmentPrefab(),
+				new SurvivalSuit(),
+				new PowerglideEquipable(),
+				new ReinforcedSurvivalSuit(),
+				new ExosuitLightningClawGeneratorModule(),
 			};
 
 
@@ -379,15 +380,6 @@ namespace DWEquipmentBonanza
 				SecondaryDescription = PowerglideEquipable.description,
 				TechTypeToUnlock = GetModTechType("PowerglideEquipable"),
 #if SUBNAUTICA_STABLE
-				/*BiomesToSpawnIn = new List<LootDistributionData.BiomeData>()
-				{
-					new LootDistributionData.BiomeData()
-					{
-						biome = BiomeType.Dunes_TechSite,
-						count = 1,
-						probability = 0.1f
-					}
-				},*/
 				CoordinatedSpawns = new List<Spawnable.SpawnLocation>()
 				{
 					new Spawnable.SpawnLocation(new Vector3(-1407.51f, -332.47f, 740.66f), new Vector3(6.93f, 275.67f, 0.00f)),
@@ -492,6 +484,14 @@ namespace DWEquipmentBonanza
 						Main.defaultHealth.Add(tt, mixin.data.maxHealth);
 						Log.LogDebug($"For TechType {tt.AsString()}, got default health of {mixin.data.maxHealth}");
 					}
+					else
+					{
+						Log.LogDebug($"Failed to get LiveMixin for TechType {tt.AsString()}");
+					}
+				}
+				else
+				{
+					Log.LogDebug($"Failed to get prefab for TechType {tt.AsString()}");
 				}
 			}
 

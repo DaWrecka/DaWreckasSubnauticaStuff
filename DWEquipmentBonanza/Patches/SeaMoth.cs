@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Common;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace DWEquipmentBonanza.Patches
 		[HarmonyPostfix]
 		public static void PostStart(SeaMoth __instance)
 		{
+			Log.LogDebug("SeaMothPatches.PostStart() begin");
 			if (__instance.gameObject != null && __instance.gameObject.TryGetComponent<LiveMixin>(out LiveMixin mixin) && Main.defaultHealth.TryGetValue(TechType.Seamoth, out float defaultHealth))
 			{
 				float instanceHealthPct = Mathf.Min(mixin.GetHealthFraction(), 1f);
@@ -24,6 +26,7 @@ namespace DWEquipmentBonanza.Patches
 				mixin.health = maxHealth * instanceHealthPct;
 				mixin.initialHealth = defaultHealth;
 			}
+			Log.LogDebug("SeaMothPatches.PostStart() end");
 		}
 	}
 #endif

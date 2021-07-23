@@ -17,7 +17,7 @@ namespace CombinedItems.Patches
 		[HarmonyPatch(nameof(DamageSystem.CalculateDamage))]
 		public static float Postfix(float damage, DamageType type, GameObject target, GameObject dealer = null)
 		{
-			Log.LogDebug($"DamageSystem_CalculateDamage_Patch.Postfix executing: parameters (damage = {damage}, DamageType = {type})");
+			//Log.LogDebug($"DamageSystem_CalculateDamage_Patch.Postfix executing: parameters (damage = {damage}, DamageType = {type})");
 
 			float baseDamage = damage;
 			float newDamage = damage;

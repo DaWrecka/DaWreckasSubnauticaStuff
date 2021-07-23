@@ -202,13 +202,13 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 			Equipment e = Inventory.main.equipment;
 			e.RemoveItem(thisPickup != null ? thisPickup : gameObject.GetComponent<Pickupable>());
-			TaskResult<GameObject> result = new TaskResult<GameObject>();
-			yield return AddInventoryAsync(Main.GetModTechType(brokenTechString), result);
+			//TaskResult<GameObject> result = new TaskResult<GameObject>();
+			yield return AddInventoryAsync(Main.GetModTechType(brokenTechString)); //, result);
 			GameObject.Destroy(gameObject);
 			yield break;
 		}
 
-		protected IEnumerator AddInventoryAsync(TechType techType, IOut<GameObject> result)
+		protected IEnumerator AddInventoryAsync(TechType techType, IOut<GameObject> result = null)
 		{
 #if SUBNAUTICA_STABLE
 			GameObject go = CraftData.InstantiateFromPrefab(techType, false);
@@ -218,7 +218,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 			GameObject go = instResult.Get();
 #endif
-			Pickupable component = (go != null ? go.GetComponent<Pickupable>() : null);
+			Pickupable component = go?.GetComponent<Pickupable>();
 			if (component != null)
 				Inventory.main.ForcePickup(component);
 			else
@@ -226,7 +226,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				Log.LogError($"DiverPerimeterDefenceBehaviour.AddInventoryAsync(): Failed to instantiate inventory item for TechType {techType.AsString()}");
 			}
 
-			result.Set(go);
+			if(result != null)
+				result.Set(go);
 			yield break;
 		}
 
@@ -240,7 +241,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 			//IBattery component = result.Get().GetComponent<IBattery>();
 
-			if (result.Get().TryGetComponent<IBattery>(out IBattery component))
+			GameObject resultObject = result.Get();
+			if (resultObject != null && resultObject.TryGetComponent<IBattery>(out IBattery component))
 			{
 				if (setCharge == 0f)
 					component.charge = 0f;
@@ -291,15 +293,19 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		public string GetChargeValueText()
 		{
+			Log.LogDebug("DiverPerimeterDefenceBehaviour.GetChargeValueText() begin");
+
 			int numShots = Mathf.FloorToInt(this._charge / JuicePerDischarge);
 			int maxShots = Mathf.FloorToInt(this.capacity / JuicePerDischarge);
 			float num = numShots / maxShots;
 			//return Language.main.GetFormat<string, float, int, float>("BatteryCharge", ColorUtility.ToHtmlStringRGBA(gradient.Evaluate(num)), num, numShots, maxShots);
+			Log.LogDebug("DiverPerimeterDefenceBehaviour.GetChargeValueText() ending");
 			return Language.main.GetFormat<string, float, int, int>("<color=#{0}>{1,4}u ({2}/{3})</color>", ColorUtility.ToHtmlStringRGBA(gradient.Evaluate(num)), Mathf.Floor(this.charge), numShots, maxShots);
 		}
 
 		public string GetInventoryDescription()
 		{
+			Log.LogDebug("DiverPerimeterDefenceBehaviour.GetInventoryDescription() begin");
 			string arg0 = ""; // "Diver Perimeter Defence Chip";
 			string arg1 = ""; // "Protects a diver from hostile fauna using electrical discouragement. Discharge damages the chip beyond repair.";
 			if (this.techType != TechType.None)

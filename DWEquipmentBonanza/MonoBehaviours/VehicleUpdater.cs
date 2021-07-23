@@ -42,7 +42,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
         internal virtual void Update(Vehicle instance = null) { }
 
-        internal virtual void PostUpdate() { }
+        internal virtual void PostUpdate(Vehicle instance = null) { }
 
         internal virtual void PostOverrideAcceleration(ref Vector3 acceleration) { }
 

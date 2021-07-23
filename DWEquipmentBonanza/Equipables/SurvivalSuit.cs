@@ -30,31 +30,13 @@ namespace DWEquipmentBonanza.Equipables
         }
 
         public override Vector2int SizeInInventory => new Vector2int(2, 3);
-        protected virtual float SurvivalCapOverride
-        {
-            get
-            {
-                return 150f;
-            }
-        }
 
-        protected virtual TechType[] substitutions
-        {
-            get
-            {
-                return new TechType[] { TechType.Stillsuit };
-            }
-        }
-
+        [Obsolete]
+        protected virtual float SurvivalCapOverride => 150f;
+        protected virtual TechType[] substitutions => new TechType[] { TechType.Stillsuit };
+        protected virtual TechType prefabTechType => TechType.Stillsuit;
+        protected virtual List<TechType> CompoundDependencies => new List<TechType>();
         protected static GameObject prefab;
-
-        protected virtual List<TechType> CompoundDependencies
-        {
-            get
-            {
-                return new List<TechType>();
-            }
-        }
 
         protected virtual void OnFinishedPatch()
         {
@@ -76,24 +58,57 @@ namespace DWEquipmentBonanza.Equipables
             //SurvivalPatches.AddNeedsCapOverride(this.TechType, SurvivalCapOverride);
         }
 
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+#if SUBNAUTICA_STABLE
+        public override GameObject GetGameObject()
         {
+            System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
             if (prefab == null)
             {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.Stillsuit, verbose: true);
+                prefab = PrepareGameObject(CraftData.GetPrefabForTechType(prefabTechType));
+            }
+
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
+            return prefab;
+        }
+#endif
+
+        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+            System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
+            if (prefab == null)
+            {
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTechType, verbose: true);
                 yield return task;
 
-                prefab = GameObject.Instantiate(task.GetResult());
-
-                // Editing prefab
-                GameObject.DestroyImmediate(prefab.GetComponent<Stillsuit>());
-                prefab.EnsureComponent<SurvivalsuitBehaviour>();
-
-                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
+                prefab = PrepareGameObject(task.GetResult());
             }
 
             GameObject go = GameObject.Instantiate(prefab);
             gameObject.Set(go);
+
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
+            yield break;
+        }
+
+        protected virtual GameObject PrepareGameObject(GameObject prefab)
+        {
+            System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
+            GameObject obj = GameObject.Instantiate<GameObject>(prefab);
+
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: Editing prefab");
+            Stillsuit s = obj.GetComponent<Stillsuit>();
+            if(s != null)
+                GameObject.DestroyImmediate(s);
+            obj.EnsureComponent<SurvivalsuitBehaviour>();
+
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: invoking ModPrefabCache.AddPrefab()");
+            //ModPrefabCache.AddPrefab(obj, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
+
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
+            return obj;
         }
     }
 

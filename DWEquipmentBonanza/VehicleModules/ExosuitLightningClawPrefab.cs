@@ -15,6 +15,7 @@ using Logger = QModManager.Utility.Logger;
 namespace DWEquipmentBonanza.VehicleModules
 {
 #if BELOWZERO
+    /*
     internal class ExosuitLightningClawPrefab : Equipable
     {
         public override EquipmentType EquipmentType => EquipmentType.ExosuitArm;
@@ -35,15 +36,15 @@ namespace DWEquipmentBonanza.VehicleModules
             {
                 // Disabled this in favour of the Lightning Claw Generator Module, which augments the standard claw.
 
-                /*craftAmount = 1,
-                Ingredients = new List<Ingredient>(new Ingredient[]
-                    {
-                        new Ingredient(TechType.Polyaniline, 1),
-                        new Ingredient(TechType.WiringKit, 1),
-                        new Ingredient(TechType.Battery, 1),
-                        new Ingredient(TechType.AluminumOxide, 1)
-                    }
-                )*/
+                //craftAmount = 1,
+                //Ingredients = new List<Ingredient>(new Ingredient[]
+                //    {
+                //        new Ingredient(TechType.Polyaniline, 1),
+                //        new Ingredient(TechType.WiringKit, 1),
+                //        new Ingredient(TechType.Battery, 1),
+                //        new Ingredient(TechType.AluminumOxide, 1)
+                //    }
+                //)
             };
         }
 
@@ -133,5 +134,6 @@ namespace DWEquipmentBonanza.VehicleModules
             };
         }
     }
+    */
 #endif
 }

@@ -55,11 +55,13 @@ namespace DWEquipmentBonanza.Spawnables
 #if SUBNAUTICA_STABLE
         public override GameObject GetGameObject()
         {
-            if (processedPrefab == null)
+            System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin"); if (processedPrefab == null)
             {
                 processedPrefab = ModifyInstantiatedPrefab(CraftData.InstantiateFromPrefab(TechType.SeaglideFragment));
             }
 
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
             return processedPrefab;
         }
 #elif BELOWZERO
@@ -107,12 +109,12 @@ namespace DWEquipmentBonanza.Spawnables
                 }
             }
 
-            PrefabIdentifier prefabIdentifier = prefab.GetComponent<PrefabIdentifier>();
+            PrefabIdentifier prefabIdentifier = prefab.EnsureComponent<PrefabIdentifier>();
             prefabIdentifier.ClassId = this.ClassID;
-            prefab.GetComponent<LargeWorldEntity>().cellLevel = LargeWorldEntity.CellLevel.VeryFar;
+            prefab.EnsureComponent<LargeWorldEntity>().cellLevel = LargeWorldEntity.CellLevel.VeryFar;
             prefab.EnsureComponent<TechTag>().type = this.TechType;
 
-            Pickupable pickupable = prefab.GetComponent<Pickupable>();
+            Pickupable pickupable = prefab.EnsureComponent<Pickupable>();
             pickupable.isPickupable = false;
 
             ResourceTracker resourceTracker = prefab.EnsureComponent<ResourceTracker>();

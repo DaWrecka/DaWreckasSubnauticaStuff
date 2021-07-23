@@ -31,7 +31,6 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			{
 				parentVehicle = vehicle;
 				defaultForwardForce = vehicle.forwardForce;
-				Log.LogDebug($"ExosuitUpdater.Initialise(): Found Exosuit with forwardForce of {defaultForwardForce}");
 			}
 		}
 
@@ -66,13 +65,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			return 1f;
 		}
 
-		internal override void PreUpdate(Vehicle __instance = null)
+		internal override void PostUpdate(Vehicle __instance = null)
 		{
-			Log.LogDebug("ExosuitUpdater.PreUpdate() begin");
 			if (parentVehicle == null)
 				parentVehicle = __instance;
 
-			if (parentVehicle is Exosuit parentExosuit)
+			if (parentVehicle is Exosuit parentExosuit && Player.main.currentMountedVehicle == parentExosuit)
 			{
 				lastMoveDirection = AvatarInputHandler.main.IsEnabled() ? GameInput.GetMoveDirection() : Vector3.zero;
 
@@ -80,11 +78,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				//float forceMultiplier = 1f * (bExosuitSprint ? (bJetsUpgraded ? 2.5f : 2f) : 1f); // These constants will likely be tweaked, but they're here for testing
 				float forceMultiplier = GetForceMultiplier(bExosuitSprint, ExosuitPatches.ExosuitIsJumping(parentExosuit, lastMoveDirection) && parentExosuit.IsUnderwater());
 				parentVehicle.forwardForce = defaultForwardForce * forceMultiplier;
-				//if(forceMultiplier != fLastForce)
-				//    Log.LogDebug($"ExosuitUpdater.PostUpdate(): Applying forwardForce of {parentVehicle.forwardForce} to Exosuit with defaultForwardForce of {defaultForwardForce}");
 				fLastForce = forceMultiplier;
 			}
-			Log.LogDebug("ExosuitUpdater.PreUpdate() end");
 		}
 
 		internal override void PostOverrideAcceleration(ref Vector3 acceleration)

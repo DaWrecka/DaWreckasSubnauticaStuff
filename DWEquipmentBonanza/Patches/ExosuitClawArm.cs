@@ -38,10 +38,16 @@ namespace DWEquipmentBonanza.Patches
 		{
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 			MethodInfo inflictDamageMethod = typeof(ExosuitClawArmPatches).GetMethod(nameof(ExosuitClawArmPatches.InflictDamage));
+			MethodInfo takeDamageMethod = typeof(LiveMixin).GetMethod(nameof(LiveMixin.TakeDamage));
 
 			if(inflictDamageMethod == null)
 			{
 				throw new Exception("InflictDamage method could not be retrieved!");
+			}
+
+			if (takeDamageMethod == null)
+			{
+				throw new Exception("LiveMixin.TakeDamage could not be retrieved!");
 			}
 
 			int i = -1;
@@ -58,16 +64,17 @@ namespace DWEquipmentBonanza.Patches
 
 			while (++i < maxIndex)
 			{
-				 //Our target pattern is as follows:
-					// IL_00a3: ldloc.s 5
-					// IL_00a5: ldc.r4 50
-					// IL_00aa: ldloc.1
-					// IL_00ab: ldc.i4.0
-					// IL_00ac: ldnull
-					// IL_00ad: callvirt instance bool LiveMixin::TakeDamage(float32, valuetype [UnityEngine.CoreModule]UnityEngine.Vector3, valuetype DamageType, class [UnityEngine.CoreModule]UnityEngine.GameObject)
+				//Our target pattern is as follows:
+				// IL_00a3: ldloc.s 5
+				// IL_00a5: ldc.r4 50
+				// IL_00aa: ldloc.1
+				// IL_00ab: ldc.i4.0
+				// IL_00ac: ldnull
+				// IL_00ad: callvirt instance bool LiveMixin::TakeDamage(float32, valuetype [UnityEngine.CoreModule]UnityEngine.Vector3, valuetype DamageType, class [UnityEngine.CoreModule]UnityEngine.GameObject)
 
 				//The call is all we need to change; the rest of the stuff is just so we know we're targetting the *right* call.
 
+				/*
 				if (codes[i].opcode == OpCodes.Ldloc_S			// IL_00a3: ldloc.s 5
 					&& codes[i + 1].opcode == OpCodes.Ldc_R4	// IL_00a5: ldc.r4 50
 					&& codes[i + 2].opcode == OpCodes.Ldloc_1	// IL_00aa: ldloc.1
@@ -77,6 +84,13 @@ namespace DWEquipmentBonanza.Patches
 					)
 				{
 					codes[i + 5] = new CodeInstruction(OpCodes.Callvirt, inflictDamageMethod);
+					break;
+				}*/
+
+				// ^^^^ That was the old method. This is the new approach.
+				if (codes[i].Calls(takeDamageMethod))
+				{
+					codes[i] = new CodeInstruction(OpCodes.Call, inflictDamageMethod);
 					break;
 				}
 			}

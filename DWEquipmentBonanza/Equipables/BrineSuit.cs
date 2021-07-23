@@ -18,9 +18,11 @@ using Object = UnityEngine.Object;
 
 namespace DWEquipmentBonanza
 {
+#if SUBNAUTICA_STABLE
     internal class AcidGloves : Equipable
     {
         private static Sprite itemSprite;
+        private static GameObject prefab;
 
         public override EquipmentType EquipmentType => EquipmentType.Gloves;
 
@@ -28,22 +30,32 @@ namespace DWEquipmentBonanza
 
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
 
-
-#if SUBNAUTICA_STABLE
         public override GameObject GetGameObject()
         {
-            var prefab = CraftData.GetPrefabForTechType(TechType.ReinforcedGloves);
-            return ModifyAndInstantiateGameObject(prefab);
+            System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
+            if (prefab == null)
+            {
+                prefab = ModifyAndInstantiateGameObject(CraftData.GetPrefabForTechType(TechType.ReinforcedGloves));
+            }
+
+
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
+            return prefab;
         }
-#elif BELOWZERO
+
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
-            CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ReinforcedGloves);
-            yield return task;
+            if (prefab == null)
+            {
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ReinforcedGloves);
+                yield return task;
 
-            gameObject.Set(ModifyAndInstantiateGameObject(task.GetResult()));
+                prefab = ModifyAndInstantiateGameObject(task.GetResult());
+            }
+
+            gameObject.Set(prefab);
         }
-#endif
 
         protected GameObject ModifyAndInstantiateGameObject(GameObject prefab)
         {
@@ -104,13 +116,15 @@ namespace DWEquipmentBonanza
         public static Texture2D texture;
         public static Texture2D illumTexture;
         private static Sprite itemSprite;
+        private static GameObject prefab;
 
         public AcidHelmet() : base("AcidHelmet", "Brine Helmet", "Rebreather treated with an acid-resistant layer")
         {
-            OnStartedPatching += () =>
+            OnFinishedPatching += () =>
             {
                 TechTypeUtils.AddModTechType(this.TechType);
-                EquipmentPatch.AddSubstitutions(this.TechType, new HashSet<TechType>() { TechType.Rebreather, TechType.RadiationHelmet });
+                EquipmentPatch.AddSubstitution(this.TechType, TechType.Rebreather);
+                EquipmentPatch.AddSubstitution(this.TechType, TechType.RadiationHelmet);
                 texture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetskin.png"));
                 illumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetillum.png"));
             };
@@ -122,20 +136,30 @@ namespace DWEquipmentBonanza
 
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
 
-#if SUBNAUTICA_STABLE
         public override GameObject GetGameObject()
         {
-            var prefab = CraftData.GetPrefabForTechType(TechType.ReinforcedGloves);
-            return ModifyAndInstantiateGameObject(prefab);
+            System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
+            if (prefab == null)
+            {
+                prefab = ModifyAndInstantiateGameObject(CraftData.GetPrefabForTechType(TechType.ReinforcedGloves));
+            }
+
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
+            return prefab;
         }
-#endif
 
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
-            CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ReinforcedGloves);
-            yield return task;
+            if (prefab == null)
+            {
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ReinforcedGloves);
+                yield return task;
 
-            gameObject.Set(ModifyAndInstantiateGameObject(task.GetResult()));
+                prefab = ModifyAndInstantiateGameObject(task.GetResult());
+            }
+
+            gameObject.Set(prefab);
         }
 
         protected GameObject ModifyAndInstantiateGameObject(GameObject prefab)
@@ -179,6 +203,7 @@ namespace DWEquipmentBonanza
     internal class AcidSuit : Equipable
     {
         private static Sprite itemSprite;
+        private static GameObject prefab;
 
         public AcidSuit(string classId = "AcidSuit", string friendlyName = "Brine Suit", string description = "Reinforced dive suit with an acid-resistant layer") : base(classId, friendlyName, description)
         {
@@ -186,12 +211,22 @@ namespace DWEquipmentBonanza
             {
                 TechTypeUtils.AddModTechType(this.TechType);
                 EquipmentPatch.AddSubstitutions(this.TechType, new HashSet<TechType>() { TechType.RadiationSuit, TechType.ReinforcedDiveSuit });
+                Main.AddDiveSuit(this.TechType, 800f, 0.85f, 15f);
+                KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
+                compound.techType = this.TechType;
+                compound.dependencies = new List<TechType>()
+                {
+                    TechType.ReinforcedDiveSuit,
+                    TechType.RadiationSuit
+                };
+                Reflection.AddCompoundTech(compound);
             };
         }
+        protected virtual float maxDepth => 800f;
 
         public override EquipmentType EquipmentType => EquipmentType.Body;
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
-        public override TechType RequiredForUnlock => TechType.ReinforcedDiveSuit;
+        public override TechType RequiredForUnlock => TechType.Unobtanium;
         public override TechGroup GroupForPDA => TechGroup.Personal;
         public override TechCategory CategoryForPDA => TechCategory.Equipment;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;
@@ -201,17 +236,30 @@ namespace DWEquipmentBonanza
 #if SUBNAUTICA_STABLE
         public override GameObject GetGameObject()
         {
-            var prefab = CraftData.GetPrefabForTechType(TechType.ReinforcedGloves);
-            return ModifyAndInstantiateGameObject(prefab);
+            System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
+            if (prefab == null)
+            {
+                prefab = ModifyAndInstantiateGameObject(CraftData.GetPrefabForTechType(TechType.ReinforcedGloves));
+            }
+
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
+
+            return prefab;
         }
 #endif
 
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
-            CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ReinforcedGloves);
-            yield return task;
+            if (prefab == null)
+            {
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ReinforcedGloves);
+                yield return task;
 
-            gameObject.Set(ModifyAndInstantiateGameObject(task.GetResult()));
+                prefab = ModifyAndInstantiateGameObject(task.GetResult());
+            }
+
+            gameObject.Set(prefab);
         }
 
         protected GameObject ModifyAndInstantiateGameObject(GameObject prefab)
@@ -262,7 +310,7 @@ namespace DWEquipmentBonanza
                     new Ingredient(TechType.Lead, 2),
                     new Ingredient(TechType.WiringKit, 1)*/
                     new Ingredient(TechType.HydrochloricAcid, 1),
-                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.FiberMesh, 1),
                     new Ingredient(TechType.Aerogel, 1),
                     new Ingredient(TechType.RadiationGloves, 1),
                     new Ingredient(TechType.RadiationHelmet, 1),
@@ -304,12 +352,18 @@ namespace DWEquipmentBonanza
 
         public virtual QuickSlotType QuickSlotType => QuickSlotType.None;
 
-#if SUBNAUTICA_STABLE
         public override GameObject GetGameObject()
         {
-            return GameObject.Instantiate(CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit));
+            return CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit);
         }
-#endif
+
+        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+            CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ReinforcedDiveSuit);
+            yield return task;
+
+            gameObject.Set(task.GetResult());
+        }
 
         protected override Sprite GetItemSprite()
         {
@@ -335,7 +389,7 @@ namespace DWEquipmentBonanza
                 Ingredients = new List<Ingredient>(new Ingredient[]
                 {
                     new Ingredient(TechType.HydrochloricAcid, 1),
-                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.FiberMesh, 1),
                     new Ingredient(TechType.Aerogel, 1),
                     new Ingredient(TechType.RadiationGloves, 1),
                     new Ingredient(TechType.RadiationHelmet, 1),
@@ -382,7 +436,7 @@ namespace DWEquipmentBonanza
                 Ingredients = new List<Ingredient>(new Ingredient[]
                 {
                     new Ingredient(TechType.HydrochloricAcid, 1),
-                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.FiberMesh, 1),
                     new Ingredient(TechType.Aerogel, 1),
                     new Ingredient(TechType.AramidFibers, 3),
                     new Ingredient(TechType.Diamond, 2),
@@ -412,6 +466,7 @@ namespace DWEquipmentBonanza
             OnFinishedPatching += () =>
             {
                 TechTypeUtils.AddModTechType(this.TechType);
+                Main.AddDiveSuit(this.TechType, 1300f, 0.75f, 20f);
             };
         }
     }
@@ -443,7 +498,7 @@ namespace DWEquipmentBonanza
                 Ingredients = new List<Ingredient>(new Ingredient[]
                 {
                     new Ingredient(TechType.HydrochloricAcid, 1),
-                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.FiberMesh, 1),
                     new Ingredient(TechType.Aerogel, 1),
                     new Ingredient(TechType.AramidFibers, 3),
                     new Ingredient(TechType.Diamond, 2),
@@ -477,6 +532,7 @@ namespace DWEquipmentBonanza
             OnFinishedPatching += () =>
             {
                 TechTypeUtils.AddModTechType(this.TechType);
+                Main.AddDiveSuit(this.TechType, 8000f, 0.55f, 35f);
             };
         }
     }
@@ -598,7 +654,7 @@ namespace DWEquipmentBonanza
                 {
                     new Ingredient(Main.GetNitrogenTechtype("ReinforcedSuit2"), 1),
                     new Ingredient(TechType.HydrochloricAcid, 1),
-                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.FiberMesh, 1),
                     new Ingredient(TechType.Aerogel, 1)
                 }),
                 LinkedItems = new List<TechType>()
@@ -629,7 +685,7 @@ namespace DWEquipmentBonanza
                 {
                     new Ingredient(Main.GetNitrogenTechtype("ReinforcedSuit3"), 1),
                     new Ingredient(TechType.HydrochloricAcid, 1),
-                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.FiberMesh, 1),
                     new Ingredient(TechType.Aerogel, 1)
                 }),
                 LinkedItems = new List<TechType>()
@@ -666,7 +722,7 @@ namespace DWEquipmentBonanza
                 {
                     new Ingredient(Main.GetNitrogenTechtype("ReinforcedSuit2"), 1),
                     new Ingredient(TechType.HydrochloricAcid, 1),
-                    new Ingredient(TechType.CreepvinePiece, 2),
+                    new Ingredient(TechType.FiberMesh, 1),
                     new Ingredient(TechType.Aerogel, 1),
                     new Ingredient(TechType.Kyanite, 2),
                     new Ingredient(ttLizardScale, 2)
@@ -684,4 +740,5 @@ namespace DWEquipmentBonanza
         {
         }
     }*/
+#endif
 }

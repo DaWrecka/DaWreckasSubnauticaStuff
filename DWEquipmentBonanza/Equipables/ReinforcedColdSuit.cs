@@ -75,7 +75,7 @@ namespace DWEquipmentBonanza.Equipables
                 int coldResist = TechData.GetColdResistance(TechType.ColdSuitHelmet);
                 DWEquipmentBonanza.Reflection.AddColdResistance(this.TechType, System.Math.Max(20, coldResist));
                 DWEquipmentBonanza.Reflection.SetItemSize(this.TechType, 2, 2);
-                Log.LogDebug($"Finished patching {this.TechType.AsString()}, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
+                Log.LogDebug($"Finished patching {this.TechType.AsString()}, using source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
                 Main.AddSubstitution(this.TechType, TechType.ColdSuitHelmet);
                 Main.AddSubstitution(this.TechType, TechType.Rebreather);
                 Main.AddModTechType(this.TechType);
