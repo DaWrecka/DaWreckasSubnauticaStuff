@@ -94,13 +94,34 @@ namespace CustomiseOxygen
 			return myRecipe;
 		}
 
+#if SN1
+		public override GameObject GetGameObject()
+		{
+			GameObject prefab;
+
+			if (!prefabs.TryGetValue(this.TechType, out prefab))
+			{
+				prefab = CraftData.GetPrefabForTechType(thisBaseTank)
+					;
+				//prefab.EnsureComponent<AutoRemover>();
+				prefabs.Add(this.TechType, prefab);
+				ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
+														 // but it can still be instantiated. [unlike with SetActive(false)]
+														 // Clarification: An inactive prefab can still be instantiated, but it will be instantiated as an inactive GameObject. Obviously, not that useful to us here.
+														 // But since the prefab isn't *set* inactive, we can instantiate active objects with it, even though the prefab is effectively-inactive.
+			}
+
+			return prefab;
+		}
+#elif BELOWZERO
 		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
 		{
 			GameObject prefab;
 
 			if (!prefabs.TryGetValue(this.TechType, out prefab))
 			{
-				var task = CraftData.GetPrefabForTechTypeAsync(TechType.Tank);
+				//var task = CraftData.GetPrefabForTechTypeAsync(TechType.Tank);
+				var task = CraftData.GetPrefabForTechTypeAsync(thisBaseTank);
 				yield return task;
 
 				prefab = task.GetResult();
@@ -112,6 +133,7 @@ namespace CustomiseOxygen
 
 			gameObject.Set(GameObject.Instantiate(prefab));
 		}
+#endif
 
 		public override TechType RequiredForUnlock => GetRequiredUnlock(this.TechType);
 	}

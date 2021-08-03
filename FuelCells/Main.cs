@@ -25,6 +25,7 @@ namespace FuelCells
         public const string PowCellCraftTab = "PowCellTab";
         public const string ElecCraftTab = "Electronics";
         public const string ResCraftTab = "Resources";
+        public const float bioFuelCellMultiplier = 4.0f;
 
         public static readonly string[] BatteryCraftPath = new[] { ResCraftTab, BatteryCraftTab };
         public static readonly string[] PowCellCraftPath = new[] { ResCraftTab, PowCellCraftTab };
@@ -36,6 +37,7 @@ namespace FuelCells
         public const string version = "0.5.0.0";
         public const string modName = "FuelCells";
         internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
+        internal static TechType plasmaCoreType;
 
 
         internal static void AddModTechType(TechType tech, GameObject prefab = null)
@@ -146,6 +148,50 @@ namespace FuelCells
                 UnlocksWith = TechType.Lithium
             };
             cbLithiumCell.Patch();
+
+            plasmaCoreType = GetModTechType("BioPlasmaMK2");
+            if (plasmaCoreType != TechType.None)
+            {
+                var bioFuelBattery = new CbBattery // Calling the CustomBatteries API to patch this item as a Battery
+                {
+                    EnergyCapacity = (int)(config.smallFuelCellCap * bioFuelCellMultiplier),
+                    ID = "BioFuelBattery",
+                    Name = "Small Biochemical Fuel Cell",
+                    FlavorText = "A fusion of Precursor technology and Alterra technology. For handheld tools.",
+                    CraftingMaterials = { nBattery.TechType, plasmaCoreType, plasmaCoreType },
+                    UnlocksWith = plasmaCoreType,
+                    CustomIcon = ImageUtils.LoadSpriteFromFile(Path.Combine(AssetsFolder, "fuelcell.png")),
+                    CBModelData = new CBModelData
+                    {
+                        CustomTexture = ImageUtils.LoadTextureFromFile(Path.Combine(AssetsFolder, "fuelcell_01.png")),
+                        CustomIllumMap = ImageUtils.LoadTextureFromFile(Path.Combine(AssetsFolder, "fuelcell_01_illum.png")),
+                        CustomSpecMap = ImageUtils.LoadTextureFromFile(Path.Combine(AssetsFolder, "fuelcell_01_spec.png")),
+                        CustomIllumStrength = 0.95f,
+                        UseIonModelsAsBase = false
+                    },
+                };
+                bioFuelBattery.Patch();
+
+                var bioFuelCell = new CbPowerCell // Calling the CustomBatteries API to patch this item as a Power Cell
+                {
+                    EnergyCapacity = (int)(config.cellCap * bioFuelCellMultiplier),
+                    ID = "BioFuelCell",
+                    Name = "Biochemical Fuel Cell",
+                    FlavorText = "A fusion of Precursor technology and Alterra technology. For vehicles.",
+                    CraftingMaterials = { nPowercell.TechType, plasmaCoreType, plasmaCoreType },
+                    UnlocksWith = plasmaCoreType,
+                    CustomIcon = ImageUtils.LoadSpriteFromFile(Path.Combine(AssetsFolder, "largefuelcell.png")),
+                    CBModelData = new CBModelData
+                    {
+                        CustomTexture = ImageUtils.LoadTextureFromFile(Path.Combine(AssetsFolder, "large_fuel_cell_01.png")),
+                        CustomIllumMap = ImageUtils.LoadTextureFromFile(Path.Combine(AssetsFolder, "large_fuel_cell_01_illum.png")),
+                        CustomSpecMap = ImageUtils.LoadTextureFromFile(Path.Combine(AssetsFolder, "large_fuel_cell_01_spec.png")),
+                        UseIonModelsAsBase = true,
+                        CustomIllumStrength = 1.2f
+                    },
+                };
+                bioFuelCell.Patch();
+            }
         }
 
         [QModPostPatch]

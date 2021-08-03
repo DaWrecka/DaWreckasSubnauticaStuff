@@ -107,6 +107,7 @@ namespace DWEquipmentBonanza
             {
                 TechTypeUtils.AddModTechType(this.TechType);
                 EquipmentPatch.AddSubstitutions(this.TechType, new HashSet<TechType>() { TechType.RadiationGloves, TechType.ReinforcedGloves });
+                Main.AddDamageResist(this.TechType, DamageType.Acid, 0.15f);
             };
         }
     }
@@ -124,6 +125,7 @@ namespace DWEquipmentBonanza
             {
                 TechTypeUtils.AddModTechType(this.TechType);
                 EquipmentPatch.AddSubstitution(this.TechType, TechType.Rebreather);
+                Main.AddDamageResist(this.TechType, DamageType.Acid, 0.25f);
                 EquipmentPatch.AddSubstitution(this.TechType, TechType.RadiationHelmet);
                 texture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetskin.png"));
                 illumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetillum.png"));
@@ -211,18 +213,18 @@ namespace DWEquipmentBonanza
             {
                 TechTypeUtils.AddModTechType(this.TechType);
                 EquipmentPatch.AddSubstitutions(this.TechType, new HashSet<TechType>() { TechType.RadiationSuit, TechType.ReinforcedDiveSuit });
-                Main.AddDiveSuit(this.TechType, 800f, 0.85f, 15f);
-                KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
-                compound.techType = this.TechType;
-                compound.dependencies = new List<TechType>()
+                Main.AddDiveSuit(this.TechType, this.maxDepth, this.breathMultiplier, this.minTempBonus);
+                Main.AddDamageResist(this.TechType, DamageType.Acid, 0.6f);
+                Reflection.AddCompoundTech(this.TechType, new List<TechType>()
                 {
                     TechType.ReinforcedDiveSuit,
                     TechType.RadiationSuit
-                };
-                Reflection.AddCompoundTech(compound);
+                });
             };
         }
         protected virtual float maxDepth => 800f;
+        protected virtual float breathMultiplier => 0.85f;
+        protected virtual float minTempBonus => 15f;
 
         public override EquipmentType EquipmentType => EquipmentType.Body;
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
@@ -348,7 +350,7 @@ namespace DWEquipmentBonanza
         // A base class for all of the modification recipes that use existing suit pieces
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
 
-        public override string[] StepsToFabricatorTab => new string[] { "BodyMenu" };
+        public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
 
         public virtual QuickSlotType QuickSlotType => QuickSlotType.None;
 
@@ -421,6 +423,9 @@ namespace DWEquipmentBonanza
 
         public override TechType RequiredForUnlock => Main.GetNitrogenTechtype("rivereelscale");
 
+        protected override float maxDepth => 1300f;
+        protected override float breathMultiplier => 0.75f;
+        protected override float minTempBonus => 20f;
         protected override RecipeData GetBlueprintRecipe()
         {
             if (!Main.HasNitrogenMod())
@@ -435,22 +440,15 @@ namespace DWEquipmentBonanza
                 craftAmount = 1,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                 {
-                    new Ingredient(TechType.HydrochloricAcid, 1),
-                    new Ingredient(TechType.FiberMesh, 1),
-                    new Ingredient(TechType.Aerogel, 1),
-                    new Ingredient(TechType.AramidFibers, 3),
-                    new Ingredient(TechType.Diamond, 2),
-                    new Ingredient(TechType.Titanium, 2),
-                    new Ingredient(TechType.Lead, 2),
-                    new Ingredient(TechType.WiringKit, 1),
+                    new Ingredient(TechTypeUtils.GetModTechType("AcidSuit"), 1),
                     new Ingredient(TechType.AluminumOxide, 2),
                     new Ingredient(ttEelScale, 2)
                 }),
-                LinkedItems = new List<TechType>()
-                {
-                    TechTypeUtils.GetModTechType("AcidGloves"),
-                    TechTypeUtils.GetModTechType("AcidHelmet")
-                }
+                //LinkedItems = new List<TechType>()
+                //{
+                //    TechTypeUtils.GetModTechType("AcidGloves"),
+                //    TechTypeUtils.GetModTechType("AcidHelmet")
+                //}
             };
 
             return recipe;
@@ -465,8 +463,9 @@ namespace DWEquipmentBonanza
         {
             OnFinishedPatching += () =>
             {
-                TechTypeUtils.AddModTechType(this.TechType);
-                Main.AddDiveSuit(this.TechType, 1300f, 0.75f, 20f);
+                Main.AddDamageResist(this.TechType, DamageType.Acid, 0.6f);
+                EquipmentPatch.AddSubstitution(this.TechType, TechType.RadiationSuit);
+                EquipmentPatch.AddSubstitution(this.TechType, TechType.ReinforcedDiveSuit);
             };
         }
     }
@@ -479,7 +478,9 @@ namespace DWEquipmentBonanza
         public override string[] StepsToFabricatorTab => new string[] { "Personal", "Equipment" };
 
         public override TechType RequiredForUnlock => Main.GetNitrogenTechtype("lavalizardscale");
-
+        protected override float maxDepth => 8000f;
+        protected override float breathMultiplier => 0.55f;
+        protected override float minTempBonus => 35f;
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -497,24 +498,15 @@ namespace DWEquipmentBonanza
                 craftAmount = 1,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                 {
-                    new Ingredient(TechType.HydrochloricAcid, 1),
-                    new Ingredient(TechType.FiberMesh, 1),
-                    new Ingredient(TechType.Aerogel, 1),
-                    new Ingredient(TechType.AramidFibers, 3),
-                    new Ingredient(TechType.Diamond, 2),
-                    new Ingredient(TechType.Titanium, 2),
-                    new Ingredient(TechType.Lead, 2),
-                    new Ingredient(TechType.WiringKit, 1),
-                    new Ingredient(TechType.AluminumOxide, 2),
-                    new Ingredient(ttEelScale, 2),
+                    new Ingredient(TechTypeUtils.GetModTechType("NitrogenBrineSuit2"), 1),
                     new Ingredient(TechType.Kyanite, 2),
                     new Ingredient(ttLizardScale, 2)
                 }),
-                LinkedItems = new List<TechType>()
-                {
-                    TechTypeUtils.GetModTechType("AcidGloves"),
-                    TechTypeUtils.GetModTechType("AcidHelmet")
-                }
+                //LinkedItems = new List<TechType>()
+                //{
+                //    TechTypeUtils.GetModTechType("AcidGloves"),
+                //    TechTypeUtils.GetModTechType("AcidHelmet")
+                //}
             };
 
             
@@ -531,13 +523,14 @@ namespace DWEquipmentBonanza
         {
             OnFinishedPatching += () =>
             {
-                TechTypeUtils.AddModTechType(this.TechType);
-                Main.AddDiveSuit(this.TechType, 8000f, 0.55f, 35f);
+                Main.AddDamageResist(this.TechType, DamageType.Acid, 0.6f);
+                EquipmentPatch.AddSubstitution(this.TechType, TechType.RadiationSuit);
+                EquipmentPatch.AddSubstitution(this.TechType, TechType.ReinforcedDiveSuit);
             };
         }
     }
 
-    internal class Blueprint_BrineMk1toMk2 : Blueprint
+    /*internal class Blueprint_BrineMk1toMk2 : Blueprint
     {
         // This is the recipe that turns a Brine Suit into a Brine Suit Mk2
         public override string[] StepsToFabricatorTab => new string[] { "ReinforcedSuits" };
@@ -568,9 +561,9 @@ namespace DWEquipmentBonanza
         public Blueprint_BrineMk1toMk2() : base("Blueprint_BrineMk1toMk2", NitrogenBrineSuit2.title, NitrogenBrineSuit2.description)
         {
         }
-    }
+    }*/
 
-    internal class Blueprint_BrineMk2toMk3 : Blueprint
+    /*internal class Blueprint_BrineMk2toMk3 : Blueprint
     {
         // This is the recipe that turns a Brine Suit Mk2 into a Brine Suit Mk3
         public override string[] StepsToFabricatorTab => new string[] { "ReinforcedSuits" };
@@ -602,7 +595,7 @@ namespace DWEquipmentBonanza
         public Blueprint_BrineMk2toMk3() : base("Blueprint_BrineMk2toMk3", NitrogenBrineSuit3.title, NitrogenBrineSuit3.description)
         {
         }
-    }
+    }*/
 
     /*internal class Blueprint_BrineMk1toMk3 : Blueprint
     {

@@ -40,17 +40,11 @@ namespace CombinedItems.Patches
 
 					Equipment equipment = Inventory.main.equipment;
 					Player __instance = Player.main;
-					float lastDamage = damage;
 					foreach (string s in Main.playerSlots)
 					{
-						//Player.EquipmentType equipmentType = __instance.equipmentModels[i];
-						//TechType techTypeInSlot = equipment.GetTechTypeInSlot(equipmentType.slot);
 						TechType techTypeInSlot = equipment.GetTechTypeInSlot(s);
 						float damageMod = Main.ModifyDamage(techTypeInSlot, baseDamage, type);
-						newDamage += damageMod;
-						//if(newDamage != lastDamage)
-						//    Logger.Log(Logger.Level.Debug, $"Found techTypeInSlot {techTypeInSlot.ToString()}; damage altered from {lastDamage} by {damageMod} to {newDamage}");
-						lastDamage = newDamage;
+						newDamage -= damageMod;
 					}
 				}
 			}

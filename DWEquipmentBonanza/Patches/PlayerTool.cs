@@ -7,23 +7,31 @@ namespace DWEquipmentBonanza.Patches
     public static class PlayerToolPatches
     {
         // The key is a modded TechType, while the value is a vanilla TechType.
-        // The idea is that the modded TechType will use the animation of the TechType in the key
+        // The idea is that the modded TechType will use the animation of the TechType in the value
         // For example, if the Key is "powerglideequipable", then value will be for Seaglide.
         private static Dictionary<string, TechType> animToolSubstitutions = new Dictionary<string, TechType>();
 
         //private static TechType powerGlideTechType => Main.GetModTechType("PowerglideEquipable");
 
+        public static void AddToolSubstitution(TechType key, TechType value)
+        {
+            string techKey = key.AsString(true);
+            if (!animToolSubstitutions.ContainsKey(techKey))
+                animToolSubstitutions.Add(techKey, value);
+        }
+
+        // Knife.Awake doesn't exist, so we can't patch it like it does. Instead, we have to patch its parent.
+        // and no, Knife.Start doesn't exist either.
         [HarmonyPatch(nameof(PlayerTool.Awake))]
         [HarmonyPostfix]
         public static void PostAwake(ref PlayerTool __instance)
         {
-            if (__instance is Knife)
+            if (__instance is Knife knife)
             {
                 TechType itemTechType = CraftData.GetTechType(__instance.gameObject);
                 if (itemTechType == TechType.None)
                     return; // We can't do much without this.
 
-                Knife knife = __instance as Knife;
                 float damage;
 #if BELOWZERO
                 float spikeyTrapDamage;
@@ -49,13 +57,6 @@ namespace DWEquipmentBonanza.Patches
                 knife.spikeyTrapDamage = spikeyTrapDamage;
 #endif
             }
-        }
-
-        public static void AddToolSubstitution(TechType key, TechType value)
-        {
-            string techKey = key.AsString(true);
-            if (!animToolSubstitutions.ContainsKey(techKey))
-                animToolSubstitutions.Add(techKey, value);
         }
 
         [HarmonyPostfix]

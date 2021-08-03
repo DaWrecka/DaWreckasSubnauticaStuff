@@ -12,6 +12,7 @@ using UnityEngine.SceneManagement;
 using UWE;
 using Logger = QModManager.Utility.Logger;
 using static HandReticle;
+using Common.Utility;
 #if SUBNAUTICA_STABLE
 using RecipeData = SMLHelper.V2.Crafting.TechData;
 using Sprite = Atlas.Sprite;
@@ -40,11 +41,13 @@ namespace CustomiseOxygen
         {
             public float capacity;
             public Sprite icon;
+            public bool bUnlockAtStart;
 
-            public PendingTankEntry(float cap, Sprite icon)
+            public PendingTankEntry(float cap, Sprite icon, bool bUnlockAtStart = false)
             {
                 this.capacity = cap;
                 this.icon = icon;
+                this.bUnlockAtStart = bUnlockAtStart;
             }
         }
 
@@ -69,7 +72,7 @@ namespace CustomiseOxygen
             Exclusions.Add(excludedTank, (ExclusionType)newExclusion);
         }
 
-        public static void AddTank(TechType tank, float capacity, Sprite sprite = null)
+        public static void AddTank(TechType tank, float capacity, Sprite sprite = null, bool bUnlockAtStart = false)
         {
             Logger.Log(Logger.Level.Debug, $"Registering new tank TechType.{tank.AsString()} with capacity {capacity}");
             /*for (int i = 0; i < pendingTanks.Count; i++)
@@ -80,7 +83,7 @@ namespace CustomiseOxygen
             if (pendingTanks.ContainsKey(tank))
                 return;
 
-            pendingTanks[tank] = new PendingTankEntry(capacity, sprite);
+            pendingTanks[tank] = new PendingTankEntry(capacity, sprite, bUnlockAtStart);
             CoroutineHost.StartCoroutine(WaitForSpriteHandler());
         }
 
@@ -93,17 +96,12 @@ namespace CustomiseOxygen
             bWaitingForSpriteHandler = true;
 
 #if SUBNAUTICA_STABLE
-            if(SpriteManager.GetWithNoDefault(TechType.Cutefish) == null)
-            {
-                while(SpriteManager.GetWithNoDefault(TechType.Cutefish) == null)
+            while(SpriteManager.GetWithNoDefault(TechType.Cutefish) == null)
 #elif BELOWZERO
-            if (!SpriteManager.hasInitialized)
-            {
-                while (!SpriteManager.hasInitialized)
+            while (!SpriteManager.hasInitialized)
 #endif
-                {
-                    yield return new WaitForSeconds(0.5f);
-                }
+            {
+                yield return new WaitForSeconds(0.5f);
             }
 
             Log.LogDebug($"WaitForSpriteHandler(): Sprite manager initialisation complete. pendingTanks.Count == {pendingTanks.Count}");
@@ -121,20 +119,24 @@ namespace CustomiseOxygen
                         
                         float capacity = kvp.Value.capacity;
                         Sprite icon = kvp.Value.icon;
-                        if (icon == null || icon == SpriteManager.defaultSprite)
+                        if (icon == null)
                         {
                             Log.LogDebug($"WaitForSpriteHandler(): Searching for icon for TechType {key.AsString(false)}");
-                            if (icon == null || icon == SpriteManager.defaultSprite)
+                            if (icon == null)
                             {
-                                icon = SpriteManager.Get(kvp.Key);
+                                icon = SpriteUtils.GetSpriteWithNoDefault(kvp.Key);
                             }
 
                         }
-                        if (icon != null || icon != SpriteManager.defaultSprite)
+                        if (icon != null)
                         {
                             Log.LogDebug($"WaitForSpriteHandler(): Found icon for TechType {key.AsString(false)}: {icon.texture.name}");
-                            TankTypes.AddTank(key, capacity, icon);
+                            TankTypes.AddTank(key, capacity, icon, kvp.Value.bUnlockAtStart);
                             removals.Add(key);
+                        }
+                        else
+                        {
+                            Log.LogError($"Error retrieving sprite for TechType {kvp.Key.AsString()}");
                         }
                     }
                     catch (Exception e)
@@ -158,8 +160,9 @@ namespace CustomiseOxygen
             //internal TechType tankTechType;
             internal TechType refillTechType;
             internal float BaseO2Capacity;
+            internal float speedModifier;
 
-            public TankType(TechType tank, float baseO2capacity, Sprite sprite = null)
+            public TankType(TechType tank, float baseO2capacity, Sprite sprite = null, bool bUnlockAtStart = false, float speedModifier = 1f)
             {
                 Logger.Log(Logger.Level.Debug, $"Registering tank TechType.{tank.AsString()}");
                 if (sprite != null)
@@ -168,6 +171,7 @@ namespace CustomiseOxygen
                     this.sprite = SpriteManager.Get(tank);
                 string tankName = Language.main.Get(tank);
                 this.BaseO2Capacity = baseO2capacity;
+                this.speedModifier = speedModifier;
                 if (Main.config.bManualRefill)
                 {
                     //new TankCraftHelper(tank).Patch();
@@ -187,11 +191,13 @@ namespace CustomiseOxygen
                     CraftDataHandler.SetTechData(this.refillTechType, techData);
                     CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, this.refillTechType, new string[] {
                         "Personal",
-                        "TankRefill",
-                        this.refillTechType.AsString(false)
+                        "TankRefill"
                     });
-#if BELOWZERO
+#if SUBNAUTICA_STABLE
+                    if(CraftData.GetCraftTime(tank, out float craftTime))
+#elif BELOWZERO
                     if (TechData.GetCraftTime(tank, out float craftTime))
+#endif
                     {
                         Logger.Log(Logger.Level.Debug, $"Setting crafting time of {craftTime} for TechType.{this.refillTechType.AsString()}");
                         CraftDataHandler.SetCraftingTime(this.refillTechType, craftTime);
@@ -200,11 +206,13 @@ namespace CustomiseOxygen
                     {
                         Logger.Log(Logger.Level.Debug, $"Couldn't find crafting time for TechType.{tank}");
                     }
-#endif
+
                     if (!Main.bannedTech.Contains(this.refillTechType))
                     {
                         Main.bannedTech.Add(this.refillTechType);
                     }
+                    if (bUnlockAtStart)
+                        KnownTechHandler.UnlockOnStart(this.refillTechType);
                 }
                 else
                 {
@@ -222,7 +230,7 @@ namespace CustomiseOxygen
         {
             private Dictionary<TechType, TankType> TankTypes;
 
-            public bool AddTank(TechType tank, float baseCapacity, Sprite sprite = null, bool bUpdate = false)
+            public bool AddTank(TechType tank, float baseCapacity, Sprite sprite = null, bool bUpdate = false, bool bUnlockAtStart = false)
             {
                 if (TankTypes == null)
                     TankTypes = new Dictionary<TechType, TankType>();
@@ -243,7 +251,7 @@ namespace CustomiseOxygen
 
                 Logger.Log(Logger.Level.Debug, $"Adding Tank '{tank.AsString()}' with capacity of {baseCapacity}"); 
 #endif
-                TankTypes[tank] = new TankType(tank, baseCapacity);
+                TankTypes[tank] = new TankType(tank, baseCapacity, bUnlockAtStart: bUnlockAtStart);
                 return true;
             }
 
@@ -282,18 +290,18 @@ namespace CustomiseOxygen
             AddTank(TechType.SuitBoosterTank, -90f);
             AddTank(TechType.PlasteelTank, -90f);
             AddTank(TechType.HighCapacityTank, -180f);*/
-            foreach (TechType tt in new TechType[] {
-                TechType.Tank,
-                TechType.DoubleTank,
+            foreach ((TechType techType, bool bUnlockAtStart) tt in new (TechType techType, bool bUnlockAtStart)[] {
+                (TechType.Tank, true),
+                (TechType.DoubleTank, false),
 #if BELOWZERO
-                TechType.SuitBoosterTank,
+                (TechType.SuitBoosterTank, false),
 #endif
-                TechType.PlasteelTank,
-                TechType.HighCapacityTank
+                (TechType.PlasteelTank, false),
+                (TechType.HighCapacityTank, false),
                 })
             {
-                Logger.Log(Logger.Level.Debug, $"Initial processing, TechType.{tt.AsString()}");
-                AddTank(tt, -1f);
+                Logger.Log(Logger.Level.Debug, $"Initial processing, TechType.{tt.techType.AsString()}");
+                AddTank(tt.techType, -1f, bUnlockAtStart: tt.bUnlockAtStart);
             }
         }
     }

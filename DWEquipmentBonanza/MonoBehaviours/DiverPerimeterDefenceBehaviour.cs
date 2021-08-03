@@ -10,10 +10,16 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UWE;
 
+#if SUBNAUTICA_STABLE
+using Common.Interfaces;
+#endif
+
 namespace DWEquipmentBonanza.MonoBehaviours
 {
 	public class DiverPerimeterDefenceBehaviour : MonoBehaviour,
-#if BELOWZERO
+#if SUBNAUTICA_STABLE
+		IInventoryDescriptionSN1,
+#elif BELOWZERO
 		IInventoryDescription,
 #endif
 		IBattery,
@@ -305,7 +311,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		public string GetInventoryDescription()
 		{
-			Log.LogDebug("DiverPerimeterDefenceBehaviour.GetInventoryDescription() begin");
+			//Log.LogDebug("DiverPerimeterDefenceBehaviour.GetInventoryDescription() begin");
 			string arg0 = ""; // "Diver Perimeter Defence Chip";
 			string arg1 = ""; // "Protects a diver from hostile fauna using electrical discouragement. Discharge damages the chip beyond repair.";
 			if (this.techType != TechType.None)
@@ -313,8 +319,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				arg0 = Language.main.Get(this.techType);
 				arg1 = Language.main.Get(TooltipFactory.techTypeTooltipStrings.Get(this.techType));
 			}
-			Log.LogDebug($"For techType of {this.techType.AsString()} got arg0 or '{arg0}' and arg1 of '{arg1}'");
-			return string.Format("{0}\n{1}\n", arg0, arg1);
+			//Log.LogDebug($"For techType of {this.techType.AsString()} got arg0 or '{arg0}' and arg1 of '{arg1}'");
+			return string.Format("{0}\n", arg1);
 		}
 	}
 

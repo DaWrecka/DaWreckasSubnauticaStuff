@@ -117,6 +117,7 @@ namespace DWEquipmentBonanza.Equipables
 		internal static Dictionary<TechType, int> MaxDischargeDict = new Dictionary<TechType, int>();
 		public static Sprite icon { get; protected set; }
 		public static GameObject brokenPrefab { get; protected set; }
+		public static GameObject prefab { get; protected set; }
 
 		private bool bWaiting;
 
@@ -131,14 +132,13 @@ namespace DWEquipmentBonanza.Equipables
 		public override TechGroup GroupForPDA => TechGroup.Personal;
 		public override TechCategory CategoryForPDA => TechCategory.Equipment;
 		public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;
-		public override string[] StepsToFabricatorTab => new string[] { "Personal", "ChipEquipment" };
+		public override string[] StepsToFabricatorTab => new string[] { "Personal", DWConstants.ChipsMenuPath };
 		public override float CraftingTime => 5f;
 		public override QuickSlotType QuickSlotType => QuickSlotType.Passive;
 		public override EquipmentType EquipmentType => EquipmentType.Chip;
 		protected virtual int MaxDischarges => 1;
 		protected virtual bool bDestroyedOnDischarge => false;
 		protected virtual List<TechType> RequiredTech => new List<TechType>();
-
 		internal static void AddChipData(TechType chip, int MaxDischarges)
 		{
 			MaxDischargeDict[chip] = MaxDischarges;
@@ -167,29 +167,55 @@ namespace DWEquipmentBonanza.Equipables
 				{
 					Log.LogDebug($"{this.TechType.AsString()}.OnFinishedPatching(): Setting up CompoundTech with RequiredTech of:" + JsonConvert.SerializeObject(RequiredTech, Formatting.Indented));
 
-					KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
-					compound.techType = this.TechType;
-					compound.dependencies = RequiredTech;
-					Reflection.AddCompoundTech(compound);
+					Reflection.AddCompoundTech(this.TechType, RequiredTech);
 				}
 				CoroutineHost.StartCoroutine(this.PostPatchSetup());
 			};
 		}
 
-		/*protected override RecipeData GetBlueprintRecipe()
+#if SUBNAUTICA_STABLE
+		public override GameObject GetGameObject()
 		{
-			return new RecipeData()
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
+			if (prefab == null)
 			{
-				craftAmount = 1,
-				Ingredients = new List<Ingredient>(new Ingredient[]
-					{
-						new Ingredient(TechType.WiringKit, 1),
-						new Ingredient(TechType.CopperWire, 2),
-						new Ingredient(TechType.Polyaniline, 1)
-					}
-				)
-			};
-		}*/
+				prefab = PreparePrefab(CraftData.GetPrefabForTechType(prefabTechType));
+			}
+
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
+			return prefab;
+		}
+#endif
+		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+		{
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
+			if (prefab == null)
+			{
+				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTechType, verbose: true);
+				yield return task;
+
+				prefab = PreparePrefab(task.GetResult());
+			}
+
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
+			gameObject.Set(prefab);
+		}
+
+		public virtual GameObject PreparePrefab(GameObject prefab)
+		{
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
+			GameObject obj = GameObject.Instantiate<GameObject>(prefab);
+
+			DiverPerimeterDefenceBehaviour behaviour = obj.EnsureComponent<DiverPerimeterDefenceBehaviour>();
+			behaviour.Initialise(this.TechType);
+			ModPrefabCache.AddPrefab(obj, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
+
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
+			return obj;
+		}
 
 		protected override Sprite GetItemSprite()
 		{
@@ -242,56 +268,9 @@ namespace DWEquipmentBonanza.Equipables
 		}
 
 		public override EquipmentType EquipmentType => EquipmentType.Chip;
-		public override string[] StepsToFabricatorTab => new string[] { "Personal", "ChipEquipment" };
+		public override string[] StepsToFabricatorTab => new string[] { "Personal", DWConstants.ChipsMenuPath };
 		public override TechType RequiredForUnlock => TechType.Polyaniline;
 		protected override bool bDestroyedOnDischarge => true;
-		public static GameObject prefab { get; protected set; }
-
-#if SUBNAUTICA_STABLE
-		public override GameObject GetGameObject()
-		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
-			if (prefab == null)
-			{
-				prefab = PreparePrefab(CraftData.GetPrefabForTechType(prefabTechType));
-			}
-
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
-			return prefab;
-		}
-#endif
-		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
-			if (prefab == null)
-			{
-				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTechType, verbose: true);
-				yield return task;
-
-				prefab = PreparePrefab(task.GetResult());
-			}
-
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
-			gameObject.Set(prefab);
-		}
-
-		public virtual GameObject PreparePrefab(GameObject prefab)
-		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
-			GameObject obj = GameObject.Instantiate<GameObject>(prefab);
-
-			DiverPerimeterDefenceBehaviour behaviour = obj.EnsureComponent<DiverPerimeterDefenceBehaviour>();
-			//behaviour.Initialise(this.MaxDischarges, this.bDestroyedOnDischarge);
-			behaviour.Initialise(this.TechType);
-			//ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
-
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
-			return obj;
-		}
-
 		protected override RecipeData GetBlueprintRecipe()
 		{
 			return new RecipeData()
@@ -326,54 +305,6 @@ namespace DWEquipmentBonanza.Equipables
 			TechType.RadioTowerPPU,
 			Main.GetModTechType("DiverPerimeterDefenceChipItem")
 		};*/
-
-		public static GameObject prefab { get; protected set; }
-
-#if SUBNAUTICA_STABLE
-		public override GameObject GetGameObject()
-		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
-			if (prefab == null)
-			{
-				prefab = PreparePrefab(CraftData.GetPrefabForTechType(prefabTechType));
-			}
-
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
-			return prefab;
-		}
-#endif
-		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
-			if (prefab == null)
-			{
-				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTechType, verbose: true);
-				yield return task;
-
-				prefab = PreparePrefab(task.GetResult());
-			}
-
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
-			gameObject.Set(prefab);
-		}
-
-		public virtual GameObject PreparePrefab(GameObject prefab)
-		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
-			GameObject obj = GameObject.Instantiate<GameObject>(prefab);
-
-			DiverPerimeterDefenceBehaviour behaviour = obj.EnsureComponent<DiverPerimeterDefenceBehaviour>();
-			//behaviour.Initialise(this.MaxDischarges, this.bDestroyedOnDischarge);
-			behaviour.Initialise(this.TechType);
-			//ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
-
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
-			return obj;
-		}
-
 
 		protected override IEnumerator PostPatchSetup()
 		{
@@ -450,53 +381,6 @@ namespace DWEquipmentBonanza.Equipables
 	{
 		public DiverDefenceSystemMk3() : base("DiverDefenceSystemMk3", "Diver Defence System Mk3", "Protects a diver from hostile fauna using electrical discouragement. Can discharge multiple times per charge, and can be recharged multiple times.")
 		{
-		}
-
-		public static GameObject prefab { get; protected set; }
-
-#if SUBNAUTICA_STABLE
-		public override GameObject GetGameObject()
-		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
-			if (prefab == null)
-			{
-				prefab = PreparePrefab(CraftData.GetPrefabForTechType(prefabTechType));
-			}
-
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
-			return prefab;
-		}
-#endif
-		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
-			if (prefab == null)
-			{
-				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTechType, verbose: true);
-				yield return task;
-
-				prefab = PreparePrefab(task.GetResult());
-			}
-
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
-			gameObject.Set(prefab);
-		}
-
-		public virtual GameObject PreparePrefab(GameObject prefab)
-		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
-			GameObject obj = GameObject.Instantiate<GameObject>(prefab);
-
-			DiverPerimeterDefenceBehaviour behaviour = obj.EnsureComponent<DiverPerimeterDefenceBehaviour>();
-			//behaviour.Initialise(this.MaxDischarges, this.bDestroyedOnDischarge);
-			behaviour.Initialise(this.TechType);
-			//ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
-
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
-			return obj;
 		}
 
 		protected override IEnumerator PostPatchSetup()

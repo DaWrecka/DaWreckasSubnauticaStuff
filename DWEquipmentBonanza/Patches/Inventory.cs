@@ -93,7 +93,7 @@ namespace DWEquipmentBonanza.Patches
 		[HarmonyPrefix]
 		internal static void PreRemoveItem(ItemsContainer __instance, TechType techType)
 		{
-			Log.LogDebug($"InventoryPatches.PreRemoveItem: techType = {techType.AsString()}");
+			//Log.LogDebug($"InventoryPatches.PreRemoveItem: techType = {techType.AsString()}");
 			if (Main.compatibleBatteries.Contains(techType))
 			{
 				//Log.LogDebug($"InventoryPatches.RemoveItemPrefix: battery TechType is being consumed, caching TechType");
@@ -111,7 +111,7 @@ namespace DWEquipmentBonanza.Patches
 			float lastRemovedBatteryCharge = __instance == null ? -1f : __instance.lastRemovedBatteryCharge;
 #endif
 			bool bIsChip = chipTechTypes.Contains(techType);
-			Log.LogDebug($"InventoryPatches.PostRemoveItem: found lastRemovedBatteryCharge of {lastRemovedBatteryCharge} and bIsChip: {bIsChip}");
+			//Log.LogDebug($"InventoryPatches.PostRemoveItem: found lastRemovedBatteryCharge of {lastRemovedBatteryCharge} and bIsChip: {bIsChip}");
 			if (lastRemovedBatteryCharge > 1f)
 			{
 				if (bIsChip)

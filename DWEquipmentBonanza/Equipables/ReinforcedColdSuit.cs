@@ -79,14 +79,11 @@ namespace DWEquipmentBonanza.Equipables
                 Main.AddSubstitution(this.TechType, TechType.ColdSuitHelmet);
                 Main.AddSubstitution(this.TechType, TechType.Rebreather);
                 Main.AddModTechType(this.TechType);
-                KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
-                compound.techType = this.TechType;
-                compound.dependencies = new List<TechType>()
+                Reflection.AddCompoundTech(this.TechType, new List<TechType>()
                 {
                     TechType.Rebreather,
                     TechType.ColdSuit
-                };
-                Reflection.AddCompoundTech(compound);
+                });
             };
         }
 
@@ -96,7 +93,7 @@ namespace DWEquipmentBonanza.Equipables
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
         public override TechType RequiredForUnlock => TechType.Unobtanium;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
-        public override string[] StepsToFabricatorTab => new string[] { "SuitUpgrades" };
+        public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -145,14 +142,11 @@ namespace DWEquipmentBonanza.Equipables
                 Main.AddSubstitution(this.TechType, TechType.ColdSuit);
                 Main.AddSubstitution(this.TechType, TechType.ReinforcedDiveSuit);
                 Main.AddModTechType(this.TechType);
-                KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
-                compound.techType = this.TechType;
-                compound.dependencies = new List<TechType>()
+                Reflection.AddCompoundTech(this.TechType, new List<TechType>()
                 {
                     TechType.ReinforcedDiveSuit,
                     TechType.ColdSuit
-                };
-                Reflection.AddCompoundTech(compound);
+                });
             };
         }
 
@@ -163,7 +157,7 @@ namespace DWEquipmentBonanza.Equipables
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
-        public override string[] StepsToFabricatorTab => new string[] { "SuitUpgrades" };
+        public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
 
         protected override RecipeData GetBlueprintRecipe()
         {

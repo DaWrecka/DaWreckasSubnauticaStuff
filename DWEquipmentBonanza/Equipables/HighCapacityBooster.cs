@@ -29,15 +29,15 @@ namespace DWEquipmentBonanza.Equipables
                 Main.AddSubstitution(this.TechType, TechType.SuitBoosterTank);
                 Main.AddSubstitution(this.TechType, TechType.HighCapacityTank);
                 Main.AddModTechType(this.TechType);
-                KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
-                compound.techType = this.TechType;
-                compound.dependencies = new List<TechType>()
+                Reflection.AddCompoundTech(this.TechType, new List<TechType>()
                 {
                     TechType.SuitBoosterTank,
                     TechType.HighCapacityTank
-                };
-                Reflection.AddCompoundTech(compound);
+                });
                 CoroutineHost.StartCoroutine(PostPatchSetup());
+
+                Main.AddCustomOxyExclusion(this.TechType, true, true);
+                Main.AddCustomOxyTank(this.TechType, -1f, icon);
             };
         }
 
@@ -53,7 +53,7 @@ namespace DWEquipmentBonanza.Equipables
 
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
 
-        public override string[] StepsToFabricatorTab => new string[] { "ModTanks" };
+        public override string[] StepsToFabricatorTab => new string[] { DWConstants.TankMenuPath };
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -75,12 +75,7 @@ namespace DWEquipmentBonanza.Equipables
 
             while (bWaiting)
             {
-                if (icon == null || icon == SpriteManager.defaultSprite)
-                {
-                    icon = SpriteManager.Get(TechType.HighCapacityTank);
-                }
-                else
-                    bWaiting = false;
+                bWaiting = !SpriteManager.hasInitialized;
 
                 yield return new WaitForSecondsRealtime(0.5f);
             }
@@ -97,13 +92,14 @@ namespace DWEquipmentBonanza.Equipables
             {
                 Log.LogError($"Failed getting prefab for HighCapacityTank");
             }
-
-            Main.AddCustomOxyExclusion(this.TechType, true, true);
-            Main.AddCustomOxyTank(this.TechType, -1f, icon);
         }
         protected override Sprite GetItemSprite()
         {
-            return (icon != null && icon != SpriteManager.defaultSprite) ? icon : SpriteManager.Get(TechType.HighCapacityTank);
+            if (icon == null || icon == SpriteManager.defaultSprite)
+            {
+                icon = SpriteManager.Get(TechType.HighCapacityTank);
+            }
+            return icon;
         }
 
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)

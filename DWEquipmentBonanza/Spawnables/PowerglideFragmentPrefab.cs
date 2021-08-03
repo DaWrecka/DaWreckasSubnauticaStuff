@@ -16,7 +16,7 @@ namespace DWEquipmentBonanza.Spawnables
 {
     internal class PowerglideFragmentPrefab : Spawnable
     {
-        private static GameObject processedPrefab;
+        private static GameObject prefab;
 
         public PowerglideFragmentPrefab() : base("PowerglideFragment", "Powerglide Fragment", "Damaged Powerglide")
         {
@@ -56,40 +56,42 @@ namespace DWEquipmentBonanza.Spawnables
         public override GameObject GetGameObject()
         {
             System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin"); if (processedPrefab == null)
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
+            if (prefab == null)
             {
-                processedPrefab = ModifyInstantiatedPrefab(CraftData.InstantiateFromPrefab(TechType.SeaglideFragment));
+                prefab = PreparePrefab(CraftData.GetPrefabForTechType(TechType.SeaglideFragment));
             }
 
             Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
-            return processedPrefab;
+            return prefab;
         }
 #elif BELOWZERO
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
-            if (processedPrefab == null)
+            if (prefab == null)
             {
-                TaskResult<GameObject> result = new TaskResult<GameObject>();
-                IEnumerator enumerator = CraftData.InstantiateFromPrefabAsync(TechType.SeaglideFragment, result, false);
-                yield return enumerator;
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.SeaglideFragment);
+                yield return task;
 
-                processedPrefab = ModifyInstantiatedPrefab(result.Get());
+                prefab = PreparePrefab(task.GetResult());
             }
 
-            gameObject.Set(processedPrefab);
+            gameObject.Set(prefab);
         }
 #endif
 
-        private GameObject ModifyInstantiatedPrefab(GameObject prefab)
+        private GameObject PreparePrefab(GameObject thisPrefab)
         {
-            if (prefab == null)
+            if (thisPrefab == null)
             {
                 Log.LogError("ModifyInstantiatedPrefab called with null prefab!");
                 return null;
             }
 
-            MeshRenderer[] meshRenderers = prefab.GetAllComponentsInChildren<MeshRenderer>();
-            SkinnedMeshRenderer[] skinnedMeshRenderers = prefab.GetAllComponentsInChildren<SkinnedMeshRenderer>();
+            var obj = GameObject.Instantiate(thisPrefab);
+
+            MeshRenderer[] meshRenderers = obj.GetAllComponentsInChildren<MeshRenderer>();
+            SkinnedMeshRenderer[] skinnedMeshRenderers = obj.GetAllComponentsInChildren<SkinnedMeshRenderer>();
             Color powerGlideColour = PowerglideBehaviour.PowerGlideColour;
 
             foreach (MeshRenderer mr in meshRenderers)
@@ -109,28 +111,26 @@ namespace DWEquipmentBonanza.Spawnables
                 }
             }
 
-            PrefabIdentifier prefabIdentifier = prefab.EnsureComponent<PrefabIdentifier>();
+            PrefabIdentifier prefabIdentifier = obj.EnsureComponent<PrefabIdentifier>();
             prefabIdentifier.ClassId = this.ClassID;
-            prefab.EnsureComponent<LargeWorldEntity>().cellLevel = LargeWorldEntity.CellLevel.VeryFar;
-            prefab.EnsureComponent<TechTag>().type = this.TechType;
+            obj.EnsureComponent<LargeWorldEntity>().cellLevel = LargeWorldEntity.CellLevel.VeryFar;
+            obj.EnsureComponent<TechTag>().type = this.TechType;
 
-            Pickupable pickupable = prefab.EnsureComponent<Pickupable>();
+            Pickupable pickupable = obj.EnsureComponent<Pickupable>();
             pickupable.isPickupable = false;
 
-            ResourceTracker resourceTracker = prefab.EnsureComponent<ResourceTracker>();
+            ResourceTracker resourceTracker = obj.EnsureComponent<ResourceTracker>();
             resourceTracker.prefabIdentifier = prefabIdentifier;
             typeof(ResourceTracker).GetField("techType", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(resourceTracker, this.TechType);
             //resourceTracker.techType = this.TechType;
             resourceTracker.overrideTechType = TechType.Fragment;
-            resourceTracker.rb = prefab.GetComponent<Rigidbody>();
+            resourceTracker.rb = obj.GetComponent<Rigidbody>();
             resourceTracker.pickupable = pickupable;
 
-            prefab.SetActive(true);
-            processedPrefab = prefab;
-            ModPrefabCache.AddPrefab(processedPrefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
+            ModPrefabCache.AddPrefab(obj, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
                                                               // but it can still be instantiated. [unlike with SetActive(false)]
 
-            return prefab;
+            return obj;
         }
     }
 }

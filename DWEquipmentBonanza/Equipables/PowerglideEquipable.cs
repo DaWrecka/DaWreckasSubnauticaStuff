@@ -14,6 +14,7 @@ using Logger = QModManager.Utility.Logger;
 using FMODUnity;
 using DWEquipmentBonanza.Patches;
 using Common;
+using Common.Utility;
 #if SUBNAUTICA_STABLE
 using RecipeData = SMLHelper.V2.Crafting.TechData;
 using Sprite = Atlas.Sprite;
@@ -68,8 +69,8 @@ namespace DWEquipmentBonanza.Equipables
 				craftAmount = 1,
 				Ingredients = new List<Ingredient>(new Ingredient[]
 					{
+						new Ingredient(TechType.Seaglide, 1),
 						new Ingredient(TechType.WiringKit, 1),
-						new Ingredient(TechType.CopperWire, 2),
 						new Ingredient(TechType.Lubricant, 1),
 						new Ingredient(TechType.PlasteelIngot, 1),
 						new Ingredient(TechType.Polyaniline, 1),
@@ -81,9 +82,9 @@ namespace DWEquipmentBonanza.Equipables
 
 		protected override Sprite GetItemSprite()
 		{
-			if (icon == null || icon == SpriteManager.defaultSprite)
+			if (icon == null)
 			{
-				icon = SpriteManager.Get(TechType.Seaglide);
+				icon = SpriteUtils.GetSpriteWithNoDefault(TechType.Seaglide);
 			}
 			return icon;
 		}
@@ -92,7 +93,8 @@ namespace DWEquipmentBonanza.Equipables
 		public override GameObject GetGameObject()
         {
 			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin"); if (prefab == null)
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
+			if (prefab == null)
 			{
 				prefab = CraftData.InstantiateFromPrefab(TechType.Seaglide);
 				prefab.EnsureComponent<PowerglideBehaviour>();

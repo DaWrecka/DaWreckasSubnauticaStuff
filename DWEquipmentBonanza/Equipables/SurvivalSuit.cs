@@ -50,10 +50,7 @@ namespace DWEquipmentBonanza.Equipables
 
             if (CompoundDependencies.Count > 0)
             {
-                KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
-                compound.techType = this.TechType;
-                compound.dependencies = CompoundDependencies;
-                Reflection.AddCompoundTech(compound);
+                Reflection.AddCompoundTech(this.TechType, CompoundDependencies);
             }
             //SurvivalPatches.AddNeedsCapOverride(this.TechType, SurvivalCapOverride);
         }
@@ -120,9 +117,13 @@ namespace DWEquipmentBonanza.Equipables
         {
             OnFinishedPatching += () =>
             {
+                Main.AddDiveSuit(this.TechType, this.maxDepth, this.breathMultiplier, this.minTempBonus);
             };
         }
 
+        protected virtual float maxDepth => 1000f;
+        protected virtual float breathMultiplier => 0.90f;
+        protected virtual float minTempBonus => 5f;
         protected override TechType[] substitutions
         {
             get
@@ -135,7 +136,7 @@ namespace DWEquipmentBonanza.Equipables
         public override Vector2int SizeInInventory => new Vector2int(2, 2);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
-        public override string[] StepsToFabricatorTab => new string[] { "SuitUpgrades" };
+        public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -215,14 +216,11 @@ namespace DWEquipmentBonanza.Equipables
         {
             base.OnFinishedPatch();
 
-            KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
-            compound.techType = this.TechType;
-            compound.dependencies = new List<TechType>()
-                {
-                    TechType.ReinforcedDiveSuit,
-                    Main.GetModTechType("SurvivalSuit")
-                };
-            Reflection.AddCompoundTech(compound);
+            Reflection.AddCompoundTech(this.TechType, new List<TechType>()
+            {
+                TechType.ReinforcedDiveSuit,
+                Main.GetModTechType("SurvivalSuit")
+            });
         }
 
         protected override Sprite GetItemSprite()
@@ -297,7 +295,6 @@ namespace DWEquipmentBonanza.Equipables
                 yield return task;
 
                 prefab = task.GetResult();
-                //prefab.SetActive(false); // Keep the prefab inactive until we're done editing it.
 
                 // Editing prefab
                 if(prefab.TryGetComponent<Stillsuit>(out s))

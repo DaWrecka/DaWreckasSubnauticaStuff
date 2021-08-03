@@ -14,12 +14,7 @@ namespace FuelCells.Patches
         [HarmonyPostfix]
         internal static void PostAwake(Pickupable __instance)
         {
-#if SUBNAUTICA_STABLE
-            Battery b = __instance.gameObject?.GetComponent<Battery>();
-            if(b != null)
-#elif BELOWZERO
             if (__instance.gameObject != null && __instance.gameObject.TryGetComponent<Battery>(out Battery b))
-#endif
                 Batteries.AddPendingBattery(ref b);
         }
     }

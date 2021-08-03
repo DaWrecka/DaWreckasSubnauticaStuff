@@ -29,9 +29,7 @@ namespace DWEquipmentBonanza.Equipables
             OnFinishedPatching += () =>
             {
                 Log.LogDebug($"SuperSurvivalSuit(): OnFinishedPatching begin");
-                KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
-                compound.techType = this.TechType;
-                compound.dependencies = new List<TechType>()
+                Reflection.AddCompoundTech(this.TechType, new List<TechType>()
                 {
                     TechType.Stillsuit,
 #if SUBNAUTICA_STABLE
@@ -40,20 +38,19 @@ namespace DWEquipmentBonanza.Equipables
                     TechType.ColdSuit,
 #endif
                     TechType.ReinforcedDiveSuit
-                };
-                Reflection.AddCompoundTech(compound);
+                });
 
 #if SUBNAUTICA_STABLE
                 Main.AddSubstitution(this.TechType, TechType.RadiationSuit);
-                Main.AddDiveSuit(this.TechType, 8000f, 0.55f, 35f);
-                Log.LogDebug($"Finished patching {this.TechType.AsString()}");
-                Main.DamageResistances[this.TechType] = new List<Main.DamageInfo>()
+                Main.AddDiveSuit(this.TechType, 8000f, 0.50f, 40f);
+                /*Main.DamageResistances[this.TechType] = new List<Main.DamageInfo>()
                 {
                     {
-                        new Main.DamageInfo(DamageType.Acid, -0.6f)/*,
-                        new DamageInfo(DamageType.Radiation, -0.70f)*/
+                        new Main.DamageInfo(DamageType.Acid, -0.6f)
                     }
-                };
+                };*/
+                Main.AddDamageResist(this.TechType, DamageType.Acid, 0.6f);
+                Log.LogDebug($"Finished patching {this.TechType.AsString()}");
 #elif BELOWZERO
                 int coldResist = TechData.GetColdResistance(TechType.ColdSuit);
                 Reflection.AddColdResistance(this.TechType, System.Math.Max(55, coldResist));
@@ -96,7 +93,7 @@ namespace DWEquipmentBonanza.Equipables
                 };
 
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
-        public override string[] StepsToFabricatorTab => new string[] { "BodyMenu" };
+        public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
         protected override RecipeData GetBlueprintRecipe()
         {
 #if SUBNAUTICA_STABLE
@@ -230,7 +227,7 @@ namespace DWEquipmentBonanza.Equipables
         }
         public override TechType RequiredForUnlock => Main.GetModTechType("SuperSurvivalSuit");
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
-        public override string[] StepsToFabricatorTab => new string[] { "BodyMenu" };
+        public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
 
         protected override Sprite GetItemSprite()
         {
@@ -244,15 +241,12 @@ namespace DWEquipmentBonanza.Equipables
         {
             OnFinishedPatching += () =>
             {
-                KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
-                compound.techType = this.TechType;
-                compound.dependencies = new List<TechType>()
+                Reflection.AddCompoundTech(this.TechType, new List<TechType>()
                 {
                     TechType.Stillsuit,
                     TechType.ColdSuit,
                     TechType.ReinforcedDiveSuit
-                };
-                Reflection.AddCompoundTech(compound);
+                });
             };
         }
 
@@ -285,15 +279,12 @@ namespace DWEquipmentBonanza.Equipables
         {
             OnFinishedPatching += () =>
             {
-                KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
-                compound.techType = this.TechType;
-                compound.dependencies = new List<TechType>()
+                Reflection.AddCompoundTech(this.TechType, new List<TechType>()
                 {
                     TechType.Stillsuit,
                     TechType.ColdSuit,
                     TechType.ReinforcedDiveSuit
-                };
-                Reflection.AddCompoundTech(compound);
+                });
             };
         }
 
@@ -323,15 +314,12 @@ namespace DWEquipmentBonanza.Equipables
         {
             OnFinishedPatching += () =>
             {
-                KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
-                compound.techType = this.TechType;
-                compound.dependencies = new List<TechType>()
+                Reflection.AddCompoundTech(this.TechType, new List<TechType>()
                 {
                     TechType.ReinforcedDiveSuit,
                     TechType.Stillsuit,
                     TechType.ColdSuit
-                };
-                Reflection.AddCompoundTech(compound);
+                });
             };
         }
 

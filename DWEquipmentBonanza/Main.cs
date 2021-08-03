@@ -21,7 +21,8 @@ using System.IO;
 using SMLHelper.V2.Utility;
 using CustomDataboxes.API;
 #if SUBNAUTICA_STABLE
-using Oculus.Newtonsoft.Json;
+	using Sprite = Atlas.Sprite;
+	using Oculus.Newtonsoft.Json;
 	using Oculus.Newtonsoft.Json.Serialization;
 	using Oculus.Newtonsoft.Json.Converters;
 #elif BELOWZERO
@@ -37,18 +38,19 @@ namespace DWEquipmentBonanza
 	{
 		internal static bool bVerboseLogging = true;
 		internal static bool bLogTranspilers = true;
-		internal const string version = "0.8.0.3";
+		internal const string version = "0.8.0.5";
 		public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
-		public static List<string> playerSlots = new List<string>()
+		/*public static List<string> playerSlots = new List<string>()
 		{
 			"Head",
 			"Body",
 			"Gloves",
 			"Foots", // Seriously? 'Foots'?
-            "Chip1",
+			"Chip1",
 			"Chip2",
 			"Tank"
-		};
+		};*/
+		public static HashSet<string> playerSlots => Equipment.slotMapping.Keys.ToHashSet<string>();
 
 		internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
 
@@ -59,23 +61,6 @@ namespace DWEquipmentBonanza
 		//private static HashSet<TechType> compatibleBatteries => (HashSet<TechType>)compatibleTechInfo.GetValue(null);
 		internal static HashSet<TechType> compatibleBatteries => BatteryCharger.compatibleTech;
 
-		//internal static InsulatedRebreather prefabInsulatedRebreather = new InsulatedRebreather();
-		//internal static ReinforcedColdSuit prefabReinforcedColdSuit = new ReinforcedColdSuit();
-		//internal static ReinforcedColdGloves prefabReinforcedColdGloves = new ReinforcedColdGloves();
-		//internal static HighCapacityBooster prefabHighCapacityBooster = new HighCapacityBooster();
-		//internal static ExosuitLightningClawPrefab prefabLightningClaw = new ExosuitLightningClawPrefab();
-		//internal static ExosuitSprintModule prefabExosuitSprintModule = new ExosuitSprintModule();
-		//internal static HoverbikeWaterTravelModule prefabHbWaterTravelModule = new HoverbikeWaterTravelModule();
-		//internal static HoverbikeSolarChargerModule prefabHbSolarCharger = new HoverbikeSolarChargerModule();
-		//internal static HoverbikeStructuralIntegrityModule prefabHbHullModule = new HoverbikeStructuralIntegrityModule();
-		//internal static HoverbikeEngineEfficiencyModule prefabHbEngineModule = new HoverbikeEngineEfficiencyModule();
-		//internal static HoverbikeSpeedModule prefabHbSpeedModule = new HoverbikeSpeedModule();
-		//internal static HoverbikeMobilityUpgrade prefabHbMobility = new HoverbikeMobilityUpgrade();
-		//internal static PowerglideEquipable prefabPowerglide = new PowerglideEquipable();
-		//internal static ExosuitLightningClawGeneratorModule ExoLightningGenerator = new ExosuitLightningClawGeneratorModule();
-		//internal static PowerglideFragmentPrefab powerglideFrag = new PowerglideFragmentPrefab();
-		//internal static SurvivalSuit prefabSurvivalSuit = new SurvivalSuit();
-		//internal static ReinforcedSurvivalSuit prefabReinforcedSurvivalSuit = new ReinforcedSurvivalSuit();
 		private static readonly Dictionary<string, TechType> ModTechTypes = new Dictionary<string, TechType>(StringComparer.OrdinalIgnoreCase);
 		private static readonly Dictionary<string, GameObject> ModPrefabs = new Dictionary<string, GameObject>(StringComparer.OrdinalIgnoreCase);
 		internal static readonly Dictionary<TechType, float> defaultHealth = new Dictionary<TechType, float>();
@@ -118,12 +103,20 @@ namespace DWEquipmentBonanza
 		{
 			if (CustomOxyAddExclusionMethod != null)
 				CustomOxyAddExclusionMethod.Invoke(null, new object[] { excludedTank, bExcludeMultipliers, bExcludeOverride });
+			else
+			{
+				Log.LogError($"Could not get Custom Oxygen AddExclusion method");
+			}
 		}
 
-		internal static void AddCustomOxyTank(TechType tank, float capacity, Sprite icon = null)
+		internal static void AddCustomOxyTank(TechType tank, float capacity, Sprite icon = null, bool bUnlockAtStart = false)
 		{
 			if (CustomOxyAddTankMethod != null)
-				CustomOxyAddTankMethod.Invoke(null, new object[] { tank, capacity, icon });
+				CustomOxyAddTankMethod.Invoke(null, new object[] { tank, capacity, icon, bUnlockAtStart });
+			else
+			{
+				Log.LogError($"Could not get Custom Oxygen AddTank method");
+			}
 		}
 
 		internal static void AddModTechType(TechType tech, GameObject prefab = null)
@@ -151,10 +144,8 @@ namespace DWEquipmentBonanza
 			int count = 0;
 			foreach (TechType tt in techTypes)
 			{
-				if (tt == TechType.None)
-					continue;
-
-				count += e.GetCount(tt);
+				if (tt != TechType.None)
+					count += e.GetCount(tt);
 			}
 			return count;
 		}
@@ -176,17 +167,17 @@ namespace DWEquipmentBonanza
 			return QModServices.Main.ModPresent("NitrogenMod");
 		}
 
-		internal struct DamageInfo
+		/*public struct DamageMod
 		{
 			public DamageType damageType;
 			public float damageMult;
 
-			public DamageInfo(DamageType t, float m)
+			public DamageMod(DamageType t, float m)
 			{
 				this.damageType = t;
 				this.damageMult = m;
 			}
-		}
+		}*/
 
 		/*internal struct DamageResistance
 		{
@@ -205,25 +196,45 @@ namespace DWEquipmentBonanza
 		// Although the system would need to be extended to allow, say, a shield that drains a battery when resisting damage.
 		//Interfaces would be the way I think, but I've not yet wrapped my brain around that.
 		// BZ has a DamageModifier component available that does basically this, but it's unclear to what extent, if any, it works in SN1.
-		internal static Dictionary<TechType, List<DamageInfo>> DamageResistances = new Dictionary<TechType, List<DamageInfo>>();
+		//private static Dictionary<TechType, List<DamageMod>> DamageResistances = new Dictionary<TechType, List<DamageMod>>();
+		public static Dictionary<TechType, Dictionary<DamageType, float> > DamageResistances = new Dictionary<TechType, Dictionary<DamageType, float> >();
+
+		public static void AddDamageResist(TechType tt, DamageType damageType, float damageMult)
+		{
+			Log.LogDebug($"Main.AddDamageResist(): TechType = {tt.AsString()}, damageType = {damageType.ToString()}, damageMult = {damageMult}");
+			if (DamageResistances.TryGetValue(tt, out Dictionary<DamageType, float> DamageModifiers))
+			{
+				if (DamageModifiers.TryGetValue(damageType, out float modifier))
+				{
+					Log.LogDebug($"AddDamageResist(): Tried to add modifier for DamageType {damageType.ToString()} to TechType {tt.AsString()} more than once; old value {modifier}.");
+				}
+				else
+					DamageModifiers.Add(damageType, damageMult);
+			}
+			else
+			{
+				DamageResistances.Add(tt, new Dictionary<DamageType, float>()
+				{
+					{ damageType, damageMult }
+				});
+			}
+		}
+
 		public static float ModifyDamage(TechType tt, float damage, DamageType type)
 		{
 			float baseDamage = damage;
 			float damageMod = 0f;
-			//Logger.Log(Logger.Level.Debug, $"Main.ModifyDamage called: tt = {tt.ToString()}, damage = {damage}; DamageType = {type}");
+			Log.LogDebug($"Main.ModifyDamage called: tt = {tt.ToString()}, damage = {damage}; DamageType = {type}");
 			//foreach (DamageResistance r in DamageResistances)
-			if (DamageResistances.TryGetValue(tt, out List<DamageInfo> diList))
+			if (DamageResistances.TryGetValue(tt, out Dictionary<DamageType, float> diList))
 			{
-				//Logger.Log(Logger.Level.Debug, $"Found DamageResistance with TechType: {r.TechType.ToString()}");
-				foreach (DamageInfo d in diList)
+				if (diList.TryGetValue(type, out float mult))
 				{
-					if (d.damageType == type)
-					{
-						damageMod += baseDamage * d.damageMult;
-						//Logger.Log(Logger.Level.Debug, $"Player has equipped armour of TechType {tt.ToString()}, base damage = {baseDamage}, type = {type}, modifying damage by {d.damageMult}x with result of {damageMod}");
-					}
+					Log.LogDebug($"Got damage multiplier of {mult}");
+					damageMod += baseDamage * mult;
 				}
 			}
+			Log.LogDebug($"DamageMod = {damageMod}");
 			return damageMod;
 		}
 
@@ -249,14 +260,14 @@ namespace DWEquipmentBonanza
 #elif BELOWZERO
 			// We're going to try and remove crafting nodes from the root of the workbench menu and move them into tabs.
 			// Knives
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "KnifeUpgrades", "Knife Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_knifemenu"));
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.KnifeMenuPath, "Knife Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_knifemenu"));
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HeatBlade" });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HeatBlade, new string[] { "KnifeUpgrades" });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HeatBlade, new string[] { DWConstants.KnifeMenuPath });
 
 			// Tanks
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HighCapacityTank" });
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "ModTanks", "Tank Upgrades", SpriteManager.Get(TechType.HighCapacityTank));
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HighCapacityTank, new string[] { "ModTanks" });
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.TankMenuPath, "Tank Upgrades", SpriteManager.Get(TechType.HighCapacityTank));
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HighCapacityTank, new string[] { DWConstants.TankMenuPath });
 
 			// Fins menu
 			CraftDataHandler.SetTechData(TechType.UltraGlideFins, new SMLHelper.V2.Crafting.RecipeData()
@@ -270,24 +281,24 @@ namespace DWEquipmentBonanza
 					new Ingredient(TechType.Lithium, 1)
 				}
 			});
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "FinUpgrades", "Fin Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_finsmenu"));
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.FinsMenuPath, "Fin Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_finsmenu"));
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "SwimChargeFins" });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SwimChargeFins, new string[] { "FinUpgrades" });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.UltraGlideFins, new string[] { "FinUpgrades " });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SwimChargeFins, new string[] { DWConstants.FinsMenuPath });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.UltraGlideFins, new string[] { DWConstants.FinsMenuPath });
 			// Test purposes, may be changed to a databox before release
 			KnownTechHandler.SetAnalysisTechEntry(TechType.SwimChargeFins, new TechType[] { TechType.UltraGlideFins});
 
 			// Seatruck Upgrades
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "SeaTruckWBUpgrades", "Seatruck Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "fabricator_seatruckupgrades"));
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.SeatruckMenuPath, "Seatruck Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "fabricator_seatruckupgrades"));
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "SeaTruckUpgradeHull2" });
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "SeaTruckUpgradeHull3" });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SeaTruckUpgradeHull2, new string[] { "SeaTruckWBUpgrades" });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SeaTruckUpgradeHull3, new string[] { "SeaTruckWBUpgrades" });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SeaTruckUpgradeHull2, new string[] { DWConstants.SeatruckMenuPath });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SeaTruckUpgradeHull3, new string[] { DWConstants.SeatruckMenuPath });
 
 			// Exosuit Upgrades
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "ExoUpgrades", "Exosuit Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_exosuitmenu"));
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "ExosuitMenu", "Exosuit Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_exosuitmenu"));
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "ExoHullModule2" });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.ExoHullModule2, new string[] { "ExoUpgrades" });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.ExoHullModule2, new string[] { "ExosuitMenu" });
 
 			// Now our custom stuff
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Machines", "HoverbikeSilentModule" });
@@ -296,17 +307,17 @@ namespace DWEquipmentBonanza
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.HoverbikeJumpModule, new string[] { "Upgrades", "HoverbikeUpgrades" });
 #endif
 
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "ChipEquipment", "Chips", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "BodyMenu", "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "ChipRecharge", "Chip Recharges", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.ChipsMenuPath, "Chips", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.BodyMenuPath, "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
+			//CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "ChipRecharge", "Chip Recharges", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
 
 			var prefabs = new List<Spawnable>() {
 				//new ExosuitLightningClawPrefab(),
 #if SUBNAUTICA_STABLE
-                new AcidGloves(),
+				new AcidGloves(),
 				new AcidHelmet(),
 				new AcidSuit(),
-                //new Blueprint_Suits(),
+				//new Blueprint_Suits(),
 #elif BELOWZERO
 				new InsulatedRebreather(),
 				new ReinforcedColdSuit(),
@@ -325,14 +336,17 @@ namespace DWEquipmentBonanza
 				//new SurvivalSuitBlueprint_BaseSuits(),
 				new DiverPerimeterDefenceChip_Broken(),
 				new DiverPerimeterDefenceChipItem(),
-				//new DiverDefenceSystemMk2(),
-				//new DiverDefenceMk2_FromBrokenChip(),
-				//new DiverDefenceSystemMk3()
+				new DiverDefenceSystemMk2(),
+				new DiverDefenceMk2_FromBrokenChip(),
+				new DiverDefenceSystemMk3(),
 				new PowerglideFragmentPrefab(),
 				new SurvivalSuit(),
 				new PowerglideEquipable(),
 				new ReinforcedSurvivalSuit(),
 				new ExosuitLightningClawGeneratorModule(),
+				new Vibroblade(),
+				new DWUltraGlideSwimChargeFins(),
+				new PlasteelHighCapTank(),
 			};
 
 
@@ -356,8 +370,8 @@ namespace DWEquipmentBonanza
 				//prefabSuitMk3 = new NitrogenBrineSuit3();
 				prefabs.Add(new NitrogenBrineSuit2());
 				prefabs.Add(new NitrogenBrineSuit3());
-				prefabs.Add(new Blueprint_BrineMk1toMk2());
-				prefabs.Add(new Blueprint_BrineMk2toMk3());
+				//prefabs.Add(new Blueprint_BrineMk1toMk2());
+				//prefabs.Add(new Blueprint_BrineMk2toMk3());
 				//prefabs.Add(new Blueprint_BrineMk1toMk3());
 				prefabs.Add(new Blueprint_ReinforcedMk2toBrineMk2());
 				prefabs.Add(new Blueprint_ReinforcedMk3toBrineMk3());
@@ -396,34 +410,31 @@ namespace DWEquipmentBonanza
 
 
 #if SUBNAUTICA_STABLE
-			Log.LogDebug($"Setting up DamageResistances list");
+			/*Log.LogDebug($"Setting up DamageResistances list");
 			Main.DamageResistances = new Dictionary<TechType, List<DamageInfo>> {
-                // Gloves
-                {
+				// Gloves
+				{
 					TechTypeUtils.GetModTechType("AcidGloves"), new List<DamageInfo> {
-						new DamageInfo(DamageType.Acid, -0.15f)/*,
-                        new DamageInfo(DamageType.Radiation, -0.10f)*/
-                    }
+						new DamageInfo(DamageType.Acid, -0.15f)
+					}
 				},
 
 
-                // Helmet
-                {
+				// Helmet
+				{
 					TechTypeUtils.GetModTechType("AcidHelmet"), new List<DamageInfo> {
-						new DamageInfo(DamageType.Acid, -0.25f)/*,
-                        new DamageInfo(DamageType.Radiation, -0.20f)*/
-                    }
+						new DamageInfo(DamageType.Acid, -0.25f
+					}
 				},
 
 
-            // Suit
-                {
+			// Suit
+				{
 					TechTypeUtils.GetModTechType("AcidSuit"), new List<DamageInfo> {
-						new DamageInfo(DamageType.Acid, -0.6f)/*,
-                        new DamageInfo(DamageType.Radiation, -0.70f)*/
-                    }
+						new DamageInfo(DamageType.Acid, -0.6f)
+					}
 				}
-			};
+			};*/
 #endif
 			var harmony = new Harmony($"DaWrecka_{myAssembly.GetName().Name}");
 			harmony.PatchAll(myAssembly);
@@ -454,10 +465,10 @@ namespace DWEquipmentBonanza
 			//Batteries.PostPatch();
 			LanguageHandler.SetLanguageLine("SeamothWelcomeAboard", "Welcome aboard captain.");
 #endif
-			CoroutineHost.StartCoroutine(GetVehicleHealthValues());
+			CoroutineHost.StartCoroutine(PostPatchCoroutine());
 		}
 
-		internal static IEnumerator GetVehicleHealthValues()
+		internal static IEnumerator PostPatchCoroutine()
 		{
 			foreach (TechType tt in new HashSet<TechType>() {
 			TechType.Exosuit,
@@ -468,7 +479,7 @@ namespace DWEquipmentBonanza
 			TechType.SeaTruck,
 			TechType.Hoverbike
 #endif
-		})
+			})
 			{
 				GameObject prefab;
 
@@ -495,6 +506,59 @@ namespace DWEquipmentBonanza
 				}
 			}
 
+			foreach (TechType tt in new HashSet<TechType>()
+			{
+				TechType.DrillableAluminiumOxide,
+				TechType.DrillableCopper,
+				TechType.DrillableDiamond,
+				TechType.DrillableGold,
+				TechType.DrillableKyanite,
+				TechType.DrillableLead,
+				TechType.DrillableLithium,
+				TechType.DrillableMagnetite,
+				TechType.DrillableMercury,
+				TechType.DrillableNickel,
+				TechType.DrillableQuartz,
+				TechType.DrillableSalt,
+				TechType.DrillableSilver,
+				TechType.DrillableSulphur,
+				TechType.DrillableTitanium,
+				TechType.DrillableUranium
+			})
+			{
+				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(tt);
+				yield return task;
+
+				GameObject prefab = task.GetResult();
+				if (prefab != null)
+				{
+					LargeWorldEntity lwe = prefab.GetComponent<LargeWorldEntity>();
+					if (lwe != null)
+					{
+						lwe.cellLevel = LargeWorldEntity.CellLevel.Far;
+						Log.LogDebug($"CellLevel for TechType {tt.AsString()} updated to Far");
+					}
+					else
+					{
+						Log.LogWarning($"Could not find LargeWorldEntity component in prefab for TechType {tt.AsString()}");
+					}
+
+					if (tt == TechType.DrillableKyanite)
+					{
+						// Since we're here, make kyanite less troll-tastic.
+						Drillable drillable = prefab.GetComponent<Drillable>();
+						if (drillable != null)
+						{
+							drillable.kChanceToSpawnResources = DWConstants.newKyaniteChance;
+						}
+					}
+				}
+				else
+				{
+					Log.LogWarning($"Could not get prefab for TechType {tt.AsString()}");
+				}
+			}
+
 			yield break;
 		}
 	}
@@ -508,7 +572,7 @@ namespace DWEquipmentBonanza
 		private static readonly MethodInfo playerCheckColdsuitGoalInfo = typeof(Player).GetMethod("CheckColdsuitGoal", BindingFlags.NonPublic | BindingFlags.Instance);
 #endif
 		private static readonly FieldInfo knownTechCompoundTech = typeof(KnownTech).GetField("compoundTech", BindingFlags.NonPublic | BindingFlags.Static);
-		private static List<KnownTech.CompoundTech> pendingCompoundTech = new List<KnownTech.CompoundTech>();
+		private static Dictionary<TechType, List<TechType> > pendingCompoundTech = new Dictionary<TechType, List<TechType>>();
 		private static bool bProcessingCompounds;
 
 #if BELOWZERO
@@ -550,10 +614,27 @@ namespace DWEquipmentBonanza
 			playerUpdateReinforcedSuitInfo.Invoke(player, new object[] { });
 		}
 
-		public static void AddCompoundTech(KnownTech.CompoundTech compound, bool bForce = false)
+		public static void AddCompoundTech(TechType techType, List<TechType> dependencies, bool bForce = false)
 		{
-			if(compound != null)
-				pendingCompoundTech.Add(compound);
+			if (techType == TechType.None)
+			{
+				Log.LogError($"AddCompoundTech called with TechType.None");
+				return;
+			}
+
+			if (dependencies == null || dependencies.Count < 1)
+			{
+				Log.LogError($"AddCompoundTech called with TechType {techType.AsString()} but null or zero-length dependencies list.");
+				return;
+			}
+
+			if (pendingCompoundTech.ContainsKey(techType))
+			{
+				Log.LogError($"AddCompoundTech called with duplicate TechType {techType.AsString()}");
+				return;
+			}
+
+			pendingCompoundTech.Add(techType, dependencies);
 			//CoroutineHost.StartCoroutine(ProcessPendingCompounds(bForce));
 		}
 
@@ -562,7 +643,7 @@ namespace DWEquipmentBonanza
 		public static void PostKnownTechInit()
 		{
 			Log.LogDebug("Reflection.PostKnownTechInit() executing");
-			CoroutineHost.StartCoroutine(ProcessPendingCompounds(true));
+			CoroutineHost.StartCoroutine(ProcessPendingCompounds(false));
 		}
 
 		private bool KnownTechInitialised()
@@ -586,26 +667,37 @@ namespace DWEquipmentBonanza
 				yield break;
 			}
 
+			Log.LogDebug("ProcessPendingCompounds executing");
 			bProcessingCompounds = true;
 
 			int tries = 0;
 			while (pendingCompoundTech.Count > 0)
 			{
 				List<KnownTech.CompoundTech> compounds = (List<KnownTech.CompoundTech>)knownTechCompoundTech.GetValue(null);
+				HashSet<TechType> removals = new HashSet<TechType>();
 				Log.LogDebug($"Attempting to process pending compound tech: pendingCompoundTech.Count == {pendingCompoundTech.Count}, attempt {++tries}");
 				if (compounds != null)
 				{
 					Log.LogDebug("Successfully retrieved KnownTech.compoundTech: Now processing pendingCompoundTech");
-					for (int i = pendingCompoundTech.Count - 1; i >= 0; i--)
+					foreach(KeyValuePair<TechType, List<TechType>> kvp in pendingCompoundTech)
 					{
-						compounds.Add(pendingCompoundTech[i]);
-						pendingCompoundTech.RemoveAt(i);
+						Log.LogDebug($"Adding compoundTech: techType = {kvp.Key.AsString()}");
+						KnownTech.CompoundTech compound = new KnownTech.CompoundTech();
+						compound.techType = kvp.Key;
+						compound.dependencies = kvp.Value;
+						compounds.Add(compound);
+						removals.Add(kvp.Key);
 					}
 				}
 				else
 				{
 					Log.LogDebug($"KnownTech.compoundTech could not be retrieved");
 				}
+
+				foreach(TechType tt in removals)
+					pendingCompoundTech.Remove(tt);
+				removals.Clear();
+
 				yield return new WaitForSecondsRealtime(2f);
 			}
 

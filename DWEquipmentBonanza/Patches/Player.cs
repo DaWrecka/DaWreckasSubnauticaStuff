@@ -10,7 +10,6 @@ using Logger = QModManager.Utility.Logger;
 namespace DWEquipmentBonanza.Patches
 {
 	[HarmonyPatch(typeof(Player))]
-
 	internal class PlayerPatch
     {
 		private static HashSet<TechType> SurvivalSuits = new HashSet<TechType>();

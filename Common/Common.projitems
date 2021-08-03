@@ -9,9 +9,11 @@
     <Import_RootNamespace>Common</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IInventoryDescriptionSN1.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\AssemblyUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\GeneralUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\PrefabUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility\SpriteUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\TechTypeUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\TransformUtils.cs" />
   </ItemGroup>
