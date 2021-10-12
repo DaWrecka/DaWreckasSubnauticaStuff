@@ -18,7 +18,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		protected static TechType solarModuleTechType => Main.GetModTechType("SeaTruckSolarModule");
 		protected static TechType thermalModuleTechType => Main.GetModTechType("SeaTruckThermalModule");
 		protected static TechType sonarModuleTechType => Main.GetModTechType("SeaTruckSonarModule");
-		protected static AnimationCurve thermalReactorCharge;
+		public static AnimationCurve thermalReactorCharge;
 		protected static int solarCount;
 		protected static int thermalCount;
 		protected SeaTruckUpgrades parentVehicle;
@@ -98,6 +98,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			if (parentVehicle == null)
 				return;
 
+			if (slotID > SeaTruckUpgrades.slotIDs.Length)
+			{
+				Log.LogDebug("SeatruckUpdate.OnSelect() invoked with slotID outside the bounds of the slotIDs array");
+				return;
+			}
+
 			if (parentVehicle.modules.GetTechTypeInSlot(SeaTruckUpgrades.slotIDs[slotID]) == sonarModuleTechType)
 			{
 				sonarSlotID = slotID;
@@ -155,6 +161,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			}
 			base.CancelInvoke("UpdateRecharge");
 			base.CancelInvoke("UpdateSonar");
+
 			solarCount = parentVehicle.modules.GetCount(solarModuleTechType);
 			thermalCount = parentVehicle.modules.GetCount(thermalModuleTechType);
 			if (solarCount + thermalCount > 0)

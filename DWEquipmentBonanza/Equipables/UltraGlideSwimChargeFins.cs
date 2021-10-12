@@ -24,13 +24,13 @@ using Common.Utility;
 
 namespace DWEquipmentBonanza.Equipables
 {
-    public class DWUltraGlideSwimChargeFins : Equipable
+	public class DWUltraGlideSwimChargeFins : Equipable
     {
 		protected static GameObject prefab;
 		protected static Sprite icon;
 		protected static GameObject swimChargePrefab;
-		internal static string friendlyName => "Ultra Glide Swim Charge Fins";
-		internal static string description => "Ultra Glide Fins with the additional tool-charging circuits of the Swim Charge Fins";
+		private static string friendlyName => "Ultra Glide Swim Charge Fins";
+		private static string description => "Ultra Glide Fins with the additional tool-charging circuits of the Swim Charge Fins";
 
 		public DWUltraGlideSwimChargeFins() : base("DWUltraGlideSwimChargeFins", friendlyName, description)
 		{
@@ -49,9 +49,8 @@ namespace DWEquipmentBonanza.Equipables
 		}
 
 		new public bool UnlockedAtStart => false;
-
 		public override EquipmentType EquipmentType => EquipmentType.Foots;
-		public override Vector2int SizeInInventory => new Vector2int(2, 2);
+		public override Vector2int SizeInInventory => new(2, 2);
 		public override TechGroup GroupForPDA => TechGroup.Personal;
 		public override TechCategory CategoryForPDA => TechCategory.Equipment;
 		public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;

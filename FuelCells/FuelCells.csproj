@@ -30,6 +30,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="MonoBehaviours\RegeneratingPowerSource.cs" />
     <Compile Include="Patches\Battery.cs" />
     <Compile Include="Patches\Knife.cs" />
     <Compile Include="Patches\Pickupable.cs" />
@@ -38,8 +39,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Language.json" />
-    <None Include="mod_BZ.json" />
-    <None Include="mod_SN1.json" />
+    <None Include="mod_BelowZero.json" />
+    <None Include="mod_Subnautica.json" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="CustomBatteries">

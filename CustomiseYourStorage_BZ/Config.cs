@@ -20,7 +20,7 @@ using SMLHelper.V2.Options.Attributes;
 using SMLHelper.V2.Options;
 using UnityEngine;
 
-namespace CustomiseYourStorage_BZ.Configuration
+namespace CustomiseYourStorage.Configuration
 {
 	internal class DWStorageConfig : ConfigFile
 	{
@@ -266,7 +266,6 @@ namespace CustomiseYourStorage_BZ.Configuration
 			}
 		}
 
-
 		public bool TryGetModSize(string Identifier, out Vector2int newSize)
 		{
 			string lowID = Identifier.ToLower();
@@ -387,12 +386,6 @@ namespace CustomiseYourStorage_BZ.Configuration
 			if (ExosuitConfig.IsNull())
 			{
 				ExosuitConfig = defaultExosuitConfig;
-				bUpdated = true;
-			}
-
-			if (FiltrationConfig.IsNull())
-			{
-				FiltrationConfig = defaultFiltrationConfig;
 				bUpdated = true;
 			}
 

@@ -14,8 +14,6 @@
   "VersionChecker": {
     "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/IngredientsFromScanning_BZ/mod_BZ.json"
   },
-  "NexusId": {
-    "BelowZero": "161"
-  },
+  "NexusId": {},
   "Enable": true
 }

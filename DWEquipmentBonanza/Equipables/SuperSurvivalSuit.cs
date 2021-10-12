@@ -23,7 +23,14 @@ namespace DWEquipmentBonanza.Equipables
 {
     internal class SuperSurvivalSuit : SurvivalSuitBase<SuperSurvivalSuit>
     {
-        public SuperSurvivalSuit() : base("SuperSurvivalSuit", "Ultimate Survival Suit", "The ultimate in survival gear. Provides protection from extreme temperatures and physical harm, reduces the need for external sustenance, and dramatically improves the body's ability to retain water.")
+        public SuperSurvivalSuit() : base(classId: "SuperSurvivalSuit",
+            friendlyName: "Ultimate Survival Suit",
+#if SUBNAUTICA_STABLE
+            Description: "The ultimate in survival gear. Provides protection from extreme temperatures, corrosive substances and physical harm, and reduces the need for external sustenance."
+#elif BELOWZERO
+            Description: "The ultimate in survival gear. Provides protection from extreme temperatures and physical harm, and reduces the need for external sustenance."
+#endif
+            )
         {
             Log.LogDebug($"SuperSurvivalSuit(): constructor begin");
             OnFinishedPatching += () =>
@@ -31,10 +38,11 @@ namespace DWEquipmentBonanza.Equipables
                 Log.LogDebug($"SuperSurvivalSuit(): OnFinishedPatching begin");
                 Reflection.AddCompoundTech(this.TechType, new List<TechType>()
                 {
-                    TechType.Stillsuit,
 #if SUBNAUTICA_STABLE
                     TechType.RadiationSuit,
+                    TechType.Stillsuit,
 #elif BELOWZERO
+                    TechType.WaterFiltrationSuit,
                     TechType.ColdSuit,
 #endif
                     TechType.ReinforcedDiveSuit
@@ -84,7 +92,7 @@ namespace DWEquipmentBonanza.Equipables
         protected override List<TechType> CompoundDependencies => new List<TechType>()
                 {
                     TechType.ReinforcedDiveSuit,
-                    TechType.Stillsuit,
+                    Main.StillSuitType,
 #if SUBNAUTICA_STABLE
                     TechType.RadiationSuit
 #elif BELOWZERO
@@ -122,6 +130,7 @@ namespace DWEquipmentBonanza.Equipables
                     new Ingredient(Main.GetModTechType("AcidSuit"), 1),
 #elif BELOWZERO
                     new Ingredient(TechType.ReinforcedDiveSuit, 1),
+                    new Ingredient(TechType.ReinforcedGloves, 1),
                     new Ingredient(TechType.ColdSuit, 1),
                     new Ingredient(TechType.ColdSuitGloves, 1),
 #endif
@@ -138,7 +147,7 @@ namespace DWEquipmentBonanza.Equipables
         protected override Sprite GetItemSprite()
         {
 #if SUBNAUTICA_STABLE
-            return SpriteManager.Get(TechType.Stillsuit);
+            return SpriteManager.Get(Main.StillSuitType);
 #elif BELOWZERO
             return SpriteManager.Get(TechType.ColdSuit);
 #endif
@@ -150,7 +159,7 @@ namespace DWEquipmentBonanza.Equipables
             if (prefab == null)
             {
                 Log.LogDebug($"SuperSurvivalSuit.GetGameObject(): caching new prefab");
-                prefab = InstantiateAndModifyGameObject(CraftData.GetPrefabForTechType(TechType.Stillsuit));
+                prefab = InstantiateAndModifyGameObject(CraftData.GetPrefabForTechType(Main.StillSuitType));
             }
             else
             {
@@ -170,7 +179,7 @@ namespace DWEquipmentBonanza.Equipables
             {
                 Log.LogDebug("SuperSurvivalSuit.GetGameObjectAsync(): Caching new prefab");
 #if SUBNAUTICA_STABLE
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.Stillsuit, verbose: true);
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(Main.StillSuitType, verbose: true);
 #elif BELOWZERO
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuit, verbose: true);
 #endif
@@ -231,7 +240,7 @@ namespace DWEquipmentBonanza.Equipables
 
         protected override Sprite GetItemSprite()
         {
-            return SpriteManager.Get(TechType.Stillsuit);
+            return SpriteManager.Get(Main.StillSuitType);
         }
     }
 
@@ -243,7 +252,7 @@ namespace DWEquipmentBonanza.Equipables
             {
                 Reflection.AddCompoundTech(this.TechType, new List<TechType>()
                 {
-                    TechType.Stillsuit,
+                    Main.StillSuitType,
                     TechType.ColdSuit,
                     TechType.ReinforcedDiveSuit
                 });
@@ -281,7 +290,7 @@ namespace DWEquipmentBonanza.Equipables
             {
                 Reflection.AddCompoundTech(this.TechType, new List<TechType>()
                 {
-                    TechType.Stillsuit,
+                    Main.StillSuitType,
                     TechType.ColdSuit,
                     TechType.ReinforcedDiveSuit
                 });
@@ -317,7 +326,7 @@ namespace DWEquipmentBonanza.Equipables
                 Reflection.AddCompoundTech(this.TechType, new List<TechType>()
                 {
                     TechType.ReinforcedDiveSuit,
-                    TechType.Stillsuit,
+                    Main.StillSuitType,
                     TechType.ColdSuit
                 });
             };

@@ -64,7 +64,7 @@ namespace DWEquipmentBonanza.Patches
                 //Log.LogDebug($"EquipmentPatch.PostGetCount: got substitution set with {subs.Count} members");
                 foreach (TechType sub in subs)
                 {
-                    if (equipCount.TryGetValue(sub, out int c))
+                    /*if (equipCount.TryGetValue(sub, out int c))
                     {
                         //Log.LogDebug($"EquipmentPatch.PostGetCount: found TechType {sub.AsString()} equipped {c} times");
                         __result += c;
@@ -72,7 +72,8 @@ namespace DWEquipmentBonanza.Patches
                     else
                     {
                         //Log.LogDebug($"EquipmentPatch.PostGetCount: TechType {sub.AsString()} not found in equipment.");
-                    }
+                    }*/
+                    __result += equipCount.GetOrDefault(sub, 0);
                 }
             }
             //Log.LogDebug($"EquipmentPatch.PostGetCount: finished with result {__result.ToString()}");

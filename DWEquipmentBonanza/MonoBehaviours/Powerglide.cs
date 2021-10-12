@@ -19,33 +19,55 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
         private void OnConsoleCommand_powerglideforce(NotificationCenter.Notification n)
         {
-#if SUBNAUTICA_STABLE
-#elif BELOWZERO
             float force;
             float rate;
             if (n != null && n.data != null)
             {
                 if (n.data.Count == 1)
                 {
+                    string text = (string)n.data[0];
+#if SUBNAUTICA_STABLE
+                    if (float.TryParse(text, out force))
+#elif BELOWZERO
                     if (DevConsole.ParseFloat(n, 0, out force, 0f))
+#endif
                     {
                         powerGlideForce = force;
                         powerLerpRate = force * 0.2f;
                     }
+                    else
+                    {
+                        ErrorMessage.AddError($"Could not parse '{n.data[0]}' as number");
+                    }
                 }
                 else if (n.data.Count == 2)
                 {
-                    if(DevConsole.ParseFloat(n, 0, out force, 0f) && DevConsole.ParseFloat(n, 1, out rate, 0f))
+                    string text = (string)n.data[0];
+                    string text2 = (string)n.data[1];
+#if SUBNAUTICA_STABLE
+                    bool try0 = float.TryParse(text, out force);
+                    bool try1 = float.TryParse(text2, out rate);
+#elif BELOWZERO
+                    bool try0 = DevConsole.ParseFloat(n, 0, out force, 0f);
+                    bool try1 = DevConsole.ParseFloat(n, 1, out rate, 0f);
+#endif
+                    if (try0 && try1)
                     {
                         powerGlideForce = force;
                         powerLerpRate = rate;
                     }
+                    else
+                    {
+                        if (!try0)
+                            ErrorMessage.AddError($"Could not parse '{text}' as number");
+                        if (!try1)
+                            ErrorMessage.AddError($"Could not parse '{text2}' as number");
+                    }
                 }
             }
-#endif
-        }
+                }
 
-        public void Awake()
+                public void Awake()
         {
             tool = gameObject.GetComponent<Seaglide>();
             power = gameObject.GetComponent<EnergyMixin>();

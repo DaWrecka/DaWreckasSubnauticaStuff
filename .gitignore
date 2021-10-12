@@ -343,3 +343,5 @@ QMods/*
 *.dll
 CustomiseYourStorage_BZ/BZ/*
 *.xml
+*.bak
+*.bak

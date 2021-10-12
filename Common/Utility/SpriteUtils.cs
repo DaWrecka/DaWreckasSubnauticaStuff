@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-#if SUBNAUTICA_STABLE
+﻿#if SUBNAUTICA_STABLE
 using Sprite = Atlas.Sprite;
+#elif BELOWZERO
+using UnityEngine;
 #endif
-
 
 namespace Common.Utility
 {
     public class SpriteUtils
     {
-        internal static Sprite GetSpriteWithNoDefault(TechType tt)
+        public static Sprite GetSpriteWithNoDefault(TechType tt)
         {
 #if SUBNAUTICA_STABLE
             return SpriteManager.GetWithNoDefault(tt);

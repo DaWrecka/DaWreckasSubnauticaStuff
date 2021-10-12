@@ -17,7 +17,7 @@ namespace ConsoleBatchFiles
     [QModCore]
     public static class Main
     {
-        public const string version = "0.8.0.0";
+        public const string version = "1.1.0.0";
 
         internal static string ModPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         private static string Executing = "";
@@ -33,7 +33,7 @@ namespace ConsoleBatchFiles
             string filePath = Path.Combine(ModPath, BatchName);
             if (!File.Exists(filePath))
             {
-                Logger.Log(Logger.Level.Error, $"Could not find file {filePath}", null, true); 
+                ErrorMessage.AddMessage($"Could not find file {filePath}"); 
                 return;
             }
 
@@ -52,7 +52,7 @@ namespace ConsoleBatchFiles
         {
             if (Executing != "")
             {
-                ErrorMessage.AddMessage($"Already executing filename {Executing}, please wait until that file has completed to execute another.");
+                ErrorMessage.AddMessage($"Script {Executing} already running, please wait before starting another.");
                 yield break;
             }
 
@@ -63,18 +63,28 @@ namespace ConsoleBatchFiles
                 //Logger.Log(Logger.Level.Debug, $"Read line '{s}' from file", null, true);
                 //DevConsole.InternalSendConsoleCommand(s);
                 string[] args = s.Split(new string[] { " " }, 2, System.StringSplitOptions.RemoveEmptyEntries);
-                if (args[0].ToLower() == "wait")
+
+                // Process special commands "wait" and "waitRT"
+                // These differ in that "wait" is affected by the day/night speed, while "waitRT" is not.
+                if (args[0].Substring(0, 4).ToLower() == "wait")
                 {
                     if (Single.TryParse(args[1], out float delay))
                     {
+                        bool bWaitRT = (args[0].Substring(4, 2).ToLower() == "rt");
                         ErrorMessage.AddMessage($"Waiting for {delay} seconds...");
-                        yield return new WaitForSecondsRealtime(delay);
+                        if (bWaitRT)
+                            yield return new WaitForSecondsRealtime(delay);
+                        else
+                            yield return new WaitForSeconds(delay);
                     }
                     else
-                        ErrorMessage.AddMessage($"Could not parse '{args[1]}' as floating-point number");
+                        ErrorMessage.AddMessage($"Could not parse '{args[1]}' as number");
                 }
-                DevConsole.SendConsoleCommand(s);
-                yield return new WaitForEndOfFrame();
+                else
+                {
+                    DevConsole.SendConsoleCommand(s);
+                    yield return new WaitForEndOfFrame();
+                }
             }
 
             Executing = "";

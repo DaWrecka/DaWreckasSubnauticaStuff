@@ -76,8 +76,11 @@ namespace FuelCells.Patches
 		public static bool InterceptTrace(GameObject ignoreObj, float maxDist, ref GameObject closestObj, ref Vector3 position, out Vector3 normal, bool includeUseableTriggers = true)
         {
             bool result = UWE.Utils.TraceFPSTargetPosition(ignoreObj, maxDist, ref closestObj, ref position, out normal, includeUseableTriggers);
-            TechType key = CraftData.GetTechType(closestObj);
-			Log.LogDebug($"InterceptTrace found closestObj {closestObj.GetInstanceID()} with TechType {key}");
+            TechType key = (closestObj != null ? CraftData.GetTechType(closestObj) : TechType.None);
+			if (key == TechType.None)
+				return result;
+
+			Log.LogDebug($"InterceptTrace found closestObj with TechType {key}");
 			if (_MakeHarvestables.TryGetValue(key, out float value))
             {
 				LiveMixin component = closestObj.EnsureComponent<LiveMixin>();

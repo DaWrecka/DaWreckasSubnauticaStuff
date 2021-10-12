@@ -1,5 +1,5 @@
 {
-  "Id": "CustomiseYourStorage_BZ",
+  "Id": "CustomiseYourStorage",
   "DisplayName": "Customise Your Storage",
   "Author": "DaWrecka",
   "Version": "1.0.0.2",
@@ -12,7 +12,7 @@
     "SMLHelper": "2.9.6"
   },
   "VersionChecker": {
-    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/CustomiseYourStorage_BZ/mod_BZ.json"
+    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/CustomiseYourStorage/mod_BZ.json"
   },
   "NexusId": {},
   "Enable": true

@@ -1,6 +1,7 @@
 ﻿using Common;
 using CustomBatteries.API;
 using CustomBatteries.Items;
+using FuelCells.MonoBehaviours;
 using FuelCells.Patches;
 using FuelCells.Spawnables;
 using HarmonyLib;
@@ -25,7 +26,7 @@ namespace FuelCells
         public const string PowCellCraftTab = "PowCellTab";
         public const string ElecCraftTab = "Electronics";
         public const string ResCraftTab = "Resources";
-        public const float bioFuelCellMultiplier = 4.0f;
+        public const float bioFuelCellMultiplier = 2.0f;
 
         public static readonly string[] BatteryCraftPath = new[] { ResCraftTab, BatteryCraftTab };
         public static readonly string[] PowCellCraftPath = new[] { ResCraftTab, PowCellCraftTab };
@@ -114,11 +115,11 @@ namespace FuelCells
             CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.LithiumIonBattery, BatteryCraftPath);
             KnownTechHandler.SetAnalysisTechEntry(TechType.Lithium, new TechType[] { TechType.LithiumIonBattery });*/
 
-            float LithiumCapacity;
-            if (!config.BatteryValues.TryGetValue("LithiumIonBattery", out LithiumCapacity))
-            {
-                LithiumCapacity = 200f;
-            }
+            float LithiumCapacity = config.BatteryValues.GetOrDefault("LithiumIonBattery", 200f);
+            //if (!config.BatteryValues.TryGetValue("LithiumIonBattery", out LithiumCapacity))
+            //{
+            //  LithiumCapacity = 200f;
+            //}
 
             var cbLithiumBattery = new CbBattery
             {
@@ -169,6 +170,7 @@ namespace FuelCells
                         CustomIllumStrength = 0.95f,
                         UseIonModelsAsBase = false
                     },
+                    EnhanceGameObject = new Action<GameObject>((go) => EnhanceBioCell(go))
                 };
                 bioFuelBattery.Patch();
 
@@ -189,9 +191,15 @@ namespace FuelCells
                         UseIonModelsAsBase = true,
                         CustomIllumStrength = 1.2f
                     },
+                    EnhanceGameObject = new Action<GameObject>((go) => EnhanceBioCell(go))
                 };
                 bioFuelCell.Patch();
             }
+        }
+
+        public static void EnhanceBioCell(GameObject obj)
+        {
+            obj.EnsureComponent<RegeneratingPowerSource>();
         }
 
         [QModPostPatch]

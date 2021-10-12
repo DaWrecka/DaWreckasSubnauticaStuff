@@ -19,14 +19,14 @@ namespace Common
 			Logger.Log(Logger.Level.Error, message, ex, bShowOnScreen);
 		}
 
-		public static void LogWarning(string message)
+		public static void LogWarning(string message, Exception ex = null, bool bShowOnScreen = false)
 		{
-			Logger.Log(Logger.Level.Warn, message);
+			Logger.Log(Logger.Level.Warn, message, ex, bShowOnScreen);
 		}
 
-		public static void LogInfo(string message)
+		public static void LogInfo(string message, Exception ex = null, bool bShowOnScreen = false)
 		{
-			Logger.Log(Logger.Level.Info, message);
+			Logger.Log(Logger.Level.Info, message, ex, bShowOnScreen);
 		}
 	}
 }

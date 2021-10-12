@@ -37,9 +37,11 @@ namespace DWEquipmentBonanza
 	public class Main
 	{
 		internal static bool bVerboseLogging = true;
-		internal static bool bLogTranspilers = true;
+		internal static bool bLogTranspilers = false;
 		internal const string version = "0.8.0.5";
+#if SUBNAUTICA_STABLE
 		public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
+#endif
 		/*public static List<string> playerSlots = new List<string>()
 		{
 			"Head",
@@ -61,8 +63,8 @@ namespace DWEquipmentBonanza
 		//private static HashSet<TechType> compatibleBatteries => (HashSet<TechType>)compatibleTechInfo.GetValue(null);
 		internal static HashSet<TechType> compatibleBatteries => BatteryCharger.compatibleTech;
 
-		private static readonly Dictionary<string, TechType> ModTechTypes = new Dictionary<string, TechType>(StringComparer.OrdinalIgnoreCase);
-		private static readonly Dictionary<string, GameObject> ModPrefabs = new Dictionary<string, GameObject>(StringComparer.OrdinalIgnoreCase);
+		//private static readonly Dictionary<string, TechType> ModTechTypes = new Dictionary<string, TechType>(StringComparer.OrdinalIgnoreCase);
+		//private static readonly Dictionary<string, GameObject> ModPrefabs = new Dictionary<string, GameObject>(StringComparer.OrdinalIgnoreCase);
 		internal static readonly Dictionary<TechType, float> defaultHealth = new Dictionary<TechType, float>();
 
 		internal static List<string> _chipSlots = new List<string>();
@@ -90,8 +92,23 @@ namespace DWEquipmentBonanza
 		internal static readonly Texture2D glovesIllumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesillum.png"));
 		internal static readonly Texture2D suitIllumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitillum.png"));
 
+		private static readonly bool bCustomOxygenMode = QModServices.Main.ModPresent("CustomiseOxygen");
+
 		public static bool bUseNitrogenAPI; // If true, use the Nitrogen API instead of patching GetTechTypeInSlot. Overrides bNoPatchTechTypeInSlot.
 		private static Dictionary<string, TechType> NitrogenTechtypes = new Dictionary<string, TechType>();
+		internal static TechType StillSuitType
+		{
+			get
+			{
+#if SUBNAUTICA_STABLE
+				return TechType.Stillsuit;
+
+#elif BELOWZERO
+				return TechType.WaterFiltrationSuit;
+
+#endif
+			}
+		}
 
 		internal static void AddSubstitution(TechType custom, TechType vanilla)
 		{
@@ -105,7 +122,8 @@ namespace DWEquipmentBonanza
 				CustomOxyAddExclusionMethod.Invoke(null, new object[] { excludedTank, bExcludeMultipliers, bExcludeOverride });
 			else
 			{
-				Log.LogError($"Could not get Custom Oxygen AddExclusion method");
+				if(bCustomOxygenMode)
+					Log.LogError($"Could not get Custom Oxygen AddExclusion method");
 			}
 		}
 
@@ -115,7 +133,8 @@ namespace DWEquipmentBonanza
 				CustomOxyAddTankMethod.Invoke(null, new object[] { tank, capacity, icon, bUnlockAtStart });
 			else
 			{
-				Log.LogError($"Could not get Custom Oxygen AddTank method");
+				if (bCustomOxygenMode)
+					Log.LogError($"Could not get Custom Oxygen AddTank method");
 			}
 		}
 
@@ -267,26 +286,40 @@ namespace DWEquipmentBonanza
 			// Tanks
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HighCapacityTank" });
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.TankMenuPath, "Tank Upgrades", SpriteManager.Get(TechType.HighCapacityTank));
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HighCapacityTank, new string[] { DWConstants.TankMenuPath });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.PlasteelTank, new string[] { DWConstants.TankMenuPath });
+			CraftDataHandler.SetTechData(TechType.PlasteelTank, new SMLHelper.V2.Crafting.RecipeData()
+				{
+					craftAmount = 1,
+					Ingredients = new List<Ingredient>()
+					{
+						new Ingredient(TechType.Fins, 1),
+						new Ingredient(TechType.Silicone, 2),
+						new Ingredient(TechType.Titanium, 1),
+						new Ingredient(TechType.Lithium, 1)
+					}
+				}
+			);
+			 CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HighCapacityTank, new string[] { DWConstants.TankMenuPath });
+			KnownTechHandler.SetAnalysisTechEntry(TechType.HighCapacityTank, new TechType[] { TechType.PlasteelTank });
 
 			// Fins menu
 			CraftDataHandler.SetTechData(TechType.UltraGlideFins, new SMLHelper.V2.Crafting.RecipeData()
-			{
-				craftAmount = 1,
-				Ingredients = new List<Ingredient>()
 				{
-					new Ingredient(TechType.Fins, 1),
-					new Ingredient(TechType.Silicone, 2),
-					new Ingredient(TechType.Titanium, 1),
-					new Ingredient(TechType.Lithium, 1)
+					craftAmount = 1,
+					Ingredients = new List<Ingredient>()
+					{
+						new Ingredient(TechType.Fins, 1),
+						new Ingredient(TechType.Silicone, 2),
+						new Ingredient(TechType.Titanium, 1),
+						new Ingredient(TechType.Lithium, 1)
+					}
 				}
-			});
+			);
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.UltraGlideFins, new string[] { DWConstants.FinsMenuPath });
+			
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.FinsMenuPath, "Fin Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_finsmenu"));
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "SwimChargeFins" });
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SwimChargeFins, new string[] { DWConstants.FinsMenuPath });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.UltraGlideFins, new string[] { DWConstants.FinsMenuPath });
-			// Test purposes, may be changed to a databox before release
-			KnownTechHandler.SetAnalysisTechEntry(TechType.SwimChargeFins, new TechType[] { TechType.UltraGlideFins});
 
 			// Seatruck Upgrades
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.SeatruckMenuPath, "Seatruck Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "fabricator_seatruckupgrades"));
@@ -307,8 +340,8 @@ namespace DWEquipmentBonanza
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.HoverbikeJumpModule, new string[] { "Upgrades", "HoverbikeUpgrades" });
 #endif
 
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.BodyMenuPath, "Suit Upgrades", SpriteManager.Get(Main.StillSuitType));
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.ChipsMenuPath, "Chips", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.BodyMenuPath, "Suit Upgrades", SpriteManager.Get(TechType.Stillsuit));
 			//CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "ChipRecharge", "Chip Recharges", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
 
 			var prefabs = new List<Spawnable>() {
@@ -332,8 +365,8 @@ namespace DWEquipmentBonanza
 				new SeaTruckSonarModule(),
 				new ShadowLeviathanSample(),
 				new SurvivalSuitBlueprint_FromReinforcedSurvival(),
+				//new SeatruckSolarModuleMk2(),
 #endif
-				//new SurvivalSuitBlueprint_BaseSuits(),
 				new DiverPerimeterDefenceChip_Broken(),
 				new DiverPerimeterDefenceChipItem(),
 				new DiverDefenceSystemMk2(),
@@ -366,13 +399,8 @@ namespace DWEquipmentBonanza
 						Log.LogDebug($"Load(): Could not find TechType for Nitrogen class ID {sTechType}");
 					}
 				}
-				//prefabSuitMk2 = new NitrogenBrineSuit2();
-				//prefabSuitMk3 = new NitrogenBrineSuit3();
 				prefabs.Add(new NitrogenBrineSuit2());
 				prefabs.Add(new NitrogenBrineSuit3());
-				//prefabs.Add(new Blueprint_BrineMk1toMk2());
-				//prefabs.Add(new Blueprint_BrineMk2toMk3());
-				//prefabs.Add(new Blueprint_BrineMk1toMk3());
 				prefabs.Add(new Blueprint_ReinforcedMk2toBrineMk2());
 				prefabs.Add(new Blueprint_ReinforcedMk3toBrineMk3());
 			}
@@ -408,34 +436,6 @@ namespace DWEquipmentBonanza
 			};
 			powerglideDatabox.Patch();
 
-
-#if SUBNAUTICA_STABLE
-			/*Log.LogDebug($"Setting up DamageResistances list");
-			Main.DamageResistances = new Dictionary<TechType, List<DamageInfo>> {
-				// Gloves
-				{
-					TechTypeUtils.GetModTechType("AcidGloves"), new List<DamageInfo> {
-						new DamageInfo(DamageType.Acid, -0.15f)
-					}
-				},
-
-
-				// Helmet
-				{
-					TechTypeUtils.GetModTechType("AcidHelmet"), new List<DamageInfo> {
-						new DamageInfo(DamageType.Acid, -0.25f
-					}
-				},
-
-
-			// Suit
-				{
-					TechTypeUtils.GetModTechType("AcidSuit"), new List<DamageInfo> {
-						new DamageInfo(DamageType.Acid, -0.6f)
-					}
-				}
-			};*/
-#endif
 			var harmony = new Harmony($"DaWrecka_{myAssembly.GetName().Name}");
 			harmony.PatchAll(myAssembly);
 		}
@@ -481,12 +481,10 @@ namespace DWEquipmentBonanza
 #endif
 			})
 			{
-				GameObject prefab;
-
 				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(tt);
 				yield return task;
 
-				prefab = task.GetResult();
+				GameObject prefab = task.GetResult();
 				if (prefab != null)
 				{
 					LiveMixin mixin = prefab.GetComponent<LiveMixin>();
@@ -542,16 +540,14 @@ namespace DWEquipmentBonanza
 					{
 						Log.LogWarning($"Could not find LargeWorldEntity component in prefab for TechType {tt.AsString()}");
 					}
-
-					if (tt == TechType.DrillableKyanite)
+#if SUBNAUTICA_STABLE
+					// Since we're here, make kyanite less troll-tastic.
+					Drillable drillable = prefab.GetComponent<Drillable>();
+					if (drillable != null && drillable.kChanceToSpawnResources < DWConstants.newKyaniteChance)
 					{
-						// Since we're here, make kyanite less troll-tastic.
-						Drillable drillable = prefab.GetComponent<Drillable>();
-						if (drillable != null)
-						{
-							drillable.kChanceToSpawnResources = DWConstants.newKyaniteChance;
-						}
+						drillable.kChanceToSpawnResources = DWConstants.newKyaniteChance;
 					}
+#endif
 				}
 				else
 				{

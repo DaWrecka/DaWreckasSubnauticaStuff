@@ -22,7 +22,11 @@ namespace DWEquipmentBonanza.Patches
 			{ TechType.None, defaultSurvivalCap },
 			{ TechType.ColdSuit, defaultSurvivalCap },
 			{ TechType.ReinforcedDiveSuit, defaultSurvivalCap },
+#if SUBNAUTICA_STABLE
 			{ TechType.Stillsuit, defaultSurvivalCap }
+#elif BELOWZERO
+			{ TechType.WaterFiltrationSuit, defaultSurvivalCap }
+#endif
 		}; // Dictionary using suit TechTypes as keys; if the worn suit is present in the dictionary, then we override the water cap with the associated value.
 		private static TechType cachedSuitType; // if the equipped body suit is this, we don't need to check the dictionary.
 		private static float cachedOverride = defaultSurvivalCap;

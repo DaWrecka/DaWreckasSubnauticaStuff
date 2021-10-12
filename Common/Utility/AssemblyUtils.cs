@@ -9,7 +9,6 @@ namespace Common
 	internal static class AssemblyUtils
 	{
 		// Copied from weskey007's ShowAvailableItems code, this can be used to patch methods from a different assembly without making a hard dependency on that assembly.
-
 		public static void PatchIfExists(Harmony harmony, string assemblyName, string typeName, string methodName, HarmonyMethod prefix, HarmonyMethod postfix, HarmonyMethod transpiler)
 		{
 			var assembly = FindAssembly(assemblyName);

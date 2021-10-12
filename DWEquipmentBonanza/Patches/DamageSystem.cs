@@ -34,19 +34,23 @@ namespace CombinedItems.Patches
 						return 0f;
 					}
 
-					// I could probably rewrite this with DamageModifier components, but I'm still not sure whether those actually work in SN1.
-					// By default, DamageModifier components only modify a single DamageType, but all we'd have to do is add multiple DamageModifier components.
-					// Or even code a custom DamageModifier.
-
-					Equipment equipment = Inventory.main.equipment;
-					Player __instance = Player.main;
-					foreach (string s in Main.playerSlots)
-					{
-						TechType techTypeInSlot = equipment.GetTechTypeInSlot(s);
-						float damageMod = Main.ModifyDamage(techTypeInSlot, baseDamage, type);
-						newDamage -= damageMod;
-					}
 				}
+				// I could probably rewrite this with DamageModifier components, but I'm still not sure whether those actually work in SN1.
+				// By default, DamageModifier components only modify a single DamageType, but all we'd have to do is add multiple DamageModifier components.
+				// Or even code a custom DamageModifier.
+
+				Equipment equipment = Inventory.main.equipment;
+				Player __instance = Player.main;
+				foreach (string s in Main.playerSlots)
+				{
+					TechType techTypeInSlot = equipment.GetTechTypeInSlot(s);
+					float damageMod = Main.ModifyDamage(techTypeInSlot, baseDamage, type);
+					newDamage -= damageMod;
+				}
+				
+				// This is to cover the instances where the player is in acid, gets in a vehicle - sound is stopped by above - and then gets out again.
+				if (type == DamageType.Acid && newDamage > 0f && !Player.main.acidLoopingSound.playing)
+					Player.main.acidLoopingSound.Start();
 			}
 
 			return System.Math.Max(newDamage, 0f);

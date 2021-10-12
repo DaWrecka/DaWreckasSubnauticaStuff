@@ -6,19 +6,36 @@ using UnityEngine;
 
 namespace Common
 {
-    class TechTypeUtils
+    public static class TechTypeUtils
     {
-		public static Dictionary<string, GameObject> ModPrefabs = new Dictionary<string, GameObject>();
-		public static Dictionary<string, TechType> ModTechTypes = new Dictionary<string, TechType>();
+		private static Dictionary<string, GameObject> ModPrefabs = new Dictionary<string, GameObject>();
+		private static Dictionary<string, TechType> ModTechTypes = new Dictionary<string, TechType>();
 
-		internal static void AddModTechType(TechType tech, GameObject prefab = null)
+		public static void AddModTechType(TechType tech, GameObject prefab = null)
 		{
+			if (tech == TechType.None)
+			{
+				Log.LogError("AddModTechType called with TechType None!");
+				return;
+			}
+
 			Log.LogDebug($"Adding mod TechType {tech.AsString()}");
 			string key = tech.AsString(true);
-			if (!ModTechTypes.ContainsKey(key))
+			if (ModTechTypes.ContainsKey(key))
+			{
+				// Okay, so there's two possibilities here; one, AddModTechType is being called for the same TechType, and only the TechType, multiple times, which is an error.
+				// Two, AddModTechType is being called a second time for a TechType to add a prefab. This is not an error.
+				if (prefab == null)
+				{
+					Log.LogError($"AddModTechType called multiple times for key '{key}'");
+					return;
+				}
+			}
+			else
 			{
 				ModTechTypes.Add(key, tech);
 			}
+
 			if (prefab != null)
 			{
 				ModPrefabs[key] = prefab;
@@ -44,12 +61,19 @@ namespace Common
 		internal static GameObject GetModPrefab(string key)
 		{
 			string lowerKey = key.ToLower();
-			GameObject modPrefab;
-			if (ModPrefabs.TryGetValue(lowerKey, out modPrefab))
+			if (ModPrefabs.TryGetValue(lowerKey, out GameObject modPrefab))
 				return modPrefab;
 
 			return null;
 		}
+
+		internal static bool TryGetModPrefab(string key, out GameObject modPrefab)
+		{
+			string lowerKey = key.ToLower();
+			return ModPrefabs.TryGetValue(lowerKey, out modPrefab);
+		}
+
+
 		// Useful function provided by PrimeSonic. Ta!
 		public static TechType GetTechType(string value)
         {

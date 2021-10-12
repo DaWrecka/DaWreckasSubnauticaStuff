@@ -101,7 +101,7 @@ namespace CustomiseOxygen
             while (!SpriteManager.hasInitialized)
 #endif
             {
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSecondsRealtime(0.5f);
             }
 
             Log.LogDebug($"WaitForSpriteHandler(): Sprite manager initialisation complete. pendingTanks.Count == {pendingTanks.Count}");

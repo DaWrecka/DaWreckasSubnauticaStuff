@@ -47,7 +47,7 @@ namespace DWEquipmentBonanza.Equipables
 		new public bool UnlockedAtStart => false;
 
 		public override EquipmentType EquipmentType => EquipmentType.Hand;
-		public override Vector2int SizeInInventory => new Vector2int(2, 3);
+		public override Vector2int SizeInInventory => new(2, 3);
 		public override TechGroup GroupForPDA => TechGroup.Machines;
 		public override TechCategory CategoryForPDA => TechCategory.Machines;
 		public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;

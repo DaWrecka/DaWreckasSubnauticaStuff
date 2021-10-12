@@ -71,7 +71,11 @@ namespace NamedVehiclePrompts.Patches
             if (Main.TryGetVehiclePrompt(handText, Language.main.GetCurrentLanguage(), subName, out string prompt))
             {
                 if (bLog) ErrorMessage.AddMessage($"TryGetVehiclePrompt returned true with value for prompt of '{prompt}'");
+#if SUBNAUTICA_STABLE
                 HandReticle.main.SetInteractText(prompt);
+#elif BELOWZERO
+                HandReticle.main.SetText(HandReticle.TextType.Hand, prompt, true);
+#endif
                 HandReticle.main.SetIcon(HandReticle.IconType.Hand, 1f);
                 return false;
             }
@@ -90,7 +94,10 @@ namespace NamedVehiclePrompts.Patches
         [HarmonyPrefix]
         public static bool Prefix(ref DockedVehicleHandTarget __instance, GUIHand hand)
         {
+#if SUBNAUTICA_STABLE
             Vehicle dockedVehicle = __instance.dockingBay.GetDockedVehicle();
+#elif BELOWZERO
+#endif
             if (!(dockedVehicle != null))
             {
                 HandReticle.main.SetInteractInfo("NoVehicleDocked");

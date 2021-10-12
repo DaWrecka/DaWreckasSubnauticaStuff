@@ -29,18 +29,18 @@ namespace DWEquipmentBonanza.Equipables
             OnFinishedPatching += () => OnFinishedPatch();
         }
 
-        public override Vector2int SizeInInventory => new Vector2int(2, 3);
+        public override Vector2int SizeInInventory => new(2, 3);
 
         [Obsolete]
         protected virtual float SurvivalCapOverride => 150f;
-        protected virtual TechType[] substitutions => new TechType[] { TechType.Stillsuit };
-        protected virtual TechType prefabTechType => TechType.Stillsuit;
+        protected virtual TechType[] substitutions => new TechType[] { Main.StillSuitType };
+        protected virtual TechType prefabTechType => Main.StillSuitType;
         protected virtual List<TechType> CompoundDependencies => new List<TechType>();
         protected static GameObject prefab;
 
         protected virtual void OnFinishedPatch()
         {
-            //Main.AddSubstitution(this.TechType, TechType.Stillsuit);
+            //Main.AddSubstitution(this.TechType, Main.StillSuitType);
             foreach (TechType tt in substitutions)
             {
                 Main.AddSubstitution(this.TechType, tt);
@@ -58,22 +58,17 @@ namespace DWEquipmentBonanza.Equipables
 #if SUBNAUTICA_STABLE
         public override GameObject GetGameObject()
         {
-            System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
             if (prefab == null)
             {
                 prefab = PrepareGameObject(CraftData.GetPrefabForTechType(prefabTechType));
             }
 
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
             return prefab;
         }
 #endif
 
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
-            System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
             if (prefab == null)
             {
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTechType, verbose: true);
@@ -81,30 +76,21 @@ namespace DWEquipmentBonanza.Equipables
 
                 prefab = PrepareGameObject(task.GetResult());
             }
+            gameObject.Set(prefab);
 
-            GameObject go = GameObject.Instantiate(prefab);
-            gameObject.Set(go);
-
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
             yield break;
         }
 
         protected virtual GameObject PrepareGameObject(GameObject prefab)
         {
-            System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
             GameObject obj = GameObject.Instantiate<GameObject>(prefab);
 
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: Editing prefab");
-            Stillsuit s = obj.GetComponent<Stillsuit>();
-            if(s != null)
+            if (obj.TryGetComponent<Stillsuit>(out Stillsuit s))
                 GameObject.DestroyImmediate(s);
             obj.EnsureComponent<SurvivalsuitBehaviour>();
+            ModPrefabCache.AddPrefab(obj, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it;
+                                                  // the prefab doesn't show up in the world [as with SetActive(false)] but because it's not been set inactive, it can instantiate active GameObjects immediately.
 
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: invoking ModPrefabCache.AddPrefab()");
-            //ModPrefabCache.AddPrefab(obj, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
-
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
             return obj;
         }
     }
@@ -115,10 +101,12 @@ namespace DWEquipmentBonanza.Equipables
                 string friendlyName = "Survival Suit",
                 string Description = "Enhanced survival suit provides passive replenishment of calories and fluids, reducing the need for external sources of sustenance.") : base(classId, friendlyName, Description)
         {
-            OnFinishedPatching += () =>
-            {
-                Main.AddDiveSuit(this.TechType, this.maxDepth, this.breathMultiplier, this.minTempBonus);
-            };
+        }
+
+        protected override void OnFinishedPatch()
+        {
+            base.OnFinishedPatch();
+            Main.AddDiveSuit(this.TechType, this.maxDepth, this.breathMultiplier, this.minTempBonus);
         }
 
         protected virtual float maxDepth => 1000f;
@@ -128,15 +116,15 @@ namespace DWEquipmentBonanza.Equipables
         {
             get
             {
-                return new TechType[] { TechType.Stillsuit };
+                return new TechType[] { Main.StillSuitType };
             }
         }
         public override EquipmentType EquipmentType => EquipmentType.Body;
-        public override TechType RequiredForUnlock => TechType.Stillsuit;
-        public override Vector2int SizeInInventory => new Vector2int(2, 2);
+        public override TechType RequiredForUnlock => Main.StillSuitType;
+        public override Vector2int SizeInInventory => new(2, 2);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
-        public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
+        public override string[] StepsToFabricatorTab => new string[] { "BodyMenu" };
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -145,7 +133,7 @@ namespace DWEquipmentBonanza.Equipables
                 craftAmount = 0,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                     {
-                        new Ingredient(TechType.Stillsuit, 1),
+                        new Ingredient(Main.StillSuitType, 1),
                         new Ingredient(TechType.AdvancedWiringKit, 1),
                         new Ingredient(TechType.JellyPlant, 1),
 #if SUBNAUTICA_STABLE
@@ -164,7 +152,7 @@ namespace DWEquipmentBonanza.Equipables
 
         protected override Sprite GetItemSprite()
         {
-            return SpriteManager.Get(TechType.Stillsuit);
+            return SpriteManager.Get(Main.StillSuitType);
         }
     }
 
@@ -191,7 +179,7 @@ namespace DWEquipmentBonanza.Equipables
         {
             get
             {
-                return new TechType[] { TechType.Stillsuit, TechType.ReinforcedDiveSuit };
+                return new TechType[] { Main.StillSuitType, TechType.ReinforcedDiveSuit };
             }
         }
         public override EquipmentType EquipmentType => EquipmentType.Body;
@@ -225,7 +213,7 @@ namespace DWEquipmentBonanza.Equipables
 
         protected override Sprite GetItemSprite()
         {
-            return SpriteManager.Get(TechType.Stillsuit);
+            return SpriteManager.Get(Main.StillSuitType);
         }
     }
 
@@ -315,7 +303,7 @@ namespace DWEquipmentBonanza.Equipables
 
         protected override Sprite GetItemSprite()
         {
-            return SpriteManager.Get(TechType.Stillsuit);
+            return SpriteManager.Get(Main.StillSuitType);
         }
     }
 #endif

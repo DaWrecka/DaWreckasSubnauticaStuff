@@ -140,11 +140,11 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		internal static (int discharges, bool bDestroy) GetChipData(TechType chip)
 		{
-			int discharges;
-			bool bDestroy = false;
-			(int discharges, bool bDestroy) returnValue = (0, false);
+			//int discharges;
+			//bool bDestroy = destroyWhenDischarged.GetOrDefault(chip, false);
+			(int discharges, bool bDestroy) returnValue = (maxDischarges.GetOrDefault(chip, -1), destroyWhenDischarged.GetOrDefault(chip, false));
 
-			if (maxDischarges.TryGetValue(chip, out discharges))
+			/*if (maxDischarges.TryGetValue(chip, out discharges))
 			{
 				returnValue.discharges = discharges;
 			}
@@ -156,7 +156,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			if (destroyWhenDischarged.TryGetValue(chip, out bDestroy))
 			{
 				returnValue.bDestroy = bDestroy;
-			}
+			}*/
 
 			Log.LogDebug($"DiverPerimeterDefenceBehaviour.GetChipData({chip.AsString()}): got values of {returnValue.ToString()}");
 

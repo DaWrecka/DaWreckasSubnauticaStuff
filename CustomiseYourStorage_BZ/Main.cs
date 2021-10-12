@@ -1,5 +1,5 @@
 ﻿using Common;
-using CustomiseYourStorage_BZ.Configuration;
+using CustomiseYourStorage.Configuration;
 using HarmonyLib;
 using QModManager.API.ModLoading;
 using SMLHelper.V2.Handlers;
@@ -8,7 +8,7 @@ using System.IO;
 using System.Reflection;
 using Logger = QModManager.Utility.Logger;
 
-namespace CustomiseYourStorage_BZ
+namespace CustomiseYourStorage
 {
 	[QModCore]
 	public class Main
@@ -31,8 +31,8 @@ namespace CustomiseYourStorage_BZ
 		{
 #if SUBNAUTICA_STABLE
 			"EscapePod.StorageContainer", // We've given the DropPod special treatment, so we're keeping it for the the Lifepod.
-					// This might seem counter-intuitive, but the BZ version of this mod was developed before the SN1 version.
-					// So the Droppod code was implemented before the SN1 version of the mod.
+					// This might seem counter-intuitive, blacklisting the Escape Pod locker when we could easily customise it the same way as any other container,
+					// but the BZ version of this mod was developed before the SN1 version, so the Droppod code was implemented before the SN1 version of the mod.
 #elif BELOWZERO
 			"SeaTruckAquariumModule",
 #endif

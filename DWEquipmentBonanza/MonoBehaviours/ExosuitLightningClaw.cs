@@ -46,7 +46,7 @@ namespace DWEquipmentBonanza.VehicleModules
 				{
 					this.front = obj.transform;
 				}
-				yield return new WaitForSeconds(0.2f);
+				yield return new WaitForSecondsRealtime(0.2f);
 			}
 			yield break;
 		}

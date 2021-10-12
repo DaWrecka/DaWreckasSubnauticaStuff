@@ -15,7 +15,7 @@ namespace DWEquipmentBonanza.Patches
 		private static float cachedBatteryCharge; // Filled in by ConsumeResourcesPostfix
 		private static HashSet<TechType> chipTechTypes = new HashSet<TechType>(); // HashSet of the TechTypes of all tiers of Diver Perimeter Defence Chips
 		private static HashSet<TechType> chipRecharges = new HashSet<TechType>(); // Hashset of TechTypes which are recharge recipes, and not actually chips themselves.
-		private static HashSet<TechType> chipRechargeables = new HashSet<TechType>(); // HashSet of the chips which can be recharged. At present, only one such chip is planned, but this allows for expansion
+		private static HashSet<TechType> chipRechargeables = new HashSet<TechType>(); // HashSet of the chips which can be recharged.
 		private static float lastChipCharge; // Charge of the battery in the last-consumed chip.
 		public static bool IsChip(TechType tt) => chipTechTypes.Contains(tt);
 		public static bool IsRechargeableChip(TechType tt) => chipRechargeables.Contains(tt);

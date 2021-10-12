@@ -3,8 +3,9 @@ param
 (
     [Parameter(Mandatory=$true)][string]$ProjectDir,
     [Parameter(Mandatory=$true)][string]$TargetPath,
-    [Parameter(Mandatory=$true)][string]$ProjectName,
+    [Parameter(Mandatory=$true)][string]$AssemblyName,
 	[Parameter(Mandatory=$true)][string]$SolutionDir,
+	[Parameter(Mandatory=$true)][string]$GameDir,
 	[Parameter(Mandatory=$true)][string]$Config
 )
 #$dirSeparator = [string][System.IO.Path]::DirectorySeparatorChar
@@ -12,24 +13,25 @@ $dirSeparator = "\"
 Write-Host ("Using directory separator '" + $dirSeparator + "'")
 
 # Sanity-checking; remove all " symbols from the parameters, because clearly Visual Studio and Powershell can't be trusted not to include them.
-$ProjectDir = $ProjectDir -replace '"',''
-$TargetPath = $TargetPath -replace '"',''
-$ProjectName = $ProjectName -replace '"',''
-$SolutionDir = $SolutionDir -replace '"',''
+# Also trim any trailing directory separators
+$ProjectDir = ($ProjectDir -replace '"','').TrimEnd( ( '\','/' ) )
+$TargetPath = ($TargetPath -replace '"','').TrimEnd( ( '\','/' ) )
+$AssemblyName = ($AssemblyName -replace '"','').TrimEnd( ( '\','/' ) )
+$SolutionDir = ($SolutionDir -replace '"','').TrimEnd( ( '\','/' ) )
 $Config = $Config -replace '"',''
 
-[string]$s = "Executing with parameters:`nProjectDir '" + $ProjectDir + "'`nTargetPath '" + $TargetPath + "'`nProjectName '" + $ProjectName + "'`nSolutionPath '" + $SolutionDir + "'`nConfig '" + $Config + "'"
+[string]$s = "Executing with parameters:`nProjectDir`t'" + $ProjectDir + "'`nTargetPath`t'" + $TargetPath + "'`nAssemblyName`t'" + $AssemblyName + "'`nSolutionDir`t'" + $SolutionDir + "'`nConfig`t`t'" + $Config + "'" + "'`nGameDir`t`t'" + $GameDir + "'`nVerbose`t`t" + $Verbose
 Write-Host $s
 
 $jsonName = "mod_" + $Config + ".json"
-$jsonPath = $ProjectDir + $jsonName
+$jsonPath = ($ProjectDir,$jsonName) -join $dirSeparator
 $SolutionItem = Get-Item -Path $SolutionDir
-$modPath = $SolutionDir + $dirSeparator + "QMods" + $dirSeparator + $Config + $dirSeparator + $ProjectName
+$modPath = ($GameDir,"QMods",$AssemblyName) -join $dirSeparator
 
 if(!(Test-Path $jsonPath))
 {
 	$jsonName = "mod.json"
-	$jsonPath = $ProjectDir + $dirSeparator + "\mod.json"
+	$jsonPath = ($ProjectDir,"mod.json") -join $dirSeparator
 }
 
 if(!(Test-Path $jsonPath))
@@ -57,5 +59,46 @@ if(!(Test-Path $modPath))
 	New-Item -Type Directory -Path $modPath
 }
 Write-Host Creating hard links in $modPath
-New-Item -Type HardLink -Path (($modPath,"mod.json") -join $dirSeparator) -Target $jsonPath -Force
-New-Item -Type HardLink -Path (($modPath,$dllItem.Name) -join $dirSeparator) -Target $TargetPath -Force
+$jsonTarget = ($modPath,"mod.json") -join $dirSeparator
+$dllTarget = ($modPath,$dllItem.Name) -join $dirSeparator
+Write-Host 'Using jsonTarget' $jsonTarget
+Write-Host 'Using dllTarget' $dllTarget
+Write-Host Using TargetPath $TargetPath
+New-Item -Type HardLink -Path $jsonTarget -Target $jsonPath -Force
+if($dllTarget -ne $TargetPath)
+{
+	New-Item -Type HardLink -Path $dllTarget -Target $TargetPath -Force
+}
+
+# Link Assets, if they exist
+$assetDir = (($ProjectDir,"Assets") -join $dirSeparator)
+if(Test-Path $assetDir)
+{
+	Write-Host "Processing assets directory $assetDir"
+	Push-Location $ProjectDir # This is mainly for the use of Resolve-Path later
+	$assetDest = $modPath #(($modPath,"Assets") -join $dirSeparator)
+	foreach($assetItem in Get-ChildItem -Path $assetDir -Recurse)
+	{
+		$assetPath = Resolve-Path $assetItem -Relative
+		if($assetItem -is [System.Io.DirectoryInfo])
+		{
+			Write-Host ("Creating directory ${assetPath}")
+			New-Item -Type Directory -Path (($assetDest,$assetPath) -join $dirSeparator)
+		}
+		else
+		{
+			$container = (($assetDest,(Resolve-Path ($assetItem.Directory) -Relative)) -join $dirSeparator)
+			if(!(Test-Path $container))
+			{
+				New-Item -Type Directory -Path $container
+			}
+
+			$linkTarget = (($assetDest,$assetPath) -join $dirSeparator)
+			if(!(Test-Path $linkTarget))
+			{
+				New-Item -Type HardLink -Path $linkTarget -Target $assetItem
+			}
+		}
+	}
+	Pop-Location
+}

@@ -8,14 +8,25 @@
     <ProjectGuid>{854262EB-F44F-4D6B-9B32-4103AE9F4253}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CustomiseYourStorage_BZ</RootNamespace>
-    <AssemblyName>CustomiseYourStorage_BZ</AssemblyName>
-    <OutputPath>$(SolutionDir)$(AssemblyName)\$(Configuration)\</OutputPath>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Subnautica'">
+  </PropertyGroup>
   <Import Project="..\Configurations.targets" />
+  <PropertyGroup Condition="$(Configuration.StartsWith('BelowZero'))">
+    <AssemblyName>CustomiseYourStorage_BZ</AssemblyName>
+    <OutputPath>..\Qmods\BelowZero\CustomiseYourStorage_BZ\</OutputPath>
+    <RootNamespace>CustomiseYourStorage_BZ</RootNamespace>
+    <AssemblyName>CustomiseYourStorage_BZ</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(Configuration.StartsWith('Subnautica'))">
+    <AssemblyName>CustomiseYourStorage</AssemblyName>
+    <OutputPath>..\Qmods\Subnautica\CustomiseYourStorage\</OutputPath>
+    <RootNamespace>CustomiseYourStorage</RootNamespace>
+    <AssemblyName>CustomiseYourStorage</AssemblyName>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
       <HintPath>$(GameDir)\BepInEx\core\0Harmony.dll</HintPath>
@@ -68,17 +79,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="config.default.json" />
-    <None Include="mod_SN1.json" />
-    <None Include="mod_BZ.json" />
+    <None Include="mod_Subnautica.json" />
+    <None Include="mod_BelowZero.json" />
   </ItemGroup>
   <Import Project="..\Common\Common.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\PostBuildEvents.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>echo on
-
-pwsh "$(SolutionDir)post-build.ps1" -Config $(ConfigurationName) -ProjectDir "$(ProjectDir)\" -TargetPath "$(TargetPath)" -ProjectName "$(ProjectName)" -SolutionDir "$(SolutionDir)"</PostBuildEvent>
-  </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>echo GameDir: $(GameDir)
 echo DataFolder: $(DataFolder)

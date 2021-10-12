@@ -1,34 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <PropertyGroup Condition="'$(Configuration)' == 'BZ'">
+  <PropertyGroup Condition="'$(Configuration)' == 'BelowZero'">
     <DefineConstants>BZ;BELOWZERO</DefineConstants>
     <GameDir>$(CommonDir)SubnauticaZero.Stable</GameDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'BZ.EXP'">
-    <DefineConstants>BZ;BELOWZERO_EXP</DefineConstants>
-    <GameDir>$(CommonDir)SubnauticaZero.Exp</GameDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'SN1'">
+  <PropertyGroup Condition="'$(Configuration)' == 'Subnautica'">
     <DefineConstants>SN1;SUBNAUTICA_STABLE</DefineConstants>
     <GameDir>$(CommonDir)Subnautica.Stable</GameDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'SN1.EXP'">
-    <DefineConstants>SN1;SUBNAUTICA_EXP</DefineConstants>
-    <GameDir>$(CommonDir)Subnautica.Exp</GameDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(Configuration.StartsWith('BZ'))">
+  <PropertyGroup Condition="$(Configuration.StartsWith('BelowZero'))">
     <GameName>BelowZero</GameName>
     <DataFolder>SubnauticaZero_Data</DataFolder>
     <SMLHelperFolder>SMLHelper_BZ</SMLHelperFolder>
   </PropertyGroup>
-  <PropertyGroup Condition="$(Configuration.StartsWith('SN1'))">
+  <PropertyGroup Condition="$(Configuration.StartsWith('Subnautica'))">
     <GameName>Subnautica</GameName>
     <DataFolder>Subnautica_Data</DataFolder>
     <SMLHelperFolder>Modding Helper</SMLHelperFolder>
   </PropertyGroup>
   <PropertyGroup>
-    <OutputPath>..\..\Qmods\$(Configuration)\$(AssemblyName)\</OutputPath>
+    <OutputPath>..\Qmods\$(Configuration)\$(AssemblyName)\</OutputPath>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <LangVersion>latest</LangVersion>

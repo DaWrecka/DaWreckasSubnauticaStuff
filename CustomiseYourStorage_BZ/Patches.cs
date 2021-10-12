@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 using Logger = QModManager.Utility.Logger;
-using CustomiseYourStorage_BZ;
+using CustomiseYourStorage;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Collections;
@@ -9,7 +9,7 @@ using UnityEngine;
 using System.IO;
 using Common;
 
-namespace CustomiseYourStorage_BZ.Patches
+namespace CustomiseYourStorage.Patches
 {
 	internal class InventoryModMarker : MonoBehaviour
 	{

@@ -11,9 +11,9 @@ using DWEquipmentBonanza.Patches;
 namespace DWEquipmentBonanza.VehicleModules
 {
 #if BELOWZERO
-    internal class SeatruckSolarModule : Equipable
+    public class SeatruckSolarModule : Equipable
     {
-        private const int MaxSolarModules = 4;
+        protected const int MaxSolarModules = 4;
         public override EquipmentType EquipmentType => EquipmentType.SeaTruckModule;
         public override QuickSlotType QuickSlotType => QuickSlotType.Passive;
         public override TechGroup GroupForPDA => TechGroup.VehicleUpgrades;
@@ -60,7 +60,52 @@ namespace DWEquipmentBonanza.VehicleModules
             return SpriteManager.Get(TechType.SeamothSolarCharge);
         }
 
-        public SeatruckSolarModule() : base("SeatruckSolarModule", "SeaTruck Solar Charger", "Recharges SeaTruck power cells in sunlight. Limited stacking ability.")
+        public SeatruckSolarModule(string classID = "SeatruckSolarModule",
+            string friendlyName = "SeaTruck Solar Charger",
+            string description = "Recharges SeaTruck power cells in sunlight. Limited stacking ability.") : base(classID, friendlyName, description)
+        {
+            OnFinishedPatching += () =>
+            {
+                Main.AddModTechType(this.TechType);
+                SeaTruckUpgradesPatches.AddMaxModuleOverride(this.TechType, MaxSolarModules);
+            };
+        }
+    }
+
+    public class SeatruckSolarModuleMk2 : SeatruckSolarModule
+    {
+        private static GameObject prefab;
+        private const float cellCapacity = 120f;
+
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            return new RecipeData()
+            {
+                craftAmount = 1,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                    {
+                        new Ingredient(Main.GetModTechType("SeatruckSolarModule"), 1),
+                        new Ingredient(TechType.Battery, 2),
+                        new Ingredient(TechType.WiringKit, 1)
+                    }
+                )
+            };
+        }
+
+        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+            if (prefab == null)
+            {
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.SeaTruckUpgradeEnergyEfficiency);
+                yield return task;
+                prefab = GameObject.Instantiate(task.GetResult());
+                Battery cell = prefab.EnsureComponent<Battery>();
+                cell.name = "SolarBackupBattery";
+                cell._capacity = cellCapacity;
+            }
+        }
+
+        public SeatruckSolarModuleMk2() : base("SeatruckSolarModuleMk2", "Seatruck Solar Charger Mk2", "Recharges SeaTruck power cells in sunlight, and has an internal backup battery. Limited stacking ability.")
         {
             OnFinishedPatching += () =>
             {

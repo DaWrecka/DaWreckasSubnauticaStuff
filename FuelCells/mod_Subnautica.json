@@ -3,20 +3,19 @@
   "DisplayName": "Fuel Cells",
   "Author": "DaWrecka",
   "Version": "1.0.0.0",
-  "LoadAfter": [
+  "Dependencies": [
     "SMLHelper",
     "CustomBatteries"
   ],
   "VersionDependencies": {
-    "SMLHelper": "2.9.6",
+    "SMLHelper": "2.9.3",
     "CustomBatteries": "1.1"
   },
-  "Game": "BelowZero",
-  "NexusId": {
-  },
+  "Game": "Subnautica",
+  "NexusId": {},
   "AssemblyName": "FuelCells.dll",
   "VersionChecker": {
-    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/FuelCells/mod_BZ.json"
+    "LatestVersionURL": "https://github.com/Metious/MetiousSubnauticaMods/raw/master/NuclearBatteries/mod.json"
   },
   "Enable": true
 }

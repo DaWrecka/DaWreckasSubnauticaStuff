@@ -173,14 +173,17 @@ namespace IngredientsFromScanning.Configuration
 		public float GetWeightForTechType(TechType tech)
 		{
 			// float weight;
-			if (TechWeights.TryGetValue(tech.ToString(), out float weight))
+
+			return TechWeights.GetOrDefault(tech.ToString(), 1f);
+
+			/*if (TechWeights.TryGetValue(tech.ToString(), out float weight))
 			{
 				return weight;
 			}
 			else
 			{
 				return 1.0f;
-			}
+			}*/
 		}
 
 		public bool TrySubstituteIngredient(TechType tech, out List<Ingredient> Substitutes)

@@ -65,8 +65,9 @@ namespace DWEquipmentBonanza.Patches
         {
             /*if (__result == powerGlideTechType.AsString(true))
                 __result = TechType.Seaglide.AsString(true);*/
-            if (animToolSubstitutions.TryGetValue(__result, out TechType sub))
-                __result = sub.AsString(true);
+            //if (animToolSubstitutions.TryGetValue(__result, out TechType sub))
+            //    __result = sub.AsString(true);
+            __result = (animToolSubstitutions.TryGetValue(__result, out TechType sub) ? sub.AsString(true) : __result);
         }
     }
 }

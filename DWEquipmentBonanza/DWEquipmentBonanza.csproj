@@ -17,10 +17,10 @@
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BZ|AnyCPU'">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BelowZero|AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'SN1|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Subnautica|AnyCPU'">
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
@@ -42,9 +42,11 @@
     <Compile Include="MonoBehaviours\Powerglide.cs" />
     <Compile Include="MonoBehaviours\SeaTruckUpdater.cs" />
     <Compile Include="MonoBehaviours\SurvivalsuitBehaviour.cs" />
+    <Compile Include="MonoBehaviours\VehicleCharger.cs" />
     <Compile Include="MonoBehaviours\VehicleUpdater.cs" />
     <Compile Include="Patches\BatteryCharger.cs" />
     <Compile Include="Patches\DamageSystem.cs" />
+    <Compile Include="Patches\Drillable.cs" />
     <Compile Include="Patches\ExosuitClawArm.cs" />
     <Compile Include="Patches\Hoverbike.cs" />
     <Compile Include="Patches\Inventory.cs" />
@@ -86,15 +88,15 @@
     <Compile Include="VehicleModules\HoverbikeWaterTravelModule.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="mod_SN1.json" />
-    <None Include="mod_BZ.json" />
+    <None Include="mod_Subnautica.json" />
+    <None Include="mod_BelowZero.json" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="CustomDataboxes" Condition="$(Configuration.StartsWith('BZ')) Or $(Configuration.EndsWith('EXP'))">
+    <Reference Include="CustomDataboxes" Condition="$(Configuration.StartsWith('BelowZero')) Or $(Configuration.EndsWith('EXP'))">
       <HintPath>$(GameDir)\QMods\CustomDataboxesBZ\CustomDataboxes.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="CustomDataboxes" Condition="$(Configuration.StartsWith('SN1'))">
+    <Reference Include="CustomDataboxes" Condition="$(Configuration.StartsWith('Subnautica'))">
       <HintPath>$(GameDir)\QMods\CustomDataboxes\CustomDataboxes.dll</HintPath>
       <Private>False</Private>
     </Reference>

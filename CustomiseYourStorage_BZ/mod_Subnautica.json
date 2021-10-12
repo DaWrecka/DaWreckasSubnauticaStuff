@@ -7,12 +7,12 @@
     "SMLHelper"
   ],
   "Game": "Subnautica",
-  "AssemblyName": "CustomiseYourStorage_BZ.dll",
+  "AssemblyName": "CustomiseYourStorage.dll",
   "VersionDependencies": {
     "SMLHelper": "2.9"
   },
   "VersionChecker": {
-    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/CustomiseYourStorage_BZ/mod_SN1.json"
+    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/CustomiseYourStorage/mod_SN1.json"
   },
   "NexusId": {},
   "Enable": true

@@ -210,7 +210,7 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition="$(Configuration.StartsWith('BZ')) Or $(Configuration.EndsWith('EXP'))">
+  <ItemGroup Condition="$(Configuration.StartsWith('BelowZero')) Or $(Configuration.EndsWith('EXP'))">
     <Reference Include="Unity.Addressables">
       <Private>False</Private>
     </Reference>
@@ -242,7 +242,7 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition="$(Configuration.StartsWith('BZ'))">
+  <ItemGroup Condition="$(Configuration.StartsWith('BelowZero'))">
     <Reference Include="Unity.Formats.Fbx.Runtime">
       <Private>False</Private>
     </Reference>

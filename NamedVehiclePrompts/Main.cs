@@ -52,7 +52,8 @@ namespace NamedVehiclePrompts
             else
             {
                 result = vehiclePromptDict.TryGetValue(targetKey, out prompt);
-                prompt = prompt.Replace("<vehicle>", VehicleName);
+                if(result)
+                    prompt = prompt.Replace("<vehicle>", VehicleName);
 #if !RELEASE
 
                 Logger.Log(Logger.Level.Debug, $"Main.TryGetVehiclePrompt: got prompt value of {prompt} with key {targetKey}"); 

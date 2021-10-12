@@ -24,6 +24,7 @@ namespace DWEquipmentBonanza.Equipables
 
         public HighCapacityBooster() : base("HighCapacityBooster", "High Capacity Booster Tank", "Booster tank with increased oxygen capacity.")
         {
+            //CoroutineHost.StartCoroutine(PostPatchSetup());
             OnFinishedPatching += () =>
             {
                 Main.AddSubstitution(this.TechType, TechType.SuitBoosterTank);
@@ -34,7 +35,6 @@ namespace DWEquipmentBonanza.Equipables
                     TechType.SuitBoosterTank,
                     TechType.HighCapacityTank
                 });
-                CoroutineHost.StartCoroutine(PostPatchSetup());
 
                 Main.AddCustomOxyExclusion(this.TechType, true, true);
                 Main.AddCustomOxyTank(this.TechType, -1f, icon);
@@ -71,35 +71,20 @@ namespace DWEquipmentBonanza.Equipables
 
         protected virtual IEnumerator PostPatchSetup()
         {
-            bool bWaiting = true;
-
-            while (bWaiting)
+            while (icon == null)
             {
-                bWaiting = !SpriteManager.hasInitialized;
-
-                yield return new WaitForSecondsRealtime(0.5f);
-            }
-
-            CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.HighCapacityTank);
-            yield return task;
-            var highCapPrefab = task.GetResult();
-            if (highCapPrefab != null)
-            {
-                highCapTank = GameObject.Instantiate(highCapPrefab);
-                ModPrefabCache.AddPrefab(highCapTank, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
-            }
-            else
-            {
-                Log.LogError($"Failed getting prefab for HighCapacityTank");
+                icon = SpriteManager.Get(TechType.HighCapacityTank, null);
+                yield return new WaitForEndOfFrame();
             }
         }
         protected override Sprite GetItemSprite()
         {
-            if (icon == null || icon == SpriteManager.defaultSprite)
+            /*if (icon == null)
             {
-                icon = SpriteManager.Get(TechType.HighCapacityTank);
+                icon = SpriteManager.Get(TechType.HighCapacityTank, null);
             }
-            return icon;
+            return icon;*/
+            return SpriteManager.Get(TechType.HighCapacityTank);
         }
 
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
@@ -124,7 +109,7 @@ namespace DWEquipmentBonanza.Equipables
                 yield return task;
                 highCapTank = GameObject.Instantiate(task.GetResult()); // The "capacity expansion" code in Customise Your Oxygen can't run unless the thing is instantiated. The prefabs can't be altered.
                                                                         // So unless we instantiate, we only get default capacities.
-                ModPrefabCache.AddPrefab(highCapTank, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
+                ModPrefabCache.AddPrefab(highCapTank, false);
             }
 
             GameObject go = GameObject.Instantiate(prefab);

@@ -10,8 +10,7 @@
     "SMLHelper": "2.9.6"
   },
   "Game": "BelowZero",
-  "NexusId": {
-  },
+  "NexusId": {},
   "AssemblyName": "GravTrapBeacons.dll",
   "VersionChecker": {
     "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/GravTrapBeacons/mod_BZ.json"

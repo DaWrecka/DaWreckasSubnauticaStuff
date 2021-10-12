@@ -35,7 +35,7 @@
     <Compile Include="SolarRegeneratePowerSource.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="mod_SN1.json" />
+    <None Include="mod_Subnautica.json" />
   </ItemGroup>
   <Import Project="..\Common\Common.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

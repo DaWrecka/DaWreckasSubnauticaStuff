@@ -15,6 +15,6 @@ namespace DWEquipmentBonanza
         public const string SeatruckMenuPath = "SeaTruckWBUpgrades";
         public const string TankMenuPath = "TankMenu";
         public const string BodyMenuPath = "BodyMenu";
-        public const float newKyaniteChance = 0.75f;
+        public const float newKyaniteChance = 0.85f;
     }
 }

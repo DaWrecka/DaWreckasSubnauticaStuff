@@ -58,38 +58,49 @@ namespace FuelCells.Patches
 			if (bProcessingBatteries)
 				yield break;
 
+			if (pendingBatteryList.Count < 1)
+				yield break;
+
 			bProcessingBatteries = true;
+
+			HashSet<Battery> removals = new HashSet<Battery>();
 
 			while (pendingBatteryList.Count > 0)
 			{
-				//pendingBatteryList.
-				//foreach(Battery b in pendingBatteryList)
-				//{
-				Battery b = pendingBatteryList.ElementAt(0);
-				GameObject go = b.gameObject;
-				if (go != null)
+				foreach (Battery b in pendingBatteryList)
 				{
-#if SUBNAUTICA_STABLE
-					TechTag tt = go.GetComponent<TechTag>();
-					if(tt != null)
-#elif BELOWZERO
+					//pendingBatteryList.
+					//foreach(Battery b in pendingBatteryList)
+					//{
+					GameObject go = b.gameObject;
+
+					if (go == null)
+						continue;
+
 					if (go.TryGetComponent<TechTag>(out TechTag tt))
-#endif
 					{
 						TechType batteryTech = tt.type;
-						Log.LogDebug($"ProcessPendingBatteries(): Deserialised battery instance {b.GetInstanceID()} with TechType {batteryTech.AsString()}");
-						if (typedBatteryValues.TryGetValue(batteryTech, out float value))
+						if (tt.type != TechType.None)
 						{
-							Log.LogDebug($"ProcessPendingBatteries(): Updating battery with new capacity {value}");
-							b._capacity = value;
-							b.OnAfterDeserialize();
+							Log.LogDebug($"ProcessPendingBatteries(): Deserialised battery instance {b.GetInstanceID()} with TechType {batteryTech.AsString()}");
+							if (typedBatteryValues.TryGetValue(batteryTech, out float value))
+							{
+								Log.LogDebug($"ProcessPendingBatteries(): Updating battery with new capacity {value}");
+								b._capacity = value;
+								b.OnAfterDeserialize();
+							}
 						}
-						pendingBatteryList.Remove(b);
+						removals.Add(b);
 					}
+					//}
 					yield return new WaitForEndOfFrame();
 				}
-				//}
-				yield return new WaitForSecondsRealtime(1f);
+
+				foreach (Battery b in removals)
+				{
+					pendingBatteryList.Remove(b);
+				}
+				removals.Clear();
 			}
 
 			bProcessingBatteries = false;

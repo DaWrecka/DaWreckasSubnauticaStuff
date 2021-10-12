@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using Newtonsoft.Json;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Handlers;
 using System;
@@ -8,68 +7,21 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 using Logger = QModManager.Utility.Logger;
+#if SUBNAUTICA_STABLE
+using RecipeData = SMLHelper.V2.Crafting.TechData;
+using Json = Oculus.Newtonsoft.Json;
+#elif BELOWZERO
+using Json = Newtonsoft.Json;
+#endif
+
 
 // Based HEAVILY on MrPurple6411's Copper from Scan code. For "based heavily" read "nicked almost wholesale".
 
-namespace IngredientsFromScanning_BZ.Patches
+namespace PartsFromScanning.Patches
 {
-#if !BELOWZERO
-    [HarmonyPatch(typeof(PDAScanner), nameof(PDAScanner.CanScan), new Type[] { typeof(GameObject) })]
-    internal class PDAScanner_CanScan_Patch
-    {
-        [HarmonyPrefix]
-        private static bool Prefix(ref bool __result, GameObject go)
-        {
-            if (!Main.config.bOverrideMapRoom)
-            {
-                return true;
-            }
 
-            __result = false;
-            //Logger.Log(Logger.Level.Debug, $"PDAScanner.CanScan Override: checking GameObject: {JsonConvert.SerializeObject(go.GetInstanceID(), Newtonsoft.Json.Formatting.Indented)}");
-
-            UniqueIdentifier component = go.GetComponent<UniqueIdentifier>();
-            if (component != null)
-            {
-                TechType techType = CraftData.GetTechType(go);
-                string id = component.Id;
-                //if (!PDAScanner.fragments.ContainsKey(id) && !PDAScanner.complete.Contains(techType))
-                //{
-                //return true;
-                __result = true;
-                //}
-            }
-            return false;
-        }
-    }
-#endif
-
-    [HarmonyPatch(typeof(BlueprintHandTarget))]
-    public class BlueprintHandTargetPatches
-    {
-        public static bool bIsDatabox { get; private set; }
-        public static TechType databoxUnlock { get; private set; }
-
-        [HarmonyPatch(nameof(BlueprintHandTarget.UnlockBlueprint))]
-        [HarmonyPrefix]
-        internal static bool PreUnlockBlueprint(BlueprintHandTarget __instance)
-        {
-            databoxUnlock = __instance.unlockTechType;
-            bIsDatabox = true;
-            return true;
-        }
-
-        [HarmonyPatch(nameof(BlueprintHandTarget.UnlockBlueprint))]
-        [HarmonyPostfix]
-        internal static void PostUnlockBlueprint()
-        {
-            databoxUnlock = TechType.None;
-            bIsDatabox = false;
-        }
-    }
-
-    [HarmonyPatch(typeof(CraftData), nameof(CraftData.AddToInventory))]
-    internal class CraftData_AddToInventory_Patch
+    [HarmonyPatch(typeof(CraftData))]
+    internal class CraftData_Patch
     {
         struct WeightedItem
         {
@@ -88,32 +40,43 @@ namespace IngredientsFromScanning_BZ.Patches
             // Ripped<cough>based upon MrPurple6411's method Deconstruct_Patch from the BuilderModule
             if (Player.main.isPiloting)
             {
-                GameObject gameObject = CraftData.InstantiateFromPrefab(null, techType, false);
-                Pickupable component = gameObject.GetComponent<Pickupable>();
-                component?.Initialize();
+#if SUBNAUTICA_STABLE
+                GameObject gameObject = CraftData.InstantiateFromPrefab(techType, false);
+#elif BELOWZERO
+                GameObject gameObject = CraftData.InstantiateFromPrefab(null, techType, false); // Coming back to this months later, I didn't think this worked in BZ, because it's not async. But apparently it does...
+#endif
+                Pickupable pickup = gameObject.GetComponent<Pickupable>();
+                pickup?.Initialize();
 
+                // This is kind of messy but it's an easy way to get the cross-game code running. In SN1 modules will always == null so the block won't run; but it'll still compile.
+#if SUBNAUTICA_STABLE
+                Equipment modules = null;
+#elif BELOWZERO
                 SeaTruckUpgrades upgrades = Player.main.GetComponentInParent<SeaTruckUpgrades>();
-                if (upgrades != null)
+                Equipment modules = upgrades?.modules;
+#endif
+                if (modules != null)
                 {
                     if (!TechTypeHandler.TryGetModdedTechType("SeaTruckStorage", out TechType storageType))
                         return;
 
-                    HashSet<string> TruckSlotIDs = upgrades.modules.equipment.Keys.ToSet<string>();
+                    HashSet<string> TruckSlotIDs = modules.equipment.Keys.ToSet<string>();
                     foreach (string slot in TruckSlotIDs)
                     {
-                        if (upgrades.modules.GetTechTypeInSlot(slot) == storageType)
+                        if (modules.GetTechTypeInSlot(slot) == storageType)
                         {
-                            InventoryItem item = upgrades.modules.GetItemInSlot(slot);
+                            InventoryItem item = modules.GetItemInSlot(slot);
 
                             if (item.item.TryGetComponent(out SeamothStorageContainer seamothStorageContainer))
                             {
-                                string name = Language.main.Get(component.GetTechName());
+                                string name = Language.main.Get(pickup.GetTechName());
                                 ErrorMessage.AddMessage(Language.main.GetFormat("VehicleAddedToStorage", name));
 
-                                uGUI_IconNotifier.main.Play(component.GetTechType(), uGUI_IconNotifier.AnimationType.From, null);
-                                var inventory = new InventoryItem(component);
-                                seamothStorageContainer.container.UnsafeAdd(item);
-                                component.PlayPickupSound();
+                                //uGUI_IconNotifier.main.Play(pickup.GetTechType(), uGUI_IconNotifier.AnimationType.From, null);
+                                uGUI_IconNotifier.main.Play(techType, uGUI_IconNotifier.AnimationType.From, null);
+                                var newItem = new InventoryItem(pickup);
+                                seamothStorageContainer.container.UnsafeAdd(newItem);
+                                pickup.PlayPickupSound();
                                 return;
                             }
                         }
@@ -128,15 +91,15 @@ namespace IngredientsFromScanning_BZ.Patches
                         {
                             StorageContainer storageContainer = exo.storageContainer;
 
-                            if (storageContainer.container.HasRoomFor(component))
+                            if (storageContainer.container.HasRoomFor(pickup))
                             {
-                                string name = Language.main.Get(component.GetTechName());
+                                string name = Language.main.Get(pickup.GetTechName());
                                 ErrorMessage.AddMessage(Language.main.GetFormat("VehicleAddedToStorage", name));
 
-                                uGUI_IconNotifier.main.Play(component.GetTechType(), uGUI_IconNotifier.AnimationType.From, null);
-                                var item = new InventoryItem(component);
+                                uGUI_IconNotifier.main.Play(pickup.GetTechType(), uGUI_IconNotifier.AnimationType.From, null);
+                                var item = new InventoryItem(pickup);
                                 storageContainer.container.UnsafeAdd(item);
-                                component.PlayPickupSound();
+                                pickup.PlayPickupSound();
                                 return;
                             }
                         }
@@ -148,16 +111,16 @@ namespace IngredientsFromScanning_BZ.Patches
                                 try
                                 {
                                     ItemsContainer storage = seamoth.GetStorageInSlot(i, TechType.VehicleStorageModule);
-                                    if (storage != null && storage.HasRoomFor(component))
+                                    if (storage != null && storage.HasRoomFor(pickup))
                                     {
-                                        string name = Language.main.Get(component.GetTechName());
+                                        string name = Language.main.Get(pickup.GetTechName());
                                         ErrorMessage.AddMessage(Language.main.GetFormat("VehicleAddedToStorage", name));
 
-                                        uGUI_IconNotifier.main.Play(component.GetTechType(), uGUI_IconNotifier.AnimationType.From, null);
+                                        uGUI_IconNotifier.main.Play(pickup.GetTechType(), uGUI_IconNotifier.AnimationType.From, null);
 
-                                        var item = new InventoryItem(component);
+                                        var item = new InventoryItem(pickup);
                                         storage.UnsafeAdd(item);
-                                        component.PlayPickupSound();
+                                        pickup.PlayPickupSound();
                                         storageCheck = true;
                                         break;
                                     }
@@ -179,7 +142,8 @@ namespace IngredientsFromScanning_BZ.Patches
         }
 
         [HarmonyPrefix]
-        private static bool Prefix(TechType techType, int num = 1, bool noMessage = false, bool spawnIfCantAdd = true)
+        [HarmonyPatch(nameof(CraftData.AddToInventory))]
+        private static bool PreAddToInventory(TechType techType, int num = 1, bool noMessage = false, bool spawnIfCantAdd = true)
         {
             if (techType == TechType.Titanium && num == 2 && !noMessage && spawnIfCantAdd)
             {
@@ -194,7 +158,7 @@ namespace IngredientsFromScanning_BZ.Patches
                     if (Main.config.TryOverrideRecipe(scannedFragment, out recipe))
                     {
 #if !RELEASE
-                        Logger.Log(Logger.Level.Debug, $"Using OverrideRecipe: {JsonConvert.SerializeObject(recipe, Newtonsoft.Json.Formatting.Indented)}");
+                        Logger.Log(Logger.Level.Debug, $"Using OverrideRecipe: {Json.JsonConvert.SerializeObject(recipe, Json.Formatting.Indented)}");
 #endif
                     }
                     else
@@ -209,10 +173,10 @@ namespace IngredientsFromScanning_BZ.Patches
                     Logger.Log(Logger.Level.Debug, $"Intercepting scan of fragment {scannedFragment.ToString()}");
 #endif
 
-                    if (IngredientsFromScanning_BZ.Main.config.TryOverrideRecipe(scannedFragment, out recipe))
+                    if (PartsFromScanning.Main.config.TryOverrideRecipe(scannedFragment, out recipe))
                     {
 #if !RELEASE
-                        Logger.Log(Logger.Level.Debug, $"Using OverrideRecipe: {JsonConvert.SerializeObject(recipe, Newtonsoft.Json.Formatting.Indented)}");
+                        Logger.Log(Logger.Level.Debug, $"Using OverrideRecipe: {Json.JsonConvert.SerializeObject(recipe, Json.Formatting.Indented)}");
 #endif
                     }
                     else if ((int)scannedFragment > 1112 && (int)scannedFragment < 1117)
@@ -245,7 +209,7 @@ namespace IngredientsFromScanning_BZ.Patches
                         recipe.Ingredients.Add(new Ingredient(TechType.Lead, 1));
                         recipe.Ingredients.Add(new Ingredient(TechType.PlasteelIngot, 1));
 #if !RELEASE
-                        Logger.Log(Logger.Level.Debug, $"Using recipe from manual override: {JsonConvert.SerializeObject(recipe, Newtonsoft.Json.Formatting.Indented)}");
+                        Logger.Log(Logger.Level.Debug, $"Using recipe from manual override: {Json.JsonConvert.SerializeObject(recipe, Json.Formatting.Indented)}");
 #endif
                     }
                     else
@@ -262,13 +226,17 @@ namespace IngredientsFromScanning_BZ.Patches
                         }
                         //Logger.Log(Logger.Level.Debug, $"Found entryData {entryData.ToString()}");
 #if !RELEASE
-                        Logger.Log(Logger.Level.Debug, $"Found entryData {JsonConvert.SerializeObject(entryData, Newtonsoft.Json.Formatting.Indented)}");
+                        Logger.Log(Logger.Level.Debug, $"Found entryData {Json.JsonConvert.SerializeObject(entryData, Json.Formatting.Indented)}");
 #endif
 
 
                         //CraftData.AddToInventory(TechType.Titanium);
                         //CraftData.AddToInventory(TechType.Copper);
+#if SUBNAUTICA_STABLE
+                        recipe = CraftDataHandler.GetTechData(entryData.blueprint);
+#elif BELOWZERO
                         recipe = CraftDataHandler.GetRecipeData(entryData.blueprint);
+#endif
                         if (recipe == null)
                         {
 #if !RELEASE
@@ -280,14 +248,14 @@ namespace IngredientsFromScanning_BZ.Patches
                         }
                         //Logger.Log(Logger.Level.Debug, $"Found recipe {recipe.ToString()}");
 #if !RELEASE
-                        Logger.Log(Logger.Level.Debug, $"Using recipe from EntryData: {JsonConvert.SerializeObject(recipe, Newtonsoft.Json.Formatting.Indented)}");
+                        Logger.Log(Logger.Level.Debug, $"Using recipe from EntryData: {Json.JsonConvert.SerializeObject(recipe, Json.Formatting.Indented)}");
 #endif
                     }
                 }
 
                 for (int i = 0; i < recipe.Ingredients.Count; i++)
                 {
-                    if (IngredientsFromScanning_BZ.Main.config.TrySubstituteIngredient(recipe.Ingredients[i].techType, out List<Ingredient> Substitutes))
+                    if (PartsFromScanning.Main.config.TrySubstituteIngredient(recipe.Ingredients[i].techType, out List<Ingredient> Substitutes))
                     {
                         foreach (Ingredient sub in Substitutes)
                             recipe.Ingredients.Add(sub);
@@ -311,7 +279,7 @@ namespace IngredientsFromScanning_BZ.Patches
                 //Logger.Log(Logger.Level.Error, "Unidentified Vehicle Type!");
                 for (int i = 0; i < bp.Count; i++)
                 {
-                    float thisWeight = IngredientsFromScanning_BZ.Main.config.GetWeightForTechType(bp[i]);
+                    float thisWeight = PartsFromScanning.Main.config.GetWeightForTechType(bp[i]);
                     TotalWeight += thisWeight;
                     WeightedItem thisWeightedItem = new WeightedItem(TotalWeight, bp[i]);
 #if !RELEASE
@@ -322,7 +290,7 @@ namespace IngredientsFromScanning_BZ.Patches
 
                 // Now we should be able to pick a few random numbers between 0 and the list's total weight, and add those. We want to remove that entry afterwards, but that's not a big ask.
                 System.Random rng = new System.Random();
-                int numIngredients = Math.Min(IngredientsFromScanning_BZ.Main.config.GenerateGiftValue(), BlueprintPairs.Count);
+                int numIngredients = Math.Min(PartsFromScanning.Main.config.GenerateGiftValue(), BlueprintPairs.Count);
 #if !RELEASE
                 Logger.Log(Logger.Level.Debug, $"Generated a value for this scan of {numIngredients} components."); 
 #endif
@@ -345,7 +313,7 @@ namespace IngredientsFromScanning_BZ.Patches
                             AddInventory(BlueprintPairs[j].tech, 1, false, true);
                             //CraftData.AddToInventory(BlueprintPairs[j].tech, 1, false, true);
                             awards++;
-                            TotalWeight -= IngredientsFromScanning_BZ.Main.config.GetWeightForTechType(BlueprintPairs[j].tech);
+                            TotalWeight -= PartsFromScanning.Main.config.GetWeightForTechType(BlueprintPairs[j].tech);
                             BlueprintPairs.RemoveAt(j);
                             break;
                         }

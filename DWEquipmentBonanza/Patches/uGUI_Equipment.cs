@@ -35,7 +35,7 @@ namespace DWEquipmentBonanza.Patches
                     InventoryItem itemInSlot = equipmentValue.GetItemInSlot(slotB);
                     if (itemInSlot == null)
                     {
-#if DEBUG_PLACE_TOOL
+#if DEBUG
                         Logger.Log("DEBUG: CanSwitchOrSwap returns SWITCH battery for " + techType.AsString(false));
 #endif
                         __result = ItemAction.Switch;
@@ -43,13 +43,13 @@ namespace DWEquipmentBonanza.Patches
                     }
                     if (Inventory.CanSwap(draggedItem, itemInSlot))
                     {
-#if DEBUG_PLACE_TOOL
+#if DEBUG
                         Logger.Log("DEBUG: CanSwitchOrSwap returns SWAP battery for " + techType.AsString(false));
 #endif
                         __result = ItemAction.Swap;
                         return false;
                     }
-#if DEBUG_PLACE_TOOL
+#if DEBUG
                     Logger.Log("DEBUG: CanSwitchOrSwap returns NONE battery for " + techType.AsString(false));
 #endif
                     __result = ItemAction.None;

@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using IngredientsFromScanning_BZ.Configuration;
+using PartsFromScanning.Configuration;
 using QModManager.API.ModLoading;
 //using SMLHelper.V2.Json;
 //using SMLHelper.V2.Crafting;
@@ -9,7 +9,7 @@ using SMLHelper.V2.Handlers;
 //using System.IO;
 using System.Reflection;
 
-namespace IngredientsFromScanning_BZ
+namespace PartsFromScanning
 {
 	[QModCore]
 	public static class Main

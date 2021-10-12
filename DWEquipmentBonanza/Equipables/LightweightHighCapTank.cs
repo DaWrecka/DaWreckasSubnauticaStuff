@@ -12,6 +12,7 @@ using UWE;
 using Logger = QModManager.Utility.Logger;
 using FMODUnity;
 using Common;
+using Common.Utility;
 using DWEquipmentBonanza.Patches;
 
 #if SUBNAUTICA_STABLE
@@ -27,7 +28,7 @@ using Newtonsoft.Json;
 
 namespace DWEquipmentBonanza.Equipables
 {
-    internal class PlasteelHighCapTank : Equipable
+    public class PlasteelHighCapTank : Equipable
     {
 
         protected static Sprite icon;
@@ -89,9 +90,9 @@ namespace DWEquipmentBonanza.Equipables
 
             while (bWaiting)
             {
-                if (icon == null || icon == SpriteManager.defaultSprite)
+                if (icon == null)
                 {
-                    icon = SpriteManager.Get(TechType.HighCapacityTank);
+                    icon = SpriteUtils.GetSpriteWithNoDefault(TechType.HighCapacityTank);
                 }
                 else
                     bWaiting = false;

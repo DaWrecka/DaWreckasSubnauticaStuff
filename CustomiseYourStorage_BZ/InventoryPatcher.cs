@@ -1,10 +1,10 @@
 ﻿using HarmonyLib;
 using Logger = QModManager.Utility.Logger;
-using CustomiseYourStorage_BZ;
+using CustomiseYourStorage;
 using System.Collections.Generic;
 using Common;
 
-namespace CustomiseYourStorage_BZ
+namespace CustomiseYourStorage
 {
 	[HarmonyPatch(typeof(Inventory))]
 	internal class InventoryPatcher

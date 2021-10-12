@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
-using CustomiseYourStorage_BZ.Configuration;
+using CustomiseYourStorage.Configuration;
 using Logger = QModManager.Utility.Logger;
 
-namespace CustomiseYourStorage_BZ
+namespace CustomiseYourStorage
 {
 	[HarmonyPatch(typeof(Exosuit))]
 	class Exosuit_Patcher

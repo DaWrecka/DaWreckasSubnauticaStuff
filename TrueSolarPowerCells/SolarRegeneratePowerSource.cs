@@ -29,14 +29,14 @@ namespace TrueSolarPowerCells
             RegeneratePowerSource component = null;
             while (!gameObject.TryGetComponent<RegeneratePowerSource>(out component))
             {
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSecondsRealtime(0.5f);
             }
             component.regenerationThreshhold = this.regenerationThreshhold;
             component.regenerationAmount = 0f;
 
             while (!gameObject.TryGetComponent<PowerSource>(out powerSource))
             {
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSecondsRealtime(0.5f);
             }
             powerSource.maxPower = this.regenerationThreshhold;
 
@@ -47,7 +47,7 @@ namespace TrueSolarPowerCells
         public void OnHover(HandTargetEventData eventData)
         {
             string format = Language.main.GetFormat<int, int>("PowerCellStatus", Mathf.FloorToInt(this.powerSource.GetPower()), Mathf.FloorToInt(this.powerSource.GetMaxPower()));
-            HandReticle.main.SetInteractText("RegenPowerCell", format, true, false, false);
+            HandReticle.main.SetInteractText("RegenPowerCell", format, true, false, HandReticle.Hand.None);
         }
 
         private void CheckThreshold()

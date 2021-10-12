@@ -5,11 +5,16 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("IngredientsFromScanning_BZ")]
+#if SUBNAUTICA_STABLE
+[assembly: AssemblyTitle("PartsFromScanning")]
+[assembly: AssemblyProduct("PartsFromScanning")]
+#elif BELOWZERO
+[assembly: AssemblyTitle("PartsFromScanning_BZ")]
+[assembly: AssemblyProduct("PartsFromScanning_BZ")]
+#endif
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("IngredientsFromScanning_BZ")]
 [assembly: AssemblyCopyright("Copyright ©  2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -32,5 +37,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion(IngredientsFromScanning_BZ.Main.version)]
-[assembly: AssemblyFileVersion(IngredientsFromScanning_BZ.Main.version)]
+[assembly: AssemblyVersion(PartsFromScanning.Main.version)]
+[assembly: AssemblyFileVersion(PartsFromScanning.Main.version)]

@@ -34,7 +34,7 @@ namespace DWEquipmentBonanza.Equipables
         protected static GameObject prefab;
 
         public override EquipmentType EquipmentType => EquipmentType.Gloves;
-        public override Vector2int SizeInInventory => new Vector2int(2, 2);
+        public override Vector2int SizeInInventory => new(2, 2);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -89,7 +89,7 @@ namespace DWEquipmentBonanza.Equipables
 
         protected static GameObject prefab;
         public override EquipmentType EquipmentType => EquipmentType.Head;
-        public override Vector2int SizeInInventory => new Vector2int(2, 2);
+        public override Vector2int SizeInInventory => new(2, 2);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
         public override TechType RequiredForUnlock => TechType.Unobtanium;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
@@ -154,7 +154,7 @@ namespace DWEquipmentBonanza.Equipables
 
         public override EquipmentType EquipmentType => EquipmentType.Body;
         public override TechType RequiredForUnlock => TechType.Unobtanium;
-        public override Vector2int SizeInInventory => new Vector2int(2, 2);
+        public override Vector2int SizeInInventory => new(2, 2);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
         public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };

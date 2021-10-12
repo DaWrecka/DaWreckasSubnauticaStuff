@@ -8,8 +8,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Logger = QModManager.Utility.Logger;
+#if SUBNAUTICA_STABLE
+using RecipeData = SMLHelper.V2.Crafting.TechData;
+#endif
 
-namespace IngredientsFromScanning_BZ.Configuration
+namespace PartsFromScanning.Configuration
 {
 	// The code should fail safe, assuming a weight of 1.0 if the searched techType is not present in the array.
 	// This would also mean the array only needs to contain those entries which should have a different weight;
@@ -36,18 +39,24 @@ namespace IngredientsFromScanning_BZ.Configuration
 		// Disabling this because it doesn't work right now
 		private bool bInterceptDataboxes = false;
 
+		[Toggle("Generate for unknown blueprints only", Tooltip = "By default, Subnautica's loot generation has a chance of excluding fragments for known blueprints when you visit an area for the first time in a save. Setting this to false overrides this behaviour, allowing any fragment to spawn if it is valid for that location.")]
+		// Disabling this because it doesn't work right now
+		public bool bUnknownFragmentsOnly = false;
+
 		private void OnSliderChange(SliderChangedEventArgs e)
 		{
-			if (e.Id == "MinComponents")
+			switch (e.Id)
 			{
-				if (e.IntegerValue > maxComponents)
-					maxComponents = e.IntegerValue;
-			}
-			else if (e.Id == "MaxComponents") // As of the time of writing this comment, there are only two sliders, so a simple 'else' would suffice.
-											  // I'm hedging my bets in case of adding other sliders in the future, though.
-			{
-				if (e.IntegerValue < minComponents)
-					minComponents = e.IntegerValue;
+				// As of the time of writing this comment, there are only two sliders, so a simple 'if/else' would suffice.
+				// I'm hedging my bets in case of adding other sliders in the future, though.
+				case "MinComponents":
+					if (e.IntegerValue > maxComponents)
+						maxComponents = e.IntegerValue;
+					break;
+				case "MaxComponents":
+					if (e.IntegerValue < minComponents)
+						minComponents = e.IntegerValue;
+					break;
 			}
 		}
 
@@ -450,7 +459,7 @@ namespace IngredientsFromScanning_BZ.Configuration
 						{
 							new StringIngredient("Aerogel", 1),
 							new StringIngredient("Titanium", 5),
-							new StringIngredient("Magnetite", 1)
+							new StringIngredient("Magnetite", 2)
 						}
 					),
 					new RecipeOverride(
@@ -460,6 +469,18 @@ namespace IngredientsFromScanning_BZ.Configuration
 							new StringIngredient("Copper", 2),
 							new StringIngredient("Gold", 1),
 							new StringIngredient("JeweledDiskPiece", 1)
+						}
+					),
+					new RecipeOverride(
+						"BaseMoonpoolFragment", new List<StringIngredient>()
+						{
+#if SUBNAUTICA_STABLE
+							new StringIngredient("ScrapMetal", 4),
+#elif BELOWZERO
+							new StringIngredient("ScrapMetal", 2),
+#endif
+							new StringIngredient("Lubricant", 1),
+							new StringIngredient("Lead", 2)
 						}
 					)
 				};
@@ -486,14 +507,23 @@ namespace IngredientsFromScanning_BZ.Configuration
 					new SSubstitutionEntry(
 						"PlasteelIngot",
 						new List<StringIngredient>{
+#if SUBNAUTICA_STABLE
+							new StringIngredient("ScrapMetal", 2),
+							new StringIngredient("Lithium", 1)
+#elif BELOWZERO
 							new StringIngredient("ScrapMetal", 1),
 							new StringIngredient("Lithium", 1)
+#endif
 						}
 					),
 					new SSubstitutionEntry(
 						"TitaniumIngot",
 						new List<StringIngredient>{
+#if SUBNAUTICA_STABLE
+							new StringIngredient("ScrapMetal", 2)
+#elif BELOWZERO
 							new StringIngredient("ScrapMetal", 1)
+#endif
 						}
 					),
 					new SSubstitutionEntry(
@@ -511,17 +541,52 @@ namespace IngredientsFromScanning_BZ.Configuration
 					new SSubstitutionEntry(
 						"Tank",
 						new List<StringIngredient>{
-							new StringIngredient("Titanium", 1),
+#if SUBNAUTICA_STABLE
+							new StringIngredient("Titanium", 3)
+#elif BELOWZERO
+							new StringIngredient("Titanium", 2),
 							new StringIngredient("FiberMesh", 1)
+#endif
 						}
 					),
 					new SSubstitutionEntry(
 						"DoubleTank",
 						new List<StringIngredient>{
-							new StringIngredient("Titanium", 3),
-							new StringIngredient("Glass", 1),
+#if SUBNAUTICA_STABLE
+							new StringIngredient("Titanium", 7),
+							new StringIngredient("Glass", 2),
 							new StringIngredient("Silver", 1),
-							new StringIngredient("FiberMesh", 1)
+#elif BELOWZERO
+							new StringIngredient("Titanium", 6),
+							new StringIngredient("FiberMesh", 1),
+							new StringIngredient("Glass", 2),
+							new StringIngredient("Silver", 1)
+#endif
+						}
+					),
+					new SSubstitutionEntry(
+						"HighCapacityTank",
+						new List<StringIngredient>{
+#if SUBNAUTICA_STABLE
+							new StringIngredient("Titanium", 7),
+							new StringIngredient("Glass", 2),
+							new StringIngredient("Silver", 1),
+#elif BELOWZERO
+							new StringIngredient("Titanium", 6),
+							new StringIngredient("FiberMesh", 1),
+							new StringIngredient("Glass", 2),
+							new StringIngredient("Silver", 1),
+#endif
+							new StringIngredient("Lithium", 4)
+						}
+					),
+					new SSubstitutionEntry(
+						"Seaglide",
+						new List<StringIngredient>{
+							new StringIngredient("Copper", 1),
+							new StringIngredient("Lubricant", 1),
+							new StringIngredient("CopperWire", 1),
+							new StringIngredient("Titanium", 1)
 						}
 					)
 				};

@@ -26,7 +26,7 @@ namespace DWEquipmentBonanza
 
         public override EquipmentType EquipmentType => EquipmentType.Gloves;
 
-        public override Vector2int SizeInInventory => new Vector2int(2, 2);
+        public override Vector2int SizeInInventory => new(2, 2);
 
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
 
@@ -136,7 +136,7 @@ namespace DWEquipmentBonanza
 
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
 
-        public override Vector2int SizeInInventory => new Vector2int(2, 2);
+        public override Vector2int SizeInInventory => new(2, 2);
 
         public override GameObject GetGameObject()
         {
@@ -227,7 +227,7 @@ namespace DWEquipmentBonanza
         protected virtual float minTempBonus => 15f;
 
         public override EquipmentType EquipmentType => EquipmentType.Body;
-        public override Vector2int SizeInInventory => new Vector2int(2, 2);
+        public override Vector2int SizeInInventory => new(2, 2);
         public override TechType RequiredForUnlock => TechType.Unobtanium;
         public override TechGroup GroupForPDA => TechGroup.Personal;
         public override TechCategory CategoryForPDA => TechCategory.Equipment;

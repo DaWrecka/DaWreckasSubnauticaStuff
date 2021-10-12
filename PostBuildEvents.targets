@@ -6,6 +6,6 @@
 echo DataFolder: $(DataFolder)
 echo SMLHelperFolder: $(SMLHelperFolder)</PreBuildEvent>
     <PostBuildEvent>echo on
-pwsh "$(SolutionDir)post-build.ps1" -Config $(ConfigurationName) -ProjectDir "$(ProjectDir)\" -TargetPath "$(TargetPath)" -ProjectName "$(ProjectName)" -SolutionDir "$(SolutionDir)"</PostBuildEvent>
+pwsh "$(SolutionDir)post-build.ps1" -Config $(ConfigurationName) -ProjectDir "$(ProjectDir)\" -GameDir "$(GameDir)" -TargetPath "$(TargetPath)" -AssemblyName "$(AssemblyName)" -SolutionDir "$(SolutionDir)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

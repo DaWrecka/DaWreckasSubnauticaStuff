@@ -110,18 +110,19 @@ namespace DWEquipmentBonanza.Patches
 
 		public static TechType CheckSubstitute(TechType vanilla)
 		{
-			/*if (Main.bVerboseLogging)
+            /*if (Main.bVerboseLogging)
 				Logger.Log(Logger.Level.Debug, $"CheckSubstitute: Checking for substitute for TechType {vanilla.AsString()}");*/
-			if (DisplaySubstitutions.TryGetValue(vanilla, out TechType value))
+            /*if (DisplaySubstitutions.TryGetValue(vanilla, out TechType value))
 			{
-				/*if (Main.bVerboseLogging)
-					Logger.Log(Logger.Level.Debug, $"Found substitute TechType.{kvp.Key.AsString()}");*/
+				//if (Main.bVerboseLogging)
+				//	Logger.Log(Logger.Level.Debug, $"Found substitute TechType.{kvp.Key.AsString()}");
 				return value;
 			}
 
-			/*if (Main.bVerboseLogging)
-				Logger.Log(Logger.Level.Debug, $"No substitute found for TechType ${vanilla.AsString()}");*/
-			return vanilla;
+			//if (Main.bVerboseLogging)
+			//	Logger.Log(Logger.Level.Debug, $"No substitute found for TechType ${vanilla.AsString()}");
+			return vanilla;*/
+            return DisplaySubstitutions.GetOrDefault(vanilla, vanilla); // Return the value in the dictionary for the key matching vanilla, or return vanilla
 		}
 
 #if SUBNAUTICA_STABLE

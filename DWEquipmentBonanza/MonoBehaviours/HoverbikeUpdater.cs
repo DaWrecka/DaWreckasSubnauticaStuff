@@ -45,16 +45,16 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			new HoverbikeField(nameof(Hoverbike.boostCooldown), BindingFlags.Public)
 		};
 
-		internal struct EfficiencyModifierStruct
+		internal struct EfficiencyModifier
 		{
-			public TechType techType;
+			//public TechType techType;
 			public int maxUpgrades;
 			public float efficiencyMultiplier;
 			public int priority;
 
-			public EfficiencyModifierStruct(TechType module, float EfficiencyMultiplier, int priority = 1, int MaxUpgrades = 1)
+			public EfficiencyModifier(float EfficiencyMultiplier, int priority = 1, int MaxUpgrades = 1)
 			{
-				this.techType = module;
+				//this.techType = module;
 				this.maxUpgrades = MaxUpgrades;
 				this.efficiencyMultiplier = EfficiencyMultiplier;
 				this.priority = priority;
@@ -62,21 +62,21 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 			public override string ToString()
 			{
-				return $"(TechType.{techType.AsString()}, efficiencyMultiplier {efficiencyMultiplier}, priority {priority}, maxUpgrades {maxUpgrades})";
+				return $"(efficiencyMultiplier {efficiencyMultiplier}, priority {priority}, maxUpgrades {maxUpgrades})";
 			}
 		};
 
-		internal struct MovementModifierStruct
+		internal struct MovementModifier
 		{
-			public TechType techType;
+			//public TechType techType;
 			public int maxUpgrades;
 			public float speedModifier;
 			public float cooldownModifier;
 			public int priority;
 
-			public MovementModifierStruct(TechType module, float speedModifier, float cooldownModifier, int priority = 1, int MaxUpgrades = 1)
+			public MovementModifier(float speedModifier, float cooldownModifier, int priority = 1, int MaxUpgrades = 1)
 			{
-				this.techType = module;
+				//this.techType = module;
 				this.maxUpgrades = MaxUpgrades;
 				this.speedModifier = speedModifier;
 				this.cooldownModifier = cooldownModifier;
@@ -85,19 +85,21 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
             public override string ToString()
             {
-				return $"(TechType.{techType.AsString()}, speedMod {speedModifier}, cooldownMod {cooldownModifier}, priority {priority}, maxUpgrades {maxUpgrades})";
+				return $"(speedMod {speedModifier}, cooldownMod {cooldownModifier}, priority {priority}, maxUpgrades {maxUpgrades})";
             }
         };
 
-		private static readonly List<EfficiencyModifierStruct> efficiencyModifiers = new List<EfficiencyModifierStruct>();
-		private static readonly List<MovementModifierStruct> movementModifiers = new List<MovementModifierStruct>();
+		//private static readonly List<EfficiencyModifierStruct> efficiencyModifiers = new List<EfficiencyModifierStruct>();
+		//private static readonly List<MovementModifierStruct> movementModifiers = new List<MovementModifierStruct>();
+		private static readonly Dictionary<TechType, EfficiencyModifier> efficiencyModifiers = new Dictionary<TechType, EfficiencyModifier>();
+		private static readonly Dictionary<TechType, MovementModifier> movementModifiers = new Dictionary<TechType, MovementModifier>();
 
 		private bool bHasTravelModule;
 		private bool bHasSelfRepair;
 		private const float moduleWaterDampening = 1f; // Movement is divided by this value when travelling over water. UWE default is 10f.
 													   // Don't set it below 1f, as that makes the Snowfox *more* manoeuvrable over water than over land.
 		private const float moduleWaterOffset = 1f; // The default value for ground travel is 2m.
-		internal float fSolarChargeMultiplier = 0.065f; // Multiplier applied to the local light amount to get amount of power regained from solar charger
+		internal float fSolarChargeMultiplier = 0.05f; // Multiplier applied to the local light amount to get amount of power regained from solar charger
 														// default enginePowerConsumption = 0.06666667f so we want the solar charger to be a little bit less efficient than this.
 														// Given that the hoverbike is going to be on the surface more often than not, depth is not exactly going to be a major factor, so this is mainly
 														// based on the current light level.
@@ -115,40 +117,44 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		internal static bool AddEfficiencyMultiplier(TechType module, float multiplier, int priority = 1, int maxUpgrades = 1, bool bUpdateIfPresent = false)
 		{
 			// Multiple copies of a module stack, up to a maximum limit of maxUpgrades.
-			for (int i = 0; i < efficiencyModifiers.Count; i++)
+			//for (int i = 0; i < efficiencyModifiers.Count; i++)
+			if(efficiencyModifiers.TryGetValue(module, out EfficiencyModifier modifier))
 			{
-				EfficiencyModifierStruct modifier = efficiencyModifiers[i];
-				if (modifier.techType == module)
-				{
+				//EfficiencyModifierStruct modifier = efficiencyModifiers[i];
+				//if (modifier.techType == module)
+				//{
 					Log.LogDebug($"AddEfficiencyMultiplier called multiple times for TechType {module}; previous value was {modifier.ToString()}; new value is {multiplier} with maxUpgrades {maxUpgrades}; value "
 						+ (bUpdateIfPresent ? "was " : "was not ") + "updated");
 					if (bUpdateIfPresent)
-						efficiencyModifiers[i] = new EfficiencyModifierStruct(module, multiplier, priority, maxUpgrades);
-					return bUpdateIfPresent;
-				}
+						efficiencyModifiers.Remove(module);
+					else
+						return false;
+				//}
 			}
 
-			efficiencyModifiers.Add(new EfficiencyModifierStruct(module, multiplier, priority, maxUpgrades));
+			efficiencyModifiers.Add(module, new EfficiencyModifier(multiplier, priority, maxUpgrades));
 			return true;
 
 		}
 		internal static bool AddMovementModifier(TechType module, float speedModifier, float cooldownModifier, int priority = 1, int maxUpgrades = 1, bool bUpdateIfPresent = false)
 		{
 			// Multiple copies of a module stack, up to a maximum limit of maxUpgrades.
-			for (int i = 0; i < movementModifiers.Count; i++)
+			if(movementModifiers.TryGetValue(module, out MovementModifier modifier))
+			//for (int i = 0; i < movementModifiers.Count; i++)
 			{
-				MovementModifierStruct modifier = movementModifiers[i];
-				if (modifier.techType == module)
-				{
+				//MovementModifierStruct modifier = movementModifiers[i];
+				//if (modifier.techType == module)
+				//{
 					Log.LogDebug($"AddMovementModifier called multiple times for TechType {module}; previous value was {modifier.ToString()}; new value speedModifier = {speedModifier}, cooldownModifier = {cooldownModifier}, maxUpgrades = {maxUpgrades}; value "
 						+ (bUpdateIfPresent ? "was " : "was not ") + "updated");
 					if (bUpdateIfPresent)
-						movementModifiers[i] = new MovementModifierStruct(module, speedModifier, cooldownModifier, priority, maxUpgrades);
-					return bUpdateIfPresent;
-				}
+						movementModifiers.Remove(module);
+					else
+						return false;
+				//}
 			}
 
-			movementModifiers.Add(new MovementModifierStruct(module, speedModifier, cooldownModifier, priority, maxUpgrades));
+			movementModifiers.Add(module, new MovementModifier(speedModifier, cooldownModifier, priority, maxUpgrades));
 			return true;
 		}
 
@@ -338,10 +344,13 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				float effectiveEfficiency = 1f;
 				int priority = 0;
 				//Log.LogDebug($"HoverbikeUpdate.PostUpgradeModuleChange(): applying efficiency modifiers");
-				foreach (EfficiencyModifierStruct modifier in efficiencyModifiers)
+				//foreach (EfficiencyModifier modifier in efficiencyModifiers)
+				foreach(KeyValuePair<TechType, EfficiencyModifier> modifierPair in efficiencyModifiers)
 				{
+					EfficiencyModifier modifier = modifierPair.Value;
 					//Log.LogDebug($"Using modifier {modifier.ToString()}");
-					int moduleCount = GetModuleCount(modifier.techType);
+					//int moduleCount = GetModuleCount(modifier.techType);
+					int moduleCount = GetModuleCount(modifierPair.Key);
 					if (moduleCount > 0)
 					{
 						moduleCount = Math.Min(moduleCount, modifier.maxUpgrades);  // This could've been included as part of the assignment, but this way we only do the Min() call if it's needed.
@@ -373,10 +382,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				int priority = 0;
 
 				//Log.LogDebug($"HoverbikeUpdate.PostUpgradeModuleChange(): applying movement modifiers");
-				foreach (MovementModifierStruct modifier in movementModifiers)
+				//foreach (MovementModifierStruct modifier in movementModifiers)
+				foreach(KeyValuePair<TechType, MovementModifier> modifierPair in movementModifiers)
 				{
 					//Log.LogDebug($"Using modifier {modifier.ToString()}");
-					int moduleCount = GetModuleCount(modifier.techType);
+					MovementModifier modifier = modifierPair.Value;
+					int moduleCount = GetModuleCount(modifierPair.Key);
 					if (moduleCount > 0)
 					{
 						moduleCount = Math.Min(moduleCount, modifier.maxUpgrades);
