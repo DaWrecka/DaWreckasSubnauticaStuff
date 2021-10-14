@@ -13,7 +13,7 @@
   "NexusId": {},
   "AssemblyName": "GravTrapBeacons.dll",
   "VersionChecker": {
-    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/GravTrapBeacons/mod_SN1.json"
+    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/GravTrapBeacons/mod_Subnautica.json"
   },
   "Enable": true
 }

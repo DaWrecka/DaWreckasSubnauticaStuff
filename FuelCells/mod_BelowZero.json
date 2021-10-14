@@ -15,7 +15,7 @@
   "NexusId": {},
   "AssemblyName": "FuelCells.dll",
   "VersionChecker": {
-    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/FuelCells/mod_BZ.json"
+    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/FuelCells/mod_BelowZero.json"
   },
   "Enable": true
 }

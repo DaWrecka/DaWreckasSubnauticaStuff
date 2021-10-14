@@ -13,7 +13,7 @@
   },
   "Game": "BelowZero",
   "VersionChecker": {
-    "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/ConsoleBatchFiles/mod_BZ.json"
+    "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/ConsoleBatchFiles/mod_BelowZero.json"
   },
   "Dependencies": [
     "SMLHelper"

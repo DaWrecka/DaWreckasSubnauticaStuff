@@ -12,10 +12,9 @@
     "SMLHelper": "2.9"
   },
   "VersionChecker": {
-    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/RecyclotronModSupport/mod_BZ.json"
+    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/RecyclotronModSupport/mod_BelowZero.json"
   },
   "NexusId": {
-    "Subnautica": "559"
   },
   "Enable": true
 }

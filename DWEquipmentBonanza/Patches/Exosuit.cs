@@ -211,10 +211,10 @@ namespace DWEquipmentBonanza.Patches
 		[HarmonyPatch("OverrideAcceleration")]
 		public static void PostOverrideAcceleration(ref Exosuit __instance, ref Vector3 acceleration)
 		{
-			Log.LogDebug($"ExosuitPatches.PostOverrideAcceleration() begin");
+			//Log.LogDebug($"ExosuitPatches.PostOverrideAcceleration() begin");
 
 			__instance.gameObject.EnsureComponent<ExosuitUpdater>().PostOverrideAcceleration(ref acceleration);
-			Log.LogDebug($"ExosuitPatches.PostOverrideAcceleration() end");
+			//Log.LogDebug($"ExosuitPatches.PostOverrideAcceleration() end");
 		}
 
 

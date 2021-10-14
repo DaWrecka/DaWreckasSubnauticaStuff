@@ -56,7 +56,7 @@ namespace PartsFromScanning.Patches
         public static bool bIsDatabox { get; private set; }
         public static TechType databoxUnlock { get; private set; }
 
-        [HarmonyPatch(nameof(BlueprintHandTarget.UnlockBlueprint))]
+        /*[HarmonyPatch(nameof(BlueprintHandTarget.UnlockBlueprint))]
         [HarmonyPrefix]
         internal static bool PreUnlockBlueprint(BlueprintHandTarget __instance)
         {
@@ -71,6 +71,6 @@ namespace PartsFromScanning.Patches
         {
             databoxUnlock = TechType.None;
             bIsDatabox = false;
-        }
+        }*/
     }
 }

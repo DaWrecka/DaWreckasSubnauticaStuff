@@ -13,7 +13,7 @@
   },
   "Game": "Subnautica",
   "VersionChecker": {
-    "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/ConsoleBatchFiles/mod_SN1.json"
+    "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/ConsoleBatchFiles/mod_Subnautica.json"
   },
   "Dependencies": [
     "SMLHelper"

@@ -1,4 +1,5 @@
-﻿using SMLHelper.V2.Crafting;
+﻿using Common;
+using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Json;
 using SMLHelper.V2.Options;
 using SMLHelper.V2.Options.Attributes;
@@ -148,7 +149,7 @@ namespace PartsFromScanning.Configuration
 					outRecipe = new RecipeData();
 					foreach (StringIngredient s in r.replacements)
 					{
-						if (Enum.TryParse<TechType>(s.techType, out TechType t))
+						if (TechTypeUtils.TryGetModTechType(s.techType, out TechType t))
 						{
 							outRecipe.Ingredients.Add(new Ingredient(t, s.amount));
 						}
@@ -182,19 +183,21 @@ namespace PartsFromScanning.Configuration
 		};
 
 		public List<SSubstitutionEntry> SubstitutionList;
+
 		//private List<SSubstitutionEntry> defaultSubstitutionList
 
 		public float GetWeightForTechType(TechType tech)
 		{
-			// float weight;
-			if (TechWeights.TryGetValue(tech.ToString(), out float weight))
+			return TechWeights.GetOrDefault(tech.ToString(), 1.0f);
+
+			/*if (TechWeights.TryGetValue(tech.ToString(), out float weight))
 			{
 				return weight;
 			}
 			else
 			{
 				return 1.0f;
-			}
+			}*/
 		}
 
 		public bool TrySubstituteIngredient(TechType tech, out List<Ingredient> Substitutes)

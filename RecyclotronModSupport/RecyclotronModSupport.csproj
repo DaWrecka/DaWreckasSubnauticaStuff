@@ -87,7 +87,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="mod_BelowZero.json" />
-    <None Include="mod_Subnautica.json" />
   </ItemGroup>
   <Import Project="..\Common\Common.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
