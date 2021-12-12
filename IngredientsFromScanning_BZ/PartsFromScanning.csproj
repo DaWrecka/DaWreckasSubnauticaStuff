@@ -3,7 +3,7 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\GameDir.targets" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Subnautica</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{D05216E9-CCF3-4037-8C2F-36B571ACB323}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -25,7 +25,7 @@
     <AssemblyName>PartsFromScanning_BZ</AssemblyName>
     <LangVersion>8.0</LangVersion>
     <ErrorReport>prompt</ErrorReport>
-    <OutputPath>..\Qmods\BelowZero\PartsFromScanning\</OutputPath>
+    <OutputPath>..\Qmods\BelowZero\PartsFromScanning_BZ\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Subnautica|AnyCPU'">
     <DefineConstants>SN1;SUBNAUTICA_STABLE</DefineConstants>

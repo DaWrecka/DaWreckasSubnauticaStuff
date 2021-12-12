@@ -109,7 +109,9 @@ namespace CustomiseOxygen
             while (pendingTanks.Count > 0)
             {
                 removals.Clear();
-                foreach (KeyValuePair<TechType, PendingTankEntry> kvp in pendingTanks)
+                var pendingCopy = new Dictionary<TechType, PendingTankEntry>(pendingTanks); // Cloning a dictionary is probably expensive, but this only needs to be done early during startup and then doesn't need
+                // to be done again. It might increase the initial load time a bit, but it won't affect in-game performance.
+                foreach (KeyValuePair<TechType, PendingTankEntry> kvp in pendingCopy)
                 {
                     try
                     {

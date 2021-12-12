@@ -1,0 +1,19 @@
+{
+  "Id": "LeviathanLogging",
+  "DisplayName": "LeviathanLogging",
+  "Author": "DaWrecka",
+  "Version": "1.0.0.0",
+  "Dependencies": [
+    "SMLHelper"
+  ],
+  "Game": "Subnautica",
+  "AssemblyName": "LeviathanLogging.dll",
+  "VersionDependencies": {
+    "SMLHelper": "2.9"
+  },
+  "VersionChecker": {
+    "LatestVersionUrl": ""
+  },
+  "NexusId": {},
+  "Enable": true
+}

@@ -51,6 +51,10 @@ namespace DWEquipmentBonanza.MonoBehaviours
 						sonarSound.SetAsset(seamoth.sonarSound.asset);
 						sonarSound.UpdateEventAttributes();
 					}
+					foreach (var r in gameObject1.GetComponentsInChildren<Renderer>())
+					{
+					
+					}
 				};
 			}
 		}

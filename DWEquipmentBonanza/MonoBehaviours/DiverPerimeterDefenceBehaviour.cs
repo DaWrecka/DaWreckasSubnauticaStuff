@@ -144,20 +144,6 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			//bool bDestroy = destroyWhenDischarged.GetOrDefault(chip, false);
 			(int discharges, bool bDestroy) returnValue = (maxDischarges.GetOrDefault(chip, -1), destroyWhenDischarged.GetOrDefault(chip, false));
 
-			/*if (maxDischarges.TryGetValue(chip, out discharges))
-			{
-				returnValue.discharges = discharges;
-			}
-			else
-			{
-				returnValue.discharges = -1;
-			}
-
-			if (destroyWhenDischarged.TryGetValue(chip, out bDestroy))
-			{
-				returnValue.bDestroy = bDestroy;
-			}*/
-
 			Log.LogDebug($"DiverPerimeterDefenceBehaviour.GetChipData({chip.AsString()}): got values of {returnValue.ToString()}");
 
 			return returnValue;

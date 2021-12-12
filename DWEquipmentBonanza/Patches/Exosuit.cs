@@ -24,7 +24,7 @@ namespace DWEquipmentBonanza.Patches
 		[HarmonyPostfix]
 		public static void PostUpdate(uGUI_ExosuitHUD __instance)
 		{
-			if (Player.main == null)
+			if (__instance == null || !Main.config.bHUDAbsoluteValues || Player.main == null)
 				return;
 
 			exosuit = Player.main.GetVehicle() as Exosuit;

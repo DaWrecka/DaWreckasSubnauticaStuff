@@ -17,12 +17,12 @@ using Json = Newtonsoft.Json;
 
 namespace PartsFromScanning.Patches
 {
-/*
 #if !BELOWZERO
-    [HarmonyPatch(typeof(PDAScanner), nameof(PDAScanner.CanScan), new Type[] { typeof(GameObject) })]
-    internal class PDAScanner_CanScan_Patch
+    [HarmonyPatch(typeof(PDAScanner))]
+    internal class PDAScannerPatch
     {
         [HarmonyPrefix]
+        [HarmonyPatch(nameof(PDAScanner.CanScan), new Type[] { typeof(GameObject) } )]
         private static bool Prefix(ref bool __result, GameObject go)
         {
             if (!Main.config.bOverrideMapRoom)
@@ -48,7 +48,7 @@ namespace PartsFromScanning.Patches
         }
     }
 #endif
-*/
+
 
     [HarmonyPatch(typeof(BlueprintHandTarget))]
     public class BlueprintHandTargetPatches

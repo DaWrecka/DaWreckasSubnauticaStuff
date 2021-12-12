@@ -10,8 +10,6 @@ namespace GravTrapBeacons
     [HarmonyPatch(typeof(Gravsphere))]
     class GravspherePatches
     {
-        private const LargeWorldEntity.CellLevel GravCellLevel = LargeWorldEntity.CellLevel.Global;
-
         [HarmonyPatch(nameof(Gravsphere.Start))]
         [HarmonyPostfix]
         internal static void PostStart(Gravsphere __instance)
@@ -25,8 +23,8 @@ namespace GravTrapBeacons
 
             // Gravtraps default to the Near celllevel, so if we want the ping to be visible from a distance greater than 50m, we need to change that.
             var lwe = __instance.gameObject.EnsureComponent<LargeWorldEntity>();
-            lwe.cellLevel = GravCellLevel;
-            lwe.initialCellLevel = GravCellLevel;
+            lwe.cellLevel = Main.GravCellLevel;
+            lwe.initialCellLevel = Main.GravCellLevel;
         }
     }
 }

@@ -4,7 +4,7 @@
   <Import Project="..\GameDir.targets" />
   <Import Project="..\References.targets" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Subnautica</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{102B0CA1-992C-4E50-92BF-CDF1F0CE8ACF}</ProjectGuid>
     <OutputType>Library</OutputType>

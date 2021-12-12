@@ -1,26 +1,15 @@
 ﻿using DWEquipmentBonanza.MonoBehaviours;
-using System;
 using System.Collections.Generic;
 using System.Collections;
-using System.IO;
-using System.Reflection;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
-using SMLHelper.V2.Handlers;
-using SMLHelper.V2.Utility;
 using UnityEngine;
-using UWE;
-using Logger = QModManager.Utility.Logger;
-using FMODUnity;
 using DWEquipmentBonanza.Patches;
 using Common;
 using Common.Utility;
 #if SUBNAUTICA_STABLE
 using RecipeData = SMLHelper.V2.Crafting.TechData;
 using Sprite = Atlas.Sprite;
-using Object = UnityEngine.Object;
-using Oculus.Newtonsoft;
-using Oculus.Newtonsoft.Json;
 #elif BELOWZERO
 using Newtonsoft;
 using Newtonsoft.Json;
@@ -28,7 +17,7 @@ using Newtonsoft.Json;
 
 namespace DWEquipmentBonanza.Equipables
 {
-	class PowerglideEquipable: Equipable
+    class PowerglideEquipable: Equipable
 	{
 		protected static GameObject prefab;
 		protected static Sprite icon;

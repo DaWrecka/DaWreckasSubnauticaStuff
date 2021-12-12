@@ -11,20 +11,24 @@ namespace FuelCells
 		private const int defaultCapacity = 400;
 		private const int minCapacity = 200;
 		private const int maxCapacity = 800;
-		private const float cellMultiplier = 2.25f;
+		private const float defaultMultiplier = 2.25f;
+		private const float minMultiplier = 1.5f;
+		private const float maxMultiplier = 3f;
 
 		// Declared as floats because the Battery class uses floats, so using floats here is the most straightforward way to avoid rounding errors.
 		[Slider("Base capacity of Small Fuel Cell", minCapacity, maxCapacity, DefaultValue = defaultCapacity, Id = "batteryCap", Step = 50, Tooltip = "Capacity of the Small Fuel Cell. The capacity of the full-sized Fuel Cell is a multiple of this value.\nGame must be restarted for changes to this setting to take effect."), OnChange(nameof(OnSliderChange))]
-		public float smallFuelCellCap = 400;
-		internal float cellCap = 900;
+		public float smallFuelCellCap = 400f;
+		[Slider("Large Fuel Cell capacity multiplier", minMultiplier, maxMultiplier, DefaultValue = defaultMultiplier, Id = "batteryMult", Step = 0.01f, Tooltip = "The capacity of the large Fuel Cell is equal to the Small Fuel Cell capacity, above, multiplied by this value.\nGame must be restarted for changes to this setting to take effect."), OnChange(nameof(OnSliderChange))]
+		public float cellMultiplier = 2.25f;
+		internal float cellCap = 900f;
 
 		public Dictionary<string, float> BatteryValues = new Dictionary<string, float>()
 		{
-			{ "Battery", 150f },
-			{ "PowerCell", 300f },
-			{ "LithiumIonBattery", 300f },
-			{ "PrecursorIonBattery", 800f },
-			{ "PrecursorIonPowerCell", 1600f }
+			{ "Battery", 100f },
+			{ "PowerCell", 200f },
+			{ "LithiumIonBattery", 200f },
+			{ "PrecursorIonBattery", 500f },
+			{ "PrecursorIonPowerCell", 1000f }
 		};
 
 		private void OnSliderChange(SliderChangedEventArgs e)

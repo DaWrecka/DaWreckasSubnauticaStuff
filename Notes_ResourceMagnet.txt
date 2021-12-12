@@ -1,0 +1,125 @@
+Welcome to C# REPL (read-evaluate-print loop)! Enter "help" to get a list of common methods.
+Executing code from RuntimeUnityEditor.Autostart.cs
+(1,8): error CS1525: Unexpected symbol `void', expecting `class', `delegate', `enum', `interface', `partial', `ref', or `struct'
+(1,31): error CS0120: An object reference is required to access non-static member `UnityEngine.Component.gameObject'
+(1,21): error CS0103: The name `go' does not exist in the current context
+(1,1): error CS1525: Unexpected symbol `}'
+> var gravsphereClone = geti<UnityEngine.GameObject>()
+> Player.main.GetVehicle()
+SeaMoth(Clone) (SeaMoth)
+(1,2): error CS0103: The name `vPlayer' does not exist in the current context
+(1,2): error CS0103: The name `vaPlayer' does not exist in the current context
+(1,2): error CS0103: The name `varPlayer' does not exist in the current context
+> var seaMothClone = Player.main.GetVehicle();
+(1,18): error CS1061: Type `UnityEngine.GameObject' does not contain a definition for `game' and no extension method `game' of type `UnityEngine.GameObject' could be found. Are you missing an assembly reference?
+> gravsphereClone.gameObject.transform.parent = seaMothClone.gameObject.transform;
+> gravsphereClone.GetComponent<Rigidbody>().isKinematic = false;
+> gravsphereClone.gameObject.transform.parent = seaMothClone.gameObject.transform;
+> gravsphereClone.GetComponent<Rigidbody>().isKinematic = true;
+> gravsphereClone.GetComponent<Gravsphere>()
+Gravsphere(Clone) (Gravsphere)
+> gravsphereClone.GetComponent<Gravsphere>().pushForce = 16;
+> gravsphereClone.transform.position = seaMothClone.transform.position;
+> gravsphereClone.GetComponent<Gravsphere>().mainCollider.enabled = true;
+> gravsphereClone.GetComponent<Gravsphere>().mainCollider.enabled = false;
+> seaMothClone.transform.rotation = new Vector3(0,0,0);
+(1,36): error CS0029: Cannot implicitly convert type `UnityEngine.Vector3' to `UnityEngine.Quaternion'
+> seaMothClone.transform.rotation = new Quaternion(0,0,0);
+(1,36): error CS1729: The type `UnityEngine.Quaternion' does not contain a constructor that takes `3' arguments
+> seaMothClone.transform.rotation = new Quaternion(0,0,0,0);
+> seaMothClone.transform.eulerAngles = new Vector3(0,0,0);
+> gravsphereClone.GetComponent<Gravsphere>().mainCollider.enabled = true;
+> gravsphereClone.GetComponent<Gravsphere>().mainCollider.enabled = true;
+> gravsphereClone.GetComponent<Gravsphere>().mainCollider.enabled = false;
+> var newGravsphereClone = geti<UnityEngine.GameObject>()
+> gravsphereClone == newGravsphereClone
+True
+> seaMothClone.transform.eulerangles = new Vector3(0,0,0);
+(1,25): error CS1061: Type `UnityEngine.Transform' does not contain a definition for `eulerangles' and no extension method `eulerangles' of type `UnityEngine.Transform' could be found. Are you missing an assembly reference?
+> seaMothClone.transform.eulerAngles = new Vector3(0,0,0);
+(1,2): error CS0103: The name `g' does not exist in the current context
+(1,2): error CS0103: The name `gr' does not exist in the current context
+(1,2): error CS0103: The name `gra' does not exist in the current context
+(1,2): error CS0103: The name `grav' does not exist in the current context
+(1,2): error CS0103: The name `gravS' does not exist in the current context
+(1,2): error CS0103: The name `gravSp' does not exist in the current context
+(1,2): error CS0103: The name `gravSph' does not exist in the current context
+(1,2): error CS0103: The name `gravSphe' does not exist in the current context
+(1,2): error CS0103: The name `gravSpher' does not exist in the current context
+(1,2): error CS0103: The name `gravSphere' does not exist in the current context
+(1,2): error CS0103: The name `gravSpher' does not exist in the current context
+(1,2): error CS0103: The name `gravSphe' does not exist in the current context
+(1,2): error CS0103: The name `gravSph' does not exist in the current context
+(1,2): error CS0103: The name `gravSp' does not exist in the current context
+(1,2): error CS0103: The name `gravS' does not exist in the current context
+(1,2): error CS0103: The name `grav' does not exist in the current context
+(1,2): error CS0103: The name `gravs' does not exist in the current context
+(1,2): error CS0103: The name `gravsp' does not exist in the current context
+(1,2): error CS0103: The name `gravsph' does not exist in the current context
+(1,2): error CS0103: The name `gravsphe' does not exist in the current context
+(1,2): error CS0103: The name `gravspher' does not exist in the current context
+(1,2): error CS0103: The name `gravsphere' does not exist in the current context
+(1,2): error CS0103: The name `gravsphereC' does not exist in the current context
+(1,2): error CS0103: The name `gravsphereCl' does not exist in the current context
+(1,2): error CS0103: The name `gravsphereClo' does not exist in the current context
+(1,2): error CS0103: The name `gravsphereClon' does not exist in the current context
+> gravsphereClone.transform.eulerAngles = seaMothClone.transform.eulerAngles;
+> gravsphereClone.transform.position = seaMothClone.transform.position;
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles * -2);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles * -1);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles * -0);
+> seaMothClone.transform.eulerAngles
+(10.6, 212.3, 1.9)
+> seaMothClone.transform.eulerAngles.Normalize()
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.Normalize() * -1);
+(1,109): error CS0019: Operator `*' cannot be applied to operands of type `void' and `int'
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * -1);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * -1);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * -2);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * -2);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * -2);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * 1);
+> gravsphereClone.GetComponent<Rigidbody>().isKinematic = true;
+> gravsphereClone.transform.parent = seaMothClone.transform;
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * 1);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * -1);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (Player.main.transform.eulerAngles.nromalized * -1);
+(1,108): error CS1061: Type `UnityEngine.Vector3' does not contain a definition for `nromalized' and no extension method `nromalized' of type `UnityEngine.Vector3' could be found. Are you missing an assembly reference?
+> gravsphereClone.transform.position = seaMothClone.transform.position + (Player.main.transform.eulerAngles.normalized * -1);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (Player.main.transform.eulerAngles.normalized * 1);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (Player.main.transform.eulerAngles.normalized * 2);
+(1,33): error CS0176: Static member `UnityEngine.Camera.main' cannot be accessed with an instance reference, qualify it with a type name instead
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * -1);
+> seaMothClone.transform.eulerAngles = new Vector3(0,0,0);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * -1);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * -1);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * -1.5);
+(1,109): error CS0019: Operator `*' cannot be applied to operands of type `UnityEngine.Vector3' and `double'
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * -2);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * 1);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * -1);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * -1);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * -2);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * -1.5f);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * -2.5f);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * 2.5f);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.eulerAngles.normalized * 2f);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.forward * -1f);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.forward * -2f);
+> gravsphereClone.transform.position = seaMothClone.transform.position + (seaMothClone.transform.forward * -1f);
+> gravsphereClone.ForceMode
+(1,18): error CS1061: Type `UnityEngine.GameObject' does not contain a definition for `ForceMode' and no extension method `ForceMode' of type `UnityEngine.GameObject' could be found. Are you missing an assembly reference?
+(1,18): error CS1061: Type `UnityEngine.GameObject' does not contain a definition for `G' and no extension method `G' of type `UnityEngine.GameObject' could be found. Are you missing an assembly reference?
+(1,18): error CS1061: Type `UnityEngine.GameObject' does not contain a definition for `Ge' and no extension method `Ge' of type `UnityEngine.GameObject' could be found. Are you missing an assembly reference?
+(1,18): error CS0119: Expression denotes a `method group', where a `variable', `value' or `type' was expected
+(1,18): error CS1061: Type `UnityEngine.GameObject' does not contain a definition for `GetC' and no extension method `GetC' of type `UnityEngine.GameObject' could be found. Are you missing an assembly reference?
+(1,18): error CS1061: Type `UnityEngine.GameObject' does not contain a definition for `GetCo' and no extension method `GetCo' of type `UnityEngine.GameObject' could be found. Are you missing an assembly reference?
+(1,18): error CS1061: Type `UnityEngine.GameObject' does not contain a definition for `GetCom' and no extension method `GetCom' of type `UnityEngine.GameObject' could be found. Are you missing an assembly reference?
+(1,18): error CS1061: Type `UnityEngine.GameObject' does not contain a definition for `GetComp' and no extension method `GetComp' of type `UnityEngine.GameObject' could be found. Are you missing an assembly reference?
+(1,18): error CS1061: Type `UnityEngine.GameObject' does not contain a definition for `GetCompo' and no extension method `GetCompo' of type `UnityEngine.GameObject' could be found. Are you missing an assembly reference?
+(1,18): error CS1061: Type `UnityEngine.GameObject' does not contain a definition for `GetCompon' and no extension method `GetCompon' of type `UnityEngine.GameObject' could be found. Are you missing an assembly reference?
+(1,18): error CS1061: Type `UnityEngine.GameObject' does not contain a definition for `GetCompone' and no extension method `GetCompone' of type `UnityEngine.GameObject' could be found. Are you missing an assembly reference?
+(1,18): error CS1061: Type `UnityEngine.GameObject' does not contain a definition for `GetComponen' and no extension method `GetComponen' of type `UnityEngine.GameObject' could be found. Are you missing an assembly reference?
+(1,18): error CS0119: Expression denotes a `method group', where a `variable', `value' or `type' was expected
+> gravsphereClone.GetComponent<Gravsphere>().ForceMode
+(1,45): error CS1061: Type `Gravsphere' does not contain a definition for `ForceMode' and no extension method `ForceMode' of type `Gravsphere' could be found. Are you missing an assembly reference?

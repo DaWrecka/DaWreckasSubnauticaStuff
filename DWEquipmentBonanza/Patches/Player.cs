@@ -9,7 +9,7 @@ using Logger = QModManager.Utility.Logger;
 
 namespace DWEquipmentBonanza.Patches
 {
-	[HarmonyPatch(typeof(Player))]
+    [HarmonyPatch(typeof(Player))]
 	internal class PlayerPatch
     {
 		private static HashSet<TechType> SurvivalSuits = new HashSet<TechType>();
@@ -31,6 +31,40 @@ namespace DWEquipmentBonanza.Patches
         private static TechType ttSuit => TechTypeUtils.GetModTechType("AcidSuit");
         private static TechType ttSuitMk2 => TechTypeUtils.GetModTechType("NitrogenBrineSuit2");
         private static TechType ttSuitMk3 => TechTypeUtils.GetModTechType("NitrogenBrineSuit3");
+        private static TechType ttSuperSuit => TechTypeUtils.GetModTechType("SuperSurvivalSuit");
+
+        internal static float oldMaxTemp;
+
+        [HarmonyPrefix]
+        [HarmonyPatch("UpdateReinforcedSuit")]
+        public static bool Prefix(ref Player __instance)
+        {
+            if (Main.bUseNitrogenAPI)
+                return true;
+
+            oldMaxTemp = __instance.temperatureDamage.minDamageTemperature;
+
+            __instance.temperatureDamage.minDamageTemperature = 49f;
+            TechType bodySlot = Inventory.main.equipment.GetTechTypeInSlot("Body");
+            float minTempBonus = Main.GetDiveSuitTempBonus(bodySlot);
+
+            if (__instance.HasReinforcedGloves())
+            {
+                minTempBonus += 6f;
+            }
+            __instance.temperatureDamage.minDamageTemperature += minTempBonus;
+
+            return false;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("UpdateReinforcedSuit")]
+        public static void Postfix(ref Player __instance)
+        {
+            float maxTemp = __instance.temperatureDamage.minDamageTemperature;
+            if (maxTemp != oldMaxTemp)
+                ErrorMessage.AddMessage($"Maximum safe water temperature now {maxTemp.ToString()}");
+        }
 
         // The gloves texture is used for the suit as well, on the arms, so we need to do something about that.
         // The block that generates the glove texture is sizable, so it's made into a function here.
@@ -421,7 +455,7 @@ namespace DWEquipmentBonanza.Patches
             if (__instance != null)
             {
                 // For debugging
-                if (Main.EquipmentGetCount(Inventory.main.equipment, new TechType[] { ttSuit, ttSuitMk2, ttSuitMk3 }) > 0
+                if (Main.EquipmentGetCount(Inventory.main.equipment, new TechType[] { ttSuit, ttSuitMk2, ttSuitMk3, ttSuperSuit }) > 0
                     && Inventory.main.equipment.GetCount(ttGloves) > 0
                     && Inventory.main.equipment.GetCount(ttHelmet) > 0)
                     return false;

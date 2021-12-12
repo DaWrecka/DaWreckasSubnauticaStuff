@@ -12,10 +12,18 @@ namespace DWEquipmentBonanza.MonoBehaviours
         private Seaglide tool;
         private EnergyMixin power;
 
+#if SUBNAUTICA_STABLE
+        public static float powerGlideForce = 4500f;
+#elif BELOWZERO
         public static float powerGlideForce = 3500f;
+#endif
         public static float powerLerpRate = 900f;
         public float powerSeaglideForce;
         public static Color PowerGlideColour = new Color(1f, 0f, 1f);
+
+        public bool bIsUnderwater { get; private set; }
+        public bool bhasEnergy { get; private set; }
+        public bool bInputHeld { get; private set; }
 
         private void OnConsoleCommand_powerglideforce(NotificationCenter.Notification n)
         {
@@ -84,13 +92,23 @@ namespace DWEquipmentBonanza.MonoBehaviours
                     return;
             }
 
-            tool.powerGlideActive = Player.main.IsUnderwaterForSwimming()
-                && tool.HasEnergy()
-                && GameInput.GetButtonHeld(GameInput.Button.Sprint);
-            
+            /*
+        public bool bBoostActive { get; private set; }
+        public bool bhasEnergy { get; private set; }
+        public bool bInputHeld { get; private set; }
+             */
+            bIsUnderwater = Player.main.IsUnderwaterForSwimming();
+            bhasEnergy = tool.HasEnergy();
+            bInputHeld = GameInput.GetButtonHeld(GameInput.Button.Sprint);
+            tool.powerGlideActive = bIsUnderwater && bhasEnergy && bInputHeld;
             tool.powerGlideParam = Mathf.Lerp(tool.powerGlideParam, tool.powerGlideActive ? 1f : 0f, Time.deltaTime * 3f);
             powerSeaglideForce = Mathf.Lerp(powerSeaglideForce, tool.powerGlideActive ? powerGlideForce : 0f, Time.deltaTime * powerLerpRate);
             tool.powerGlideForce = powerSeaglideForce;
+            if (tool.powerGlideActive)
+            {
+                Player.main.gameObject.GetComponent<Rigidbody>().AddForce(this.gameObject.transform.forward * powerSeaglideForce, ForceMode.Force);
+            }
+
             MeshRenderer[] meshRenderers = tool.GetAllComponentsInChildren<MeshRenderer>();
             SkinnedMeshRenderer[] skinnedMeshRenderers = tool.GetAllComponentsInChildren<SkinnedMeshRenderer>();
 

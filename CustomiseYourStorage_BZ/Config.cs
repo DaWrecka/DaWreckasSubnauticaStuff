@@ -112,6 +112,8 @@ namespace CustomiseYourStorage.Configuration
 		internal List<TechType> defaultLifepodLockerInventoryTypes = new List<TechType>();
 		public bool useDropPodInventory = false;
 		public List<string> defaultLifepodLockerInventory = new List<string>();
+		public List<string> defaultBlueprintsToUnlock = new List<string>();
+		private Dictionary<TechType, int> unlockedBlueprints = new Dictionary<TechType, int>(); // This set is used to tell whether or not we've unlocked a blueprint already, and therefore whether or not an entry is duplicated.
 
 #if SUBNAUTICA_STABLE
 		private const string PodName = "LifePod";
@@ -222,45 +224,6 @@ namespace CustomiseYourStorage.Configuration
 		{
 			switch (e.Id)
 			{
-				/*case "DroppodWidth":
-					LifepodLockerSize.x = e.IntegerValue;
-					break;
-				case "DroppodHeight":
-					LifepodLockerSize.y = e.IntegerValue;
-					break;
-				case "ExosuitWidth":
-					ExosuitConfig.width = e.IntegerValue;
-					break;
-				case "ExosuitHeight":
-					ExosuitConfig.height = e.IntegerValue;
-					break;
-				case "ExosuitModuleHeight":
-					ExosuitConfig.heightPerModule = e.IntegerValue;
-					break;
-				case "FiltrationWidth":
-					FiltrationConfig.containerSize.x = e.IntegerValue;
-					break;
-				case "FiltrationHeight":
-					FiltrationConfig.containerSize.y = e.IntegerValue;
-					break;
-				case "FiltrationWater":
-					FiltrationConfig.containerSize.x = e.IntegerValue;
-					break;
-				case "FiltrationSalt":
-					FiltrationConfig.containerSize.x = e.IntegerValue;
-					break;
-				case "InvWidth":
-					InventorySize.x = e.IntegerValue;
-					break;
-				case "InvHeight":
-					InventorySize.x = e.IntegerValue;
-					break;
-				case "BioreactorWidth":
-					BioreactorSize.x = e.IntegerValue;
-					break;
-				case "BioreactorHeight":
-					BioreactorSize.y = e.IntegerValue;
-					break;*/
 				default:
 					break;
 			}
@@ -412,7 +375,35 @@ namespace CustomiseYourStorage.Configuration
 						defaultLifepodLockerInventoryTypes.Add(tt);
 					else
 					{
-						Log.LogWarning($"Could not parse string '{s}' as TechType");
+						Log.LogWarning($"Could not parse string '{s}' as TechType in defaultLifepodLockerInventory");
+					}
+				}
+			}
+
+			// Likewise for defaultBlueprintsToUnlock
+			if (defaultBlueprintsToUnlock.Count > 0)
+			{
+				unlockedBlueprints.Clear();
+				foreach (string s in defaultBlueprintsToUnlock)
+				{
+					TechType tt = TechTypeUtils.GetTechType(s);
+					if (tt != TechType.None)
+					{
+						if (unlockedBlueprints.TryGetValue(tt, out int c))
+						{
+							c++;
+							Log.LogWarning($"Entry {s} in defaultBlueprintsToUnlock appears more than once; entry has been found {c} times so far");
+							unlockedBlueprints[tt] = c;
+						}
+						else
+						{
+							SMLHelper.V2.Handlers.KnownTechHandler.UnlockOnStart(tt);
+							unlockedBlueprints[tt] = 1;
+						}
+					}
+					else
+					{
+						Log.LogWarning($"Could not parse string {s} as TechType in defaultBlueprintsToUnlock");
 					}
 				}
 			}

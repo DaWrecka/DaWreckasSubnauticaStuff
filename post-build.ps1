@@ -26,7 +26,14 @@ Write-Host $s
 $jsonName = "mod_" + $Config + ".json"
 $jsonPath = ($ProjectDir,$jsonName) -join $dirSeparator
 $SolutionItem = Get-Item -Path $SolutionDir
-$modPath = ($GameDir,"QMods",$AssemblyName) -join $dirSeparator
+$modPath = ($SolutionDir,"QMods",$Config,$AssemblyName) -join $dirSeparator
+$gameModPath = ($GameDir,"QMods",$AssemblyName) -join $dirSeparator
+$archiveDir = ($SolutionDir,"Binaries",$Config) -join $dirSeparator
+if(!(Test-Path $archiveDir))
+{
+	New-Item -Type Directory -Path $archiveDir
+}
+$archiveFullPath = ($archiveDir,$dirSeparator,$AssemblyName,".zip") -join ""
 
 if(!(Test-Path $jsonPath))
 {
@@ -51,7 +58,7 @@ $dllItem = Get-Item -Path $TargetPath
 $dllVersion = $dllItem.VersionInfo.FileVersion
 Write-Host Updating mod.json with new version $dllVersion
 $modJson.Version = $dllItem.VersionInfo.FileVersion
-Copy-Item -Path $jsonPath -Destination ($jsonName + ".bak") -Force # Back up old Json, just in case
+Copy-Item -Path $jsonPath -Destination ($jsonPath + ".bak") -Force # Back up old Json, just in case
 $modJson | ConvertTo-Json | Out-File $jsonPath
 if(!(Test-Path $modPath))
 {
@@ -69,6 +76,8 @@ if($dllTarget -ne $TargetPath)
 {
 	New-Item -Type HardLink -Path $dllTarget -Target $TargetPath -Force
 }
+New-Item -Type HardLink -Path (($gameModPath,$dllItem.Name) -join $dirSeparator) -Target $TargetPath -Force
+New-Item -Type HardLink -Path (($gameModPath,"mod.json") -join $dirSeparator) -Target $jsonPath -Force
 
 # Link Assets, if they exist
 $assetDir = (($ProjectDir,"Assets") -join $dirSeparator)
@@ -77,6 +86,7 @@ if(Test-Path $assetDir)
 	Write-Host "Processing assets directory $assetDir"
 	Push-Location $ProjectDir # This is mainly for the use of Resolve-Path later
 	$assetDest = $modPath #(($modPath,"Assets") -join $dirSeparator)
+	$gameAssetDest = $gameModPath
 	foreach($assetItem in Get-ChildItem -Path $assetDir -Recurse)
 	{
 		$assetPath = Resolve-Path $assetItem -Relative
@@ -84,21 +94,28 @@ if(Test-Path $assetDir)
 		{
 			Write-Host ("Creating directory ${assetPath}")
 			New-Item -Type Directory -Path (($assetDest,$assetPath) -join $dirSeparator)
+			New-Item -Type Directory -Path (($gameAssetDest,$assetPath) -join $dirSeparator)
 		}
 		else
 		{
-			$container = (($assetDest,(Resolve-Path ($assetItem.Directory) -Relative)) -join $dirSeparator)
-			if(!(Test-Path $container))
+			foreach($s in ($assetDest,$gameAssetDest))
 			{
-				New-Item -Type Directory -Path $container
-			}
+				$container = (($s,(Resolve-Path ($assetItem.Directory) -Relative)) -join $dirSeparator)
+				if(!(Test-Path $container))
+				{
+					New-Item -Type Directory -Path $container
+				}
 
-			$linkTarget = (($assetDest,$assetPath) -join $dirSeparator)
-			if(!(Test-Path $linkTarget))
-			{
-				New-Item -Type HardLink -Path $linkTarget -Target $assetItem
+				$linkTarget = (($s,$assetPath) -join $dirSeparator)
+				if(!(Test-Path $linkTarget))
+				{
+					New-Item -Type HardLink -Path $linkTarget -Target $assetItem
+				}
 			}
 		}
 	}
 	Pop-Location
 }
+
+Compress-Archive -Path $modPath -DestinationPath $archiveFullPath -Force
+Write-Host Created archive $archiveFullPath

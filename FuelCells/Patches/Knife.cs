@@ -62,6 +62,9 @@ namespace FuelCells.Patches
 				The call is all we need to change.
 				*/
 				//if(codes[i].opcode == OpCodes.Call && object.Equals(TraceMethod, codes[i].operand))
+
+
+				// And then it turns out we can do it so much more easily!
 				if(codes[i].Calls(TraceMethod))
                 {
                     Log.LogDebug($"ToolUseTranspiler found Call in IL at index {i}");
@@ -80,9 +83,9 @@ namespace FuelCells.Patches
 			if (key == TechType.None)
 				return result;
 
-			Log.LogDebug($"InterceptTrace found closestObj with TechType {key}");
 			if (_MakeHarvestables.TryGetValue(key, out float value))
             {
+				Log.LogDebug($"InterceptTrace found closestObj with TechType {key}");
 				LiveMixin component = closestObj.EnsureComponent<LiveMixin>();
 				if (component.data == null)
 				{

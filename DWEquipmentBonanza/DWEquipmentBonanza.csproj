@@ -5,7 +5,7 @@
   <Import Project="..\Configurations.targets" />
   <Import Project="..\References.targets" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Subnautica</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0BBEDB12-642C-47EE-A14D-3F581B0038B8}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -36,6 +36,7 @@
     <Compile Include="Equipables\SuperSurvivalSuit.cs" />
     <Compile Include="Equipables\SurvivalSuit.cs" />
     <Compile Include="Equipables\UltraGlideSwimChargeFins.cs" />
+    <Compile Include="GameObjects\ResourceMagnet.cs" />
     <Compile Include="MonoBehaviours\DiverPerimeterDefenceBehaviour.cs" />
     <Compile Include="MonoBehaviours\HoverbikeStructuralIntegrityModifier.cs" />
     <Compile Include="MonoBehaviours\HoverbikeUpdater.cs" />
@@ -43,7 +44,9 @@
     <Compile Include="MonoBehaviours\SeaTruckUpdater.cs" />
     <Compile Include="MonoBehaviours\SurvivalsuitBehaviour.cs" />
     <Compile Include="MonoBehaviours\VehicleCharger.cs" />
+    <Compile Include="MonoBehaviours\VehicleGravsphere.cs" />
     <Compile Include="MonoBehaviours\VehicleUpdater.cs" />
+    <Compile Include="MonoBehaviours\VibrobladeBehaviour.cs" />
     <Compile Include="Patches\BatteryCharger.cs" />
     <Compile Include="Patches\DamageSystem.cs" />
     <Compile Include="Patches\Drillable.cs" />
@@ -60,6 +63,7 @@
     <Compile Include="Patches\TooltipFactory.cs" />
     <Compile Include="Patches\uGUI_Equipment.cs" />
     <Compile Include="Patches\UnderwaterMotor.cs" />
+    <Compile Include="Patches\VehicleDockingBayPatches.cs" />
     <Compile Include="Spawnables\PowerglideFragmentPrefab.cs" />
     <Compile Include="Spawnables\ShadowLeviathanSample.cs" />
     <Compile Include="VehicleModules\ExosuitLightningClawGeneratorModule.cs" />

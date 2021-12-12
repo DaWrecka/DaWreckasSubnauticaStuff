@@ -67,11 +67,9 @@ namespace FuelCells.Patches
 
 			while (pendingBatteryList.Count > 0)
 			{
-				foreach (Battery b in pendingBatteryList)
+				var pendingCopy = new HashSet<Battery>(pendingBatteryList);
+				foreach (Battery b in pendingCopy)
 				{
-					//pendingBatteryList.
-					//foreach(Battery b in pendingBatteryList)
-					//{
 					GameObject go = b.gameObject;
 
 					if (go == null)
@@ -125,12 +123,13 @@ namespace FuelCells.Patches
 		{
 			float batteryChargePct = (__instance.charge / __instance._capacity);
 			Log.LogDebug($"BatteryPatches.PostDeserialise: Processing battery instance {__instance.GetInstanceID()}");
-#if SUBNAUTICA_STABLE
+/*#if SUBNAUTICA_STABLE
 			TechTag tt = __instance.gameObject?.GetComponent<TechTag>();
 			if(tt != null)
-#elif BELOWZERO
+#elif BELOWZERO*/
+
+			// ^^ Turns out all of this crap is unnecessary, as TryGetComponent was implemented in Unity 2019.2; Subnautica 1, as of this writing, is on engine version 2019.2.17f1
 			if (__instance.gameObject != null && __instance.gameObject.TryGetComponent<TechTag>(out TechTag tt))
-#endif
 			{
 				Log.LogDebug($"BatteryPatches.PostDeserialise: Got TechTag");
 				TechType batteryTech = tt.type; //CraftData.GetTechType(__instance.gameObject);

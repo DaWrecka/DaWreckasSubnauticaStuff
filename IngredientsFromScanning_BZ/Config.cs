@@ -34,14 +34,13 @@ namespace PartsFromScanning.Configuration
 		public int maxComponents = 2; // Maximum number
 
 		[Toggle("Show all fragments in Map Room")]
-		private bool bOverrideMapRoom = true;
+		public bool bOverrideMapRoom = true;
 
 		[Toggle("Intercept Databoxes", Tooltip = "If true, opening a databox whose tech is already in the PDA will give parts from the blueprint's recipe, as if it were a fragment. If false, opening such a databox will only give two Titanium, as normal.")]
 		// Disabling this because it doesn't work right now
 		private bool bInterceptDataboxes = false;
 
 		[Toggle("Generate for unknown blueprints only", Tooltip = "By default, Subnautica's loot generation has a chance of excluding fragments for known blueprints when you visit an area for the first time in a save. Setting this to false overrides this behaviour, allowing any fragment to spawn if it is valid for that location.")]
-		// Disabling this because it doesn't work right now
 		public bool bUnknownFragmentsOnly = false;
 
 		private void OnSliderChange(SliderChangedEventArgs e)

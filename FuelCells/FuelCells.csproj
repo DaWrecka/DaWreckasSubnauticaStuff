@@ -3,18 +3,19 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="..\GameDir.targets" />
   <Import Project="..\References.targets" />
+  <Import Project="..\Configurations.targets" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <AssemblyName>FuelCells</AssemblyName>
+    <Configuration Condition=" '$(Configuration)' == '' ">Subnautica</Configuration>
+    <Deterministic>true</Deterministic>
+    <FileAlignment>512</FileAlignment>
+    <OutputPath>$(SolutionDir)$(AssemblyName)\$(Configuration)\</OutputPath>
+    <OutputType>Library</OutputType>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{C5E29C24-D05F-4321-A886-1EFF69D01C46}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <OutputPath>$(SolutionDir)$(AssemblyName)\$(Configuration)\</OutputPath>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>FuelCells</RootNamespace>
-    <AssemblyName>FuelCells</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
   </PropertyGroup>
   <Import Project="..\Configurations.targets" />
   <ItemGroup>

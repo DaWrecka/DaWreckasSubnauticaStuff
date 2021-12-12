@@ -110,6 +110,8 @@ namespace DWEquipmentBonanza
 			}
 		}
 
+		private static Dictionary<TechType, float> suitTemperatureResistance = new Dictionary<TechType, float>();
+
 		internal static void AddSubstitution(TechType custom, TechType vanilla)
 		{
 			EquipmentPatch.AddSubstitution(custom, vanilla);
@@ -148,11 +150,21 @@ namespace DWEquipmentBonanza
 			return TechTypeUtils.GetModTechType(key);
 		}
 
-		public static void AddDiveSuit(TechType diveSuit, float depth, float breathMultiplier = 1f, float minTempBonus = 0f)
+		public static void AddDiveSuit(TechType diveSuit, float depth = 0f, float breathMultiplier = 1f, float minTempBonus = 0f)
 		{
-			NitroAddDiveSuit?.Invoke(null, new object[] { diveSuit, depth, breathMultiplier, minTempBonus });
+			if (NitroAddDiveSuit != null)
+				NitroAddDiveSuit.Invoke(null, new object[] { diveSuit, depth, breathMultiplier, minTempBonus });
+			else
+			{
+				suitTemperatureResistance[diveSuit] = minTempBonus;
+			}
 		}
-			
+
+		internal static float GetDiveSuitTempBonus(TechType suit)
+		{
+			return suitTemperatureResistance.GetOrDefault(suit, 0f);
+		}
+
 		internal static GameObject GetModPrefab(string key)
 		{
 			return TechTypeUtils.GetModPrefab(key);
@@ -524,6 +536,15 @@ namespace DWEquipmentBonanza
 				TechType.DrillableUranium
 			})
 			{
+				Log.LogInfo($"Fixing Cell Level for TechType {tt.AsString()}");
+				var classid = CraftData.GetClassIdForTechType(tt);
+				if (WorldEntityDatabase.TryGetInfo(classid, out var worldEntityInfo))
+				{
+					worldEntityInfo.cellLevel = LargeWorldEntity.CellLevel.VeryFar;
+
+					WorldEntityDatabase.main.infos[classid] = worldEntityInfo;
+				}
+
 				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(tt);
 				yield return task;
 
@@ -533,7 +554,7 @@ namespace DWEquipmentBonanza
 					LargeWorldEntity lwe = prefab.GetComponent<LargeWorldEntity>();
 					if (lwe != null)
 					{
-						lwe.cellLevel = LargeWorldEntity.CellLevel.Far;
+						lwe.cellLevel = LargeWorldEntity.CellLevel.VeryFar;
 						Log.LogDebug($"CellLevel for TechType {tt.AsString()} updated to Far");
 					}
 					else

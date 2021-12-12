@@ -4,7 +4,8 @@
   "Author": "DaWrecka",
   "Version": "1.0.0.0",
   "LoadAfter": [
-    "SMLHelper"
+    "SMLHelper",
+    "GravTrapImproved"
   ],
   "VersionDependencies": {
     "SMLHelper": "2.9.6"
