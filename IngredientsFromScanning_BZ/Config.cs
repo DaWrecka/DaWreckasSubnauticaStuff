@@ -20,7 +20,7 @@ namespace PartsFromScanning.Configuration
 	// In other words, only those which should never be used, or should be used less-often.
 
 	/*[Menu("Ingredients from Fragments", IgnoreUnattributedMembers = true, SaveOn = CreateAssetMenuAttribute.SaveEvents.ChangeValue)]*/
-	[Menu("Ingredients from Scanning")]
+	[Menu("Parts from Scanning")]
 	public class DWConfig : ConfigFile
 	{
 		private const int MAX_PRIZE = 10;
