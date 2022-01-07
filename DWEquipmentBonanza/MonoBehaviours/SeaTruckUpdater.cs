@@ -18,13 +18,23 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		protected static TechType solarModuleTechType => Main.GetModTechType("SeaTruckSolarModule");
 		protected static TechType thermalModuleTechType => Main.GetModTechType("SeaTruckThermalModule");
 		protected static TechType sonarModuleTechType => Main.GetModTechType("SeaTruckSonarModule");
+		protected static TechType repairModuleTechType => Main.GetModTechType("SeatruckRepairModule");
 		public static AnimationCurve thermalReactorCharge;
 		protected static int solarCount;
 		protected static int thermalCount;
+		protected SeaTruckMotor parentMotor;
 		protected SeaTruckUpgrades parentVehicle;
 		protected FMOD_CustomEmitter sonarSound;
 		protected bool bSonarActive = false;
 		protected int sonarSlotID = -1;
+		protected int repairSlotID = -1;
+		protected bool bRepairActiveMode = false;
+
+		private static float fPassiveEnergyConsumptionPerSecond = 2f;
+		private static float fPassiveHealthRegenerationPerSecond = 2f;
+		private static float fActiveModeEnergyMultiplier = 6f; // Energy consumption is multiplied by this amount in active mode
+		private static float fActiveModeHealthRegenMultiplier = 5f; // Health regeneration is multiplied by this amount in active mode
+
 
 		protected void Start()
 		{
@@ -62,6 +72,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		internal void Initialise(ref SeaTruckUpgrades seaTruckUpgrades)
 		{
 			parentVehicle = seaTruckUpgrades;
+			parentMotor = seaTruckUpgrades.motor;
 			parentVehicle.onToggle += OnToggle;
 			parentVehicle.onSelect += OnSelect;
 		}
@@ -75,6 +86,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		{
 			parentVehicle.onToggle -= OnToggle;
 			parentVehicle.onSelect -= OnSelect;
+			parentMotor = null;
+			parentVehicle = null;
 		}
 
 		private void OnToggle(int slotID, bool state)
@@ -86,7 +99,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			{
 				bSonarActive = state;
 
-				if(state)
+				if (state)
 				{
 					base.InvokeRepeating("UpdateSonar", 0f, SonarCooldown);
 				}
@@ -95,20 +108,27 @@ namespace DWEquipmentBonanza.MonoBehaviours
 					base.CancelInvoke("UpdateSonar");
 				}
 			}
+			else if (slotID == repairSlotID)
+			{
+				gameObject.EnsureComponent<VehicleRepairComponent>().SetActiveState(state, parentMotor);
+			}
 		}
 
 		private void OnSelect(int slotID)
 		{
 			if (parentVehicle == null)
 				return;
+			if (parentMotor == null)
+				parentMotor = parentVehicle.motor;
 
-			if (slotID > SeaTruckUpgrades.slotIDs.Length)
+			if (slotID >= SeaTruckUpgrades.slotIDs.Length)
 			{
 				Log.LogDebug("SeatruckUpdate.OnSelect() invoked with slotID outside the bounds of the slotIDs array");
 				return;
 			}
 
-			if (parentVehicle.modules.GetTechTypeInSlot(SeaTruckUpgrades.slotIDs[slotID]) == sonarModuleTechType)
+			TechType equippedTech = parentVehicle.modules.GetTechTypeInSlot(SeaTruckUpgrades.slotIDs[slotID]);
+			if (equippedTech == sonarModuleTechType)
 			{
 				sonarSlotID = slotID;
 				bSonarActive = !bSonarActive;
@@ -120,6 +140,10 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				{
 					base.CancelInvoke("UpdateSonar");
 				}
+			}
+			else if (equippedTech == repairModuleTechType)
+			{
+				ErrorMessage.AddMessage("Repair module state: " + (gameObject.EnsureComponent<VehicleRepairComponent>().ToggleActiveState(parentMotor) ? "active" : "passive"));
 			}
 		}
 
@@ -150,11 +174,15 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		internal virtual void PostUpgradeModuleChange(int slotID, TechType techType, bool added, SeaTruckUpgrades instance)
 		{
-			if (parentVehicle == null)
+			if (parentVehicle == null && instance != null)
+			{
 				parentVehicle = instance;
+				parentMotor = instance.motor;
+			}
 
 			if (parentVehicle == null)
 				return;
+
 
 			if (techType == sonarModuleTechType)
 			{
@@ -162,6 +190,17 @@ namespace DWEquipmentBonanza.MonoBehaviours
 					sonarSlotID = slotID;
 				else
 					sonarSlotID = -1;
+			}
+			else if (techType == repairModuleTechType)
+			{
+				if (added)
+					repairSlotID = slotID;
+				else
+					repairSlotID = -1;
+
+				VehicleRepairComponent repairComponent = gameObject.EnsureComponent<VehicleRepairComponent>();
+				repairComponent.SetEnabled(added, parentMotor);
+				repairComponent.SetActiveState(false);
 			}
 			base.CancelInvoke("UpdateRecharge");
 			base.CancelInvoke("UpdateSonar");
@@ -188,6 +227,10 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				{
 					base.CancelInvoke("UpdateSonar");
 				}
+			}
+			else if (tt == repairModuleTechType)
+			{
+				gameObject.EnsureComponent<VehicleRepairComponent>().SetActiveState(parentMotor);
 			}
 		}
 

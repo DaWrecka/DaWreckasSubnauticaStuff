@@ -11,9 +11,8 @@ using UWE;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 
-namespace FuelCells.Patches
+namespace PowerOverYourPower.Patches
 {
-#if BATTERYPATCHING
 	[HarmonyPatch(typeof(Battery))]
 	internal class Batteries
 	{
@@ -127,7 +126,7 @@ namespace FuelCells.Patches
 /*#if SUBNAUTICA_STABLE
 			TechTag tt = __instance.gameObject?.GetComponent<TechTag>();
 			if(tt != null)
-//#elif BELOWZERO*/
+#elif BELOWZERO*/
 
 			// ^^ Turns out all of this crap is unnecessary, as TryGetComponent was implemented in Unity 2019.2; Subnautica 1, as of this writing, is on engine version 2019.2.17f1
 			if (__instance.gameObject != null && __instance.gameObject.TryGetComponent<TechTag>(out TechTag tt))
@@ -160,5 +159,4 @@ namespace FuelCells.Patches
 			}
 		}
 	}
-#endif
 }

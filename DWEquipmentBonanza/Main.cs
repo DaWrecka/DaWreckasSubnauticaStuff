@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using QModManager.API;
 using QModManager.API.ModLoading;
 using DWEquipmentBonanza.Equipables;
@@ -26,14 +24,11 @@ using CustomDataboxes.API;
 	using Oculus.Newtonsoft.Json.Serialization;
 	using Oculus.Newtonsoft.Json.Converters;
 #elif BELOWZERO
-	using Newtonsoft.Json;
-	using Newtonsoft.Json.Serialization;
-	using Newtonsoft.Json.Converters;
 #endif
 
 namespace DWEquipmentBonanza
 {
-	[QModCore]
+    [QModCore]
 	public class Main
 	{
 		internal static bool bVerboseLogging = true;
@@ -96,6 +91,7 @@ namespace DWEquipmentBonanza
 
 		public static bool bUseNitrogenAPI; // If true, use the Nitrogen API instead of patching GetTechTypeInSlot. Overrides bNoPatchTechTypeInSlot.
 		private static Dictionary<string, TechType> NitrogenTechtypes = new Dictionary<string, TechType>();
+		internal static GameObject HighCapacityTankPrefab;
 		internal static TechType StillSuitType
 		{
 			get
@@ -304,7 +300,7 @@ namespace DWEquipmentBonanza
 					craftAmount = 1,
 					Ingredients = new List<Ingredient>()
 					{
-						new Ingredient(TechType.Fins, 1),
+						new Ingredient(TechType.DoubleTank, 1),
 						new Ingredient(TechType.Silicone, 2),
 						new Ingredient(TechType.Titanium, 1),
 						new Ingredient(TechType.Lithium, 1)
@@ -327,6 +323,7 @@ namespace DWEquipmentBonanza
 					}
 				}
 			);
+			KnownTechHandler.SetAnalysisTechEntry(TechType.SwimChargeFins, new TechType[] { TechType.UltraGlideFins }); 
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.UltraGlideFins, new string[] { DWConstants.FinsMenuPath });
 			
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.FinsMenuPath, "Fin Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_finsmenu"));
@@ -378,6 +375,8 @@ namespace DWEquipmentBonanza
 				new ShadowLeviathanSample(),
 				new SurvivalSuitBlueprint_FromReinforcedSurvival(),
 				//new SeatruckSolarModuleMk2(),
+				new IonBoosterTank(),
+				new SeatruckRepairModule(),
 #endif
 				new DiverPerimeterDefenceChip_Broken(),
 				new DiverPerimeterDefenceChipItem(),

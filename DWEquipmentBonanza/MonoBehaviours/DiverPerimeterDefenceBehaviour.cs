@@ -27,7 +27,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		ISerializationCallbackReceiver
 	{
 		private static Dictionary<TechType, int> maxDischarges = new Dictionary<TechType, int>();
-		private static Dictionary<TechType, bool> destroyWhenDischarged = new Dictionary<TechType, bool>();
+		private static Dictionary<TechType, bool> destroyWhenDischarged = new Dictionary<TechType, bool>(); // If true, the chip is destroyed when empty. If false, the chip is just empty and can possibly be recharged
 
 		protected const float JuicePerDischarge = 100f; // Units of energy consumed by a perimeter discharge.
 		protected static int MaxDischargeCheat = 0;
@@ -36,7 +36,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		[SerializeField]
 		protected TechType techType;
 		protected Pickupable thisPickup;
-		protected bool bDestroyWhenEmpty;// If true, the chip is destroyed when empty. If false, the chip is just empty and can possibly be recharged
+		protected bool bDestroyWhenEmpty;
 		protected int _maxDischarges;
 		protected virtual int MaxDischarges
 		{

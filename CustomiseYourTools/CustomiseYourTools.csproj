@@ -5,18 +5,18 @@
   <Import Project="..\References.targets" />
   <Import Project="..\Configurations.targets" />
   <PropertyGroup>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <AssemblyName>FuelCells</AssemblyName>
-    <Configuration Condition=" '$(Configuration)' == '' ">Subnautica</Configuration>
-    <Deterministic>true</Deterministic>
-    <FileAlignment>512</FileAlignment>
-    <OutputPath>$(SolutionDir)$(AssemblyName)\$(Configuration)\</OutputPath>
-    <OutputType>Library</OutputType>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C5E29C24-D05F-4321-A886-1EFF69D01C46}</ProjectGuid>
-    <RootNamespace>FuelCells</RootNamespace>
+    <ProjectGuid>{A89B8691-E90A-4F9A-A7E2-694665C2C365}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CustomiseYourTools</RootNamespace>
+    <AssemblyName>CustomiseYourTools</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
+  <Import Project="..\Configurations.targets" />
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -30,23 +30,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="MonoBehaviours\RegeneratingPowerSource.cs" />
-    <Compile Include="Patches\Battery.cs" />
-    <Compile Include="Patches\Knife.cs" />
-    <Compile Include="Patches\Pickupable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Spawnables\CoralSample.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Language.json" />
-    <None Include="mod_BelowZero.json" />
-    <None Include="mod_Subnautica.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="CustomBatteries">
-      <HintPath>$(GameDir)\QMods\CustomBatteries\CustomBatteries.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
   </ItemGroup>
   <Import Project="..\Common\Common.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

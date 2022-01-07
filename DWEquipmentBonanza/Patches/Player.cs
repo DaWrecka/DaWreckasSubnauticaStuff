@@ -32,7 +32,7 @@ namespace DWEquipmentBonanza.Patches
         private static TechType ttSuitMk2 => TechTypeUtils.GetModTechType("NitrogenBrineSuit2");
         private static TechType ttSuitMk3 => TechTypeUtils.GetModTechType("NitrogenBrineSuit3");
         private static TechType ttSuperSuit => TechTypeUtils.GetModTechType("SuperSurvivalSuit");
-
+#endif
         internal static float oldMaxTemp;
 
         [HarmonyPrefix]
@@ -66,6 +66,7 @@ namespace DWEquipmentBonanza.Patches
                 ErrorMessage.AddMessage($"Maximum safe water temperature now {maxTemp.ToString()}");
         }
 
+#if SUBNAUTICA_STABLE
         // The gloves texture is used for the suit as well, on the arms, so we need to do something about that.
         // The block that generates the glove texture is sizable, so it's made into a function here.
         private static Material GetGloveMaterial(Shader shader, Material OriginalMaterial)
@@ -101,11 +102,11 @@ namespace DWEquipmentBonanza.Patches
 		}
 #endif
 
-		// Used by our Player.EquipmentChanged patch.
-		// If TechType key is equipped, search instead for TechType value
-		// so for example if key is prefabReinforcedColdSuit.TechType, value will be TechType.ColdSuit
-		// This should mean that when the ReinforcedColdSuit is equipped, then the Cold Suit graphics will be displayed.
-		public static void AddSubstitution(TechType custom, TechType vanilla, bool bUpdate = false)
+        // Used by our Player.EquipmentChanged patch.
+        // If TechType key is equipped, search instead for TechType value
+        // so for example if key is prefabReinforcedColdSuit.TechType, value will be TechType.ColdSuit
+        // This should mean that when the ReinforcedColdSuit is equipped, then the Cold Suit graphics will be displayed.
+        public static void AddSubstitution(TechType custom, TechType vanilla, bool bUpdate = false)
 		{
 			//Logger.Log(Logger.Level.Debug, $"Adding substitution: custom TechType {custom.AsString()}, for vanilla {vanilla.AsString()}");
 			if (DisplaySubstitutions.ContainsKey(custom))

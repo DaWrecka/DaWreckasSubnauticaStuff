@@ -22,19 +22,35 @@ namespace DWEquipmentBonanza.Equipables
         protected static GameObject prefab;
         protected static GameObject highCapTank;
 
-        public HighCapacityBooster() : base("HighCapacityBooster", "High Capacity Booster Tank", "Booster tank with increased oxygen capacity.")
+        protected virtual List<TechType> Substitutions => new List<TechType>()
+        {
+            TechType.SuitBoosterTank,
+            TechType.HighCapacityTank
+        };
+
+        protected virtual List<TechType> CompoundUnlocks => new List<TechType>()
+        {
+            TechType.SuitBoosterTank,
+            TechType.HighCapacityTank
+        };
+
+        public HighCapacityBooster(string classId = "HighCapacityBooster",
+            string friendlyName = "High Capacity Booster Tank",
+            string description = "Booster tank with increased oxygen capacity.") : base(classId, friendlyName, description)
         {
             //CoroutineHost.StartCoroutine(PostPatchSetup());
             OnFinishedPatching += () =>
             {
-                Main.AddSubstitution(this.TechType, TechType.SuitBoosterTank);
-                Main.AddSubstitution(this.TechType, TechType.HighCapacityTank);
                 Main.AddModTechType(this.TechType);
-                Reflection.AddCompoundTech(this.TechType, new List<TechType>()
+                if (Substitutions != null && Substitutions.Count > 0)
                 {
-                    TechType.SuitBoosterTank,
-                    TechType.HighCapacityTank
-                });
+                    foreach (var tt in Substitutions)
+                        Main.AddSubstitution(this.TechType, tt);
+                }
+                if (CompoundUnlocks != null && CompoundUnlocks.Count > 0)
+                {
+                    Reflection.AddCompoundTech(this.TechType, CompoundUnlocks);
+                }
 
                 Main.AddCustomOxyExclusion(this.TechType, true, true);
                 Main.AddCustomOxyTank(this.TechType, -1f, icon);
@@ -89,8 +105,21 @@ namespace DWEquipmentBonanza.Equipables
 
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
+            // We're not using a separate PreparePrefab() method, because this object only exists in BelowZero.
+            // In the event 
+
             CoroutineTask<GameObject> task;
             Oxygen oxy;
+            if (Main.HighCapacityTankPrefab == null)
+            {
+                Log.LogDebug($"HighCapacityBooster.GetGameObjectAsync: getting HighCapacityTank prefab");
+                task = CraftData.GetPrefabForTechTypeAsync(TechType.HighCapacityTank, verbose: true);
+                yield return task;
+                Main.HighCapacityTankPrefab = GameObject.Instantiate(task.GetResult()); // The "capacity expansion" code in Customise Your Oxygen can't run unless the thing is instantiated. The prefabs can't be altered.
+                                                                        // So unless we instantiate, we only get default capacities.
+                ModPrefabCache.AddPrefab(Main.HighCapacityTankPrefab, false);
+            }
+
             if (prefab == null)
             {
                 Log.LogDebug($"HighCapacityBooster.GetGameObjectAsync: getting SuitBoosterTank prefab");
@@ -99,44 +128,138 @@ namespace DWEquipmentBonanza.Equipables
 
                 prefab = GameObject.Instantiate(task.GetResult());
                 ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
-                //HighCapacityBooster.prefab = prefab;
+                
+                //GameObject go = GameObject.Instantiate(prefab);
+                Oxygen highCapOxygen = Main.HighCapacityTankPrefab.GetComponent<Oxygen>();
+                //Oxygen highCapOxygen = task.GetResult().GetComponent<Oxygen>();
+                if (highCapOxygen != null)
+                {
+                    oxy = prefab.EnsureComponent<Oxygen>();
+                    if (oxy != null)
+                    {
+                        float oxygenCapacity = highCapOxygen.oxygenCapacity;
+                        Log.LogDebug($"Found Oxygen component with capacity of {oxygenCapacity} for prefab HighCapacityTank and existing oxygen capacity of {oxy.oxygenCapacity} for prefab HighCapacityBooster.");
+                        oxy.oxygenCapacity = oxygenCapacity;
+                    }
+                    else
+                    {
+                        Log.LogError($"Could not get Oxygen component of SuitBoosterTank while generating HighCapacityBooster");
+                    }
+                }
+                else
+                    Log.LogError($"Could not get Oxygen component of HighCapacityTank while generating HighCapacityBooster");
+
             }
 
-            if (highCapTank == null)
+            oxy = prefab.GetComponent<Oxygen>();
+            float oxyCap = oxy != null ? oxy.oxygenCapacity : -1f;
+            Log.LogDebug($"GameObject created with oxygenCapacity of {oxyCap}");
+
+            gameObject.Set(prefab);
+        }
+
+    }
+
+    internal class IonBoosterTank : HighCapacityBooster
+    {
+        private const float boostOxygenUsePerSecond = 2f;
+        protected override List<TechType> CompoundUnlocks => null;
+        public override TechType RequiredForUnlock => TechType.SeaTruckTeleportationModule;
+
+        public IonBoosterTank() : base("IonBoosterTank", "Ion Booster Tank", "Booster tank upgraded using Architect hybrid technology; consumes less oxygen while boosting")
+        {
+
+        }
+
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            return new RecipeData()
+            {
+                craftAmount = 1,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                    {
+                        new Ingredient(Main.GetModTechType("HighCapacityBooster"), 1),
+                        new Ingredient(TechType.PrecursorIonCrystal, 2),
+                        new Ingredient(TechType.Kyanite, 2)
+                    }
+                )
+            };
+        }
+        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+            // We're not using a separate PreparePrefab() method, because this object only exists in BelowZero.
+            // In the event 
+
+            CoroutineTask<GameObject> task;
+            Oxygen oxy;
+            if (Main.HighCapacityTankPrefab == null)
             {
                 Log.LogDebug($"HighCapacityBooster.GetGameObjectAsync: getting HighCapacityTank prefab");
                 task = CraftData.GetPrefabForTechTypeAsync(TechType.HighCapacityTank, verbose: true);
                 yield return task;
-                highCapTank = GameObject.Instantiate(task.GetResult()); // The "capacity expansion" code in Customise Your Oxygen can't run unless the thing is instantiated. The prefabs can't be altered.
-                                                                        // So unless we instantiate, we only get default capacities.
-                ModPrefabCache.AddPrefab(highCapTank, false);
+                Main.HighCapacityTankPrefab = GameObject.Instantiate(task.GetResult()); // The "capacity expansion" code in Customise Your Oxygen can't run unless the thing is instantiated. The prefabs can't be altered.
+                                                                                        // So unless we instantiate, we only get default capacities.
+                ModPrefabCache.AddPrefab(Main.HighCapacityTankPrefab, false);
             }
 
-            GameObject go = GameObject.Instantiate(prefab);
-            Oxygen highCapOxygen = highCapTank.GetComponent<Oxygen>();
-            //Oxygen highCapOxygen = task.GetResult().GetComponent<Oxygen>();
-            if (highCapOxygen != null)
+            if (prefab == null)
             {
-                oxy = go.EnsureComponent<Oxygen>();
-                if (oxy != null)
+                Log.LogDebug($"HighCapacityBooster.GetGameObjectAsync: getting SuitBoosterTank prefab");
+                task = CraftData.GetPrefabForTechTypeAsync(TechType.SuitBoosterTank, verbose: true);
+                yield return task;
+
+                prefab = GameObject.Instantiate(task.GetResult());
+                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
+
+                //GameObject go = GameObject.Instantiate(prefab);
+                Oxygen highCapOxygen = Main.HighCapacityTankPrefab.GetComponent<Oxygen>();
+                //Oxygen highCapOxygen = task.GetResult().GetComponent<Oxygen>();
+                if (highCapOxygen != null)
                 {
-                    float oxygenCapacity = highCapOxygen.oxygenCapacity;
-                    Log.LogDebug($"Found Oxygen component with capacity of {oxygenCapacity} for prefab HighCapacityTank and existing oxygen capacity of {oxy.oxygenCapacity} for prefab HighCapacityBooster.");
-                    oxy.oxygenCapacity = oxygenCapacity;
+                    oxy = prefab.EnsureComponent<Oxygen>();
+                    if (oxy != null)
+                    {
+                        float oxygenCapacity = highCapOxygen.oxygenCapacity;
+                        Log.LogDebug($"Found Oxygen component with capacity of {oxygenCapacity} for prefab HighCapacityTank and existing oxygen capacity of {oxy.oxygenCapacity} for prefab IonBoosterTank.");
+                        oxy.oxygenCapacity = oxygenCapacity;
+                    }
+                    else
+                    {
+                        Log.LogError($"Could not get Oxygen component of SuitBoosterTank while generating IonBoosterTank");
+                    }
+                }
+                else
+                    Log.LogError($"Could not get Oxygen component of HighCapacityTank while generating IonBoosterTank");
+
+                var booster = prefab.GetComponent<SuitBoosterTank>();
+                if (booster != null)
+                {
+                    booster.boostOxygenUsePerSecond = boostOxygenUsePerSecond;
                 }
                 else
                 {
-                    Log.LogError($"Could not get Oxygen component of SuitBoosterTank while generating HighCapacityBooster");
+                    Log.LogError($"Could not get SuitBoosterTank component of SuitBoosterTank prefab while generating IonBoosterTank");
                 }
+            }
 
-                GameObject.Destroy(highCapOxygen);
+            oxy = prefab.GetComponent<Oxygen>();
+            float oxyCap = oxy != null ? oxy.oxygenCapacity : -1f;
+            Log.LogDebug($"IonBoosterTank created with oxygenCapacity of {oxyCap}");
+            var postBooster = prefab.GetComponent<SuitBoosterTank>();
+            if (postBooster != null)
+            {
+                if (postBooster.boostOxygenUsePerSecond != boostOxygenUsePerSecond)
+                {
+                    Log.LogDebug($"Editing SuitBoosterTnk component");
+                    postBooster.boostOxygenUsePerSecond = boostOxygenUsePerSecond;
+                }
             }
             else
-                Log.LogError($"Could not get Oxygen component of HighCapacityTank while generating HighCapacityBooster");
+            {
+                Log.LogError($"Could not get SuitBoosterTank component of SuitBoosterTank prefab while generating IonBoosterTank");
+            }
 
-            float oxyCap = prefab.GetComponent<Oxygen>().oxygenCapacity;
-            Log.LogDebug($"GameObject created with oxygenCapacity of {oxyCap}");
-            gameObject.Set(go);
+            gameObject.Set(prefab);
         }
     }
 #endif

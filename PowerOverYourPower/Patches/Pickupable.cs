@@ -5,12 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FuelCells.Patches
+namespace PowerOverYourPower.Patches
 {
     [HarmonyPatch(typeof(Pickupable))]
     internal class Pickupables
     {
-#if BATTERYPATCHING
         [HarmonyPatch(nameof(Pickupable.Awake))]
         [HarmonyPostfix]
         internal static void PostAwake(Pickupable __instance)
@@ -18,6 +17,5 @@ namespace FuelCells.Patches
             if (__instance.gameObject != null && __instance.gameObject.TryGetComponent<Battery>(out Battery b))
                 Batteries.AddPendingBattery(ref b);
         }
-#endif
     }
 }

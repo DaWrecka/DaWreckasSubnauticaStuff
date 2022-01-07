@@ -48,7 +48,7 @@ namespace DWEquipmentBonanza.Equipables
 			};
 		}
 
-		new public bool UnlockedAtStart => false;
+		public override TechType RequiredForUnlock => TechType.Unobtanium;
 		public override EquipmentType EquipmentType => EquipmentType.Foots;
 		public override Vector2int SizeInInventory => new(2, 2);
 		public override TechGroup GroupForPDA => TechGroup.Personal;

@@ -45,6 +45,7 @@
     <Compile Include="MonoBehaviours\SurvivalsuitBehaviour.cs" />
     <Compile Include="MonoBehaviours\VehicleCharger.cs" />
     <Compile Include="MonoBehaviours\VehicleGravsphere.cs" />
+    <Compile Include="MonoBehaviours\VehicleRepairComponent.cs" />
     <Compile Include="MonoBehaviours\VehicleUpdater.cs" />
     <Compile Include="MonoBehaviours\VibrobladeBehaviour.cs" />
     <Compile Include="Patches\BatteryCharger.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="VehicleModules\HoverbikeDurabilitySystem.cs" />
     <Compile Include="VehicleModules\HoverbikeSelfRepairModule.cs" />
     <Compile Include="VehicleModules\SeaTruckSonarModule.cs" />
+    <Compile Include="VehicleModules\SeatruckRepairModule.cs" />
     <Compile Include="VehicleModules\SeatruckThermalModule.cs" />
     <Compile Include="VehicleModules\SeatruckSolarModule.cs" />
     <Compile Include="VehicleModules\ExosuitSprintModule.cs" />

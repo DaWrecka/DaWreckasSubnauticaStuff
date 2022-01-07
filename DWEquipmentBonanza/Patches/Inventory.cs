@@ -59,7 +59,6 @@ namespace DWEquipmentBonanza.Patches
 			lastChipCharge = 0f;
 		}
 
-		/*
 		[HarmonyPatch(typeof(Inventory), nameof(Inventory.ConsumeResourcesForRecipe))]
 		[HarmonyPrefix]
 		internal static void ConsumeResourcesPrefix(TechType techType, uGUI_IconNotifier.AnimationDone endFunc = null)
@@ -76,7 +75,11 @@ namespace DWEquipmentBonanza.Patches
 		[HarmonyPostfix]
 		internal static void ConsumeResourcesPostfix(Inventory __instance, TechType techType, uGUI_IconNotifier.AnimationDone endFunc = null)
 		{
+#if BELOWZERO
 			float lastRemovedBatteryCharge = __instance?.container == null ? -1f : __instance.container.lastRemovedBatteryCharge;
+#else
+			float lastRemovedBatteryCharge = 0f;
+#endif
 			if (lastRemovedBatteryCharge > 1f)
 			{
 				bool bIsChip = chipTechTypes.Contains(techType);
@@ -87,7 +90,6 @@ namespace DWEquipmentBonanza.Patches
 					cachedBatteryCharge = lastRemovedBatteryCharge;
 			}
 		}
-		*/
 
 		[HarmonyPatch(typeof(ItemsContainer), nameof(ItemsContainer.RemoveItem), new Type[] { typeof(TechType) })]
 		[HarmonyPrefix]
@@ -96,7 +98,7 @@ namespace DWEquipmentBonanza.Patches
 			//Log.LogDebug($"InventoryPatches.PreRemoveItem: techType = {techType.AsString()}");
 			if (Main.compatibleBatteries.Contains(techType))
 			{
-				//Log.LogDebug($"InventoryPatches.RemoveItemPrefix: battery TechType is being consumed, caching TechType");
+				Log.LogDebug($"InventoryPatches.RemoveItemPrefix: battery TechType {techType.AsString()} is being consumed, caching TechType");
 				cachedBatteryType = techType;
 			}
 		}
@@ -111,7 +113,7 @@ namespace DWEquipmentBonanza.Patches
 			float lastRemovedBatteryCharge = __instance == null ? -1f : __instance.lastRemovedBatteryCharge;
 #endif
 			bool bIsChip = chipTechTypes.Contains(techType);
-			//Log.LogDebug($"InventoryPatches.PostRemoveItem: found lastRemovedBatteryCharge of {lastRemovedBatteryCharge} and bIsChip: {bIsChip}");
+			Log.LogDebug($"InventoryPatches.PostRemoveItem: found lastRemovedBatteryCharge of {lastRemovedBatteryCharge} and bIsChip: {bIsChip}");
 			if (lastRemovedBatteryCharge > 1f)
 			{
 				if (bIsChip)

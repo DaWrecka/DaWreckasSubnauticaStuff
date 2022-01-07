@@ -46,6 +46,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoTriggerFullPlanters", "No
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnlockCustomisation", "UnlockCustomisation\UnlockCustomisation.csproj", "{31E81FE0-853A-4F56-81B3-2CF073777594}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomiseYourTools", "CustomiseYourTools\CustomiseYourTools.csproj", "{A89B8691-E90A-4F9A-A7E2-694665C2C365}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "weskey007-PrawnSuitArmSwitcher", "weskey007-PrawnSuitArmSwitcher\weskey007-PrawnSuitArmSwitcher.csproj", "{42C336F5-3B85-466B-995A-0198EA1D979E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerOverYourPower", "PowerOverYourPower\PowerOverYourPower.csproj", "{D935B7DC-5D06-4976-8FA1-B9980517204F}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Common\Common.projitems*{0bbedb12-642c-47ee-a14d-3f581b0038b8}*SharedItemsImports = 4
@@ -58,9 +64,11 @@ Global
 		Common\Common.projitems*{854262eb-f44f-4d6b-9b32-4103ae9f4253}*SharedItemsImports = 4
 		Common\Common.projitems*{8a848353-2b17-4ec0-9a43-3992adb96579}*SharedItemsImports = 13
 		Common\Common.projitems*{971fa188-6ab9-4c4f-bdee-89e37f305276}*SharedItemsImports = 4
+		Common\Common.projitems*{a89b8691-e90a-4f9a-a7e2-694665c2c365}*SharedItemsImports = 4
 		Common\Common.projitems*{b43f4c23-beb5-4b02-a623-a843a010f6a4}*SharedItemsImports = 4
 		Common\Common.projitems*{c5e29c24-d05f-4321-a886-1eff69d01c46}*SharedItemsImports = 4
 		Common\Common.projitems*{d05216e9-ccf3-4037-8c2f-36b571acb323}*SharedItemsImports = 4
+		Common\Common.projitems*{d935b7dc-5d06-4976-8fa1-b9980517204f}*SharedItemsImports = 4
 		Common\Common.projitems*{f6471ca2-e705-4e05-a36a-451378150b1a}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -120,8 +128,8 @@ Global
 		{971FA188-6AB9-4C4F-BDEE-89E37F305276}.BelowZero|Any CPU.Build.0 = BelowZero|Any CPU
 		{971FA188-6AB9-4C4F-BDEE-89E37F305276}.BelowZero|x64.ActiveCfg = BelowZero|Any CPU
 		{971FA188-6AB9-4C4F-BDEE-89E37F305276}.BelowZero|x64.Build.0 = BelowZero|Any CPU
-		{971FA188-6AB9-4C4F-BDEE-89E37F305276}.Subnautica|Any CPU.ActiveCfg = Subnautica|Any CPU
-		{971FA188-6AB9-4C4F-BDEE-89E37F305276}.Subnautica|Any CPU.Build.0 = Subnautica|Any CPU
+		{971FA188-6AB9-4C4F-BDEE-89E37F305276}.Subnautica|Any CPU.ActiveCfg = BelowZero|Any CPU
+		{971FA188-6AB9-4C4F-BDEE-89E37F305276}.Subnautica|Any CPU.Build.0 = BelowZero|Any CPU
 		{971FA188-6AB9-4C4F-BDEE-89E37F305276}.Subnautica|x64.ActiveCfg = BelowZero|Any CPU
 		{971FA188-6AB9-4C4F-BDEE-89E37F305276}.Subnautica|x64.Build.0 = BelowZero|Any CPU
 		{6EF05CA8-B139-4A7F-98E4-856A44849034}.BelowZero|Any CPU.ActiveCfg = BelowZero|Any CPU
@@ -204,6 +212,30 @@ Global
 		{31E81FE0-853A-4F56-81B3-2CF073777594}.Subnautica|Any CPU.Build.0 = Subnautica|Any CPU
 		{31E81FE0-853A-4F56-81B3-2CF073777594}.Subnautica|x64.ActiveCfg = Debug|Any CPU
 		{31E81FE0-853A-4F56-81B3-2CF073777594}.Subnautica|x64.Build.0 = Debug|Any CPU
+		{A89B8691-E90A-4F9A-A7E2-694665C2C365}.BelowZero|Any CPU.ActiveCfg = BelowZero|Any CPU
+		{A89B8691-E90A-4F9A-A7E2-694665C2C365}.BelowZero|Any CPU.Build.0 = BelowZero|Any CPU
+		{A89B8691-E90A-4F9A-A7E2-694665C2C365}.BelowZero|x64.ActiveCfg = Debug|Any CPU
+		{A89B8691-E90A-4F9A-A7E2-694665C2C365}.BelowZero|x64.Build.0 = Debug|Any CPU
+		{A89B8691-E90A-4F9A-A7E2-694665C2C365}.Subnautica|Any CPU.ActiveCfg = Subnautica|Any CPU
+		{A89B8691-E90A-4F9A-A7E2-694665C2C365}.Subnautica|Any CPU.Build.0 = Subnautica|Any CPU
+		{A89B8691-E90A-4F9A-A7E2-694665C2C365}.Subnautica|x64.ActiveCfg = Debug|Any CPU
+		{A89B8691-E90A-4F9A-A7E2-694665C2C365}.Subnautica|x64.Build.0 = Debug|Any CPU
+		{42C336F5-3B85-466B-995A-0198EA1D979E}.BelowZero|Any CPU.ActiveCfg = BelowZero|Any CPU
+		{42C336F5-3B85-466B-995A-0198EA1D979E}.BelowZero|Any CPU.Build.0 = BelowZero|Any CPU
+		{42C336F5-3B85-466B-995A-0198EA1D979E}.BelowZero|x64.ActiveCfg = BelowZero|Any CPU
+		{42C336F5-3B85-466B-995A-0198EA1D979E}.BelowZero|x64.Build.0 = BelowZero|Any CPU
+		{42C336F5-3B85-466B-995A-0198EA1D979E}.Subnautica|Any CPU.ActiveCfg = Subnautica|Any CPU
+		{42C336F5-3B85-466B-995A-0198EA1D979E}.Subnautica|Any CPU.Build.0 = Subnautica|Any CPU
+		{42C336F5-3B85-466B-995A-0198EA1D979E}.Subnautica|x64.ActiveCfg = Subnautica|Any CPU
+		{42C336F5-3B85-466B-995A-0198EA1D979E}.Subnautica|x64.Build.0 = Subnautica|Any CPU
+		{D935B7DC-5D06-4976-8FA1-B9980517204F}.BelowZero|Any CPU.ActiveCfg = BelowZero|Any CPU
+		{D935B7DC-5D06-4976-8FA1-B9980517204F}.BelowZero|Any CPU.Build.0 = BelowZero|Any CPU
+		{D935B7DC-5D06-4976-8FA1-B9980517204F}.BelowZero|x64.ActiveCfg = BelowZero|Any CPU
+		{D935B7DC-5D06-4976-8FA1-B9980517204F}.BelowZero|x64.Build.0 = BelowZero|Any CPU
+		{D935B7DC-5D06-4976-8FA1-B9980517204F}.Subnautica|Any CPU.ActiveCfg = Subnautica|Any CPU
+		{D935B7DC-5D06-4976-8FA1-B9980517204F}.Subnautica|Any CPU.Build.0 = Subnautica|Any CPU
+		{D935B7DC-5D06-4976-8FA1-B9980517204F}.Subnautica|x64.ActiveCfg = Subnautica|Any CPU
+		{D935B7DC-5D06-4976-8FA1-B9980517204F}.Subnautica|x64.Build.0 = Subnautica|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

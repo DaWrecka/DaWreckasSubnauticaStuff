@@ -33,26 +33,33 @@ namespace DWEquipmentBonanza.Equipables
 
         [Obsolete]
         protected virtual float SurvivalCapOverride => 150f;
+        protected virtual float maxDepth => 500f;
+        protected virtual float breathMultiplier => 1f;
+        protected virtual float minTempBonus => 10f;
         protected virtual TechType[] substitutions => new TechType[] { Main.StillSuitType };
         protected virtual TechType prefabTechType => Main.StillSuitType;
         protected virtual List<TechType> CompoundDependencies => new List<TechType>();
         protected static GameObject prefab;
+        public override QuickSlotType QuickSlotType => QuickSlotType.None;
+        public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
+        public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
 
         protected virtual void OnFinishedPatch()
         {
+            Main.AddModTechType(this.TechType);
+            PlayerPatch.AddSurvivalSuit(this.TechType);
             //Main.AddSubstitution(this.TechType, Main.StillSuitType);
             foreach (TechType tt in substitutions)
             {
                 Main.AddSubstitution(this.TechType, tt);
             }
-            Main.AddModTechType(this.TechType);
-            PlayerPatch.AddSurvivalSuit(this.TechType);
 
             if (CompoundDependencies.Count > 0)
             {
                 Reflection.AddCompoundTech(this.TechType, CompoundDependencies);
             }
             //SurvivalPatches.AddNeedsCapOverride(this.TechType, SurvivalCapOverride);
+            Main.AddDiveSuit(this.TechType, maxDepth, breathMultiplier, minTempBonus);
         }
 
 #if SUBNAUTICA_STABLE
@@ -103,15 +110,9 @@ namespace DWEquipmentBonanza.Equipables
         {
         }
 
-        protected override void OnFinishedPatch()
-        {
-            base.OnFinishedPatch();
-            Main.AddDiveSuit(this.TechType, this.maxDepth, this.breathMultiplier, this.minTempBonus);
-        }
-
-        protected virtual float maxDepth => 1000f;
-        protected virtual float breathMultiplier => 0.90f;
-        protected virtual float minTempBonus => 5f;
+        protected override float maxDepth => 800f;
+        protected override float breathMultiplier => 0.90f;
+        protected override float minTempBonus => 5f;
         protected override TechType[] substitutions
         {
             get
@@ -122,9 +123,6 @@ namespace DWEquipmentBonanza.Equipables
         public override EquipmentType EquipmentType => EquipmentType.Body;
         public override TechType RequiredForUnlock => Main.StillSuitType;
         public override Vector2int SizeInInventory => new(2, 2);
-        public override QuickSlotType QuickSlotType => QuickSlotType.None;
-        public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
-        public override string[] StepsToFabricatorTab => new string[] { "BodyMenu" };
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -158,6 +156,9 @@ namespace DWEquipmentBonanza.Equipables
 
     public class ReinforcedSurvivalSuit : SurvivalSuitBase<ReinforcedSurvivalSuit>
     {
+        protected override float maxDepth => 1100f;
+        protected override float breathMultiplier => 0.80f;
+        protected override float minTempBonus => 35f;
         public ReinforcedSurvivalSuit(string classId = "ReinforcedSurvivalSuit",
                 string friendlyName = "Reinforced Survival Suit",
                 string Description = "Enhanced survival suit with reinforcing fibres provides passive primary needs reduction and protection from physical force and high temperatures") : base(classId, friendlyName, Description)
@@ -170,7 +171,7 @@ namespace DWEquipmentBonanza.Equipables
             {
                 return new List<TechType>()
                 {
-                    Main.GetModTechType("SurvivalSuit"),
+                    Main.StillSuitType,
                     TechType.ReinforcedDiveSuit
                 };
             }
@@ -200,17 +201,6 @@ namespace DWEquipmentBonanza.Equipables
             };
         }
 
-        protected override void OnFinishedPatch()
-        {
-            base.OnFinishedPatch();
-
-            Reflection.AddCompoundTech(this.TechType, new List<TechType>()
-            {
-                TechType.ReinforcedDiveSuit,
-                Main.GetModTechType("SurvivalSuit")
-            });
-        }
-
         protected override Sprite GetItemSprite()
         {
             return SpriteManager.Get(Main.StillSuitType);
@@ -227,6 +217,9 @@ namespace DWEquipmentBonanza.Equipables
         {
         }
 
+        protected override float maxDepth => 1300f;
+        protected override float breathMultiplier => 0.80f;
+        protected override float minTempBonus => 40f;
         protected override TechType[] substitutions
         {
             get
@@ -293,7 +286,7 @@ namespace DWEquipmentBonanza.Equipables
                                                          // but it can still be instantiated. [unlike with SetActive(false)]
             }
 
-            // Despite the component being removed from the prefab above, testing shows that the Survival Suits still add the water packs when they should.
+            // Despite the component being removed from the prefab above, testing shows that the Survival Suits still add the water packs when they shouldn't.
             // So we're going to force-remove it here, to be safe.
             GameObject go = GameObject.Instantiate(prefab);
             if (go.TryGetComponent<Stillsuit>(out s))

@@ -61,12 +61,15 @@ namespace PartsFromScanning.Patches
 #endif
                     if (modules != null && TechTypeHandler.TryGetModdedTechType("SeaTruckStorage", out TechType storageType))
                     {
-                        HashSet<string> TruckSlotIDs = modules.equipment.Keys.ToSet<string>();
+                        //HashSet<string> TruckSlotIDs = modules.equipment.Keys.ToSet<string>();
+                        List<string> TruckSlotIDs = null;
+                        modules.GetSlots(EquipmentType.SeaTruckModule, TruckSlotIDs);
                         foreach (string slot in TruckSlotIDs)
                         {
-                            if (modules.GetTechTypeInSlot(slot) == storageType)
+                            InventoryItem item = modules.GetItemInSlot(slot);
+                            if (item.item.GetTechType() == storageType)
                             {
-                                InventoryItem item = modules.GetItemInSlot(slot);
+                                //InventoryItem item = modules.GetItemInSlot(slot);
 
                                 if (item.item.TryGetComponent(out SeamothStorageContainer seamothStorageContainer))
                                 {
@@ -123,12 +126,12 @@ namespace PartsFromScanning.Patches
                                 List<IItemsContainer> containers = new List<IItemsContainer>();
                                 seamoth.GetAllStorages(containers);
                                 //for (int i = 0; i < 12; i++)
+                                InventoryItem newItem = new InventoryItem(pickup);
                                 foreach (IItemsContainer storage in containers)
                                 {
                                     try
                                     {
                                         //ItemsContainer storage = seamoth.GetStorageInSlot(i, TechType.VehicleStorageModule);
-                                        InventoryItem newItem = new InventoryItem(pickup);
                                         if (storage is ItemsContainer iContainer)
                                         {
                                             int lastCount = iContainer.GetCount(techType);

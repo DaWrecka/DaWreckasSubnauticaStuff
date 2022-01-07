@@ -24,11 +24,15 @@ namespace FuelCells
 
 		public Dictionary<string, float> BatteryValues = new Dictionary<string, float>()
 		{
+#if BATTERYPATCHING
 			{ "Battery", 100f },
 			{ "PowerCell", 200f },
+#endif
 			{ "LithiumIonBattery", 200f },
+#if BATTERYPATCHING
 			{ "PrecursorIonBattery", 500f },
 			{ "PrecursorIonPowerCell", 1000f }
+#endif
 		};
 
 		private void OnSliderChange(SliderChangedEventArgs e)

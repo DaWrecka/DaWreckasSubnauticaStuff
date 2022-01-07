@@ -1,0 +1,20 @@
+{
+  "Id": "PowerOverYourPower",
+  "DisplayName": "PowerOverYourPower",
+  "Author": "DaWrecka",
+  "Version": "1.0.0.0",
+  "Dependencies": [
+    "SMLHelper"
+  ],
+  "VersionDependencies": {
+    "SMLHelper": "2.9.3",
+    "CustomBatteries": "1.1"
+  },
+  "Game": "Subnautica",
+  "NexusId": {},
+  "AssemblyName": "PowerOverYourPower.dll",
+  "VersionChecker": {
+    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/PowerOverYourPower/mod_Subnautica.json"
+  },
+  "Enable": true
+}

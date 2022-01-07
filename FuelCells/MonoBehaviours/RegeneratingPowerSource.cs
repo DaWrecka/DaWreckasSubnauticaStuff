@@ -15,8 +15,9 @@ namespace FuelCells.MonoBehaviours
         //public float RegenCumulative { get; private set; }
         public Battery source { get; private set; }
         public TechType sourceType { get; private set; }
-        private const float RegenerationRate = 0.001f; // Fraction of total capacity regenerated per second
+        //private const float RegenerationRate = 0.0005f; // Fraction of total capacity regenerated per second
         private const float RegenerationInterval = 0.5f;
+        private const float RegenerationRateAbsolute = 0.5f; // Energy units regenerated per second.
 
         private void Awake()
         {
@@ -41,7 +42,7 @@ namespace FuelCells.MonoBehaviours
                 yield return new WaitForEndOfFrame();
             }
 
-            base.InvokeRepeating("UpdatePower", 0f, RegenerationInterval);
+            base.InvokeRepeating("UpdatePower", RegenerationInterval, RegenerationInterval);
             yield break;
         }
 
@@ -56,7 +57,8 @@ namespace FuelCells.MonoBehaviours
             if(source == null)
                 return;
 
-            float regen = source.capacity * RegenerationInterval * RegenerationRate;
+            //float regen = source.capacity * RegenerationInterval * RegenerationRate;
+            float regen = RegenerationInterval * RegenerationRateAbsolute;
             float preCharge = source.charge;
             source.charge = Mathf.Min(source.charge + regen, source.capacity);
             //Log.LogDebug($"RegeneratingPowerSource.UpdatePower(): Source ID {source.GetInstanceID()}, TechType ; Attempted to restore {regen} units, restored {source.charge - preCharge} units, charge now {source.charge}");

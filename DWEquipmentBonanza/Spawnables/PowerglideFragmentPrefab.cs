@@ -124,6 +124,7 @@ namespace DWEquipmentBonanza.Spawnables
             typeof(ResourceTracker).GetField("techType", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(resourceTracker, this.TechType);
             //resourceTracker.techType = this.TechType;
             resourceTracker.overrideTechType = TechType.Fragment;
+            resourceTracker.techType = Main.GetModTechType("PowerglideFragment");
             resourceTracker.rb = obj.GetComponent<Rigidbody>();
             resourceTracker.pickupable = pickupable;
 

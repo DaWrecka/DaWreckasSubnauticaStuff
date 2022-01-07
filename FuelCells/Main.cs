@@ -60,7 +60,9 @@ namespace FuelCells
             (new CoralSample()).Patch();
 #endif
             config.OnLoad();
+#if BATTERYPATCHING
             Batteries.PostPatch();
+#endif
 
             var nBattery = new CbBattery // Calling the CustomBatteries API to patch this item as a Battery
             {

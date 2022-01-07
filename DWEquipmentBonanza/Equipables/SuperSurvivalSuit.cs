@@ -78,6 +78,9 @@ namespace DWEquipmentBonanza.Equipables
         public override EquipmentType EquipmentType => EquipmentType.Body;
         [Obsolete]
         protected override float SurvivalCapOverride => 200f;
+        protected override float maxDepth => 8000f;
+        protected override float breathMultiplier => 0.50f;
+        protected override float minTempBonus => 40f;
 #if BELOWZERO
         protected override TechType prefabTechType => TechType.ColdSuit;
 #endif
@@ -100,8 +103,6 @@ namespace DWEquipmentBonanza.Equipables
 #endif
                 };
 
-        public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
-        public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
         protected override RecipeData GetBlueprintRecipe()
         {
 #if SUBNAUTICA_STABLE
@@ -269,6 +270,7 @@ namespace DWEquipmentBonanza.Equipables
                 Ingredients = new List<Ingredient>(new Ingredient[]
                     {
                         new Ingredient(Main.GetModTechType("ReinforcedSurvivalSuit"), 1),
+                        new Ingredient(TechType.ReinforcedGloves, 1),
                         new Ingredient(TechType.ColdSuit, 1),
                         new Ingredient(TechType.ColdSuitGloves, 1),
                     }

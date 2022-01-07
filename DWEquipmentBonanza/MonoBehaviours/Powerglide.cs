@@ -100,14 +100,19 @@ namespace DWEquipmentBonanza.MonoBehaviours
             bIsUnderwater = Player.main.IsUnderwaterForSwimming();
             bhasEnergy = tool.HasEnergy();
             bInputHeld = GameInput.GetButtonHeld(GameInput.Button.Sprint);
-            tool.powerGlideActive = bIsUnderwater && bhasEnergy && bInputHeld;
-            tool.powerGlideParam = Mathf.Lerp(tool.powerGlideParam, tool.powerGlideActive ? 1f : 0f, Time.deltaTime * 3f);
-            powerSeaglideForce = Mathf.Lerp(powerSeaglideForce, tool.powerGlideActive ? powerGlideForce : 0f, Time.deltaTime * powerLerpRate);
+            bool powerGlideActive = bIsUnderwater && bhasEnergy && bInputHeld;
+            
+            tool.powerGlideParam = Mathf.Lerp(tool.powerGlideParam, powerGlideActive ? 1f : 0f, Time.deltaTime * 3f);
+            powerSeaglideForce = Mathf.Lerp(powerSeaglideForce, powerGlideActive ? powerGlideForce : 0f, Time.deltaTime * powerLerpRate);
             tool.powerGlideForce = powerSeaglideForce;
-            if (tool.powerGlideActive)
+#if SUBNAUTICA_STABLE
+            if (powerGlideActive)
             {
                 Player.main.gameObject.GetComponent<Rigidbody>().AddForce(this.gameObject.transform.forward * powerSeaglideForce, ForceMode.Force);
             }
+#elif BELOWZERO
+            tool.powerGlideActive = powerGlideActive;
+#endif
 
             MeshRenderer[] meshRenderers = tool.GetAllComponentsInChildren<MeshRenderer>();
             SkinnedMeshRenderer[] skinnedMeshRenderers = tool.GetAllComponentsInChildren<SkinnedMeshRenderer>();

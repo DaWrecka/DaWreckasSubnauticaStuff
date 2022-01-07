@@ -16,53 +16,9 @@ namespace UnlockCustomisation
 	[HarmonyPatch]
 	public class Reflection
 	{
-		private static readonly MethodInfo playerUpdateReinforcedSuitInfo = typeof(Player).GetMethod("UpdateReinforcedSuit", BindingFlags.NonPublic | BindingFlags.Instance);
-#if BELOWZERO
-		private static readonly MethodInfo addJsonPropertyInfo = typeof(CraftDataHandler).GetMethod("AddJsonProperty", BindingFlags.NonPublic | BindingFlags.Static);
-		private static readonly MethodInfo playerCheckColdsuitGoalInfo = typeof(Player).GetMethod("CheckColdsuitGoal", BindingFlags.NonPublic | BindingFlags.Instance);
-#endif
 		private static readonly FieldInfo knownTechCompoundTech = typeof(KnownTech).GetField("compoundTech", BindingFlags.NonPublic | BindingFlags.Static);
 		private static Dictionary<TechType, List<TechType>> pendingCompoundTech = new Dictionary<TechType, List<TechType>>();
 		private static bool bProcessingCompounds;
-
-#if BELOWZERO
-		public static void AddJsonProperty(TechType techType, string key, JsonValue newValue)
-		{
-			addJsonPropertyInfo.Invoke(null, new object[] { techType, key, newValue });
-		}
-
-		public static void AddColdResistance(TechType techType, int newValue)
-		{
-			//AddJsonProperty(techType, "coldResistance", new JsonValue(newValue));
-			CraftDataHandler.SetColdResistance(techType, newValue);
-		}
-
-		public static void SetItemSize(TechType techType, int width, int height)
-		{
-			AddJsonProperty(techType, "itemSize", new JsonValue
-				{
-					{
-						TechData.propertyX,
-						new JsonValue(width)
-					},
-					{
-						TechData.propertyY,
-						new JsonValue(height)
-					}
-				}
-			);
-		}
-
-		public static void PlayerCheckColdsuitGoal(Player player)
-		{
-			playerCheckColdsuitGoalInfo.Invoke(player, new object[] { });
-		}
-#endif
-
-		public static void PlayerUpdateReinforcedSuit(Player player)
-		{
-			playerUpdateReinforcedSuitInfo.Invoke(player, new object[] { });
-		}
 
 		public static void AddCompoundTech(TechType techType, List<TechType> dependencies, bool bForce = false)
 		{
@@ -96,9 +52,9 @@ namespace UnlockCustomisation
 			CoroutineHost.StartCoroutine(ProcessPendingCompounds(false));
 		}
 
-		private bool KnownTechInitialised()
+		private static bool KnownTechInitialised()
 		{
-			return (knownTechCompoundTech.GetValue(null) != null);
+			return (knownTechCompoundTech?.GetValue(null)) != null;
 		}
 
 		private static IEnumerator ProcessPendingCompounds(bool bForce = false)
@@ -116,6 +72,8 @@ namespace UnlockCustomisation
 				bProcessingCompounds = false;
 				yield break;
 			}
+
+			yield return new WaitUntil(() => KnownTechInitialised());
 
 			Log.LogDebug("ProcessPendingCompounds executing");
 			bProcessingCompounds = true;
