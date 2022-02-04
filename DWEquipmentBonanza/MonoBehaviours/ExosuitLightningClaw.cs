@@ -8,7 +8,7 @@ using UWE;
 
 namespace DWEquipmentBonanza.VehicleModules
 {
-#if BELOWZERO
+#if ENABLED
 	//public class ExosuitLightningClaw : MonoBehaviour, IExosuitArm
 	public class ExosuitLightningClaw : ExosuitClawArm
 	{

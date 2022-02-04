@@ -170,10 +170,6 @@ namespace DWEquipmentBonanza.Patches
 		[HarmonyPostfix]
 		public static void PostStart(Exosuit __instance)
 		{
-			ExosuitUpdater exosuitUpdate = __instance.gameObject.EnsureComponent<ExosuitUpdater>();
-			Vehicle vehicle = __instance;
-			exosuitUpdate.Initialise(ref vehicle);
-
 			if(__instance.gameObject != null && __instance.gameObject.TryGetComponent<LiveMixin>(out LiveMixin mixin) && Main.defaultHealth.TryGetValue(TechType.Exosuit, out float defaultHealth))
 			{
 				float instanceHealthPct = Mathf.Min(mixin.GetHealthFraction(), 1f);
@@ -186,6 +182,10 @@ namespace DWEquipmentBonanza.Patches
 				mixin.initialHealth = defaultHealth;
 #endif
 			}
+
+			ExosuitUpdater exosuitUpdate = __instance.gameObject.EnsureComponent<ExosuitUpdater>();
+			MonoBehaviour vehicle = __instance;
+			//exosuitUpdate.Initialise(ref vehicle);
 		}
 
 		/*
@@ -202,7 +202,7 @@ namespace DWEquipmentBonanza.Patches
 		public static void PostUpgradeChange(ref Exosuit __instance, int slotID, TechType techType, bool added)
 		{
 			Log.LogDebug($"ExosuitPatches.OnUpgradeModuleChange(): slotID = {slotID}, techType = {techType.AsString()}, added = {added}");
-			__instance.gameObject.EnsureComponent<ExosuitUpdater>().PostUpgradeModuleChange(techType);
+			__instance.gameObject.EnsureComponent<ExosuitUpdater>().PostUpgradeModuleChange(slotID, techType, added, __instance);
 			//if (techType == lightningClawTechType)
 			//	__instance.MarkArmsDirty();
 		}

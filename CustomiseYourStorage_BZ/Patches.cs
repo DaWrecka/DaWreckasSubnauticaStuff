@@ -83,7 +83,7 @@ namespace CustomiseYourStorage.Patches
 			}
 
 			// We allow the identification strings in the config to be mixed-case for the sake of readability.
-			// It makes this function a little harder, but makes life easier for the end-user, since they don't need to worry about case.
+			// It makes this function a tiny bit harder, but makes life easier for the end-user, since they don't need to worry about case.
 
 			Vector2int NewSize;
 			//if (Main.config.TryGetModSize(ContainerID, out NewSize))

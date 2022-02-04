@@ -41,6 +41,7 @@
     <Compile Include="MonoBehaviours\HoverbikeStructuralIntegrityModifier.cs" />
     <Compile Include="MonoBehaviours\HoverbikeUpdater.cs" />
     <Compile Include="MonoBehaviours\Powerglide.cs" />
+    <Compile Include="MonoBehaviours\SeamothUpdater.cs" />
     <Compile Include="MonoBehaviours\SeaTruckUpdater.cs" />
     <Compile Include="MonoBehaviours\SurvivalsuitBehaviour.cs" />
     <Compile Include="MonoBehaviours\VehicleCharger.cs" />
@@ -67,13 +68,17 @@
     <Compile Include="Patches\VehicleDockingBayPatches.cs" />
     <Compile Include="Spawnables\PowerglideFragmentPrefab.cs" />
     <Compile Include="Spawnables\ShadowLeviathanSample.cs" />
+    <Compile Include="VehicleModules\ExosuitChargingModules.cs" />
     <Compile Include="VehicleModules\ExosuitLightningClawGeneratorModule.cs" />
     <Compile Include="VehicleModules\HoverbikeDurabilitySystem.cs" />
     <Compile Include="VehicleModules\HoverbikeSelfRepairModule.cs" />
+    <Compile Include="VehicleModules\SeamothThermalModules.cs" />
+    <Compile Include="VehicleModules\VehicleRepairModule.cs" />
+    <Compile Include="VehicleModules\SeatruckUnifiedModule.cs" />
     <Compile Include="VehicleModules\SeaTruckSonarModule.cs" />
     <Compile Include="VehicleModules\SeatruckRepairModule.cs" />
-    <Compile Include="VehicleModules\SeatruckThermalModule.cs" />
-    <Compile Include="VehicleModules\SeatruckSolarModule.cs" />
+    <Compile Include="VehicleModules\SeatruckThermalModules.cs" />
+    <Compile Include="VehicleModules\SeatruckSolarModules.cs" />
     <Compile Include="VehicleModules\ExosuitSprintModule.cs" />
     <Compile Include="MonoBehaviours\ExosuitLightningClaw.cs" />
     <Compile Include="VehicleModules\ExosuitLightningClawPrefab.cs" />
@@ -92,6 +97,7 @@
     <Compile Include="VehicleModules\HoverbikeEngineEfficiencyModule.cs" />
     <Compile Include="VehicleModules\HoverbikeUpgradeBase.cs" />
     <Compile Include="VehicleModules\HoverbikeWaterTravelModule.cs" />
+    <Compile Include="VehicleModules\VehicleChargerModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="mod_Subnautica.json" />

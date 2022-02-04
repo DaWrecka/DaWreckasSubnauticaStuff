@@ -53,12 +53,12 @@ namespace PartsFromScanning.Patches
                     pickup.Initialize();
 
                     // This is kind of messy but it's an easy way to get the cross-game code running. In SN1 modules will always == null so the block won't run; but it'll still compile.
+                    Vehicle thisVehicle = Player.main.GetVehicle();
 #if SUBNAUTICA_STABLE
-                    Equipment modules = null;
+                    if (thisVehicle != null)
 #elif BELOWZERO
                     SeaTruckUpgrades upgrades = Player.main.GetComponentInParent<SeaTruckUpgrades>();
                     Equipment modules = upgrades?.modules;
-#endif
                     if (modules != null && TechTypeHandler.TryGetModdedTechType("SeaTruckStorage", out TechType storageType))
                     {
                         //HashSet<string> TruckSlotIDs = modules.equipment.Keys.ToSet<string>();
@@ -82,89 +82,84 @@ namespace PartsFromScanning.Patches
                                         //uGUI_IconNotifier.main.Play(pickup.GetTechType(), uGUI_IconNotifier.AnimationType.From, null);
                                         uGUI_IconNotifier.main.Play(techType, uGUI_IconNotifier.AnimationType.From, null);
                                         pickup.PlayPickupSound();
-#if !RELEASE
                                         Logger.Log(Logger.Level.Debug, $"Adding tech {techType} to Seatruck storage");
-#endif
                                         return;
                                     }
                                 }
                             }
                         }
                     }
-                    else
-                    {
-                        Vehicle thisVehicle = Player.main.GetVehicle();
-                        if (thisVehicle != null)
-                        {
-                            if (thisVehicle is Exosuit exo)
-                            {
-                                StorageContainer storageContainer = exo.storageContainer;
-
-                                if (storageContainer != null)
-                                {
-                                    int lastCount = storageContainer.container.GetCount(techType);
-                                    storageContainer.container.AddItem(pickup);
-                                    int techCount = storageContainer.container.GetCount(techType);
-#if !RELEASE
-                                    Logger.Log(Logger.Level.Debug, $"Adding tech {techType.AsString().PadLeft(15)} to Exosuit storage; previous count {lastCount}, new count {techCount}");
+                    else if(thisVehicle != null)
 #endif
-                                    if (techCount - lastCount == 1)
-                                    {
-                                        string name = Language.main.Get(pickup.GetTechName());
-                                        ErrorMessage.AddMessage(Language.main.GetFormat("VehicleAddedToStorage", name));
+                    {
+                        if (thisVehicle is Exosuit exo)
+                        {
+                            StorageContainer storageContainer = exo.storageContainer;
 
-                                        uGUI_IconNotifier.main.Play(pickup.GetTechType(), uGUI_IconNotifier.AnimationType.From, null);
-                                        pickup.PlayPickupSound();
-                                        return;
-                                    }
+                            if (storageContainer != null)
+                            {
+                                int lastCount = storageContainer.container.GetCount(techType);
+                                storageContainer.container.AddItem(pickup);
+                                int techCount = storageContainer.container.GetCount(techType);
+#if !RELEASE
+                                Logger.Log(Logger.Level.Debug, $"Adding tech {techType.AsString().PadLeft(15)} to Exosuit storage; previous count {lastCount}, new count {techCount}");
+#endif
+                                if (techCount - lastCount == 1)
+                                {
+                                    string name = Language.main.Get(pickup.GetTechName());
+                                    ErrorMessage.AddMessage(Language.main.GetFormat("VehicleAddedToStorage", name));
+
+                                    uGUI_IconNotifier.main.Play(pickup.GetTechType(), uGUI_IconNotifier.AnimationType.From, null);
+                                    pickup.PlayPickupSound();
+                                    return;
                                 }
                             }
+                        }
 
-                            else if (thisVehicle is SeaMoth seamoth)
+                        else if (thisVehicle is SeaMoth seamoth)
+                        {
+                            //bool storageCheck = false;
+                            List<IItemsContainer> containers = new List<IItemsContainer>();
+                            seamoth.GetAllStorages(containers);
+                            //for (int i = 0; i < 12; i++)
+                            InventoryItem newItem = new InventoryItem(pickup);
+                            foreach (IItemsContainer storage in containers)
                             {
-                                //bool storageCheck = false;
-                                List<IItemsContainer> containers = new List<IItemsContainer>();
-                                seamoth.GetAllStorages(containers);
-                                //for (int i = 0; i < 12; i++)
-                                InventoryItem newItem = new InventoryItem(pickup);
-                                foreach (IItemsContainer storage in containers)
+                                try
                                 {
-                                    try
+                                    //ItemsContainer storage = seamoth.GetStorageInSlot(i, TechType.VehicleStorageModule);
+                                    if (storage is ItemsContainer iContainer)
                                     {
-                                        //ItemsContainer storage = seamoth.GetStorageInSlot(i, TechType.VehicleStorageModule);
-                                        if (storage is ItemsContainer iContainer)
-                                        {
-                                            int lastCount = iContainer.GetCount(techType);
-                                            iContainer.AddItem(pickup);
-                                            int techCount = iContainer.GetCount(techType);
+                                        int lastCount = iContainer.GetCount(techType);
+                                        iContainer.AddItem(pickup);
+                                        int techCount = iContainer.GetCount(techType);
 #if !RELEASE
-                                            Logger.Log(Logger.Level.Debug, $"Adding tech {techType.AsString().PadLeft(15)} to Seamoth storage; previous count {lastCount}, new count {techCount}");
+                                        Logger.Log(Logger.Level.Debug, $"Adding tech {techType.AsString().PadLeft(15)} to Seamoth storage; previous count {lastCount}, new count {techCount}");
 #endif
-                                            if (techCount - lastCount == 1)
-                                            {
-                                                string name = Language.main.Get(pickup.GetTechName());
-                                                ErrorMessage.AddMessage(Language.main.GetFormat("VehicleAddedToStorage", name));
-                                                uGUI_IconNotifier.main.Play(pickup.GetTechType(), uGUI_IconNotifier.AnimationType.From, null);
+                                        if (techCount - lastCount == 1)
+                                        {
+                                            string name = Language.main.Get(pickup.GetTechName());
+                                            ErrorMessage.AddMessage(Language.main.GetFormat("VehicleAddedToStorage", name));
+                                            uGUI_IconNotifier.main.Play(pickup.GetTechType(), uGUI_IconNotifier.AnimationType.From, null);
 
-                                                pickup.PlayPickupSound();
-                                                //storageCheck = true;
-                                                return;
-                                            }
+                                            pickup.PlayPickupSound();
+                                            //storageCheck = true;
+                                            return;
                                         }
                                     }
-                                    catch (Exception e)
-                                    {
-#if !RELEASE
-                                        Logger.Log(Logger.Level.Debug, $"Exception adding tech {techType} to Seamoth storage: {e.ToString()}");
-#endif
-                                        continue;
-                                    }
                                 }
-                                /*if (storageCheck)
+                                catch (Exception e)
                                 {
-                                    return;
-                                }*/
+#if !RELEASE
+                                    Logger.Log(Logger.Level.Debug, $"Exception adding tech {techType} to Seamoth storage: {e.ToString()}");
+#endif
+                                    continue;
+                                }
                             }
+                            /*if (storageCheck)
+                            {
+                                return;
+                            }*/
                         }
                     }
                 }

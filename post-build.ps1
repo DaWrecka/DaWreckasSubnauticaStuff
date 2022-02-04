@@ -1,5 +1,4 @@
-[CmdletBinding(PositionalBinding=$false)]
-param
+[CmdletBinding(PositionalBinding=$false)]param
 (
     [Parameter(Mandatory=$true)][string]$ProjectDir,
     [Parameter(Mandatory=$true)][string]$TargetPath,
@@ -24,7 +23,7 @@ $Config = $Config -replace '"',''
 Write-Host $s
 
 $jsonName = "mod_" + $Config + ".json"
-$jsonPath = ($ProjectDir,$jsonName) -join $dirSeparator
+$jsonPath = [System.IO.Path]::Combine($ProjectDir,$jsonName)
 $SolutionItem = Get-Item -Path $SolutionDir
 $modPath = ($SolutionDir,"QMods",$Config,$AssemblyName) -join $dirSeparator
 $gameModPath = ($GameDir,"QMods",$AssemblyName) -join $dirSeparator
@@ -80,41 +79,61 @@ New-Item -Type HardLink -Path (($gameModPath,$dllItem.Name) -join $dirSeparator)
 New-Item -Type HardLink -Path (($gameModPath,"mod.json") -join $dirSeparator) -Target $jsonPath -Force
 
 # Link Assets, if they exist
-$assetDir = (($ProjectDir,"Assets") -join $dirSeparator)
-if(Test-Path $assetDir)
+$dirString = ([System.IO.Path]::Combine($ProjectDir,"Assets") + "," + [System.IO.Path]::Combine($ProjectDir,"Assets"+$Config))
+write-host ("DirString: '" + $dirString + "'")
+foreach($assetDir in ($dirString -split ","))
 {
-	Write-Host "Processing assets directory $assetDir"
-	Push-Location $ProjectDir # This is mainly for the use of Resolve-Path later
-	$assetDest = $modPath #(($modPath,"Assets") -join $dirSeparator)
-	$gameAssetDest = $gameModPath
-	foreach($assetItem in Get-ChildItem -Path $assetDir -Recurse)
+	if(Test-Path $assetDir)
 	{
-		$assetPath = Resolve-Path $assetItem -Relative
-		if($assetItem -is [System.Io.DirectoryInfo])
+		Write-Host "Processing assets directory $assetDir"
+		Push-Location $assetDir # This is mainly for the use of Resolve-Path later
+		$assetDest = [System.IO.Path]::Combine($modPath,"Assets")
+		$gameAssetDest = [System.IO.Path]::Combine($gameModPath,"Assets")
+		if(!(Test-Path $gameAssetDest))
 		{
-			Write-Host ("Creating directory ${assetPath}")
-			New-Item -Type Directory -Path (($assetDest,$assetPath) -join $dirSeparator)
-			New-Item -Type Directory -Path (($gameAssetDest,$assetPath) -join $dirSeparator)
+			Write-Host ("Creating directory ${gameAssetDest}")
+			New-Item -Type Directory -Path $gameAssetDest
 		}
-		else
+		foreach($assetItem in Get-ChildItem -Path "$assetDir\." -Recurse)
 		{
-			foreach($s in ($assetDest,$gameAssetDest))
+			#Write-Host ("Processing asset item " + $assetItem.FullName)
+			$assetPath = Resolve-Path $assetItem -Relative
+			if($assetItem -is [System.Io.DirectoryInfo])
 			{
-				$container = (($s,(Resolve-Path ($assetItem.Directory) -Relative)) -join $dirSeparator)
-				if(!(Test-Path $container))
+				$newDir = [System.IO.Path]::Combine($assetDest, $assetPath)
+				if(!(Test-Path $newDir))
 				{
-					New-Item -Type Directory -Path $container
+					Write-Host ("Creating directory ${newDir}")
+					New-Item -Type Directory -Path $newDir
 				}
-
-				$linkTarget = (($s,$assetPath) -join $dirSeparator)
-				if(!(Test-Path $linkTarget))
+				$newDir = [System.IO.Path]::Combine($gameAssetDest,$assetPath)
+				if(!(Test-Path $newDir))
 				{
-					New-Item -Type HardLink -Path $linkTarget -Target $assetItem
+					Write-Host ("Creating directory ${newDir}")
+					New-Item -Type Directory -Path $newDir
+				}
+			}
+			else
+			{
+				foreach($s in ($assetDest,$gameAssetDest))
+				{
+					<#$container = [System.IO.Path]::Combine($s,(Resolve-Path ($assetItem.Directory) -Relative))
+					if(!(Test-Path $container))
+					{
+						Write-Host ("Creating container ${container}")
+						New-Item -Type Directory -Path $container
+					}#>
+
+					$linkTarget = ([System.IO.Path]::Combine($s,$assetPath))
+					if(!(Test-Path $linkTarget))
+					{
+						New-Item -Type HardLink -Path $linkTarget -Target $assetItem
+					}
 				}
 			}
 		}
+		Pop-Location
 	}
-	Pop-Location
 }
 
 Compress-Archive -Path $modPath -DestinationPath $archiveFullPath -Force

@@ -99,13 +99,13 @@ namespace ConsoleBatchFiles
                         bool bWaitRT = (args[0].Substring(4, 2).ToLower() == "rt");
                         if (bWaitRT)
                         {
-                            yield return new WaitForSecondsRealtime(delay);
                             ErrorMessage.AddMessage($"Waiting for {delay} seconds realtime...");
+                            yield return new WaitForSecondsRealtime(delay);
                         }
                         else
                         {
-                            yield return new WaitForSeconds(delay);
                             ErrorMessage.AddMessage($"Waiting for {delay} seconds in-game...");
+                            yield return new WaitForSeconds(delay);
                         }
                     }
                     else

@@ -19,24 +19,6 @@ using System.Reflection.Emit;
 namespace DWEquipmentBonanza.Patches
 {
 #if BELOWZERO
-	[HarmonyPatch(typeof(SeaTruckMotor))]
-	internal class SeaTruckMotorPatches
-	{
-		[HarmonyPatch(nameof(SeaTruckMotor.Start))]
-		[HarmonyPostfix]
-		public static void PostStart(ref SeaTruckMotor __instance)
-		{
-			if (__instance.gameObject != null && __instance.gameObject.TryGetComponent<LiveMixin>(out LiveMixin mixin) && Main.defaultHealth.TryGetValue(TechType.SeaTruck, out float defaultHealth))
-			{
-				float instanceHealthPct = Mathf.Min(mixin.GetHealthFraction(), 1f);
-				float maxHealth = defaultHealth * Main.config.SeatruckVehicleHealthMult;
-
-				mixin.data.maxHealth = maxHealth;
-				mixin.health = maxHealth * instanceHealthPct;
-			}
-		}
-	}
-
 	[HarmonyPatch(typeof(uGUI_SeaTruckHUD))]
 	internal class SeaTruckHUDPatches
 	{
@@ -74,95 +56,140 @@ namespace DWEquipmentBonanza.Patches
 		}
 	}
 
+	[HarmonyPatch(typeof(SeaTruckMotor))]
+	internal class SeaTruckMotorPatches
+	{
+		[HarmonyPatch(nameof(SeaTruckMotor.Start))]
+		[HarmonyPostfix]
+		public static void PostStart(ref SeaTruckMotor __instance)
+		{
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
+			if (__instance?.gameObject != null)
+			{
+				if(__instance.gameObject.TryGetComponent<LiveMixin>(out LiveMixin mixin) && Main.defaultHealth.TryGetValue(TechType.SeaTruck, out float defaultHealth))
+				{
+					float instanceHealthPct = Mathf.Min(mixin.GetHealthFraction(), 1f);
+					float maxHealth = defaultHealth * Main.config.SeatruckVehicleHealthMult;
+
+					mixin.data.maxHealth = maxHealth;
+					mixin.health = maxHealth * instanceHealthPct;
+				}
+				__instance.gameObject.EnsureComponent<SeaTruckRepairComponent>().Initialise(__instance.gameObject);
+			}
+
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
+		}
+	}
+
 	[HarmonyPatch(typeof(SeaTruckUpgrades))]
 	internal class SeaTruckUpgradesPatches
 	{
-		private static Dictionary<TechType, int> maxModulesOverrides = new Dictionary<TechType, int>();
-
-		internal static void AddMaxModuleOverride(TechType tt, int newOverride)
-		{
-			if (maxModulesOverrides.ContainsKey(tt))
-			{
-				maxModulesOverrides[tt] = newOverride;
-				return;
-			}
-
-			maxModulesOverrides.Add(tt, newOverride);
-		}
-
-		[HarmonyPatch("Start")]
 		[HarmonyPostfix]
+		[HarmonyPatch("Start")]
 		public static void PostStart(SeaTruckUpgrades __instance)
 		{
-			SeaTruckUpdater component = __instance.gameObject.EnsureComponent<SeaTruckUpdater>();
-			component.Initialise(ref __instance);
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
+			if (__instance?.gameObject != null)
+			{
+				MonoBehaviour m = __instance as MonoBehaviour;
+				SeaTruckUpdater component = __instance.gameObject.EnsureComponent<SeaTruckUpdater>();
+				//component.Initialise(ref m);  // This is now handled in VehicleUpdater.Start()
+			}
+
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
 		}
 
-		[HarmonyPatch("OnUpgradeModuleChange", new Type[] { typeof(int), typeof(TechType), typeof(bool) })]
 		[HarmonyPostfix]
+		[HarmonyPatch("OnUpgradeModuleChange", new Type[] { typeof(int), typeof(TechType), typeof(bool) })]
 		public static void PostUpgradeModuleChange(SeaTruckUpgrades __instance, int slotID, TechType techType, bool added)
 		{
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}, {techType.AsString()}) executing");
 			__instance.gameObject.EnsureComponent<SeaTruckUpdater>()?.PostUpgradeModuleChange(slotID, techType, added, __instance);
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}, {techType.AsString()}) done");
 		}
 
-		[HarmonyPatch("OnUpgradeModuleUse")]
 		[HarmonyPostfix]
+		[HarmonyPatch("OnUpgradeModuleUse")]
 		public static void PostOnUpgradeModuleUse(SeaTruckUpgrades __instance, TechType techType, int slotID)
 		{
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}, {techType.AsString()}) executing");
 			__instance.gameObject.EnsureComponent<SeaTruckUpdater>()?.PostUpgradeModuleUse(__instance, techType, slotID);
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}, {techType.AsString()}) end");
 		}
 
-		[HarmonyPatch("NotifySelectSlot")]
 		[HarmonyPostfix]
+		[HarmonyPatch("NotifySelectSlot")]
 		public static void PostNotifySelectSlot(SeaTruckUpgrades __instance, int slotID)
 		{
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}) executing");
 			__instance.gameObject.EnsureComponent<SeaTruckUpdater>()?.PostNotifySelectSlot(__instance, slotID);
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}) end");
 		}
 
+
+		// Unlike with SN1, we explicitly need to override this - otherwise, only one of a given charger can be installed at a time.
+		// We *must* override it to get the behaviour we want.
 		[HarmonyPatch("IsAllowedToAdd")]
 		[HarmonyPrefix]
 		public static bool PreIsAllowedToAdd(SeaTruckUpgrades __instance, Pickupable pickupable, bool verbose, ref bool __result)
 		{
 			TechType techType = pickupable.GetTechType();
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({techType}) executing");
 
-			if (maxModulesOverrides.TryGetValue(techType, out int value))
+			SeaTruckUpdater stu = __instance.gameObject.GetComponent<SeaTruckUpdater>();
+			if(stu != null)
 			{
-				if (__instance.modules.GetCount(techType) <= value)
+				bool bAllowed = stu.AllowedToAdd(techType, out bool bOverride, out string message);
+				if (bOverride)
 				{
-					__result = true;
+					if (!string.IsNullOrEmpty(message))
+						ErrorMessage.AddMessage(message);
+					__result = bAllowed;
 					return false;
 				}
 			}
 
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({techType}) end");
 			return true;
 		}
 
-		[HarmonyPatch("OnPilotEnd")]
 		[HarmonyPostfix]
+		[HarmonyPatch("OnPilotEnd")]
 		public static void PostOnPilotEnd(SeaTruckUpgrades __instance)
 		{
-			__instance.gameObject.EnsureComponent<SeaTruckUpdater>()?.PostOnPilotEnd();
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
+			if (__instance?.gameObject != null)
+			{
+				__instance.gameObject.EnsureComponent<SeaTruckUpdater>().PostOnPilotEnd();
+			}
+
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
 		}
 
-		[HarmonyPatch("IQuickSlots.IsToggled")]
 		[HarmonyPrefix]
+		[HarmonyPatch("IQuickSlots.IsToggled")]
 		public static bool PreSeatruckIsToggled(SeaTruckUpgrades __instance, ref bool __result, int slotID)
 		{
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
 			//__result = slotID >= 0 && slotID < SeaTruckUpgrades.slotIDs.Length && (TechData.GetSlotType(__instance.GetSlotBinding(slotID)) == QuickSlotType.Passive || this.quickSlotToggled[slotID]);
 			__result = __result || __instance.gameObject.EnsureComponent<SeaTruckUpdater>().PreQuickSlotIsToggled(__instance, slotID);
 			//Log.LogDebug($"PreSeatruckIsToggled: slotID = {slotID}, __result = {__result}");
-			if(__result)
+			if (__result)
+			{
+				Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() __result = {__result}, returning false");
 				return false;
+			}
 
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() __result = {__result}, returning true");
 			return true;
-		}
-
-		[HarmonyPatch("IQuickSlots.IsToggled")]
-		[HarmonyPostfix]
-		public static void PostSeatruckIsToggled(SeaTruckUpgrades __instance, ref bool __result, int slotID)
-		{
-			//__result = slotID >= 0 && slotID < SeaTruckUpgrades.slotIDs.Length && (TechData.GetSlotType(__instance.GetSlotBinding(slotID)) == QuickSlotType.Passive || this.quickSlotToggled[slotID]);
-			//Log.LogDebug($"PostSeatruckIsToggled: slotID = {slotID}, __result = {__result}");
 		}
 	}
 #endif

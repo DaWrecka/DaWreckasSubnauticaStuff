@@ -102,14 +102,36 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		public void OnBeforeSerialize()
 		{
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			if (gameObject == null)
+			{
+				Log.LogError($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}) gameObject is null!");
+				return;
+			}
+
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): begin");
+			string moduleId = gameObject.GetComponent<PrefabIdentifier>()?.id;
+			if (string.IsNullOrEmpty(moduleId))
+			{
+
+				Log.LogError($"Cannot save charge value; Invalid ID for object");
+				return;
+			}
+			Log.LogDebug($"Saving charge value of {this.charge} to disk for module ID of '{moduleId}'");
+			Main.saveCache.AddModuleCharge(moduleId, this.charge);
 		}
 
 		public void OnAfterDeserialize()
 		{
+			CoroutineHost.StartCoroutine(OnAfterDeserializeCoroutine());
+		}
+
+		public IEnumerator OnAfterDeserializeCoroutine()
+		{
 			if (this.techType == TechType.None)
 			{
 				Log.LogError($"DiverPerimeterDefenceBehaviour deserialised with null TechType!");
-				return;
+				yield break;
 			}
 
 			(int discharges, bool bDestroy) returnValue = GetChipData(this.techType);
@@ -120,6 +142,27 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			this.bDestroyWhenEmpty = returnValue.bDestroy;
 			if (thisPickup == null && gameObject.TryGetComponent<Pickupable>(out Pickupable pickupable))
 				thisPickup = pickupable;
+
+			PrefabIdentifier pId = gameObject?.GetComponent<PrefabIdentifier>();
+			while (pId == null)
+			{
+				yield return new WaitForEndOfFrame();
+				pId = gameObject?.GetComponent<PrefabIdentifier>();
+			}
+
+			string moduleId = pId.id;
+			while(string.IsNullOrEmpty(moduleId = pId.id))
+			{
+				yield return new WaitForEndOfFrame();
+				moduleId = pId.id;
+			}
+			
+			if (Main.saveCache.TryGetModuleCharge(moduleId, out float charge))
+			{
+				Log.LogDebug($"DiverPerimeterDefenceBehaviour.OnAfterDeserialize(): Retrieved charge value of {charge} from disk for module ID of '{moduleId}'");
+				this.charge = charge;
+			}
+			Main.saveCache.RegisterReceiver(this);
 		}
 
 		public void OnProtoSerialize(ProtobufSerializer serializer)
@@ -285,13 +328,10 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		public string GetChargeValueText()
 		{
-			Log.LogDebug("DiverPerimeterDefenceBehaviour.GetChargeValueText() begin");
-
 			int numShots = Mathf.FloorToInt(this._charge / JuicePerDischarge);
 			int maxShots = Mathf.FloorToInt(this.capacity / JuicePerDischarge);
 			float num = numShots / maxShots;
 			//return Language.main.GetFormat<string, float, int, float>("BatteryCharge", ColorUtility.ToHtmlStringRGBA(gradient.Evaluate(num)), num, numShots, maxShots);
-			Log.LogDebug("DiverPerimeterDefenceBehaviour.GetChargeValueText() ending");
 			return Language.main.GetFormat<string, float, int, int>("<color=#{0}>{1,4}u ({2}/{3})</color>", ColorUtility.ToHtmlStringRGBA(gradient.Evaluate(num)), Mathf.Floor(this.charge), numShots, maxShots);
 		}
 

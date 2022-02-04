@@ -120,7 +120,7 @@ namespace DWEquipmentBonanza.Patches
 
 		public static void AddSurvivalSuit(TechType suit)
 		{
-			Log.LogDebug($"AddSurvivalSuit: called with TechType {suit.AsString()}");
+			//Log.LogDebug($"AddSurvivalSuit: called with TechType {suit.AsString()}");
 			if (!SurvivalSuits.Contains(suit))
 				SurvivalSuits.Add(suit);
 		}
@@ -398,6 +398,7 @@ namespace DWEquipmentBonanza.Patches
                             }
                             else
                             {
+                                // Yeah this could be a switch, but there's only two options and they're a little easier to read this way
                                 if (activeSlot == "Body")
                                 {
                                     if (reinforcedSuit != null)
@@ -492,7 +493,7 @@ namespace DWEquipmentBonanza.Patches
 				if (equipmentType.slot == "Body")
 				{
 					bHasSurvivalSuit = SurvivalSuits.Contains(techTypeInSlot);
-					Log.LogDebug($"PlayerPatches.EquipmentChanged(): TechType in slot Body = '{techTypeInSlot}', bHasSurvivalSuit = {bHasSurvivalSuit}");
+					//Log.LogDebug($"PlayerPatches.EquipmentChanged(): TechType in slot Body = '{techTypeInSlot}', bHasSurvivalSuit = {bHasSurvivalSuit}");
 				}
 				techTypeInSlot = CheckSubstitute(techTypeInSlot);
 				bool flag2 = false;

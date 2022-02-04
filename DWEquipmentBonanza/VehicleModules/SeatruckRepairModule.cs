@@ -7,6 +7,8 @@ using SMLHelper.V2.Handlers;
 using UnityEngine;
 using Logger = QModManager.Utility.Logger;
 using DWEquipmentBonanza.MonoBehaviours;
+using SMLHelper.V2.Utility;
+using System.IO;
 
 namespace DWEquipmentBonanza.VehicleModules
 {
@@ -24,6 +26,7 @@ namespace DWEquipmentBonanza.VehicleModules
         public override Vector2int SizeInInventory => new Vector2int(1, 1);
 
         private static GameObject prefab;
+        private static Sprite sprite;
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -44,21 +47,28 @@ namespace DWEquipmentBonanza.VehicleModules
         {
             if (prefab == null)
             {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.SeaTruckUpgradeEnergyEfficiency);
+                //TaskResult<GameObject> prefabResult = new TaskResult<GameObject>();
+                //yield return CraftData.InstantiateFromPrefabAsync(TechType.SeaTruckUpgradeEnergyEfficiency, prefabResult, false);
+                //prefab = prefabResult.Get();
+
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.SeaTruckUpgradeEnergyEfficiency, true);
                 yield return task;
-                prefab = GameObject.Instantiate<GameObject>(task.GetResult());
+                prefab = GameObject.Instantiate(task.GetResult());
+
+                prefab.name = ClassID;
                 //prefab.EnsureComponent<VehicleRepairComponent>();
                 // The code is handled by the SeatruckUpdater component, rather than anything here.
-                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
+                //ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
                                                          // but it can still be instantiated. [unlike with SetActive(false)]
             }
 
-            gameObject.Set(GameObject.Instantiate(prefab));
+            gameObject.Set(prefab);
         }
 
         protected override Sprite GetItemSprite()
         {
-            return SpriteManager.Get(TechType.SeaTruckUpgradeThruster);
+            sprite ??= ImageUtils.LoadSpriteFromFile(Path.Combine(Main.AssetsFolder, $"{ClassID}.png")); ;
+            return sprite;
         }
 
         public SeatruckRepairModule() : base("SeatruckRepairModule", "SeaTruck Repair Module", "Passively repairs damaged Seatruck and modules for modest energy cost; in active mode, rapidly repairs damage, but at significant energy cost")
@@ -66,6 +76,8 @@ namespace DWEquipmentBonanza.VehicleModules
             OnFinishedPatching += () =>
             {
                 Main.AddModTechType(this.TechType);
+                bool success = SeaTruckUpdater.AddRepairModuleType(this.TechType);
+                Log.LogDebug(($"Finished patching {this.TechType.AsString()}, added successfully: {success}"));
             };
         }
     }

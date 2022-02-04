@@ -7,7 +7,7 @@
   },
   "Id": "DWEquipmentBonanza",
   "AssemblyName": "DWEquipmentBonanza.dll",
-  "Version": "0.8.0.5",
+  "Version": "0.9.0.0",
   "Enable": true,
   "NexusId": {},
   "Game": "BelowZero",

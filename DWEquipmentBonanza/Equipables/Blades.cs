@@ -31,7 +31,7 @@ namespace DWEquipmentBonanza
             OnFinishedPatching += () =>
             {
 #if SUBNAUTICA_STABLE
-                var diamondBlade = new TechData()
+                var diamondBlade = new RecipeData()
                 {
                     craftAmount = 1,
                     Ingredients = new List<Ingredient>()

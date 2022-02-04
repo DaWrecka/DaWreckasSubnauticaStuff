@@ -104,6 +104,9 @@ namespace FuelCells
             };
             nPowercell.Patch();
 
+            // Lithium Ion Batteries exist within the vanilla files, but after trying to enable them I found they're flaky.
+            // Namely, they only work in some tools, not all.
+            // So I made entirely new Lithium-Ion batteries as CbBattery types, to sidestep that issue.
             /*CraftDataHandler.SetTechData(TechType.LithiumIonBattery, new SMLHelper.V2.Crafting.RecipeData()
             {
                 craftAmount = 1,

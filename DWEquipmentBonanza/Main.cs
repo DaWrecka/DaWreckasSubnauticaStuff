@@ -18,6 +18,9 @@ using System.Collections;
 using System.IO;
 using SMLHelper.V2.Utility;
 using CustomDataboxes.API;
+using SMLHelper.V2.Json.Attributes;
+using SMLHelper.V2.Json;
+using DWEquipmentBonanza.MonoBehaviours;
 #if SUBNAUTICA_STABLE
 	using Sprite = Atlas.Sprite;
 	using Oculus.Newtonsoft.Json;
@@ -28,12 +31,85 @@ using CustomDataboxes.API;
 
 namespace DWEquipmentBonanza
 {
-    [QModCore]
+	[FileName("DWEquipmentBonanza")]
+	[Serializable]
+	internal class DWDataFile : SaveDataCache
+	{
+		private HashSet<ISerializationCallbackReceiver> activeReceivers = new HashSet<ISerializationCallbackReceiver>();
+		public Dictionary<string, float> ModuleCharges = new Dictionary<string, float>();
+
+		internal void Init()
+		{
+			if (ModuleCharges == null)
+				ModuleCharges = new Dictionary<string, float>();
+			//IngameMenuHandler.RegisterOnLoadEvent(OnLoad);
+			//IngameMenuHandler.RegisterOnSaveEvent(OnSave);
+			this.OnStartedSaving += (object sender, JsonFileEventArgs e) =>
+			{
+				DWDataFile data = e.Instance as DWDataFile;
+				data.OnSave();
+			};
+		}
+
+		internal void OnLoad()
+		{
+		}
+
+		internal void OnSave()
+		{
+			foreach (var c in activeReceivers)
+			{
+				c.OnBeforeSerialize();
+			}
+		}
+
+		public void AddModuleCharge(string UUID, float charge)
+		{
+			ModuleCharges[UUID] = charge;
+		}
+
+		public bool TryGetModuleCharge(string UUID, out float charge)
+		{
+			if (string.IsNullOrWhiteSpace(UUID))
+			{
+				Log.LogError($"TryGetModuleCharge() called with null or blank key!");
+				charge = -1f;
+				return false;
+			}
+
+			return ModuleCharges.TryGetValue(UUID, out charge);
+		}
+
+		// ISerializationCallbackReceiver is supposed to receive callbacks when game saving begins, but it doesn't seem to be working properly.
+		// Worse, they seem to receive OnBeforeSerialize() callbacks at the start of the *loading* process.
+		// Here, such receivers register themselves so that the SaveDataCache can make *sure* that they get a call.
+		public bool RegisterReceiver(ISerializationCallbackReceiver v)
+		{
+			if (v == null || activeReceivers.Contains(v))
+				return false;
+
+			activeReceivers.Add(v);
+			return true;
+		}
+
+		public bool UnregisterReceiver(ISerializationCallbackReceiver v)
+		{
+			if (v != null && activeReceivers.Contains(v))
+			{
+				activeReceivers.Remove(v);
+				return true;
+			}
+
+			return false;
+		}
+	}
+
+	[QModCore]
 	public class Main
 	{
 		internal static bool bVerboseLogging = true;
 		internal static bool bLogTranspilers = false;
-		internal const string version = "0.8.0.5";
+		internal const string version = "0.9.0.0";
 #if SUBNAUTICA_STABLE
 		public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
 #endif
@@ -50,6 +126,7 @@ namespace DWEquipmentBonanza
 		public static HashSet<string> playerSlots => Equipment.slotMapping.Keys.ToHashSet<string>();
 
 		internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
+		internal static DWDataFile saveCache { get; private set; }
 
 		private static readonly Type CustomiseOxygen = Type.GetType("CustomiseOxygen.Main, CustomiseOxygen", false, false);
 		private static readonly MethodInfo CustomOxyAddExclusionMethod = CustomiseOxygen?.GetMethod("AddExclusion", BindingFlags.Public | BindingFlags.Static);
@@ -360,6 +437,10 @@ namespace DWEquipmentBonanza
 				new AcidHelmet(),
 				new AcidSuit(),
 				//new Blueprint_Suits(),
+				new SeamothSolarModuleMk2(),
+				new SeamothThermalModule(),
+				new SeamothThermalModuleMk2(),
+				new SeamothUnifiedChargerModule(),
 #elif BELOWZERO
 				new InsulatedRebreather(),
 				new ReinforcedColdSuit(),
@@ -369,12 +450,14 @@ namespace DWEquipmentBonanza
 				new SurvivalSuitBlueprint_FromReinforcedCold(),
 				new SurvivalSuitBlueprint_FromSurvivalCold(),
 				new HoverbikeMobilityUpgrade(),
-				new SeatruckSolarModule(),
+				new SeaTruckSolarModule(),
+				new SeatruckSolarModuleMk2(),
 				new SeatruckThermalModule(),
+				new SeatruckThermalModuleMk2(),
+				new SeatruckUnifiedChargerModule(),
 				new SeaTruckSonarModule(),
 				new ShadowLeviathanSample(),
 				new SurvivalSuitBlueprint_FromReinforcedSurvival(),
-				//new SeatruckSolarModuleMk2(),
 				new IonBoosterTank(),
 				new SeatruckRepairModule(),
 #endif
@@ -391,6 +474,11 @@ namespace DWEquipmentBonanza
 				new Vibroblade(),
 				new DWUltraGlideSwimChargeFins(),
 				new PlasteelHighCapTank(),
+				new ExosuitSolarModule(),
+				new ExosuitSolarModuleMk2(),
+				new ExosuitThermalModuleMk2(),
+				new ExosuitUnifiedChargerModule(),
+				new VehicleRepairModule()
 			};
 
 
@@ -417,7 +505,7 @@ namespace DWEquipmentBonanza
 			}
 #endif
 
-			// These may depend on Nitrogen 
+			// These may depend on Nitrogen, or they may not; but if they do they must be loaded afterwards.
 			prefabs.Add(new SuperSurvivalSuit());
 
 
@@ -446,6 +534,9 @@ namespace DWEquipmentBonanza
 #endif
 			};
 			powerglideDatabox.Patch();
+
+			saveCache = SaveDataHandler.Main.RegisterSaveDataCache<DWDataFile>();
+			saveCache.Init();
 
 			var harmony = new Harmony($"DaWrecka_{myAssembly.GetName().Name}");
 			harmony.PatchAll(myAssembly);

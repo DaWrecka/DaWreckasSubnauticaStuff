@@ -37,10 +37,10 @@ namespace FuelCells
 
 		private void OnSliderChange(SliderChangedEventArgs e)
 		{
-			if (e.Id == "batteryCap")
-			{
+			//if (e.Id == "batteryCap")
+			//{
 				OnLoad();
-			}
+			//}
 		}
 
 		internal void OnLoad()

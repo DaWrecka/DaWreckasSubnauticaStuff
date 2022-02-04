@@ -1,10 +1,5 @@
 ﻿using Common;
 using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TrueSolarPowerCells
 {
@@ -26,7 +21,7 @@ namespace TrueSolarPowerCells
             }
             else
             {
-                Log.LogDebug($"gameObject has no RegeneratePowerSource");
+                //Log.LogDebug($"gameObject has no RegeneratePowerSource");
             }
         }
     }

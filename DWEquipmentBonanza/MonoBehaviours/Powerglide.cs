@@ -73,9 +73,9 @@ namespace DWEquipmentBonanza.MonoBehaviours
                     }
                 }
             }
-                }
+        }
 
-                public void Awake()
+        public void Awake()
         {
             tool = gameObject.GetComponent<Seaglide>();
             power = gameObject.GetComponent<EnergyMixin>();
@@ -105,6 +105,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
             tool.powerGlideParam = Mathf.Lerp(tool.powerGlideParam, powerGlideActive ? 1f : 0f, Time.deltaTime * 3f);
             powerSeaglideForce = Mathf.Lerp(powerSeaglideForce, powerGlideActive ? powerGlideForce : 0f, Time.deltaTime * powerLerpRate);
             tool.powerGlideForce = powerSeaglideForce;
+
+            // For some reason, relying on the legacy code has stopped working in SN1, but still works in BZ.
 #if SUBNAUTICA_STABLE
             if (powerGlideActive)
             {

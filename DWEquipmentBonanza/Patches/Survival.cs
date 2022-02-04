@@ -210,7 +210,7 @@ namespace DWEquipmentBonanza.Patches
 		{
 			float foodDelta = preHunger - __instance.food;
 			float waterDelta = preWater - __instance.water;
-			Log.LogDebug($"SurvivalPatches.PostUpdateStats: food = {__instance.food}, water = {__instance.water}, foodDelta = {foodDelta}, waterDelta = {waterDelta}");
+			//Log.LogDebug($"SurvivalPatches.PostUpdateStats: food = {__instance.food}, water = {__instance.water}, foodDelta = {foodDelta}, waterDelta = {waterDelta}");
 		}
 	}
 }

@@ -20,7 +20,7 @@ namespace DWEquipmentBonanza.Equipables
     {
         protected static Sprite icon;
         protected static GameObject prefab;
-        protected static GameObject highCapTank;
+        //protected static GameObject highCapTank;
 
         protected virtual List<TechType> Substitutions => new List<TechType>()
         {
@@ -58,17 +58,11 @@ namespace DWEquipmentBonanza.Equipables
         }
 
         public override EquipmentType EquipmentType => EquipmentType.Tank;
-
         public override Vector2int SizeInInventory => new Vector2int(3, 4);
-
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
-
         public override TechType RequiredForUnlock => TechType.Unobtanium;
-
         public override TechCategory CategoryForPDA => TechCategory.Equipment;
-
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
-
         public override string[] StepsToFabricatorTab => new string[] { DWConstants.TankMenuPath };
 
         protected override RecipeData GetBlueprintRecipe()

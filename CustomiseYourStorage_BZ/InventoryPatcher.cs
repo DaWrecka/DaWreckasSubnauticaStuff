@@ -1,8 +1,6 @@
-﻿using HarmonyLib;
-using Logger = QModManager.Utility.Logger;
-using CustomiseYourStorage;
-using System.Collections.Generic;
+﻿using Logger = QModManager.Utility.Logger;
 using Common;
+using HarmonyLib;
 
 namespace CustomiseYourStorage
 {
