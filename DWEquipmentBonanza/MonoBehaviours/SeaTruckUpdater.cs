@@ -36,7 +36,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		protected override void Start()
 		{
 			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
 			string RCFilename;
 
 			base.Start();
@@ -62,14 +62,14 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 			foreach (var charger in activeChargers)
 				charger.Init(parentVehicle);
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
 		}
 
 		public override void Initialise(ref MonoBehaviour instance)
 		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			MethodBase callingMethod = new StackFrame(1).GetMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}({instance.name}, {instance.GetInstanceID()}).{thisMethod.Name}() executing, invoked by: '{callingMethod.ReflectedType.Name}.{callingMethod.Name}'");
+			//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			//MethodBase callingMethod = new StackFrame(1).GetMethod();
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}({instance.name}, {instance.GetInstanceID()}).{thisMethod.Name}() executing, invoked by: '{callingMethod.ReflectedType.Name}.{callingMethod.Name}'");
 
 			SeaTruckUpgrades stg = null;
 			if (instance is SeaTruckMotor stm)
@@ -79,20 +79,20 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 			if (stg != null)
                 InitInternal(ref stg);
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}({instance.name}, {instance.GetInstanceID()}).{thisMethod.Name}() end");
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}({instance.name}, {instance.GetInstanceID()}).{thisMethod.Name}() end");
 		}
 
 		private void InitInternal(ref SeaTruckUpgrades instance)
 		{
 			if (bInitialised)
 			{
-				Log.LogDebug($"Initialise called multiple times for SeaTruck! Vehicle name {instance.name}, vehicle ID {instance.GetInstanceID()})");
+				//Log.LogDebug($"Initialise called multiple times for SeaTruck! Vehicle name {instance.name}, vehicle ID {instance.GetInstanceID()})");
 			}
 			else
 			{
-				System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-				MethodBase callingMethod = new StackFrame(1).GetMethod();
-				Log.LogDebug($"{thisMethod.ReflectedType.Name}({instance.name}, {instance.GetInstanceID()}).{thisMethod.Name}() executing, invoked by: '{callingMethod.ReflectedType.Name}.{callingMethod.Name}'");
+				//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+				//MethodBase callingMethod = new StackFrame(1).GetMethod();
+				//Log.LogDebug($"{thisMethod.ReflectedType.Name}({instance.name}, {instance.GetInstanceID()}).{thisMethod.Name}() executing, invoked by: '{callingMethod.ReflectedType.Name}.{callingMethod.Name}'");
 
 				parentVehicle = instance;
 				instance.onToggle += OnToggle;
@@ -101,7 +101,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				instance.modules.onUnequip += OnUnequipModule;
 				instance.modules.isAllowedToAdd += IsAllowedToAdd;
 
-				Log.LogDebug($"{thisMethod.ReflectedType.Name}({instance.name}, {instance.GetInstanceID()}).{thisMethod.Name}() end");
+				//Log.LogDebug($"{thisMethod.ReflectedType.Name}({instance.name}, {instance.GetInstanceID()}).{thisMethod.Name}() end");
 				bInitialised = true;
 			}
 		}
@@ -117,8 +117,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		}
 		protected override IEnumerator OnAfterDeserializeCoroutine()
 		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): waiting for Vehicle");
+			//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): waiting for Vehicle");
 
 			SeaTruckUpgrades v = parentVehicle as SeaTruckUpgrades;
 			while (v == null)
@@ -127,7 +127,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				v = parentVehicle as SeaTruckUpgrades;
 			}
 
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): waiting for Equipment");
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): waiting for Equipment");
 			ICollection<string> slots = v.modules?.equipment?.Keys;
 			while (slots == null || slots.Count < 1)
 			{
@@ -140,7 +140,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				InventoryItem i = v.modules.GetItemInSlot(s);
 				if (i?.item != null && ChargerWeights.ContainsKey(i.item.GetTechType()))
 				{
-					Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): re-equipping item in slot '{s}', TechType {i.item.GetTechType()}");
+					//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): re-equipping item in slot '{s}', TechType {i.item.GetTechType()}");
 					OnEquipModule(s, i);
 				}
 
@@ -152,8 +152,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		protected override void OnToggle(int slotID, bool state)
 		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}, {state}) executing");
+			//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}, {state}) executing");
 
 			if (parentVehicle == null)
 				return;
@@ -176,21 +176,21 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				gameObject.EnsureComponent<VehicleRepairComponent>().SetActiveState(state, parentMotor);
 			}
 
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}, {state}) end");
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}, {state}) end");
 		}
 
 		protected override void OnSelect(int slotID) { }
 		internal override void PostNotifySelectSlot(MonoBehaviour instance, int slotID)
 		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
+			//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
 
 			if (parentVehicle == null)
 				return;
 
 			if (slotID >= SeaTruckUpgrades.slotIDs.Length)
 			{
-				Log.LogDebug("SeatruckUpdate.OnSelect() invoked with slotID outside the bounds of the slotIDs array");
+				//Log.LogDebug("SeatruckUpdate.OnSelect() invoked with slotID outside the bounds of the slotIDs array");
 				return;
 			}
 
@@ -213,7 +213,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			{
 				ErrorMessage.AddMessage("Repair module state: " + (gameObject.EnsureComponent<SeaTruckRepairComponent>().ToggleActiveState(parentMotor) ? "active" : "passive"));
 			}
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
 		}
 
 		internal override void PostUpgradeModuleChange(int slotID, TechType techType, bool added, MonoBehaviour instance)
@@ -319,8 +319,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		protected override void OnDestroy()
 		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
+			//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
 			if (parentVehicle is SeaTruckUpgrades V)
 			{
 				V.onToggle -= OnToggle;
@@ -331,7 +331,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			}
 			parentVehicle = null;
 
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
 		}
 
 		public override int GetModuleCount(TechType techType)

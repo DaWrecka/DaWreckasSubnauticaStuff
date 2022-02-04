@@ -58,14 +58,14 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
 			if (newRepairModule == TechType.None)
 			{
-				Log.LogError($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}(): attempt to add invalid repair module");
+				//Log.LogError($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}(): attempt to add invalid repair module");
 				return false;
 			}
 
 			if (repairModuleTechTypes == null)
 				repairModuleTechTypes = new HashSet<TechType>();
 
-			Log.LogError($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}(): attempting to register repair module TechType {newRepairModule.AsString()}");
+			//Log.LogError($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}(): attempting to register repair module TechType {newRepairModule.AsString()}");
 			return repairModuleTechTypes.Add(newRepairModule);
 		}
 
@@ -132,7 +132,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				{
 					System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
 					MethodBase callingMethod = new StackFrame(1).GetMethod();
-					Log.LogDebug($"{thisMethod.ReflectedType.Name}({vehicle.name}, {vehicle.GetInstanceID()}).{thisMethod.Name}() executing, invoked by: '{callingMethod.ReflectedType.Name}.{callingMethod.Name}'");
+					//Log.LogDebug($"{thisMethod.ReflectedType.Name}({vehicle.name}, {vehicle.GetInstanceID()}).{thisMethod.Name}() executing, invoked by: '{callingMethod.ReflectedType.Name}.{callingMethod.Name}'");
 
 					parentVehicle = vehicle;
 					if (vehicle is SeaMoth)
@@ -157,7 +157,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 					V.modules.isAllowedToAdd += IsAllowedToAdd;
 					bInitialised = true;
 
-					Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({vehicle.name}) end");
+					//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({vehicle.name}) end");
 				}
 			}
 		}
@@ -166,14 +166,14 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		{
 			MethodBase thisMethod = MethodBase.GetCurrentMethod();
 			MethodBase callingMethod = new StackFrame(1).GetMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}({this.GetInstanceID()}).{thisMethod.Name}({slot}, item TechType: {item.item.GetTechType().AsString()}, item ID {item.item.GetInstanceID()}) executing, invoked by: '{callingMethod.ReflectedType.Name}.{callingMethod.Name}'");
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}({this.GetInstanceID()}).{thisMethod.Name}({slot}, item TechType: {item.item.GetTechType().AsString()}, item ID {item.item.GetInstanceID()}) executing, invoked by: '{callingMethod.ReflectedType.Name}.{callingMethod.Name}'");
 
 			Pickupable pickup = item.item;
 			TechType moduleType = pickup.GetTechType();
-			ErrorMessage.AddMessage($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}(): item TechType {moduleType.AsString()}");
+			//ErrorMessage.AddMessage($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}(): item TechType {moduleType.AsString()}");
 			if (ChargerWeights.TryGetValue(moduleType, out float weight))
 			{
-				ErrorMessage.AddMessage($"Attempting to find VehicleCharger component");
+				//ErrorMessage.AddMessage($"Attempting to find VehicleCharger component");
 				VehicleCharger component = pickup.gameObject.GetComponent<VehicleCharger>();
 				if (component != null && activeChargers.Add(component))
 				{
@@ -181,36 +181,36 @@ namespace DWEquipmentBonanza.MonoBehaviours
 					if (activeChargers.Count == 1) // This will only invoke if this is the first charger added; this prevents the timer from running multiple times consecutively
 						base.InvokeRepeating("UpdateRecharge", InvokeInterval, InvokeInterval);
 					chargerWeightCumulative += weight;
-					ErrorMessage.AddMessage($"Adding {moduleType.AsString()} to active chargers list");
+					//ErrorMessage.AddMessage($"Adding {moduleType.AsString()} to active chargers list");
 					component.Init(parentVehicle);
 				}
 			}
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
 		}
 
 		protected virtual void OnUnequipModule(string slot, InventoryItem item)
 		{
 			string memberName = new StackFrame(1)?.GetMethod().Name;
 			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}({this.GetInstanceID()}).{thisMethod.Name}({slot}, item TechType: {item.item.GetTechType().AsString()}, item ID {item.item.GetInstanceID()}) base executing, invoked by: '{memberName}'");
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}({this.GetInstanceID()}).{thisMethod.Name}({slot}, item TechType: {item.item.GetTechType().AsString()}, item ID {item.item.GetInstanceID()}) base executing, invoked by: '{memberName}'");
 			Pickupable pickup = item.item;
 		
 			TechType moduleType = pickup.GetTechType();
-			ErrorMessage.AddMessage($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slot}, {item.item.name}): item TechType {moduleType.AsString()}");
+			//ErrorMessage.AddMessage($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slot}, {item.item.name}): item TechType {moduleType.AsString()}");
 			if (ChargerWeights.TryGetValue(moduleType, out float weight))
 			{
 				chargerWeightCumulative -= weight;
-				ErrorMessage.AddMessage($"Attempting to find VehicleCharger component");
+				//ErrorMessage.AddMessage($"Attempting to find VehicleCharger component");
 				VehicleCharger component = pickup.gameObject.GetComponent<VehicleCharger>();
 				if (component != null && activeChargers.Contains(component))
 				{
-					ErrorMessage.AddMessage($"Removing {moduleType.AsString()} from active chargers list");
+					//ErrorMessage.AddMessage($"Removing {moduleType.AsString()} from active chargers list");
 					activeChargers.Remove(component);
 				}
 				if (activeChargers.Count < 1)
 					base.CancelInvoke("UpdateRecharge");
 			}
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slot}, {item.item.name}) end");
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slot}, {item.item.name}) end");
 		}
 		protected virtual void OnToggle(int slotID, bool state)
 		{
@@ -278,8 +278,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		protected virtual void OnDestroy()
 		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
+			//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
 			if (parentVehicle is Vehicle V)
 			{
 				V.onToggle -= OnToggle;
@@ -290,30 +290,30 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			}
 			parentVehicle = null;
 
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
 		}
 
 
 		public static bool AddChargerType(TechType chargerType, float chargerWeight)
 		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({chargerType.AsString()}, {chargerWeight}) executing");
+			//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({chargerType.AsString()}, {chargerWeight}) executing");
 			if (ChargerWeights.ContainsKey(chargerType))
 			{
-				Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() returning false");
+				//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() returning false");
 				return false;
 			}
 
 			ChargerWeights.Add(chargerType, chargerWeight);
 
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() returning true");
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() returning true");
 			return true;
 		}
 
 		protected virtual void Start()
 		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
+			//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
 
 			string RCFilename;
 			if (thermalReactorCharge is null && PrefabDatabase.TryGetPrefabFilename(CraftData.GetClassIdForTechType(TechType.Exosuit), out RCFilename))
@@ -345,7 +345,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 					this.Initialise(ref stg);
 			}
 #endif
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
 		}
 
 		internal virtual void PostNotifySelectSlot(MonoBehaviour instance, int slotID) { }
