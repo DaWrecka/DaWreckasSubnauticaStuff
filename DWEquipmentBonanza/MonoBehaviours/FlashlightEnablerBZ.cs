@@ -12,7 +12,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
     internal class FlashlightEnablerBZ : MonoBehaviour
     {
         private ToggleLights thisToggleLights;
-        private bool bLightActive;
+        private bool bLightActive = true;
         private const float timerInterval = 0.1f;
 
         public void Start()

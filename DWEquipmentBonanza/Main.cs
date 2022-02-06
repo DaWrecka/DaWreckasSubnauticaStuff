@@ -109,20 +109,10 @@ namespace DWEquipmentBonanza
 	{
 		internal static bool bVerboseLogging = true;
 		internal static bool bLogTranspilers = false;
-		internal const string version = "0.10.0.0";
+		internal const string version = "0.10.1.0";
 #if SUBNAUTICA_STABLE
 		public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
 #endif
-		/*public static List<string> playerSlots = new List<string>()
-		{
-			"Head",
-			"Body",
-			"Gloves",
-			"Foots", // Seriously? 'Foots'?
-			"Chip1",
-			"Chip2",
-			"Tank"
-		};*/
 		public static HashSet<string> playerSlots => Equipment.slotMapping.Keys.ToHashSet<string>();
 
 		internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();

@@ -10,9 +10,9 @@ namespace DWEquipmentBonanza.MonoBehaviours
 #if BELOWZERO
     internal class HoverbikeUpdater : MonoBehaviour
 	{
-		private const float SelfRepairRate = 0.5f; // Amount of health restored per second when Self Repair is active.
-		private const float SelfRepairEnergyConsumption = 0.5f; // Energy consumed per second when Self Repair is active
-		private const float SelfRepairDisableThreshold = 0.1f; // If battery power is lower than this fraction, disable Self Repair.
+		private static float SelfRepairRate = 0.5f; // Amount of health restored per second when Self Repair is active.
+		private static float SelfRepairEnergyConsumption = 0.5f; // Energy consumed per second when Self Repair is active
+		private static float SelfRepairDisableThreshold = 0.1f; // If battery power is lower than this fraction, disable Self Repair.
 		private Hoverbike parentHoverbike;
 		//private float defaultWaterDampening;
 		//private float defaultWaterOffset;
@@ -97,10 +97,10 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		private bool bHasTravelModule;
 		private bool bHasSelfRepair;
-		private const float moduleWaterDampening = 1f; // Movement is divided by this value when travelling over water. UWE default is 10f.
+		private static float moduleWaterDampening = 1f; // Movement is divided by this value when travelling over water. UWE default is 10f.
 													   // Don't set it below 1f, as that makes the Snowfox *more* manoeuvrable over water than over land.
-		private const float moduleWaterOffset = 1f; // The default value for ground travel is 2m.
-		internal float fSolarChargeMultiplier = 0.05f; // Multiplier applied to the local light amount to get amount of power regained from solar charger
+		private static float moduleWaterOffset = 1f; // The default value for ground travel is 2m.
+		internal static float fSolarChargeMultiplier = 0.05f; // Multiplier applied to the local light amount to get amount of power regained from solar charger
 														// default enginePowerConsumption = 0.06666667f so we want the solar charger to be a little bit less efficient than this.
 														// Given that the hoverbike is going to be on the surface more often than not, depth is not exactly going to be a major factor, so this is mainly
 														// based on the current light level.
@@ -114,6 +114,16 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		private static TechType techTypeMobility => Main.GetModTechType("HoverbikeMobilityUpgrade");// Main.prefabHbMobility.TechType;
 		private static TechType techTypeRepair => Main.GetModTechType("HoverbikeSelfRepairModule");
 		private static TechType techTypeDurability => Main.GetModTechType("HoverbikeDurabilitySystem");
+
+		private void ApplyValues(DWConfig config)
+		{
+			SelfRepairRate = config.HoverbikeSelfRepairRate;
+			SelfRepairEnergyConsumption = config.HoverbikeSelfRepairEnergyConsumption;
+			SelfRepairDisableThreshold = config.HoverbikeSelfRepairDisableThreshold * 0.01f;
+			moduleWaterDampening = config.SnowfoxWaterModuleDampening;
+			moduleWaterOffset = config.SnowfoxWaterModuleOffset;
+			fSolarChargeMultiplier = config.SnowfoxSolarMultiplier;
+		}
 
 		internal static bool AddEfficiencyMultiplier(TechType module, float multiplier, int priority = 1, int maxUpgrades = 1, bool bUpdateIfPresent = false)
 		{
@@ -221,6 +231,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				hoverbikeHealth.data.maxHealth = maxHealth;
 				hoverbikeHealth.health = maxHealth * instanceHealthPct;
 			}
+			Main.config.onOptionChanged += this.ApplyValues;
 		}
 
 		protected static int StaticGetModuleCount(TechType techType, Hoverbike instance = null)

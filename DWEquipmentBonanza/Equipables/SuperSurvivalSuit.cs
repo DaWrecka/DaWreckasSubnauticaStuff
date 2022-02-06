@@ -222,8 +222,6 @@ namespace DWEquipmentBonanza.Equipables
         }*/
     }
 
-#if SUBNAUTICA_STABLE
-#elif BELOWZERO
     internal abstract class SurvivalSuitBlueprint : Craftable
     {
         public SurvivalSuitBlueprint(string classId) : base(classId,
@@ -253,7 +251,11 @@ namespace DWEquipmentBonanza.Equipables
                 Reflection.AddCompoundTech(this.TechType, new List<TechType>()
                 {
                     Main.StillSuitType,
+#if SUBNAUTICA_STABLE
+                    TechType.RadiationSuit,
+#elif BELOWZERO
                     TechType.ColdSuit,
+#endif
                     TechType.ReinforcedDiveSuit
                 });
             };
@@ -270,20 +272,34 @@ namespace DWEquipmentBonanza.Equipables
                     {
                         new Ingredient(Main.GetModTechType("ReinforcedSurvivalSuit"), 1),
                         new Ingredient(TechType.ReinforcedGloves, 1),
+#if SUBNAUTICA_STABLE
+                        new Ingredient(TechType.HydrochloricAcid, 1),
+                        new Ingredient(TechType.CreepvinePiece, 2),
+                        new Ingredient(TechType.Aerogel, 1),
+                        new Ingredient(TechType.RadiationGloves, 1),
+                        new Ingredient(TechType.RadiationHelmet, 1),
+                        new Ingredient(TechType.RadiationSuit, 1),
+#elif BELOWZERO
                         new Ingredient(TechType.ColdSuit, 1),
                         new Ingredient(TechType.ColdSuitGloves, 1),
+#endif
                     }
                 ),
                 LinkedItems = new List<TechType>()
                 {
                     Main.GetModTechType("SuperSurvivalSuit"),
+#if SUBNAUTICA_STABLE
+                    Main.GetModTechType("AcidGloves"),
+#elif BELOWZERO
                     Main.GetModTechType("ReinforcedColdGloves")
+#endif
                 }
             };
         }
     }
 
-    internal class SurvivalSuitBlueprint_FromReinforcedCold : SurvivalSuitBlueprint
+#if BELOWZERO
+        internal class SurvivalSuitBlueprint_FromReinforcedCold : SurvivalSuitBlueprint
     {
         public SurvivalSuitBlueprint_FromReinforcedCold() : base("SurvivalSuitBlueprint_FromReinforcedCold")
         {

@@ -42,6 +42,7 @@
     <Compile Include="MonoBehaviours\FlashlightEnablerBZ.cs" />
     <Compile Include="MonoBehaviours\HoverbikeStructuralIntegrityModifier.cs" />
     <Compile Include="MonoBehaviours\HoverbikeUpdater.cs" />
+    <Compile Include="MonoBehaviours\HoverpadUpdater.cs" />
     <Compile Include="MonoBehaviours\Powerglide.cs" />
     <Compile Include="MonoBehaviours\SeamothUpdater.cs" />
     <Compile Include="MonoBehaviours\SeaTruckUpdater.cs" />
@@ -56,6 +57,7 @@
     <Compile Include="Patches\Drillable.cs" />
     <Compile Include="Patches\ExosuitClawArm.cs" />
     <Compile Include="Patches\Hoverbike.cs" />
+    <Compile Include="Patches\Hoverpad.cs" />
     <Compile Include="Patches\Inventory.cs" />
     <Compile Include="Patches\MeleeAttackPatches.cs" />
     <Compile Include="Patches\PlayerTool.cs" />
