@@ -20,9 +20,9 @@ namespace FuelCells.Spawnables
 
         protected override Sprite GetItemSprite()
         {
-            if (sprite == null || sprite == SpriteManager.defaultSprite)
+            if (sprite == null)
             {
-                sprite = SpriteManager.Get(TechType.CoralChunk);
+                sprite = SpriteManager.Get(TechType.CoralChunk, null);
             }
 
             return sprite;
@@ -85,4 +85,4 @@ namespace FuelCells.Spawnables
         }
     }
 #endif
-}
+            }

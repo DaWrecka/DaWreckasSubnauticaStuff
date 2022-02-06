@@ -97,7 +97,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
             return this._active;
         }
 
-        public virtual void SetActiveState(bool bNewState, MonoBehaviour vehicle = null)
+        public virtual bool SetActiveState(bool bNewState, MonoBehaviour vehicle = null)
         {
             //System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
             //Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
@@ -107,6 +107,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
             //Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
             this._active = bNewState;
             this._enabled = true;
+
+            return true;
         }
 
         public virtual bool Initialise(GameObject obj)
@@ -277,12 +279,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
             if (!IsMainCab())
                 return false;
 
-            SeaTruckSegment cab = GetSeaTruckCab();
+            /*SeaTruckSegment cab = GetSeaTruckCab();
             if (cab == null)
             {
                 //Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() failed to retrieve Seatruck cab, returning false");
                 return false;
-            }
+            }*/
 
             this._active = !this._active;
             this._enabled = true;
@@ -291,30 +293,37 @@ namespace DWEquipmentBonanza.MonoBehaviours
             return this._active;
         }
 
-        public override void SetActiveState(bool bNewState, MonoBehaviour vehicle = null)
+        public override bool SetActiveState(bool bNewState, MonoBehaviour vehicle = null)
         {
             //System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
             //Log.LogDebug($"{thisMethod.ReflectedType.Name}({this.GetInstanceID()}).{thisMethod.Name}({bNewState}) executing");
-            if (ParentVehicle == null)
+            if (ParentVehicle == null && vehicle != null)
+            {
+                //Log.LogDebug($"{thisMethod.ReflectedType.Name}({this.GetInstanceID()}).{thisMethod.Name}({bNewState}) initialising");
                 Initialise(vehicle.gameObject);
+            }
 
             if (!IsMainCab())
-                return;
+            {
+                //Log.LogDebug($"{thisMethod.ReflectedType.Name}({this.GetInstanceID()}).{thisMethod.Name}({bNewState}) Not main cab; terminating");
+                return false;
+            }
 
             //Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
             this._active = bNewState;
+            return true;
         }
 
         public override bool Initialise(GameObject vehicle)
         {
-            //System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            //Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
+            System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
 
             SeaTruckSegment s = vehicle.GetComponent<SeaTruckSegment>();
             if (s == null)
                 return false;
 
-            //Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
             return true;
         }
 

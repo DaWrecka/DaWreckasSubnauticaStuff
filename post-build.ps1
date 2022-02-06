@@ -32,7 +32,6 @@ if(!(Test-Path $archiveDir))
 {
 	New-Item -Type Directory -Path $archiveDir
 }
-$archiveFullPath = ($archiveDir,$dirSeparator,$AssemblyName,".zip") -join ""
 
 if(!(Test-Path $jsonPath))
 {
@@ -136,5 +135,6 @@ foreach($assetDir in ($dirString -split ","))
 	}
 }
 
+$archiveFullPath = [System.IO.Path]::Combine($archiveDir,(($AssemblyName,$dllVersion,".zip") -join ""))
 Compress-Archive -Path $modPath -DestinationPath $archiveFullPath -Force
 Write-Host Created archive $archiveFullPath

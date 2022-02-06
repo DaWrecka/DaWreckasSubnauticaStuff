@@ -109,7 +109,7 @@ namespace DWEquipmentBonanza
 	{
 		internal static bool bVerboseLogging = true;
 		internal static bool bLogTranspilers = false;
-		internal const string version = "0.9.0.0";
+		internal const string version = "0.10.0.0";
 #if SUBNAUTICA_STABLE
 		public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
 #endif
@@ -183,7 +183,7 @@ namespace DWEquipmentBonanza
 			}
 		}
 
-		private static Dictionary<TechType, float> suitTemperatureResistance = new Dictionary<TechType, float>();
+		private static Dictionary<TechType, float> equipTempBonus = new Dictionary<TechType, float>();
 
 		internal static void AddSubstitution(TechType custom, TechType vanilla)
 		{
@@ -223,19 +223,24 @@ namespace DWEquipmentBonanza
 			return TechTypeUtils.GetModTechType(key);
 		}
 
+		public static void AddTempBonusOnly(TechType itemType, float minTempBonus)
+		{
+			equipTempBonus[itemType] = minTempBonus;
+		}
+
 		public static void AddDiveSuit(TechType diveSuit, float depth = 0f, float breathMultiplier = 1f, float minTempBonus = 0f)
 		{
 			if (NitroAddDiveSuit != null)
 				NitroAddDiveSuit.Invoke(null, new object[] { diveSuit, depth, breathMultiplier, minTempBonus });
 			else
 			{
-				suitTemperatureResistance[diveSuit] = minTempBonus;
+				equipTempBonus[diveSuit] = minTempBonus;
 			}
 		}
 
-		internal static float GetDiveSuitTempBonus(TechType suit)
+		internal static float GetTempBonusForTechType(TechType suit)
 		{
-			return suitTemperatureResistance.GetOrDefault(suit, 0f);
+			return equipTempBonus.GetOrDefault(suit, 0f);
 		}
 
 		internal static GameObject GetModPrefab(string key)
@@ -350,6 +355,7 @@ namespace DWEquipmentBonanza
 		[QModPatch]
 		public static void Load()
 		{
+			CoroutineHost.StartCoroutine(PrePatchCoroutine());
 			if (QModServices.Main.ModPresent("CombinedItems") || QModServices.Main.ModPresent("AcidProofSuit"))
 			{
 				throw new Exception("Equipment Bonanza is a replacement for Combined Items and Brine Suit. Remove those mods and try again.");
@@ -460,6 +466,7 @@ namespace DWEquipmentBonanza
 				new SurvivalSuitBlueprint_FromReinforcedSurvival(),
 				new IonBoosterTank(),
 				new SeatruckRepairModule(),
+				new UltimateHelmet(),
 #endif
 				new DiverPerimeterDefenceChip_Broken(),
 				new DiverPerimeterDefenceChipItem(),
@@ -570,101 +577,15 @@ namespace DWEquipmentBonanza
 			CoroutineHost.StartCoroutine(PostPatchCoroutine());
 		}
 
+		internal static IEnumerator PrePatchCoroutine()
+		{
+			yield break;
+		}
+		
 		internal static IEnumerator PostPatchCoroutine()
 		{
-			foreach (TechType tt in new HashSet<TechType>() {
-			TechType.Exosuit,
-#if SUBNAUTICA_STABLE
-			TechType.Seamoth,
-			TechType.Cyclops,
-#elif BELOWZERO
-			TechType.SeaTruck,
-			TechType.Hoverbike
-#endif
-			})
-			{
-				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(tt);
-				yield return task;
-
-				GameObject prefab = task.GetResult();
-				if (prefab != null)
-				{
-					LiveMixin mixin = prefab.GetComponent<LiveMixin>();
-					if (mixin?.data != null)
-					{
-						Main.defaultHealth.Add(tt, mixin.data.maxHealth);
-						Log.LogDebug($"For TechType {tt.AsString()}, got default health of {mixin.data.maxHealth}");
-					}
-					else
-					{
-						Log.LogDebug($"Failed to get LiveMixin for TechType {tt.AsString()}");
-					}
-				}
-				else
-				{
-					Log.LogDebug($"Failed to get prefab for TechType {tt.AsString()}");
-				}
-			}
-
-			foreach (TechType tt in new HashSet<TechType>()
-			{
-				TechType.DrillableAluminiumOxide,
-				TechType.DrillableCopper,
-				TechType.DrillableDiamond,
-				TechType.DrillableGold,
-				TechType.DrillableKyanite,
-				TechType.DrillableLead,
-				TechType.DrillableLithium,
-				TechType.DrillableMagnetite,
-				TechType.DrillableMercury,
-				TechType.DrillableNickel,
-				TechType.DrillableQuartz,
-				TechType.DrillableSalt,
-				TechType.DrillableSilver,
-				TechType.DrillableSulphur,
-				TechType.DrillableTitanium,
-				TechType.DrillableUranium
-			})
-			{
-				Log.LogInfo($"Fixing Cell Level for TechType {tt.AsString()}");
-				var classid = CraftData.GetClassIdForTechType(tt);
-				if (WorldEntityDatabase.TryGetInfo(classid, out var worldEntityInfo))
-				{
-					worldEntityInfo.cellLevel = LargeWorldEntity.CellLevel.VeryFar;
-
-					WorldEntityDatabase.main.infos[classid] = worldEntityInfo;
-				}
-
-				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(tt);
-				yield return task;
-
-				GameObject prefab = task.GetResult();
-				if (prefab != null)
-				{
-					LargeWorldEntity lwe = prefab.GetComponent<LargeWorldEntity>();
-					if (lwe != null)
-					{
-						lwe.cellLevel = LargeWorldEntity.CellLevel.VeryFar;
-						Log.LogDebug($"CellLevel for TechType {tt.AsString()} updated to Far");
-					}
-					else
-					{
-						Log.LogWarning($"Could not find LargeWorldEntity component in prefab for TechType {tt.AsString()}");
-					}
-#if SUBNAUTICA_STABLE
-					// Since we're here, make kyanite less troll-tastic.
-					Drillable drillable = prefab.GetComponent<Drillable>();
-					if (drillable != null && drillable.kChanceToSpawnResources < DWConstants.newKyaniteChance)
-					{
-						drillable.kChanceToSpawnResources = DWConstants.newKyaniteChance;
-					}
-#endif
-				}
-				else
-				{
-					Log.LogWarning($"Could not get prefab for TechType {tt.AsString()}");
-				}
-			}
+			// This method needs to be lean and mean; Any coroutine still running when you go off the main menu and into the game is terminated.
+			// Any long coroutine that needs to run just before gameplay begins needs to be started some other way.
 
 			yield break;
 		}
@@ -751,6 +672,8 @@ namespace DWEquipmentBonanza
 		{
 			Log.LogDebug("Reflection.PostKnownTechInit() executing");
 			CoroutineHost.StartCoroutine(ProcessPendingCompounds(false));
+
+			// We're actually going to exploit this... We know that by the time KnownTech.Initialize() is complete, it's save to load coroutines, so we're going to start our 
 		}
 
 		private bool KnownTechInitialised()

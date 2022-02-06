@@ -17,6 +17,7 @@ namespace DWEquipmentBonanza.Equipables
 #if BELOWZERO
     internal class ReinforcedColdGloves : Equipable
     {
+        private const float tempBonus = 8f;
         public ReinforcedColdGloves() : base("ReinforcedColdGloves", "Reinforced Cold Gloves", "Reinforced insulating gloves provide physical protection and insulation from extreme temperatures.")
         {
             OnFinishedPatching += () =>
@@ -28,6 +29,7 @@ namespace DWEquipmentBonanza.Equipables
                 Main.AddSubstitution(this.TechType, TechType.ColdSuitGloves);
                 Main.AddSubstitution(this.TechType, TechType.ReinforcedGloves);
                 Main.AddModTechType(this.TechType);
+                Main.AddTempBonusOnly(this.TechType, tempBonus);
             };
         }
 
@@ -48,69 +50,6 @@ namespace DWEquipmentBonanza.Equipables
         protected override Sprite GetItemSprite()
         {
             return SpriteManager.Get(TechType.ColdSuitGloves);
-        }
-
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            if (prefab == null)
-            {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuitGloves, verbose: true);
-                yield return task;
-
-                prefab = GameObject.Instantiate(task.GetResult());
-                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
-            }
-
-            GameObject go = GameObject.Instantiate(prefab);
-            gameObject.Set(go);
-        }
-    }
-
-    internal class InsulatedRebreather : Equipable
-    {
-        public InsulatedRebreather() : base("InsulatedRebreather", "Insulated Rebreather", "Rebreather equipped with insulation helps slow the onset of hypothermia")
-        {
-            OnFinishedPatching += () =>
-            {
-                int coldResist = TechData.GetColdResistance(TechType.ColdSuitHelmet);
-                DWEquipmentBonanza.Reflection.AddColdResistance(this.TechType, System.Math.Max(20, coldResist));
-                DWEquipmentBonanza.Reflection.SetItemSize(this.TechType, 2, 2);
-                Log.LogDebug($"Finished patching {this.TechType.AsString()}, using source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
-                Main.AddSubstitution(this.TechType, TechType.ColdSuitHelmet);
-                Main.AddSubstitution(this.TechType, TechType.Rebreather);
-                Main.AddModTechType(this.TechType);
-                Reflection.AddCompoundTech(this.TechType, new List<TechType>()
-                {
-                    TechType.Rebreather,
-                    TechType.ColdSuit
-                });
-            };
-        }
-
-        protected static GameObject prefab;
-        public override EquipmentType EquipmentType => EquipmentType.Head;
-        public override Vector2int SizeInInventory => new(2, 2);
-        public override QuickSlotType QuickSlotType => QuickSlotType.None;
-        public override TechType RequiredForUnlock => TechType.Unobtanium;
-        public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
-        public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
-
-        protected override RecipeData GetBlueprintRecipe()
-        {
-            return new RecipeData()
-            {
-                craftAmount = 1,
-                Ingredients = new List<Ingredient>()
-                {
-                    new Ingredient(TechType.ColdSuitHelmet, 1),
-                    new Ingredient(TechType.Rebreather, 1)
-                }
-            };
-        }
-
-        protected override Sprite GetItemSprite()
-        {
-            return SpriteManager.Get(TechType.ColdSuitHelmet);
         }
 
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)

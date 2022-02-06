@@ -45,13 +45,13 @@ namespace DWEquipmentBonanza.Patches
             oldMaxTemp = __instance.temperatureDamage.minDamageTemperature;
 
             __instance.temperatureDamage.minDamageTemperature = 49f;
-            TechType bodySlot = Inventory.main.equipment.GetTechTypeInSlot("Body");
-            float minTempBonus = Main.GetDiveSuitTempBonus(bodySlot);
-
-            if (__instance.HasReinforcedGloves())
+            float minTempBonus = 0f;
+            foreach(string slot in new List<string> { "Body", "Gloves", "Head" })
             {
-                minTempBonus += 6f;
+                TechType bodySlot = Inventory.main.equipment.GetTechTypeInSlot(slot);
+                minTempBonus += Main.GetTempBonusForTechType(bodySlot);
             }
+
             __instance.temperatureDamage.minDamageTemperature += minTempBonus;
 
             return false;

@@ -25,15 +25,6 @@ namespace DWEquipmentBonanza.Patches
         {
             HoverbikeUpdater component = __instance.gameObject.EnsureComponent<HoverbikeUpdater>();
             component.Initialise(ref __instance);
-
-            if (__instance.gameObject != null && __instance.gameObject.TryGetComponent<LiveMixin>(out LiveMixin mixin) && Main.defaultHealth.TryGetValue(TechType.Hoverbike, out float defaultHealth))
-            {
-                float instanceHealthPct = Mathf.Min(mixin.GetHealthFraction(), 1f);
-                float maxHealth = defaultHealth * Main.config.HoverbikeHealthMult;
-
-                mixin.data.maxHealth = maxHealth;
-                mixin.health = maxHealth * instanceHealthPct;
-            }
         }
 
         [HarmonyPatch("Update")]

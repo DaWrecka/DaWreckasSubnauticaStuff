@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
 using System;
+using System.Collections;
 
 namespace DWEquipmentBonanza.MonoBehaviours
 {
@@ -192,6 +193,33 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				{
 					Log.LogDebug($"Could not find field {hoverbikeField.fieldName} in class Hoverbike");
 				}
+			}
+
+			if (gameObject != null)
+			{
+				LiveMixin hoverbikeHealth = null;
+				float defaultHealth;
+
+				gameObject.TryGetComponent<LiveMixin>(out hoverbikeHealth);
+				bool gotHealth = Main.defaultHealth.TryGetValue(TechType.Hoverbike, out defaultHealth);
+
+				if (hoverbikeHealth == null)
+				{
+					Log.LogError($"Could not get LiveMixin for Hoverbike object");
+					return;
+				}
+
+				if (!gotHealth)
+				{
+					Log.LogError("Could not get default health for TechType Hoverbike");
+					return;
+				}
+
+				float instanceHealthPct = Mathf.Min(hoverbikeHealth.GetHealthFraction(), 1f);
+				float maxHealth = defaultHealth * Main.config.HoverbikeHealthMult;
+
+				hoverbikeHealth.data.maxHealth = maxHealth;
+				hoverbikeHealth.health = maxHealth * instanceHealthPct;
 			}
 		}
 

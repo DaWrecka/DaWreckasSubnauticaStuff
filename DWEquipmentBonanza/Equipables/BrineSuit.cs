@@ -23,13 +23,11 @@ namespace DWEquipmentBonanza
     {
         private static Sprite itemSprite;
         private static GameObject prefab;
+        private const float tempBonus = 6f;
 
         public override EquipmentType EquipmentType => EquipmentType.Gloves;
-
         public override Vector2int SizeInInventory => new(2, 2);
-
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
-
         public override GameObject GetGameObject()
         {
             System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
@@ -108,97 +106,8 @@ namespace DWEquipmentBonanza
                 TechTypeUtils.AddModTechType(this.TechType);
                 EquipmentPatch.AddSubstitutions(this.TechType, new HashSet<TechType>() { TechType.RadiationGloves, TechType.ReinforcedGloves });
                 Main.AddDamageResist(this.TechType, DamageType.Acid, 0.15f);
+                Main.AddTempBonusOnly(this.TechType, tempBonus);
             };
-        }
-    }
-
-    internal class AcidHelmet : Equipable
-    {
-        public static Texture2D texture;
-        public static Texture2D illumTexture;
-        private static Sprite itemSprite;
-        private static GameObject prefab;
-
-        public AcidHelmet() : base("AcidHelmet", "Brine Helmet", "Rebreather treated with an acid-resistant layer")
-        {
-            OnFinishedPatching += () =>
-            {
-                TechTypeUtils.AddModTechType(this.TechType);
-                EquipmentPatch.AddSubstitution(this.TechType, TechType.Rebreather);
-                Main.AddDamageResist(this.TechType, DamageType.Acid, 0.25f);
-                EquipmentPatch.AddSubstitution(this.TechType, TechType.RadiationHelmet);
-                texture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetskin.png"));
-                illumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetillum.png"));
-            };
-        }
-
-        public override EquipmentType EquipmentType => EquipmentType.Head;
-
-        public override QuickSlotType QuickSlotType => QuickSlotType.None;
-
-        public override Vector2int SizeInInventory => new(2, 2);
-
-        public override GameObject GetGameObject()
-        {
-            System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
-            if (prefab == null)
-            {
-                prefab = ModifyAndInstantiateGameObject(CraftData.GetPrefabForTechType(TechType.ReinforcedGloves));
-            }
-
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
-            return prefab;
-        }
-
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            if (prefab == null)
-            {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ReinforcedGloves);
-                yield return task;
-
-                prefab = ModifyAndInstantiateGameObject(task.GetResult());
-            }
-
-            gameObject.Set(prefab);
-        }
-
-        protected GameObject ModifyAndInstantiateGameObject(GameObject prefab)
-        {
-            var obj = Object.Instantiate(prefab);
-            Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
-            Shader shader = Shader.Find("MarmosetUBER");
-            foreach (var renderer in renderers)
-            {
-                foreach (Material material in renderer.materials)
-                {
-                    material.shader = shader; // apply the shader
-                    material.mainTexture = texture; // apply the main texture
-                    material.SetTexture(ShaderPropertyID._Illum, illumTexture); // apply the illum texture
-                    material.SetTexture("_SpecTex", texture); // apply the spec texture
-                }
-            }
-            return obj;
-        }
-
-        protected override RecipeData GetBlueprintRecipe()
-        {
-            return new RecipeData()
-            {
-                craftAmount = 0,
-                Ingredients = new List<Ingredient>()
-            };
-        }
-
-        protected override Sprite GetItemSprite()
-        {
-            if (itemSprite == null || itemSprite == SpriteManager.defaultSprite)
-            {
-                itemSprite = ImageUtils.LoadSpriteFromFile($"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/Assets/{ClassID}.png");
-            }
-
-            return itemSprite;
         }
     }
 

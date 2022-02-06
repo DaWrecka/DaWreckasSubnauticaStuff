@@ -40,11 +40,10 @@ namespace DWEquipmentBonanza.Equipables
                 {
 #if SUBNAUTICA_STABLE
                     TechType.RadiationSuit,
-                    TechType.Stillsuit,
 #elif BELOWZERO
-                    TechType.WaterFiltrationSuit,
                     TechType.ColdSuit,
 #endif
+                    Main.StillSuitType,
                     TechType.ReinforcedDiveSuit
                 });
 

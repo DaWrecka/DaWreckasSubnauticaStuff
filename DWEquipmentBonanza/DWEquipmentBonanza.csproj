@@ -29,6 +29,7 @@
     <Compile Include="Equipables\DiverPerimeterDefenceChip.cs" />
     <Compile Include="Equipables\BrineSuit.cs" />
     <Compile Include="Equipables\Blades.cs" />
+    <Compile Include="Equipables\Headwear.cs" />
     <Compile Include="Equipables\LightweightHighCapTank.cs" />
     <Compile Include="Equipables\PowerglideEquipable.cs" />
     <Compile Include="Equipables\HighCapacityBooster.cs" />
@@ -38,6 +39,7 @@
     <Compile Include="Equipables\UltraGlideSwimChargeFins.cs" />
     <Compile Include="GameObjects\ResourceMagnet.cs" />
     <Compile Include="MonoBehaviours\DiverPerimeterDefenceBehaviour.cs" />
+    <Compile Include="MonoBehaviours\FlashlightEnablerBZ.cs" />
     <Compile Include="MonoBehaviours\HoverbikeStructuralIntegrityModifier.cs" />
     <Compile Include="MonoBehaviours\HoverbikeUpdater.cs" />
     <Compile Include="MonoBehaviours\Powerglide.cs" />
@@ -64,6 +66,7 @@
     <Compile Include="Patches\Survival.cs" />
     <Compile Include="Patches\TooltipFactory.cs" />
     <Compile Include="Patches\uGUI_Equipment.cs" />
+    <Compile Include="Patches\uGUI_MainMenu.cs" />
     <Compile Include="Patches\UnderwaterMotor.cs" />
     <Compile Include="Patches\VehicleDockingBayPatches.cs" />
     <Compile Include="Spawnables\PowerglideFragmentPrefab.cs" />
