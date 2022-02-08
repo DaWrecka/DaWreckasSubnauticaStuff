@@ -316,14 +316,14 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
         public override bool Initialise(GameObject vehicle)
         {
-            System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
+            //System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            //Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
 
             SeaTruckSegment s = vehicle.GetComponent<SeaTruckSegment>();
             if (s == null)
                 return false;
 
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
+            //Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
             return true;
         }
 

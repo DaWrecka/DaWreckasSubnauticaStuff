@@ -54,6 +54,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerOverYourPower", "Power
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShowAltitude", "ShowAltitude\ShowAltitude.csproj", "{91E1EDCA-E684-400F-BC57-04EFCE159444}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpgradedBlades", "UpgradedBlades\UpgradedBlades.csproj", "{1E3A4636-DCA8-4BA2-803B-FBE4FB8A5054}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Common\Common.projitems*{0bbedb12-642c-47ee-a14d-3f581b0038b8}*SharedItemsImports = 4
@@ -62,7 +64,6 @@ Global
 		Common\Common.projitems*{1bbe4f59-3f5f-4498-80ce-ac0424c75bd5}*SharedItemsImports = 4
 		Common\Common.projitems*{23cf2b33-eb9a-45ca-b84b-8968b5777b2b}*SharedItemsImports = 4
 		Common\Common.projitems*{31e81fe0-853a-4f56-81b3-2cf073777594}*SharedItemsImports = 4
-		Common\Common.projitems*{6ef05ca8-b139-4a7f-98e4-856a44849034}*SharedItemsImports = 4
 		Common\Common.projitems*{854262eb-f44f-4d6b-9b32-4103ae9f4253}*SharedItemsImports = 4
 		Common\Common.projitems*{8a848353-2b17-4ec0-9a43-3992adb96579}*SharedItemsImports = 13
 		Common\Common.projitems*{91e1edca-e684-400f-bc57-04efce159444}*SharedItemsImports = 4
@@ -247,6 +248,14 @@ Global
 		{91E1EDCA-E684-400F-BC57-04EFCE159444}.Subnautica|Any CPU.Build.0 = Subnautica|Any CPU
 		{91E1EDCA-E684-400F-BC57-04EFCE159444}.Subnautica|x64.ActiveCfg = Subnautica|Any CPU
 		{91E1EDCA-E684-400F-BC57-04EFCE159444}.Subnautica|x64.Build.0 = Subnautica|Any CPU
+		{1E3A4636-DCA8-4BA2-803B-FBE4FB8A5054}.BelowZero|Any CPU.ActiveCfg = BelowZero|Any CPU
+		{1E3A4636-DCA8-4BA2-803B-FBE4FB8A5054}.BelowZero|Any CPU.Build.0 = BelowZero|Any CPU
+		{1E3A4636-DCA8-4BA2-803B-FBE4FB8A5054}.BelowZero|x64.ActiveCfg = BelowZero|Any CPU
+		{1E3A4636-DCA8-4BA2-803B-FBE4FB8A5054}.BelowZero|x64.Build.0 = BelowZero|Any CPU
+		{1E3A4636-DCA8-4BA2-803B-FBE4FB8A5054}.Subnautica|Any CPU.ActiveCfg = Subnautica|Any CPU
+		{1E3A4636-DCA8-4BA2-803B-FBE4FB8A5054}.Subnautica|Any CPU.Build.0 = Subnautica|Any CPU
+		{1E3A4636-DCA8-4BA2-803B-FBE4FB8A5054}.Subnautica|x64.ActiveCfg = Subnautica|Any CPU
+		{1E3A4636-DCA8-4BA2-803B-FBE4FB8A5054}.Subnautica|x64.Build.0 = Subnautica|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

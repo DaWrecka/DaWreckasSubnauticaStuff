@@ -164,8 +164,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		protected virtual void OnEquipModule(string slot, InventoryItem item)
 		{
-			MethodBase thisMethod = MethodBase.GetCurrentMethod();
-			MethodBase callingMethod = new StackFrame(1).GetMethod();
+			//MethodBase thisMethod = MethodBase.GetCurrentMethod();
+			//MethodBase callingMethod = new StackFrame(1).GetMethod();
 			//Log.LogDebug($"{thisMethod.ReflectedType.Name}({this.GetInstanceID()}).{thisMethod.Name}({slot}, item TechType: {item.item.GetTechType().AsString()}, item ID {item.item.GetInstanceID()}) executing, invoked by: '{callingMethod.ReflectedType.Name}.{callingMethod.Name}'");
 
 			Pickupable pickup = item.item;

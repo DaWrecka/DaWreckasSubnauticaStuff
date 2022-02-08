@@ -109,7 +109,7 @@ namespace DWEquipmentBonanza
 	{
 		internal static bool bVerboseLogging = true;
 		internal static bool bLogTranspilers = false;
-		internal const string version = "0.10.1.0";
+		internal const string version = "0.10.2.0";
 #if SUBNAUTICA_STABLE
 		public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
 #endif

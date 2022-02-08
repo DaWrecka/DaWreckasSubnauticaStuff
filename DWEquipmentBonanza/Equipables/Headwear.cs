@@ -284,7 +284,10 @@ namespace DWEquipmentBonanza.Equipables
 
         public UltimateHelmet() : base("UltimateHelmet", "Ultimate Helmet", "The ultimate in survival headwear. An insulated helmet with integrated rebreather and lamp.")
         {
-
+            OnFinishedPatching += () =>
+            {
+                TooltipFactoryPatches.AddNoBarTechType(this.TechType);
+            };
         }
     }
 #endif

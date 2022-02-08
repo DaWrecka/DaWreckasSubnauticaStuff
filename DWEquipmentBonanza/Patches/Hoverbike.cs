@@ -24,7 +24,7 @@ namespace DWEquipmentBonanza.Patches
         public static void PostStart(Hoverbike __instance)
         {
             HoverbikeUpdater component = __instance.gameObject.EnsureComponent<HoverbikeUpdater>();
-            component.Initialise(ref __instance);
+            component.Initialise(ref __instance, Main.config);
         }
 
         [HarmonyPatch("Update")]

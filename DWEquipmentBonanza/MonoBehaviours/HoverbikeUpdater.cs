@@ -10,9 +10,6 @@ namespace DWEquipmentBonanza.MonoBehaviours
 #if BELOWZERO
     internal class HoverbikeUpdater : MonoBehaviour
 	{
-		private static float SelfRepairRate = 0.5f; // Amount of health restored per second when Self Repair is active.
-		private static float SelfRepairEnergyConsumption = 0.5f; // Energy consumed per second when Self Repair is active
-		private static float SelfRepairDisableThreshold = 0.1f; // If battery power is lower than this fraction, disable Self Repair.
 		private Hoverbike parentHoverbike;
 		//private float defaultWaterDampening;
 		//private float defaultWaterOffset;
@@ -92,11 +89,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		//private static readonly List<EfficiencyModifierStruct> efficiencyModifiers = new List<EfficiencyModifierStruct>();
 		//private static readonly List<MovementModifierStruct> movementModifiers = new List<MovementModifierStruct>();
+		private static float SelfRepairRate = 0.5f; // Amount of health restored per second when Self Repair is active.
+		private static float SelfRepairEnergyConsumption = 0.5f; // Energy consumed per second when Self Repair is active
+		private static float SelfRepairDisableThreshold = 0.1f; // If battery power is lower than this fraction, disable Self Repair.
 		private static readonly Dictionary<TechType, EfficiencyModifier> efficiencyModifiers = new Dictionary<TechType, EfficiencyModifier>();
 		private static readonly Dictionary<TechType, MovementModifier> movementModifiers = new Dictionary<TechType, MovementModifier>();
 
-		private bool bHasTravelModule;
-		private bool bHasSelfRepair;
 		private static float moduleWaterDampening = 1f; // Movement is divided by this value when travelling over water. UWE default is 10f.
 													   // Don't set it below 1f, as that makes the Snowfox *more* manoeuvrable over water than over land.
 		private static float moduleWaterOffset = 1f; // The default value for ground travel is 2m.
@@ -105,6 +103,9 @@ namespace DWEquipmentBonanza.MonoBehaviours
 														// Given that the hoverbike is going to be on the surface more often than not, depth is not exactly going to be a major factor, so this is mainly
 														// based on the current light level.
 		internal const float fMaxSolarDepth = 2f;
+
+		private bool bHasTravelModule;
+		private bool bHasSelfRepair;
 		private bool bBikeOverWater;
 		private static TechType techTypeWaterTravel => Main.GetModTechType("HoverbikeWaterTravelModule");// Main.prefabHbWaterTravelModule.TechType;
 		private static TechType techTypeSolarCharger => Main.GetModTechType("HoverbikeSolarChargerModule");// Main.prefabHbSolarCharger.TechType;
@@ -117,6 +118,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		private void ApplyValues(DWConfig config)
 		{
+			ErrorMessage.AddMessage("HoverbikeUpdater.ApplyValues() event received");
 			SelfRepairRate = config.HoverbikeSelfRepairRate;
 			SelfRepairEnergyConsumption = config.HoverbikeSelfRepairEnergyConsumption;
 			SelfRepairDisableThreshold = config.HoverbikeSelfRepairDisableThreshold * 0.01f;
@@ -181,7 +183,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			return false;
 		}
 
-		public virtual void Initialise(ref Hoverbike vehicle)
+		public virtual void Initialise(ref Hoverbike vehicle, DWConfig config = null)
 		{
 			parentHoverbike = vehicle;
 			//defaultWaterDampening = vehicle.waterDampening;
@@ -191,9 +193,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				FieldInfo field = typeof(Hoverbike).GetField(hoverbikeField.fieldName, hoverbikeField.bindingFlags);
 				if (field != null)
 				{
-					if (defaultValues.ContainsKey(hoverbikeField.fieldName))
-						Log.LogError($"Tried to add key {hoverbikeField.fieldName} more than once!");
-					else
+					if (!defaultValues.ContainsKey(hoverbikeField.fieldName))
 					{
 						defaultValues.Add(hoverbikeField.fieldName, (float)field.GetValue(vehicle));
 						Log.LogDebug($"HoverbikeUpdate.Initialise(): Got default value of {defaultValues[hoverbikeField.fieldName]} for field name {hoverbikeField.fieldName}");
@@ -210,28 +210,34 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				LiveMixin hoverbikeHealth = null;
 				float defaultHealth;
 
-				gameObject.TryGetComponent<LiveMixin>(out hoverbikeHealth);
-				bool gotHealth = Main.defaultHealth.TryGetValue(TechType.Hoverbike, out defaultHealth);
+				if (config != null)
+				{
+					config.onOptionChanged += this.ApplyValues;
+					ApplyValues(config);
+				}
 
-				if (hoverbikeHealth == null)
+				if (gameObject.TryGetComponent<LiveMixin>(out hoverbikeHealth))
+				{
+					bool gotHealth = Main.defaultHealth.TryGetValue(TechType.Hoverbike, out defaultHealth);
+					if (gotHealth)
+					{
+						float instanceHealthPct = Mathf.Min(hoverbikeHealth.GetHealthFraction(), 1f);
+						float maxHealth = defaultHealth * Main.config.HoverbikeHealthMult;
+
+						hoverbikeHealth.data.maxHealth = maxHealth;
+						hoverbikeHealth.health = maxHealth * instanceHealthPct;
+					}
+					else
+					{
+						Log.LogError("Could not get default health for TechType Hoverbike");
+					}
+				}
+				else
 				{
 					Log.LogError($"Could not get LiveMixin for Hoverbike object");
 					return;
 				}
-
-				if (!gotHealth)
-				{
-					Log.LogError("Could not get default health for TechType Hoverbike");
-					return;
-				}
-
-				float instanceHealthPct = Mathf.Min(hoverbikeHealth.GetHealthFraction(), 1f);
-				float maxHealth = defaultHealth * Main.config.HoverbikeHealthMult;
-
-				hoverbikeHealth.data.maxHealth = maxHealth;
-				hoverbikeHealth.health = maxHealth * instanceHealthPct;
 			}
-			Main.config.onOptionChanged += this.ApplyValues;
 		}
 
 		protected static int StaticGetModuleCount(TechType techType, Hoverbike instance = null)
@@ -296,14 +302,16 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				float depthMultiplier = Mathf.Clamp01((fMaxSolarDepth + parentHoverbike.transform.position.y) / fMaxSolarDepth);
 				float lightScalar = dayNightCycle.GetLocalLightScalar();
 
-				//Log.LogDebug($"Charging Hoverbike battery with depthMultiplier of {depthMultiplier}, lightScalar = {lightScalar}, fSolarChargeMultiplier = {fSolarChargeMultiplier}, and deltaTime of {deltaTime}");
+				Log.LogDebug($"Charging Hoverbike battery with depthMultiplier of {depthMultiplier}, lightScalar = {lightScalar}, fSolarChargeMultiplier = {fSolarChargeMultiplier}, and deltaTime of {deltaTime}");
 				parentHoverbike.energyMixin.AddEnergy(deltaTime * fSolarChargeMultiplier * depthMultiplier * lightScalar);
 			}
+
 			if (bHasSelfRepair)
 			{
-				if(parentHoverbike.liveMixin.GetHealthFraction() < 1f && parentHoverbike.energyMixin.GetEnergyScalar() > SelfRepairDisableThreshold)
+				if (parentHoverbike.liveMixin.GetHealthFraction() < 1f
+					&& parentHoverbike.energyMixin.GetEnergyScalar() > SelfRepairDisableThreshold
+					&& parentHoverbike.energyMixin.ConsumeEnergy(SelfRepairEnergyConsumption * deltaTime))
 				{
-					parentHoverbike.energyMixin.ConsumeEnergy(SelfRepairEnergyConsumption * deltaTime);
 					parentHoverbike.liveMixin.AddHealth(SelfRepairRate * deltaTime);
 				}
 			}
