@@ -11,7 +11,7 @@ namespace DWEquipmentBonanza.VehicleModules
     public abstract class SeatruckChargerModule<Y> : VehicleChargerModule<Y> where Y : MonoBehaviour
     {
         public override EquipmentType EquipmentType => EquipmentType.SeaTruckModule;
-        public override string[] StepsToFabricatorTab => new string[] { "SeaTruckUpgrade" };
+        //public override string[] StepsToFabricatorTab => new string[] { "SeaTruckUpgrade" };
 
         public SeatruckChargerModule(string classID,
             string friendlyName,

@@ -11,7 +11,6 @@ namespace DWEquipmentBonanza.VehicleModules
     public abstract class ExosuitChargerModule<Y> : VehicleChargerModule<Y> where Y : MonoBehaviour
     {
         public override EquipmentType EquipmentType => EquipmentType.ExosuitModule;
-        public override string[] StepsToFabricatorTab => new string[] { "ExosuitModules" };
         protected override TechType template => TechType.ExosuitThermalReactorModule;
 
         public ExosuitChargerModule(string classID,

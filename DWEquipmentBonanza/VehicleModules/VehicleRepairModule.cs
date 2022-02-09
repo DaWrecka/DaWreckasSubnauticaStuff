@@ -32,7 +32,7 @@ namespace DWEquipmentBonanza.VehicleModules
 #if SUBNAUTICA_STABLE
         public override string[] StepsToFabricatorTab => new string[] { "CommonModules" };
 #elif BELOWZERO
-        public override string[] StepsToFabricatorTab => new string[] { "ExosuitUpgrades" };
+        public override string[] StepsToFabricatorTab => new string[] { "ExosuitModules" };
 #endif
         public override float CraftingTime => 5f;
         public override Vector2int SizeInInventory => new Vector2int(1, 1);

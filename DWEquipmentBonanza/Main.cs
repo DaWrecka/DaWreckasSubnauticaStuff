@@ -109,7 +109,7 @@ namespace DWEquipmentBonanza
 	{
 		internal static bool bVerboseLogging = true;
 		internal static bool bLogTranspilers = false;
-		internal const string version = "0.10.2.0";
+		internal const string version = "0.10.3.0";
 #if SUBNAUTICA_STABLE
 		public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
 #endif
@@ -423,6 +423,7 @@ namespace DWEquipmentBonanza
 #endif
 
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.BodyMenuPath, "Suit Upgrades", SpriteManager.Get(Main.StillSuitType));
+			CraftTreeHandler.AddTabNode(CraftTree.Type.SeamothUpgrades, DWConstants.ChargerMenuPath, "Vehicle Chargers", SpriteManager.Get(TechType.ExosuitThermalReactorModule));
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.ChipsMenuPath, "Chips", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
 			//CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "ChipRecharge", "Chip Recharges", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
 

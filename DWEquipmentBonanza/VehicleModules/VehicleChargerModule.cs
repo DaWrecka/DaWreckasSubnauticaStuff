@@ -21,6 +21,7 @@ namespace DWEquipmentBonanza.VehicleModules
         public override TechCategory CategoryForPDA => TechCategory.VehicleUpgrades;
         public override TechType RequiredForUnlock => TechType.BaseUpgradeConsole;
         public override CraftTree.Type FabricatorType => CraftTree.Type.SeamothUpgrades;
+        public override string[] StepsToFabricatorTab => new string[] { DWConstants.ChargerMenuPath };
         public override float CraftingTime => 10f;
         public override Vector2int SizeInInventory => new Vector2int(1, 1);
 
