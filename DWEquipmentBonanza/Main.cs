@@ -59,7 +59,15 @@ namespace DWEquipmentBonanza
 		{
 			foreach (var c in activeReceivers)
 			{
-				c.OnBeforeSerialize();
+				try
+				{
+					c.OnBeforeSerialize();
+				}
+				catch (Exception e)
+				{
+					Log.LogError($"Exception calling OnBeforeSerialize() in {c.GetType().ToString()}! Saving may not account for this object properly.", e, true);
+					//Log.LogError(e.ToString());
+				}
 			}
 		}
 
@@ -92,16 +100,7 @@ namespace DWEquipmentBonanza
 			return true;
 		}
 
-		public bool UnregisterReceiver(ISerializationCallbackReceiver v)
-		{
-			if (v != null && activeReceivers.Contains(v))
-			{
-				activeReceivers.Remove(v);
-				return true;
-			}
-
-			return false;
-		}
+		public bool UnregisterReceiver(ISerializationCallbackReceiver v) => activeReceivers.Remove(v);
 	}
 
 	[QModCore]
@@ -109,7 +108,7 @@ namespace DWEquipmentBonanza
 	{
 		internal static bool bVerboseLogging = true;
 		internal static bool bLogTranspilers = false;
-		internal const string version = "0.10.3.0";
+		internal const string version = "0.10.3.5";
 #if SUBNAUTICA_STABLE
 		public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
 #endif
@@ -121,12 +120,8 @@ namespace DWEquipmentBonanza
 		private static readonly Type CustomiseOxygen = Type.GetType("CustomiseOxygen.Main, CustomiseOxygen", false, false);
 		private static readonly MethodInfo CustomOxyAddExclusionMethod = CustomiseOxygen?.GetMethod("AddExclusion", BindingFlags.Public | BindingFlags.Static);
 		private static readonly MethodInfo CustomOxyAddTankMethod = CustomiseOxygen?.GetMethod("AddTank", BindingFlags.Public | BindingFlags.Static);
-		//private static readonly PropertyInfo compatibleTechInfo = typeof(BatteryCharger).GetProperty("compatibleTech", BindingFlags.NonPublic | BindingFlags.Static);
-		//private static HashSet<TechType> compatibleBatteries => (HashSet<TechType>)compatibleTechInfo.GetValue(null);
 		internal static HashSet<TechType> compatibleBatteries => BatteryCharger.compatibleTech;
 
-		//private static readonly Dictionary<string, TechType> ModTechTypes = new Dictionary<string, TechType>(StringComparer.OrdinalIgnoreCase);
-		//private static readonly Dictionary<string, GameObject> ModPrefabs = new Dictionary<string, GameObject>(StringComparer.OrdinalIgnoreCase);
 		internal static readonly Dictionary<TechType, float> defaultHealth = new Dictionary<TechType, float>();
 
 		internal static List<string> _chipSlots = new List<string>();
@@ -147,18 +142,19 @@ namespace DWEquipmentBonanza
 		private static readonly string modPath = Path.GetDirectoryName(myAssembly.Location);
 		internal static readonly string AssetsFolder = Path.Combine(modPath, "Assets");
 
+#if SUBNAUTICA_STABLE
 		private static readonly Type NitrogenMain = Type.GetType("NitrogenMod.Main, NitrogenMod", false, false);
 		private static readonly MethodInfo NitroAddDiveSuit = NitrogenMain?.GetMethod("AddDiveSuit", BindingFlags.Public | BindingFlags.Static);
 		internal static readonly Texture2D glovesTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesskin.png"));
 		internal static readonly Texture2D suitTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitskin.png"));
 		internal static readonly Texture2D glovesIllumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesillum.png"));
 		internal static readonly Texture2D suitIllumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitillum.png"));
-
-		private static readonly bool bCustomOxygenMode = QModServices.Main.ModPresent("CustomiseOxygen");
-
 		public static bool bUseNitrogenAPI; // If true, use the Nitrogen API instead of patching GetTechTypeInSlot. Overrides bNoPatchTechTypeInSlot.
 		private static Dictionary<string, TechType> NitrogenTechtypes = new Dictionary<string, TechType>();
-		internal static GameObject HighCapacityTankPrefab;
+#endif
+		private static readonly bool bCustomOxygenMode = QModServices.Main.ModPresent("CustomiseOxygen");
+
+		internal static GameObject HighCapacityTankPrefab = null;
 		internal static TechType StillSuitType
 		{
 			get
@@ -220,12 +216,14 @@ namespace DWEquipmentBonanza
 
 		public static void AddDiveSuit(TechType diveSuit, float depth = 0f, float breathMultiplier = 1f, float minTempBonus = 0f)
 		{
+#if SUBNAUTICA_STABLE
 			if (NitroAddDiveSuit != null)
-				NitroAddDiveSuit.Invoke(null, new object[] { diveSuit, depth, breathMultiplier, minTempBonus });
-			else
 			{
-				equipTempBonus[diveSuit] = minTempBonus;
+				NitroAddDiveSuit.Invoke(null, new object[] { diveSuit, depth, breathMultiplier, minTempBonus });
+				return;
 			}
+#endif
+			equipTempBonus[diveSuit] = minTempBonus;
 		}
 
 		internal static float GetTempBonusForTechType(TechType suit)
@@ -249,6 +247,7 @@ namespace DWEquipmentBonanza
 			return count;
 		}
 
+#if SUBNAUTICA_STABLE
 		public static TechType GetNitrogenTechtype(string name)
 		{
 			TechType tt;
@@ -257,7 +256,6 @@ namespace DWEquipmentBonanza
 
 			if (SMLHelper.V2.Handlers.TechTypeHandler.TryGetModdedTechType(name, out tt))
 				return tt;
-
 			return TechType.None;
 		}
 
@@ -265,6 +263,7 @@ namespace DWEquipmentBonanza
 		{
 			return QModServices.Main.ModPresent("NitrogenMod");
 		}
+#endif
 
 		/*public struct DamageMod
 		{
@@ -345,11 +344,11 @@ namespace DWEquipmentBonanza
 		[QModPatch]
 		public static void Load()
 		{
-			CoroutineHost.StartCoroutine(PrePatchCoroutine());
 			if (QModServices.Main.ModPresent("CombinedItems") || QModServices.Main.ModPresent("AcidProofSuit"))
 			{
-				throw new Exception("Equipment Bonanza is a replacement for Combined Items and Brine Suit. Remove those mods and try again.");
+				throw new Exception("Equipment Bonanza is a replacement for Combined Items and Brine Suit and is not compatible with either. Remove those mods and try again.");
 			}
+			CoroutineHost.StartCoroutine(PrePatchCoroutine());
 
 #if SUBNAUTICA_STABLE
 			Log.LogDebug("Checking for Nitrogen mod");
@@ -457,7 +456,11 @@ namespace DWEquipmentBonanza
 				new SurvivalSuitBlueprint_FromReinforcedSurvival(),
 				new IonBoosterTank(),
 				new SeatruckRepairModule(),
+				new IlluminatedRebreather(),
+				new LightColdHelmet(),
 				new UltimateHelmet(),
+				new Blueprint_LightRebreatherToUltimateHelmet(),
+				new Blueprint_LightColdToUltimateHelmet(),
 #endif
 				new DiverPerimeterDefenceChip_Broken(),
 				new DiverPerimeterDefenceChipItem(),

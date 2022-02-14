@@ -1,4 +1,5 @@
-﻿using QModManager.API.ModLoading;
+﻿using Common;
+using QModManager.API.ModLoading;
 using SMLHelper.V2.Handlers;
 using System.Collections.Generic;
 using System.IO;
@@ -8,6 +9,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UWE;
+using System.Text;
 #if BELOWZERO
 using Newtonsoft.Json;
 #endif
@@ -17,10 +19,12 @@ namespace ConsoleBatchFiles
     [QModCore]
     public static class Main
     {
-        public const string version = "1.1.0.0";
+        public const string version = "1.1.0.5";
 
         internal static string ModPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         private static string Executing = "";
+        private static bool bPickupablesLogging = false;
+
 #if BELOWZERO
         private static void OnConsoleCommand_lock(NotificationCenter.Notification n)
         {
@@ -46,6 +50,57 @@ namespace ConsoleBatchFiles
             }
         }
 #endif
+
+        public static void OnConsoleCommand_pickupables(NotificationCenter.Notification n)
+        {
+            if (bPickupablesLogging)
+            {
+                ErrorMessage.AddMessage("Already running");
+                return;
+            }
+            CoroutineHost.StartCoroutine(LogPickupables());
+        }
+
+        public static IEnumerator LogPickupables()
+        {
+            bPickupablesLogging = true;
+            ErrorMessage.AddMessage("Pickupables command running");
+            StringBuilder sbPickups = new StringBuilder($"Pickupable TechTypes:\n");
+            StringBuilder sbBadPrefabs = new StringBuilder($"TechTypes without prefabs:\n");
+            StringBuilder sbNotPickups = new StringBuilder($"Non-pickupable TechTypes:\n");
+            foreach (TechType tech in Enum.GetValues(typeof(TechType)))
+            {
+
+                string LogString = $"{tech.AsString()}";
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(tech);
+                yield return task;
+
+                GameObject prefab = task.GetResult();
+                if (prefab == null)
+                {
+                    sbBadPrefabs.AppendLine(LogString);
+                    continue;
+                }
+                Pickupable pickup = prefab.GetComponent<Pickupable>();
+                if (pickup == null)
+                {
+                    sbNotPickups.AppendLine(LogString);
+                    continue;
+                }
+
+                LogString += $"{pickup.GetTechName()}";
+                sbPickups.AppendLine(LogString);
+            }
+
+            Log.LogInfo(sbPickups.ToString());
+            Log.LogInfo(sbNotPickups.ToString());
+            Log.LogInfo(sbBadPrefabs.ToString());
+
+            ErrorMessage.AddMessage("Pickupables command done");
+            bPickupablesLogging = false;
+            yield break;
+        }
+
         public static void ConsoleCommand_batch(string BatchName)
         {
             if(BatchName.SplitByChar('.').Length < 2)
@@ -128,6 +183,7 @@ namespace ConsoleBatchFiles
             ConsoleCommandsHandler.Main.RegisterConsoleCommand("batch", typeof(Main), nameof(ConsoleCommand_batch));
             ConsoleCommandsHandler.Main.RegisterConsoleCommand("bat", typeof(Main), nameof(ConsoleCommand_batch));
             ConsoleCommandsHandler.Main.RegisterConsoleCommand("exec", typeof(Main), nameof(ConsoleCommand_batch));
+            ConsoleCommandsHandler.Main.RegisterConsoleCommand("pickupables", typeof(Main), nameof(OnConsoleCommand_pickupables));
 #if BELOWZERO
             ConsoleCommandsHandler.Main.RegisterConsoleCommand("lock", typeof(Main), nameof(OnConsoleCommand_lock));
 #endif

@@ -74,6 +74,7 @@ Global
 		Common\Common.projitems*{d05216e9-ccf3-4037-8c2f-36b571acb323}*SharedItemsImports = 4
 		Common\Common.projitems*{d935b7dc-5d06-4976-8fa1-b9980517204f}*SharedItemsImports = 4
 		Common\Common.projitems*{f6471ca2-e705-4e05-a36a-451378150b1a}*SharedItemsImports = 4
+		Common\Common.projitems*{fea9e67b-acfb-4670-af73-0861eb6b9305}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		BelowZero|Any CPU = BelowZero|Any CPU

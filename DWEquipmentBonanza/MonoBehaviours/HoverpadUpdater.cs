@@ -22,12 +22,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
             }
         }
 
-        private void ApplyValues(DWConfig config)
+        private void ApplyValues(DWConfig config, bool isEvent = false)
         {
-            CoroutineHost.StartCoroutine(ApplyValuesAsync(config));
+            CoroutineHost.StartCoroutine(ApplyValuesAsync(config, isEvent));
         }
 
-        private IEnumerator ApplyValuesAsync(DWConfig config)
+        private IEnumerator ApplyValuesAsync(DWConfig config, bool isEvent = false)
         {
             if (config == null)
             {

@@ -116,9 +116,10 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		private static TechType techTypeRepair => Main.GetModTechType("HoverbikeSelfRepairModule");
 		private static TechType techTypeDurability => Main.GetModTechType("HoverbikeDurabilitySystem");
 
-		private void ApplyValues(DWConfig config)
+		private void ApplyValues(DWConfig config, bool isEvent = false)
 		{
-			ErrorMessage.AddMessage("HoverbikeUpdater.ApplyValues() event received");
+			//if(isEvent)
+			//	ErrorMessage.AddMessage("HoverbikeUpdater.ApplyValues() event received");
 			SelfRepairRate = config.HoverbikeSelfRepairRate;
 			SelfRepairEnergyConsumption = config.HoverbikeSelfRepairEnergyConsumption;
 			SelfRepairDisableThreshold = config.HoverbikeSelfRepairDisableThreshold * 0.01f;
@@ -213,7 +214,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				if (config != null)
 				{
 					config.onOptionChanged += this.ApplyValues;
-					ApplyValues(config);
+					ApplyValues(config, false);
 				}
 
 				if (gameObject.TryGetComponent<LiveMixin>(out hoverbikeHealth))

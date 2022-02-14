@@ -58,22 +58,25 @@ namespace DWEquipmentBonanza.Equipables
             return sprite;
         }
 
+        protected virtual void OnFinishedPatch()
+        {
+            Main.AddModTechType(this.TechType);
+            if (compoundTech != null && compoundTech.Count > 0)
+            {
+                Reflection.AddCompoundTech(this.TechType, compoundTech);
+            }
+            if (substitutions != null && substitutions.Count > 0)
+            {
+                foreach (TechType tt in substitutions)
+                    EquipmentPatch.AddSubstitution(this.TechType, tt);
+            }
+            if(tempBonus > 0f)
+                Main.AddTempBonusOnly(this.TechType, tempBonus);
+        }
+
         public HeadwearBase(string classId, string friendlyName, string description) : base(classId, friendlyName, description)
         {
-            OnFinishedPatching += () =>
-            {
-                Main.AddModTechType(this.TechType);
-                if (compoundTech != null && compoundTech.Count > 0)
-                {
-                    Reflection.AddCompoundTech(this.TechType, compoundTech);
-                }
-                if (substitutions != null && substitutions.Count > 0)
-                {
-                    foreach (TechType tt in substitutions)
-                        EquipmentPatch.AddSubstitution(this.TechType, tt);
-                }
-                Main.AddTempBonusOnly(this.TechType, tempBonus);
-            };
+            OnFinishedPatching += () => OnFinishedPatch();
         }
     }
 
@@ -84,9 +87,14 @@ namespace DWEquipmentBonanza.Equipables
         public static Texture2D illumTexture;
         protected override float tempBonus => 8f;
         
-        protected override List<TechType> substitutions => null;
+        protected override List<TechType> substitutions => new()
+        {
+            TechType.Rebreather
+        };
         protected override List<TechType> compoundTech => null;
         protected override TechType spriteTemplate => TechType.None;
+        public override CraftTree.Type FabricatorType => CraftTree.Type.None;
+        public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
 
         public AcidHelmet() : base("AcidHelmet", "Brine Helmet", "Rebreather treated with an acid-resistant layer")
         {
@@ -180,11 +188,11 @@ namespace DWEquipmentBonanza.Equipables
             string friendlyName = "Insulated Rebreather",
             string description = "Rebreather equipped with insulation helps slow the onset of hypothermia") : base(classId, friendlyName, description)
         {
-            OnFinishedPatching += () => OnFinishedPatch();
         }
 
-        protected virtual void OnFinishedPatch()
+        protected override void OnFinishedPatch()
         {
+            base.OnFinishedPatch();
             int coldResist = TechData.GetColdResistance(TechType.ColdSuitHelmet);
             DWEquipmentBonanza.Reflection.AddColdResistance(this.TechType, System.Math.Max(20, coldResist));
             DWEquipmentBonanza.Reflection.SetItemSize(this.TechType, 2, 2);
@@ -238,6 +246,226 @@ namespace DWEquipmentBonanza.Equipables
         }
     }
 
+    internal class IlluminatedRebreather : HeadwearBase<IlluminatedRebreather>
+    {
+        protected override List<TechType> compoundTech => new List<TechType>
+        {
+            TechType.Rebreather,
+            TechType.FlashlightHelmet
+        };
+
+        protected override List<TechType> substitutions => new List<TechType>()
+        {
+            TechType.ColdSuitHelmet,
+            TechType.Rebreather
+        };
+
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            return new RecipeData()
+            {
+                craftAmount = 1,
+                Ingredients = new List<Ingredient>()
+                {
+                    new Ingredient(TechType.FlashlightHelmet, 1),
+                    new Ingredient(TechType.Rebreather, 1),
+                    new Ingredient(TechType.WiringKit, 1)
+                }
+            };
+        }
+
+        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+            if (prefab == null)
+            {
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.FlashlightHelmet);
+                yield return task;
+
+                prefab = GameObject.Instantiate(task.GetResult());
+                //ModPrefabCache.AddPrefab(prefab, false);
+                prefab.EnsureComponent<FlashlightEnablerBZ>();
+            }
+
+            gameObject.Set(prefab);
+        }
+
+        protected override void OnFinishedPatch()
+        {
+            base.OnFinishedPatch();
+            TooltipFactoryPatches.AddNoBarTechType(this.TechType);
+        }
+
+        public IlluminatedRebreather() : base("IlluminatedRebreather", "Light Rebreather", "Rebreather equipped with a hands-free lamp.")
+        {
+        }
+    }
+
+    internal class Blueprint_LightRebreatherToUltimateHelmet : Craftable
+    {
+        protected static Sprite sprite;
+        protected TechType fallbackSprite => Main.GetModTechType("UltimateHelmet");
+        public override Vector2int SizeInInventory => new(2, 2);
+        public override TechType RequiredForUnlock => TechType.Unobtanium;
+        public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
+        public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
+
+        protected override Sprite GetItemSprite()
+        {
+            sprite ??= SpriteManager.Get(fallbackSprite, null);
+
+            return sprite;
+        }
+
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            var recipe = new RecipeData()
+            {
+                craftAmount = 0,
+                Ingredients = new List<Ingredient>()
+                {
+                    new Ingredient(Main.GetModTechType("IlluminatedRebreather"), 1),
+                    new Ingredient(TechType.ColdSuitHelmet, 1),
+                    new Ingredient(TechType.RadioTowerPPU, 1)
+                }
+            };
+            recipe.LinkedItems = new List<TechType>
+            {
+                Main.GetModTechType("UltimateHelmet")
+            };
+
+            return recipe;
+        }
+
+        public Blueprint_LightRebreatherToUltimateHelmet() : base("Blueprint_LightRebreatherToUltimateHelmet", "Ultimate Helmet", "The ultimate in survival headwear. An insulated helmet with integrated rebreather and lamp.")
+        {
+            OnFinishedPatching += () =>
+            {
+                Reflection.AddCompoundTech(this.TechType, new List<TechType>
+                {
+                    TechType.FlashlightHelmet,
+                    TechType.ColdSuit,
+                    TechType.Rebreather
+                });
+            };
+        }
+    }
+
+    internal class LightColdHelmet : HeadwearBase<LightColdHelmet>
+    {
+        protected override Sprite GetItemSprite()
+        {
+            sprite ??= ImageUtils.LoadSpriteFromFile($"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/Assets/ultimatehelmet.png");
+
+            return sprite;
+        }
+
+        protected override List<TechType> compoundTech => new List<TechType>
+        {
+            TechType.Rebreather,
+            TechType.FlashlightHelmet
+        };
+
+        protected override List<TechType> substitutions => new List<TechType>()
+        {
+            TechType.ColdSuitHelmet,
+            TechType.Rebreather
+        };
+
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            return new RecipeData()
+            {
+                craftAmount = 1,
+                Ingredients = new List<Ingredient>()
+                {
+                    new Ingredient(TechType.FlashlightHelmet, 1),
+                    new Ingredient(TechType.ColdSuitHelmet, 1),
+                    new Ingredient(TechType.WiringKit, 1)
+                }
+            };
+        }
+
+        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+            if (prefab == null)
+            {
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.FlashlightHelmet);
+                yield return task;
+
+                prefab = GameObject.Instantiate(task.GetResult());
+                //ModPrefabCache.AddPrefab(prefab, false);
+                prefab.EnsureComponent<FlashlightEnablerBZ>();
+            }
+
+            gameObject.Set(prefab);
+        }
+
+        protected override void OnFinishedPatch()
+        {
+            base.OnFinishedPatch();
+            TooltipFactoryPatches.AddNoBarTechType(this.TechType);
+        }
+
+        public LightColdHelmet() : base("LightColdHelmet", "Light Cold Helmet", "Insulated, heat-retaining helmet equipped with a hands-free lamp.")
+        {
+        }
+    }
+
+    internal class Blueprint_LightColdToUltimateHelmet : Craftable
+    {
+        protected static Sprite sprite;
+        protected static TechType fallbackSprite => Main.GetModTechType("UltimateHelmet");
+        public override Vector2int SizeInInventory => new(2, 2);
+        public override TechType RequiredForUnlock => TechType.Unobtanium;
+        public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
+        public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
+
+        protected static Sprite StaticGetItemSprite()
+        {
+            sprite ??= SpriteManager.Get(fallbackSprite, null);
+
+            return sprite;
+        }
+
+        protected override Sprite GetItemSprite()
+        {
+            return StaticGetItemSprite();
+        }
+
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            var recipe = new RecipeData()
+            {
+                craftAmount = 0,
+                Ingredients = new List<Ingredient>()
+                {
+                    new Ingredient(Main.GetModTechType("LightColdHelmet"), 1),
+                    new Ingredient(TechType.ColdSuitHelmet, 1),
+                    new Ingredient(TechType.RadioTowerPPU, 1)
+                }
+            };
+            recipe.LinkedItems = new List<TechType>
+            {
+                Main.GetModTechType("UltimateHelmet")
+            };
+
+            return recipe;
+        }
+
+        public Blueprint_LightColdToUltimateHelmet() : base("Blueprint_LightColdToUltimateHelmet", "Ultimate Helmet", "The ultimate in survival headwear. An insulated helmet with integrated rebreather and lamp.")
+        {
+            OnFinishedPatching += () =>
+            {
+                Reflection.AddCompoundTech(this.TechType, new List<TechType>
+                {
+                    TechType.FlashlightHelmet,
+                    TechType.ColdSuit,
+                    TechType.Rebreather
+                });
+            };
+        }
+    }
+
     internal class UltimateHelmet : HeadwearBase<UltimateHelmet>
     {
         protected override float tempBonus => 10f;
@@ -262,7 +490,8 @@ namespace DWEquipmentBonanza.Equipables
                 Ingredients = new List<Ingredient>()
                 {
                     new Ingredient(TechType.FlashlightHelmet, 1),
-                    new Ingredient(Main.GetModTechType("InsulatedRebreather"), 1)
+                    new Ingredient(Main.GetModTechType("InsulatedRebreather"), 1),
+                    new Ingredient(TechType.RadioTowerPPU, 1)
                 }
             };
         }
@@ -282,13 +511,15 @@ namespace DWEquipmentBonanza.Equipables
             gameObject.Set(prefab);
         }
 
+        protected override void OnFinishedPatch()
+        {
+            base.OnFinishedPatch();
+            TooltipFactoryPatches.AddNoBarTechType(this.TechType);
+        }
+
         public UltimateHelmet() : base("UltimateHelmet", "Ultimate Helmet", "The ultimate in survival headwear. An insulated helmet with integrated rebreather and lamp.")
         {
-            OnFinishedPatching += () =>
-            {
-                TooltipFactoryPatches.AddNoBarTechType(this.TechType);
-            };
         }
     }
 #endif
-}
+        }

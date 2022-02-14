@@ -39,9 +39,10 @@ namespace DWEquipmentBonanza.Patches
         [HarmonyPatch("UpdateReinforcedSuit")]
         public static bool Prefix(ref Player __instance)
         {
+#if SUBNAUTICA_STABLE
             if (Main.bUseNitrogenAPI)
                 return true;
-
+#endif
             oldMaxTemp = __instance.temperatureDamage.minDamageTemperature;
 
             __instance.temperatureDamage.minDamageTemperature = 49f;

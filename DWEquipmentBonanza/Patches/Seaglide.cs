@@ -18,8 +18,8 @@ namespace DWEquipmentBonanza
 	[HarmonyPatch(typeof(Seaglide))]
 	class SeaglidePatches
 	{
-		internal static string cachedUseText;
-		internal static string customUseText;
+		internal static string cachedUseText = "";
+		internal static string customUseText = "";
 
 		[HarmonyPatch("Update")]
 		[HarmonyPostfix]

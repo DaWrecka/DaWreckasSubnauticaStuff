@@ -62,7 +62,7 @@ namespace DWEquipmentBonanza.VehicleModules
                 craftAmount = 1,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                     {
-                        new Ingredient(TechType.Sulphur, 2),
+                        new Ingredient(TechType.CrashPowder, 2),
                         new Ingredient(TechType.Polyaniline, 2),
                         new Ingredient(TechType.WiringKit, 1)
                     }
@@ -123,4 +123,4 @@ namespace DWEquipmentBonanza.VehicleModules
         }
     }
 #endif
-}
+                    }

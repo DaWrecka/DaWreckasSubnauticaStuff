@@ -147,7 +147,7 @@ namespace DWEquipmentBonanza
 		public float SnowfoxSolarMultiplier = 0.5f; // Multiplier applied to the local light amount to get amount of power regained from solar charger
 
 #endif
-		public delegate void OnConfigChange(DWConfig config);
+		public delegate void OnConfigChange(DWConfig config, bool isEvent = false);
 		public delegate void OnQuit(DWConfig config);
 
 		public DWConfig() : base()
