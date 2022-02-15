@@ -108,7 +108,7 @@ namespace DWEquipmentBonanza
 	{
 		internal static bool bVerboseLogging = true;
 		internal static bool bLogTranspilers = false;
-		internal const string version = "0.10.3.5";
+		internal const string version = "0.10.3.8";
 #if SUBNAUTICA_STABLE
 		public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
 #endif
@@ -151,6 +151,9 @@ namespace DWEquipmentBonanza
 		internal static readonly Texture2D suitIllumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitillum.png"));
 		public static bool bUseNitrogenAPI; // If true, use the Nitrogen API instead of patching GetTechTypeInSlot. Overrides bNoPatchTechTypeInSlot.
 		private static Dictionary<string, TechType> NitrogenTechtypes = new Dictionary<string, TechType>();
+#elif BELOWZERO
+		//private static readonly Type VehicleUpgraderType = Type.GetType("UpgradedVehicles.VehicleUpgrader, UpgradedVehicles", false, false);
+		//private static readonly MethodInfo VehicleUpgraderAddSpeedModifier = VehicleUpgraderType?.GetMethod("AddSpeedModifier", BindingFlags.Public | BindingFlags.Static);
 #endif
 		private static readonly bool bCustomOxygenMode = QModServices.Main.ModPresent("CustomiseOxygen");
 
@@ -225,6 +228,15 @@ namespace DWEquipmentBonanza
 #endif
 			equipTempBonus[diveSuit] = minTempBonus;
 		}
+
+		/*public static bool AddUVSpeedModifier(TechType module, float speedModifier = 0f, float efficiencyMultiplier = 1f)
+		{
+			if (VehicleUpgraderAddSpeedModifier == null)
+				return false;
+
+			VehicleUpgraderAddSpeedModifier.Invoke(null, new object[] { module, speedModifier, efficiencyMultiplier, false });
+			return true;
+		}*/
 
 		internal static float GetTempBonusForTechType(TechType suit)
 		{
@@ -461,6 +473,8 @@ namespace DWEquipmentBonanza
 				new UltimateHelmet(),
 				new Blueprint_LightRebreatherToUltimateHelmet(),
 				new Blueprint_LightColdToUltimateHelmet(),
+				new SeaTruckUpgradeHorsepower2(),
+				new SeaTruckUpgradeHorsepower3(),
 #endif
 				new DiverPerimeterDefenceChip_Broken(),
 				new DiverPerimeterDefenceChipItem(),
@@ -541,6 +555,12 @@ namespace DWEquipmentBonanza
 
 			var harmony = new Harmony($"DaWrecka_{myAssembly.GetName().Name}");
 			harmony.PatchAll(myAssembly);
+			/*if (QModServices.Main.ModPresent("UpgradedVehicles"))
+			{
+				Log.LogDebug("UpgradedVehicles found, attempting to patch GetSpeedMultiplierBonus method");
+				bool success = AssemblyUtils.PatchIfExists(harmony, "UpgradedVehicles", "UpgradedVehicles.VehicleUpgrader", "GetSpeedMultiplierBonus", null, new HarmonyMethod(typeof(HorsepowerPatches), nameof(HorsepowerPatches.PostGetBonusGetSpeedMultiplierBonus)), null);
+				Log.LogDebug("Patching " + (success ? "success" : "fail"));
+			}*/
 		}
 
 

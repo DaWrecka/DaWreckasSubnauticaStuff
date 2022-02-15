@@ -70,6 +70,7 @@
     <Compile Include="Patches\uGUI_Equipment.cs" />
     <Compile Include="Patches\uGUI_MainMenu.cs" />
     <Compile Include="Patches\UnderwaterMotor.cs" />
+    <Compile Include="Patches\HorsepowerPatches.cs" />
     <Compile Include="Patches\VehicleDockingBayPatches.cs" />
     <Compile Include="Spawnables\PowerglideFragmentPrefab.cs" />
     <Compile Include="Spawnables\ShadowLeviathanSample.cs" />
@@ -81,7 +82,7 @@
     <Compile Include="VehicleModules\VehicleRepairModule.cs" />
     <Compile Include="VehicleModules\SeatruckUnifiedModule.cs" />
     <Compile Include="VehicleModules\SeaTruckSonarModule.cs" />
-    <Compile Include="VehicleModules\SeatruckRepairModule.cs" />
+    <Compile Include="VehicleModules\SeatruckUpgradeModulesGeneral.cs" />
     <Compile Include="VehicleModules\SeatruckThermalModules.cs" />
     <Compile Include="VehicleModules\SeatruckSolarModules.cs" />
     <Compile Include="VehicleModules\ExosuitSprintModule.cs" />
