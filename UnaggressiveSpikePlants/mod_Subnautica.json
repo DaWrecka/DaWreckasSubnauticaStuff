@@ -1,0 +1,15 @@
+{
+  "Id": "UnaggressiveSpikePlants",
+  "DisplayName": "Unaggressive Spike Plants",
+  "Author": "DaWrecka",
+  "Version": "1.0.0.0",
+  "Dependencies": [],
+  "Game": "Subnautica",
+  "AssemblyName": "UnaggressiveSpikePlants.dll",
+  "VersionDependencies": {},
+  "VersionChecker": {
+    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/UnaggressiveSpikePlants/master/mod_Subnautica.json"
+  },
+  "NexusId": {},
+  "Enable": true
+}

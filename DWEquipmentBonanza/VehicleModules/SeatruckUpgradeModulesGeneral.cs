@@ -169,7 +169,7 @@ namespace DWEquipmentBonanza.VehicleModules
             };
         }
 
-        public SeaTruckUpgradeHorsepower2() : base("SeaTruckUpgradeHorsepower2", "SeaTruck Horsepower Upgrade Mk2", "Further improves SeaTruck engine power, improving speed by 25%. Does not stack.")
+        public SeaTruckUpgradeHorsepower2() : base("SeaTruckUpgradeHorsepower2", "SeaTruck Horsepower Upgrade Mk2", "Further improves SeaTruck engine power, reducing the impact of a long train. Does not stack.")
         {
         }
     }
@@ -178,6 +178,7 @@ namespace DWEquipmentBonanza.VehicleModules
     {
         //protected override float speedMultiplier => 1.50f;
         protected override float weightMultiplier => 0.4f;
+        public override TechType RequiredForUnlock => Main.GetModTechType("SeaTruckUpgradeHorsepower2");
         protected override RecipeData GetBlueprintRecipe()
         {
             return new RecipeData()
@@ -195,7 +196,7 @@ namespace DWEquipmentBonanza.VehicleModules
             };
         }
 
-        public SeaTruckUpgradeHorsepower3() : base("SeaTruckUpgradeHorsepower3", "SeaTruck Horsepower Upgrade Mk3", "Maximally improves SeaTruck engine power, improving speed by 50%. Does not stack.")
+        public SeaTruckUpgradeHorsepower3() : base("SeaTruckUpgradeHorsepower3", "SeaTruck Horsepower Upgrade Mk3", "Maximally improves SeaTruck engine power and minimises the effect of a long train on the Seatruck's speed. Does not stack.")
         {
         }
     }

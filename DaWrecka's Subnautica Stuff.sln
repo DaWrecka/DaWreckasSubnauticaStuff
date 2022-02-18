@@ -15,7 +15,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		GameDir.targets = GameDir.targets
 		post-build.ps1 = post-build.ps1
-		README.md = README.md
+		Readmes\README.md = Readmes\README.md
+		Readmes\Subnautica\README.md = Readmes\Subnautica\README.md
+		Readmes\BelowZero\README.md = Readmes\BelowZero\README.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HabitatBuilderSpeed", "HabitatBuilderSpeed\HabitatBuilderSpeed.csproj", "{8D0989F2-9427-454C-AF7A-E24E73EA9D44}"
@@ -55,6 +57,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShowAltitude", "ShowAltitude\ShowAltitude.csproj", "{91E1EDCA-E684-400F-BC57-04EFCE159444}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpgradedBlades", "UpgradedBlades\UpgradedBlades.csproj", "{1E3A4636-DCA8-4BA2-803B-FBE4FB8A5054}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnaggressiveSpikePlants", "UnaggressiveSpikePlants\UnaggressiveSpikePlants.csproj", "{B031192B-D007-46C6-B600-C3DAAB9A72D8}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -257,6 +261,14 @@ Global
 		{1E3A4636-DCA8-4BA2-803B-FBE4FB8A5054}.Subnautica|Any CPU.Build.0 = Subnautica|Any CPU
 		{1E3A4636-DCA8-4BA2-803B-FBE4FB8A5054}.Subnautica|x64.ActiveCfg = Subnautica|Any CPU
 		{1E3A4636-DCA8-4BA2-803B-FBE4FB8A5054}.Subnautica|x64.Build.0 = Subnautica|Any CPU
+		{B031192B-D007-46C6-B600-C3DAAB9A72D8}.BelowZero|Any CPU.ActiveCfg = Subnautica|Any CPU
+		{B031192B-D007-46C6-B600-C3DAAB9A72D8}.BelowZero|Any CPU.Build.0 = Subnautica|Any CPU
+		{B031192B-D007-46C6-B600-C3DAAB9A72D8}.BelowZero|x64.ActiveCfg = Debug|Any CPU
+		{B031192B-D007-46C6-B600-C3DAAB9A72D8}.BelowZero|x64.Build.0 = Debug|Any CPU
+		{B031192B-D007-46C6-B600-C3DAAB9A72D8}.Subnautica|Any CPU.ActiveCfg = Subnautica|Any CPU
+		{B031192B-D007-46C6-B600-C3DAAB9A72D8}.Subnautica|Any CPU.Build.0 = Subnautica|Any CPU
+		{B031192B-D007-46C6-B600-C3DAAB9A72D8}.Subnautica|x64.ActiveCfg = Debug|Any CPU
+		{B031192B-D007-46C6-B600-C3DAAB9A72D8}.Subnautica|x64.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

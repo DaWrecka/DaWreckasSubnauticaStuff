@@ -8,7 +8,7 @@ using System.Collections;
 namespace DWEquipmentBonanza.MonoBehaviours
 {
 #if BELOWZERO
-    internal class HoverbikeUpdater : MonoBehaviour
+	internal class HoverbikeUpdater : MonoBehaviour
 	{
 		private Hoverbike parentHoverbike;
 		//private float defaultWaterDampening;
@@ -81,11 +81,11 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				this.priority = priority;
 			}
 
-            public override string ToString()
-            {
+			public override string ToString()
+			{
 				return $"(speedMod {speedModifier}, cooldownMod {cooldownModifier}, priority {priority}, maxUpgrades {maxUpgrades})";
-            }
-        };
+			}
+		};
 
 		//private static readonly List<EfficiencyModifierStruct> efficiencyModifiers = new List<EfficiencyModifierStruct>();
 		//private static readonly List<MovementModifierStruct> movementModifiers = new List<MovementModifierStruct>();
@@ -96,12 +96,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		private static readonly Dictionary<TechType, MovementModifier> movementModifiers = new Dictionary<TechType, MovementModifier>();
 
 		private static float moduleWaterDampening = 1f; // Movement is divided by this value when travelling over water. UWE default is 10f.
-													   // Don't set it below 1f, as that makes the Snowfox *more* manoeuvrable over water than over land.
+														// Don't set it below 1f, as that makes the Snowfox *more* manoeuvrable over water than over land.
 		private static float moduleWaterOffset = 1f; // The default value for ground travel is 2m.
 		internal static float fSolarChargeMultiplier = 0.05f; // Multiplier applied to the local light amount to get amount of power regained from solar charger
-														// default enginePowerConsumption = 0.06666667f so we want the solar charger to be a little bit less efficient than this.
-														// Given that the hoverbike is going to be on the surface more often than not, depth is not exactly going to be a major factor, so this is mainly
-														// based on the current light level.
+															  // default enginePowerConsumption = 0.06666667f so we want the solar charger to be a little bit less efficient than this.
+															  // Given that the hoverbike is going to be on the surface more often than not, depth is not exactly going to be a major factor, so this is mainly
+															  // based on the current light level.
 		internal const float fMaxSolarDepth = 2f;
 
 		private bool bHasTravelModule;
@@ -116,6 +116,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		private static TechType techTypeRepair => Main.GetModTechType("HoverbikeSelfRepairModule");
 		private static TechType techTypeDurability => Main.GetModTechType("HoverbikeDurabilitySystem");
 
+
 		private void ApplyValues(DWConfig config, bool isEvent = false)
 		{
 			//if(isEvent)
@@ -126,23 +127,24 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			moduleWaterDampening = config.SnowfoxWaterModuleDampening;
 			moduleWaterOffset = config.SnowfoxWaterModuleOffset;
 			fSolarChargeMultiplier = config.SnowfoxSolarMultiplier;
+			//_capacity = config.SnowfoxSIFStrength;
 		}
 
 		internal static bool AddEfficiencyMultiplier(TechType module, float multiplier, int priority = 1, int maxUpgrades = 1, bool bUpdateIfPresent = false)
 		{
 			// Multiple copies of a module stack, up to a maximum limit of maxUpgrades.
 			//for (int i = 0; i < efficiencyModifiers.Count; i++)
-			if(efficiencyModifiers.TryGetValue(module, out EfficiencyModifier modifier))
+			if (efficiencyModifiers.TryGetValue(module, out EfficiencyModifier modifier))
 			{
 				//EfficiencyModifierStruct modifier = efficiencyModifiers[i];
 				//if (modifier.techType == module)
 				//{
-					Log.LogDebug($"AddEfficiencyMultiplier called multiple times for TechType {module}; previous value was {modifier.ToString()}; new value is {multiplier} with maxUpgrades {maxUpgrades}; value "
-						+ (bUpdateIfPresent ? "was " : "was not ") + "updated");
-					if (bUpdateIfPresent)
-						efficiencyModifiers.Remove(module);
-					else
-						return false;
+				Log.LogDebug($"AddEfficiencyMultiplier called multiple times for TechType {module}; previous value was {modifier.ToString()}; new value is {multiplier} with maxUpgrades {maxUpgrades}; value "
+					+ (bUpdateIfPresent ? "was " : "was not ") + "updated");
+				if (bUpdateIfPresent)
+					efficiencyModifiers.Remove(module);
+				else
+					return false;
 				//}
 			}
 
@@ -153,18 +155,18 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		internal static bool AddMovementModifier(TechType module, float speedModifier, float cooldownModifier, int priority = 1, int maxUpgrades = 1, bool bUpdateIfPresent = false)
 		{
 			// Multiple copies of a module stack, up to a maximum limit of maxUpgrades.
-			if(movementModifiers.TryGetValue(module, out MovementModifier modifier))
+			if (movementModifiers.TryGetValue(module, out MovementModifier modifier))
 			//for (int i = 0; i < movementModifiers.Count; i++)
 			{
 				//MovementModifierStruct modifier = movementModifiers[i];
 				//if (modifier.techType == module)
 				//{
-					Log.LogDebug($"AddMovementModifier called multiple times for TechType {module}; previous value was {modifier.ToString()}; new value speedModifier = {speedModifier}, cooldownModifier = {cooldownModifier}, maxUpgrades = {maxUpgrades}; value "
-						+ (bUpdateIfPresent ? "was " : "was not ") + "updated");
-					if (bUpdateIfPresent)
-						movementModifiers.Remove(module);
-					else
-						return false;
+				Log.LogDebug($"AddMovementModifier called multiple times for TechType {module}; previous value was {modifier.ToString()}; new value speedModifier = {speedModifier}, cooldownModifier = {cooldownModifier}, maxUpgrades = {maxUpgrades}; value "
+					+ (bUpdateIfPresent ? "was " : "was not ") + "updated");
+				if (bUpdateIfPresent)
+					movementModifiers.Remove(module);
+				else
+					return false;
 				//}
 			}
 
@@ -365,7 +367,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			}
 			else if (techType == techTypeHullModule)
 			{
-				parentHoverbike.gameObject.EnsureComponent<HoverbikeStructuralIntegrityModifier>().SetActive(added);
+				CheckStructuralIntegrity();
 			}
 			else if (techType == techTypeMobility)
 			{
@@ -379,12 +381,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			}
 			else if (techType == techTypeRepair)
 			{
-				bHasSelfRepair = added;
+				CheckSelfRepair();
 			}
 			else if (techType == techTypeDurability)
 			{
-				bHasSelfRepair = added;
-				parentHoverbike.gameObject.EnsureComponent<HoverbikeStructuralIntegrityModifier>().SetActive(added);
+				CheckSelfRepair();
+				CheckStructuralIntegrity();
 			}
 
 			if (TryGetDefaultFloat("enginePowerConsumption", out float defaultPowerConsumption))
@@ -393,7 +395,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				int priority = 0;
 				//Log.LogDebug($"HoverbikeUpdate.PostUpgradeModuleChange(): applying efficiency modifiers");
 				//foreach (EfficiencyModifier modifier in efficiencyModifiers)
-				foreach(KeyValuePair<TechType, EfficiencyModifier> modifierPair in efficiencyModifiers)
+				foreach (KeyValuePair<TechType, EfficiencyModifier> modifierPair in efficiencyModifiers)
 				{
 					EfficiencyModifier modifier = modifierPair.Value;
 					//Log.LogDebug($"Using modifier {modifier.ToString()}");
@@ -431,7 +433,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 				//Log.LogDebug($"HoverbikeUpdate.PostUpgradeModuleChange(): applying movement modifiers");
 				//foreach (MovementModifierStruct modifier in movementModifiers)
-				foreach(KeyValuePair<TechType, MovementModifier> modifierPair in movementModifiers)
+				foreach (KeyValuePair<TechType, MovementModifier> modifierPair in movementModifiers)
 				{
 					//Log.LogDebug($"Using modifier {modifier.ToString()}");
 					MovementModifier modifier = modifierPair.Value;
@@ -460,6 +462,16 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				parentHoverbike.boostCooldown = defaultCooldown * cooldownMult;
 				parentHoverbike.jumpCooldown = defaultJumpCooldown * cooldownMult;
 			}
+		}
+
+		protected virtual void CheckStructuralIntegrity()
+		{
+			parentHoverbike.gameObject.EnsureComponent<HoverbikeStructuralIntegrityModifier>().SetActive((parentHoverbike.modules.GetCount(techTypeHullModule) + parentHoverbike.modules.GetCount(techTypeDurability)) > 0);
+		}
+
+		protected virtual void CheckSelfRepair()
+		{
+			bHasSelfRepair = (parentHoverbike.modules.GetCount(techTypeRepair) + parentHoverbike.modules.GetCount(techTypeDurability)) > 0;
 		}
 
 		internal virtual void PrePhysicsMove(Hoverbike instance = null)
@@ -517,7 +529,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			// This method is only called if Hoverbike.HoverEngines() has already determined that the hoverbike is above water.
 			// So we basically just need to return whether or not the Water Travel Module is installed.
 			// We need to invert it though, as if the value is true, the code restricts the hoverbike's movement.
-			if(parentHoverbike == null)
+			if (parentHoverbike == null)
 			{
 				if (instance != null)
 					parentHoverbike = instance;

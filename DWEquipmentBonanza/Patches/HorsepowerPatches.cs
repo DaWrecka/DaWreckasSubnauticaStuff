@@ -13,8 +13,6 @@ namespace DWEquipmentBonanza.Patches
     [HarmonyPatch]
     public class HorsepowerPatches
     {
-        private static TechType horsepowerMk2Type => Main.GetModTechType("SeatruckHorsepowerUpgrade2");
-        private static TechType horsepowerMk3Type => Main.GetModTechType("SeatruckHorsepowerUpgrade3");
         private static Dictionary<TechType, float> speedMultipliers = new();
 
         public static bool RegisterHorsepowerModifier(TechType module, float value)

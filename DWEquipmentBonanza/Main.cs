@@ -229,7 +229,7 @@ namespace DWEquipmentBonanza
 			equipTempBonus[diveSuit] = minTempBonus;
 		}
 
-		/*public static bool AddUVSpeedModifier(TechType module, float speedModifier = 0f, float efficiencyMultiplier = 1f)
+		/*public static bool AddUVSpeedModifier(TechType module, float speedModifier, float efficiencyMultiplier)
 		{
 			if (VehicleUpgraderAddSpeedModifier == null)
 				return false;
