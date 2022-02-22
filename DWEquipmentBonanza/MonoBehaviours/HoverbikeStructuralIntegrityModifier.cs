@@ -72,7 +72,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
             if (updater == null)
                 return damage;
 
-            ErrorMessage.AddMessage($"HoverbikeStructuralIntegrityModifier modifying damage; damage amount {damage}, type {type.ToString()}");
+            //ErrorMessage.AddMessage($"HoverbikeStructuralIntegrityModifier modifying damage; damage amount {damage}, type {type.ToString()}");
             float modifiedDamage = damage * multiplier;
             if (bActive)
             {
