@@ -1,0 +1,18 @@
+{
+  "Id": "UnaggressiveFlora",
+  "DisplayName": "Unaggressive Flora",
+  "Author": "DaWrecka",
+  "Version": "1.0.0.0",
+  "Dependencies": [],
+  "LoadAfter": [
+    "UnaggressiveSpikePlants"
+  ],
+  "Game": "Subnautica",
+  "AssemblyName": "UnaggressiveFlora.dll",
+  "VersionDependencies": {},
+  "VersionChecker": {
+    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/UnaggressiveFlora/master/mod_Subnautica.json"
+  },
+  "NexusId": {},
+  "Enable": true
+}

@@ -105,21 +105,33 @@ namespace DWEquipmentBonanza.Patches
             return false;
         }
 
+        public static bool HandleBoost(bool bRequestBoost, Hoverbike hoverbike)
+        {
+            HoverbikeUpdater updater = hoverbike.gameObject.EnsureComponent<HoverbikeUpdater>();
+            if (updater == null)
+                return (hoverbike != null ? hoverbike.boostReset : false);
+            
+            return updater.HandleBoost(hoverbike, bRequestBoost);
+        }
+
         [HarmonyPatch("HoverEngines")]
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> HoverEnginesTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
             MethodInfo waterHoverMethod = typeof(HoverbikePatches).GetMethod(nameof(HoverbikePatches.WaterHoverMode));
+            MethodInfo handleBoostMethod = typeof(HoverbikePatches).GetMethod(nameof(HoverbikePatches.HandleBoost));
+            MethodInfo buttonHeldMethod = typeof(GameInput).GetMethod(nameof(GameInput.GetButtonHeld));
 
             if (waterHoverMethod == null)
                 throw new Exception("null method for WaterHoverMode");
 
-            int maxIndex = codes.Count - 14; // We search for a six-opcode pattern and a 15-opcode pattern. If we go past (count-14) then we'll get an Index Out of Range exception.
+            int maxIndex = codes.Count - 14; // The biggest pattern we search for is 15 opcodes. If we go past (count-14) then we'll get an Index Out of Range exception.
                                             // So we limit our max index here.
             int i = -1;
             int overWaterIndex = -1;
             int wasOnGroundIndex = -1;
+            int boostIndex = -1;
 
             if (Main.bLogTranspilers)
             {
@@ -130,7 +142,7 @@ namespace DWEquipmentBonanza.Patches
                 i = -1;
             }
 
-            while (++i < maxIndex && (overWaterIndex == -1 || wasOnGroundIndex == -1))
+            while (++i < maxIndex && (overWaterIndex == -1 || wasOnGroundIndex == -1 || boostIndex == -1))
             {
                 /* 
                  * IL_007E: ldc.r4    3
@@ -140,7 +152,7 @@ namespace DWEquipmentBonanza.Patches
                  * IL_0087: ldc.i4.1
                  * IL_0088: stfld     bool Hoverbike::overWater
                  */
-                if (codes[i].opcode == OpCodes.Ldc_R4 && codes[i + 1].opcode == OpCodes.Add && (codes[i + 2].opcode == OpCodes.Bge_Un || codes[i + 2].opcode == OpCodes.Bge_Un_S)
+                if (overWaterIndex == -1 && codes[i].opcode == OpCodes.Ldc_R4 && codes[i + 1].opcode == OpCodes.Add && (codes[i + 2].opcode == OpCodes.Bge_Un || codes[i + 2].opcode == OpCodes.Bge_Un_S)
                     && codes[i + 3].opcode == OpCodes.Ldarg_0 && codes[i + 4].opcode == OpCodes.Ldc_I4_1 && codes[i + 5].opcode == OpCodes.Stfld)
                 {
                     overWaterIndex = i + 4;
@@ -167,27 +179,69 @@ namespace DWEquipmentBonanza.Patches
                  * IL_00D6: ldc.i4.0
                  * IL_00D7: stfld     bool Hoverbike::jumpReset
                  */
-                else if (codes[i +  0].opcode == OpCodes.Stloc_0   // * IL_00AD: stloc.0
-                    &&   codes[i +  1].opcode == OpCodes.Ldloc_0   // * IL_00AE: ldloc.0
-                    &&   codes[i +  2].opcode == OpCodes.Brfalse   // * IL_00AF: brfalse IL_015D
-                    &&   codes[i +  3].opcode == OpCodes.Ldarg_0   // * IL_00B4: ldarg.0
-                    &&   codes[i +  4].opcode == OpCodes.Ldfld     // * IL_00B5: ldfld     bool Hoverbike::jumpReset
-                    &&   codes[i +  5].opcode == OpCodes.Brfalse   // * IL_00BA: brfalse IL_015D
-                    &&   codes[i +  6].opcode == OpCodes.Ldarg_0   // * IL_00BF: ldarg.0
-                    &&   codes[i +  7].opcode == OpCodes.Ldfld     // * IL_00C0: ldfld     bool Hoverbike::wasOnGround
-                    &&   codes[i +  8].opcode == OpCodes.Brfalse   // * IL_00C5: brfalse IL_015D
-                    &&   codes[i +  9].opcode == OpCodes.Ldarg_0   // * IL_00CA: ldarg.0
-                    &&   codes[i + 10].opcode == OpCodes.Ldfld     // * IL_00CB: ldfld     bool Hoverbike::jumpEnabled
-                    &&   codes[i + 11].opcode == OpCodes.Brfalse   // * IL_00D0: brfalse IL_015D
-                    &&   codes[i + 12].opcode == OpCodes.Ldarg_0   // * IL_00D5: ldarg.0
-                    &&   codes[i + 13].opcode == OpCodes.Ldc_I4_0  // * IL_00D6: ldc.i4.0
-                    &&   codes[i + 14].opcode == OpCodes.Stfld)    // * IL_00D7: stfld     bool Hoverbike::jumpReset
+                else if (overWaterIndex != -1 && wasOnGroundIndex == -1 && codes[i + 0].opcode == OpCodes.Stloc_0   // * IL_00AD: stloc.0
+                    && codes[i + 1].opcode == OpCodes.Ldloc_0   // * IL_00AE: ldloc.0
+                    && codes[i + 2].opcode == OpCodes.Brfalse   // * IL_00AF: brfalse IL_015D
+                    && codes[i + 3].opcode == OpCodes.Ldarg_0   // * IL_00B4: ldarg.0
+                    && codes[i + 4].opcode == OpCodes.Ldfld     // * IL_00B5: ldfld     bool Hoverbike::jumpReset
+                    && codes[i + 5].opcode == OpCodes.Brfalse   // * IL_00BA: brfalse IL_015D
+                    && codes[i + 6].opcode == OpCodes.Ldarg_0   // * IL_00BF: ldarg.0
+                    && codes[i + 7].opcode == OpCodes.Ldfld     // * IL_00C0: ldfld     bool Hoverbike::wasOnGround
+                    && codes[i + 8].opcode == OpCodes.Brfalse   // * IL_00C5: brfalse IL_015D
+                    && codes[i + 9].opcode == OpCodes.Ldarg_0   // * IL_00CA: ldarg.0
+                    && codes[i + 10].opcode == OpCodes.Ldfld     // * IL_00CB: ldfld     bool Hoverbike::jumpEnabled
+                    && codes[i + 11].opcode == OpCodes.Brfalse   // * IL_00D0: brfalse IL_015D
+                    && codes[i + 12].opcode == OpCodes.Ldarg_0   // * IL_00D5: ldarg.0
+                    && codes[i + 13].opcode == OpCodes.Ldc_I4_0  // * IL_00D6: ldc.i4.0
+                    && codes[i + 14].opcode == OpCodes.Stfld)    // * IL_00D7: stfld     bool Hoverbike::jumpReset
                 {
                     // We're going to replace the codes at i+6 to i+7 with ldc.i4.1 and nop, placing 1 (true) on the stack instead of the result of the wasOnGround() method
                     wasOnGroundIndex = i + 6;
                     Log.LogDebug($"Located wasOnGround segment at {String.Format("0x{0:X4}", wasOnGroundIndex)}");
                     codes[wasOnGroundIndex + 0] = new CodeInstruction(OpCodes.Ldc_I4_1);
                     codes[wasOnGroundIndex + 1] = new CodeInstruction(OpCodes.Nop);
+                }
+                /* We're searching for:
+                    // [496 7 - 496 63]
+                    IL_015d: ldc.i4.s     16 // 0x10
+                    IL_015f: call         bool GameInput::GetButtonHeld(valuetype GameInput/Button)
+                    IL_0164: stloc.1      // flag2
+
+                    // [497 7 - 497 36]
+                    IL_0165: ldloc.1      // flag2
+                    IL_0166: brfalse.s    IL_01d2
+
+                    IL_0168: ldarg.0      // this
+                    IL_0169: ldfld        bool Hoverbike::boostReset
+                    IL_016e: brfalse.s    IL_01d2
+                */
+                else if (wasOnGroundIndex != -1 && boostIndex == -1 && codes[i].opcode == OpCodes.Ldc_I4_S && codes[i+1].Calls(buttonHeldMethod))
+                {
+                    // We want to replace the first brfalse.s with a call to HandleBoost
+                    boostIndex = i + 4;
+                    Log.LogDebug($"Located boost segment at {String.Format("0x{0:X4}", boostIndex)}");
+                    /*
+                     * Restating the above, relative to what is now the value of boostIndex:
+                    boostIndex - 4: ldc.i4.s     16 // 0x10
+                    boostIndex - 3: call         bool GameInput::GetButtonHeld(valuetype GameInput/Button)
+                    boostIndex - 2: stloc.1      // flag2
+
+                    // [497 7 - 497 36]
+                    boostIndex - 1: ldloc.1      // flag2
+                    boostIndex + 0: brfalse.s    IL_01d2
+
+                    boostIndex + 1: ldarg.0      // this
+                    boostIndex + 2: ldfld        bool Hoverbike::boostReset
+                    boostIndex + 3: brfalse.s    IL_01d2
+
+                    We want to replace the loading of boostReset on the stack with a call to our boost handler.
+                    We also want to replace the brfalse.s after the ldloc.1 with a no-op.
+                    This means that when the transpiled method calls HandleBoost, flag2 will be on the stack, followed by the Hoverbike in question.
+
+                    That method will then return the value of boostReset, if appropriate, to allow the original method to process boosting if appropriate.
+                     */
+                    codes[boostIndex] = new CodeInstruction(OpCodes.Nop);
+                    codes[boostIndex + 2] = new CodeInstruction(OpCodes.Call, handleBoostMethod);
                 }
             }
 

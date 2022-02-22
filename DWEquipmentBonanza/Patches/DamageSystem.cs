@@ -11,13 +11,15 @@ using UnityEngine;
 namespace CombinedItems.Patches
 {
 	[HarmonyPatch(typeof(DamageSystem))]
-	internal class DamageSystem_CalculateDamage_Patch
+	internal class DamageSystemPatches
 	{
 		[HarmonyPostfix]
 		[HarmonyPatch(nameof(DamageSystem.CalculateDamage))]
-		public static float Postfix(float damage, DamageType type, GameObject target, GameObject dealer = null)
+		public static float PostCalculateDamage(float damage, DamageType type, GameObject target, GameObject dealer = null)
 		{
-			//Log.LogDebug($"DamageSystem_CalculateDamage_Patch.Postfix executing: parameters (damage = {damage}, DamageType = {type})");
+			TechType targetTT = target != null ? CraftData.GetTechType(target) : TechType.None;
+			TechType dealerTT = dealer != null ? CraftData.GetTechType(dealer) : TechType.None;
+			//Log.LogDebug($"DamageSystemPatches.PostCalculateDamage executing: parameters (damage = {damage}, DamageType = {type}, target = {targetTT.AsString()}, dealer = {dealerTT.AsString()}", null, true);
 
 			float baseDamage = damage;
 			float newDamage = damage;

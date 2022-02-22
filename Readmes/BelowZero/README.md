@@ -61,7 +61,7 @@ A mod for customising capacities of oxygen tanks. Also contains a mode harkening
 ## CustomiseYourStorage_BZ
 A mod for customising capacities of storage lockers, including modded lockers.
 ## FuelCells (requires CustomBatteries)
-Adds mid-game batteries, by default positioned somewhere between standard and ion batteries. Also enables Lithium Ion Batteries and Power Cells as minor upgrades to the standard cells, and code which can be used to change the capacities of vanilla batteries/power cells. (documentation to follow)
+Adds mid-game batteries, by default positioned somewhere between standard and ion batteries. Also enables Lithium Ion Batteries and Power Cells as minor upgrades to the standard cells.
 	Requires CustomBatteries.
 ## GravTrapBeacons
 Adds beacons to Grav Traps, and allows them to be seen from any distance.
@@ -73,6 +73,12 @@ Increases or decreases the time taken required to build objects with the Habitat
 A conversion of my mod Ingredients from Scanning; scanning fragments you already have the blueprint for will grant ingredients from that recipe.
 ## RecyclotronModSupport
 By default, the Recyclotron cannot be used to deconstruct certain items, mostly modded items, because the method CraftData.GetTechType fails to return a TechType for modded items. This mod re-implements the Recyclotron's GetIngredients method to get the TechType a different way, allowing some - not all - modded items to be recycled.
+## UnlockCustomisation
+Customise what blueprints unlock and when. Samples and help can be found in the config files.
+## Power Over Your Power
+Customise capacities of vanilla batteries. Could be used to customise mod batteries too, but this should only be done if they have no configuration themselves.
+## Unaggressive Flora
+Makes Spikey Traps ignore players. They may still target fauna, just not players.
 
 # Not-mine mods
 ## AutosortLockersSML

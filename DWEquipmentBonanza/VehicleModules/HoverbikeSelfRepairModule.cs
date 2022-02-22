@@ -42,7 +42,7 @@ namespace DWEquipmentBonanza.VehicleModules
                                                          // but it can still be instantiated. [unlike with SetActive(false)]
             }
 
-            gameObject.Set(GameObject.Instantiate(prefab));
+            gameObject.Set(prefab);
         }
 
         public HoverbikeSelfRepairModule() : base("HoverbikeSelfRepairModule", "Self-Repair Module", "Nanotech repair system passively repairs damage to Snowfox systems. Consumes energy while in use.")

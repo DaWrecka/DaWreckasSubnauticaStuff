@@ -42,7 +42,7 @@ namespace DWEquipmentBonanza.VehicleModules
                                                          // but it can still be instantiated. [unlike with SetActive(false)]
             }
 
-            gameObject.Set(GameObject.Instantiate(prefab));
+            gameObject.Set(prefab);
         }
 
         public HoverbikeWaterTravelModule() : base("HoverbikeWaterTravelModule", "Water Travel Module", "Increases the power of the Snowfox's hover pads, allowing travel over water in exchange for increased energy consumption.")

@@ -58,7 +58,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShowAltitude", "ShowAltitud
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpgradedBlades", "UpgradedBlades\UpgradedBlades.csproj", "{1E3A4636-DCA8-4BA2-803B-FBE4FB8A5054}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnaggressiveSpikePlants", "UnaggressiveSpikePlants\UnaggressiveSpikePlants.csproj", "{B031192B-D007-46C6-B600-C3DAAB9A72D8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnaggressiveFlora", "UnaggressiveFlora\UnaggressiveFlora.csproj", "{B031192B-D007-46C6-B600-C3DAAB9A72D8}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -261,8 +261,8 @@ Global
 		{1E3A4636-DCA8-4BA2-803B-FBE4FB8A5054}.Subnautica|Any CPU.Build.0 = Subnautica|Any CPU
 		{1E3A4636-DCA8-4BA2-803B-FBE4FB8A5054}.Subnautica|x64.ActiveCfg = Subnautica|Any CPU
 		{1E3A4636-DCA8-4BA2-803B-FBE4FB8A5054}.Subnautica|x64.Build.0 = Subnautica|Any CPU
-		{B031192B-D007-46C6-B600-C3DAAB9A72D8}.BelowZero|Any CPU.ActiveCfg = Subnautica|Any CPU
-		{B031192B-D007-46C6-B600-C3DAAB9A72D8}.BelowZero|Any CPU.Build.0 = Subnautica|Any CPU
+		{B031192B-D007-46C6-B600-C3DAAB9A72D8}.BelowZero|Any CPU.ActiveCfg = BelowZero|Any CPU
+		{B031192B-D007-46C6-B600-C3DAAB9A72D8}.BelowZero|Any CPU.Build.0 = BelowZero|Any CPU
 		{B031192B-D007-46C6-B600-C3DAAB9A72D8}.BelowZero|x64.ActiveCfg = Debug|Any CPU
 		{B031192B-D007-46C6-B600-C3DAAB9A72D8}.BelowZero|x64.Build.0 = Debug|Any CPU
 		{B031192B-D007-46C6-B600-C3DAAB9A72D8}.Subnautica|Any CPU.ActiveCfg = Subnautica|Any CPU

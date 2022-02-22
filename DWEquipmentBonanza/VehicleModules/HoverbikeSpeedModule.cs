@@ -45,7 +45,7 @@ namespace DWEquipmentBonanza.VehicleModules
                                                          // but it can still be instantiated. [unlike with SetActive(false)]
             }
 
-            gameObject.Set(GameObject.Instantiate(prefab));
+            gameObject.Set(prefab);
         }
 
         public HoverbikeSpeedModule() : base("HoverbikeSpeedModule", "Snowfox Speed Module", "Increases Snowfox speed, but also significantly increases power consumption. Does not stack.")

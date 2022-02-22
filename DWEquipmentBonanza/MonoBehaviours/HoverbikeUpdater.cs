@@ -13,7 +13,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		private Hoverbike parentHoverbike;
 		//private float defaultWaterDampening;
 		//private float defaultWaterOffset;
-		private static Dictionary<string, object> defaultValues = new Dictionary<string, object>();
+		private static Dictionary<string, float> defaultValues = new Dictionary<string, float>();
 		struct HoverbikeField
 		{
 			public string fieldName;
@@ -37,12 +37,26 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			new HoverbikeField(nameof(Hoverbike.waterLevelOffset), BindingFlags.Public),
 			new HoverbikeField(nameof(Hoverbike.topSpeed), BindingFlags.Public),
 			new HoverbikeField(nameof(Hoverbike.boostCooldown), BindingFlags.Public),
-			new HoverbikeField(nameof(Hoverbike.forwardBoostForce), BindingFlags.Public),
 			new HoverbikeField(nameof(Hoverbike.jumpCooldown), BindingFlags.Public),
 			new HoverbikeField(nameof(Hoverbike.sidewaysTorque), BindingFlags.Public),
-			new HoverbikeField(nameof(Hoverbike.boostCooldown), BindingFlags.Public)
+			new HoverbikeField(nameof(Hoverbike.timeBeforePowerDown), BindingFlags.Public),
+			new HoverbikeField(nameof(Hoverbike.animationInterpolationSpeed), BindingFlags.Public),
+			new HoverbikeField(nameof(Hoverbike.stabilitySpeed), BindingFlags.Public),
+			new HoverbikeField(nameof(Hoverbike.stability), BindingFlags.Public),
+			new HoverbikeField(nameof(Hoverbike.boyancy), BindingFlags.Public),
+			new HoverbikeField(nameof(Hoverbike.emptyVehicleHeight), BindingFlags.Public),
+			new HoverbikeField(nameof(Hoverbike.impactCompensatorHeight), BindingFlags.Public),
+			new HoverbikeField(nameof(Hoverbike.hoverForce), BindingFlags.Public),
+			new HoverbikeField(nameof(Hoverbike.verticalBoostForce), BindingFlags.Public),
+			new HoverbikeField(nameof(Hoverbike.jumpDecay), BindingFlags.Public),
+			new HoverbikeField(nameof(Hoverbike.gravity), BindingFlags.Public),
+			new HoverbikeField(nameof(Hoverbike.verticalDampening), BindingFlags.Public),
+			new HoverbikeField(nameof(Hoverbike.horizontalDampening), BindingFlags.Public),
+			new HoverbikeField(nameof(Hoverbike.constantForceDampening), BindingFlags.Public),
 		};
 
+		// An EfficiencyModifier is associated with a module by way of the dictionary;
+		// The TechType is added as key, and its EfficiencyModule dictates the modifer for that TechType
 		internal struct EfficiencyModifier
 		{
 			//public TechType techType;
@@ -103,10 +117,6 @@ namespace DWEquipmentBonanza.MonoBehaviours
 															  // Given that the hoverbike is going to be on the surface more often than not, depth is not exactly going to be a major factor, so this is mainly
 															  // based on the current light level.
 		internal const float fMaxSolarDepth = 2f;
-
-		private bool bHasTravelModule;
-		private bool bHasSelfRepair;
-		private bool bBikeOverWater;
 		private static TechType techTypeWaterTravel => Main.GetModTechType("HoverbikeWaterTravelModule");// Main.prefabHbWaterTravelModule.TechType;
 		private static TechType techTypeSolarCharger => Main.GetModTechType("HoverbikeSolarChargerModule");// Main.prefabHbSolarCharger.TechType;
 		private static TechType techTypeHullModule => Main.GetModTechType("HoverbikeStructuralIntegrityModule");// Main.prefabHbHullModule.TechType;
@@ -115,7 +125,32 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		private static TechType techTypeMobility => Main.GetModTechType("HoverbikeMobilityUpgrade");// Main.prefabHbMobility.TechType;
 		private static TechType techTypeRepair => Main.GetModTechType("HoverbikeSelfRepairModule");
 		private static TechType techTypeDurability => Main.GetModTechType("HoverbikeDurabilitySystem");
+		private static TechType techTypeBoostUpgrade => Main.GetModTechType("HoverbikeBoostUpgradeModule");
 
+		public bool bHasTravelModule { get; protected set; }
+		public bool bHasSelfRepair { get; protected set; }
+		public bool bBikeOverWater { get; protected set; }
+
+		// Operational values: Shield
+		public bool bHasShield { get; protected set; }
+		public float ShieldStrength { get; protected set; }
+		public float NextShieldRecharge { get; protected set; }
+		// Configurable values: Shield
+		public float MaxShieldStrength { get; protected set; }
+		public float ShieldRechargeDelay { get; protected set; }
+		public float ShieldChargeRate { get; protected set; }
+		public float ShieldEnergyConsumeRate { get; protected set; }
+
+		// Operational values: Upgraded boost
+		private const float defaultBoostDuration = 6f;
+		public bool bHasBoostUpgrade { get; protected set; }
+		public bool isBoosting { get; protected set; }
+		public bool isOverheated { get; protected set; }
+		public float thisBoostDuration { get; protected set; } // How long we have been boosting?
+		// Configurable values: Upgraded boost
+		public static float boostUpgradeDuration { get; protected set; } // Maximum sustained duration of upgraded boost
+		public static float cooldownRate { get; protected set; } // How fast we cool down normally
+		public static float cooldownRateOverheated { get; protected set; } // How fast we cool down following an overheat event
 
 		private void ApplyValues(DWConfig config, bool isEvent = false)
 		{
@@ -127,7 +162,31 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			moduleWaterDampening = config.SnowfoxWaterModuleDampening;
 			moduleWaterOffset = config.SnowfoxWaterModuleOffset;
 			fSolarChargeMultiplier = config.SnowfoxSolarMultiplier;
-			//_capacity = config.SnowfoxSIFStrength;
+			boostUpgradeDuration = config.SnowfoxBoostDuration;
+			cooldownRate = config.SnowfoxCooldownRatePct * 0.01f; // The config value is expressed as a value between 0.5 and 200, where 200 means 2x rate, so we multiply by 0.01 to get a usable value.
+			cooldownRateOverheated = config.SnowfoxCooldownRateOverheatPct * 0.01f;
+			MaxShieldStrength = (config.SnowfoxMaxShield != 0 ? config.SnowfoxMaxShield : 1f); // Make sure MaxShieldStrength is not zero
+			ShieldRechargeDelay = config.SnowfoxShieldRechargeDelay;
+			ShieldChargeRate = config.SnowfoxShieldRechargeRate * 0.01f;
+			ShieldEnergyConsumeRate = config.SnowfoxShieldEnergyRate * 0.01f;
+		}
+
+		// Absorb incoming damage, returning any damage left over after the shield is depleted.
+		// Current implementation allows the shield to absorb any amount of damage, so long as it is not fully depleted.
+		internal float ShieldAbsorb(float incomingDamage)
+		{
+			if (!bHasShield)
+				return incomingDamage;
+
+			if (ShieldStrength > 0f && incomingDamage > 0f)
+			{
+				NextShieldRecharge = Time.time + ShieldRechargeDelay;
+				float absorbedDamage = Mathf.Min(ShieldStrength, incomingDamage);
+				ShieldStrength -= absorbedDamage;
+				incomingDamage = 0f;
+			}
+
+			return incomingDamage;
 		}
 
 		internal static bool AddEfficiencyMultiplier(TechType module, float multiplier, int priority = 1, int maxUpgrades = 1, bool bUpdateIfPresent = false)
@@ -174,9 +233,25 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			return true;
 		}
 
+		public void Start()
+		{
+			//DevConsole.RegisterConsoleCommand(this, "hoverbikeparams", false, false);
+		}
+
+		/*private void OnConsoleCommand_hoverbikeparams(NotificationCenter.Notification n)
+		{
+			if (n != null && n.data != null)
+			{
+				if (n.data.Count < 1)
+				{
+					ErrorMessage.AddMessage("Usage: hoverbikeparams <mass multiplier> <forward acceleration multiplier> <boost force multiplier>")
+				}
+			}
+		}*/
+
 		internal bool TryGetDefaultFloat(string name, out float value)
 		{
-			if (defaultValues.TryGetValue(name, out object obj))
+			if (defaultValues.TryGetValue(name, out float obj))
 			{
 				value = (float)obj;
 				return true;
@@ -189,6 +264,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		public virtual void Initialise(ref Hoverbike vehicle, DWConfig config = null)
 		{
 			parentHoverbike = vehicle;
+			boostUpgradeDuration = defaultBoostDuration;
 			//defaultWaterDampening = vehicle.waterDampening;
 			//defaultWaterOffset = vehicle.waterLevelOffset;
 			foreach (HoverbikeField hoverbikeField in hoverbikeFields)
@@ -239,6 +315,21 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				{
 					Log.LogError($"Could not get LiveMixin for Hoverbike object");
 					return;
+				}
+
+				// We're going to do something a little off-spec here... We're going to replace the main bike's BoxCollider with a CapsuleCollider.
+				// Finding it is a little tricky, but not massively-so.
+				// Hoverbike has four BoxColliders; two of them have parents named Collider. Only one of them has a grandparent named Collision.
+				foreach (var box in parentHoverbike.gameObject.GetComponentsInChildren<BoxCollider>())
+				{
+					//Console.WriteLine(box.gameObject.transform.parent.name);
+					if (box.gameObject.transform.parent.name == "Collision")
+					{
+						box.enabled = false;
+						var capsule = box.gameObject.EnsureComponent<CapsuleCollider>();
+						capsule.enabled = true;
+						break;
+					}
 				}
 			}
 		}
@@ -305,7 +396,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				float depthMultiplier = Mathf.Clamp01((fMaxSolarDepth + parentHoverbike.transform.position.y) / fMaxSolarDepth);
 				float lightScalar = dayNightCycle.GetLocalLightScalar();
 
-				Log.LogDebug($"Charging Hoverbike battery with depthMultiplier of {depthMultiplier}, lightScalar = {lightScalar}, fSolarChargeMultiplier = {fSolarChargeMultiplier}, and deltaTime of {deltaTime}");
+				//Log.LogDebug($"Charging Hoverbike battery with depthMultiplier of {depthMultiplier}, lightScalar = {lightScalar}, fSolarChargeMultiplier = {fSolarChargeMultiplier}, and deltaTime of {deltaTime}");
 				parentHoverbike.energyMixin.AddEnergy(deltaTime * fSolarChargeMultiplier * depthMultiplier * lightScalar);
 			}
 
@@ -328,6 +419,16 @@ namespace DWEquipmentBonanza.MonoBehaviours
 					Initialise(ref instance);
 				else
 					return;
+			}
+
+			if (bHasShield && NextShieldRecharge < Time.time)
+			{
+				float rechargeAmount = Mathf.Min(MaxShieldStrength - ShieldStrength, Time.deltaTime * ShieldChargeRate * MaxShieldStrength);
+				float energyConsume = rechargeAmount * ShieldEnergyConsumeRate;
+				if (rechargeAmount > 0f && parentHoverbike.energyMixin.ConsumeEnergy(energyConsume))
+				{
+					ShieldStrength += rechargeAmount;
+				}
 			}
 
 			if (parentHoverbike.GetPilotingCraft() && bBikeOverWater)
@@ -387,6 +488,10 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			{
 				CheckSelfRepair();
 				CheckStructuralIntegrity();
+			}
+			else if (techType == techTypeBoostUpgrade)
+			{
+				this.bHasBoostUpgrade = parentHoverbike.modules.GetCount(techTypeBoostUpgrade) > 0;
 			}
 
 			if (TryGetDefaultFloat("enginePowerConsumption", out float defaultPowerConsumption))
@@ -466,7 +571,14 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		protected virtual void CheckStructuralIntegrity()
 		{
-			parentHoverbike.gameObject.EnsureComponent<HoverbikeStructuralIntegrityModifier>().SetActive((parentHoverbike.modules.GetCount(techTypeHullModule) + parentHoverbike.modules.GetCount(techTypeDurability)) > 0);
+			bool bStructuralIntegrityActive = (parentHoverbike.modules.GetCount(techTypeHullModule) + parentHoverbike.modules.GetCount(techTypeDurability)) > 0;
+			parentHoverbike.gameObject.EnsureComponent<HoverbikeStructuralIntegrityModifier>().SetActive(bStructuralIntegrityActive);
+			var ddoi = parentHoverbike.gameObject.GetComponent<DealDamageOnImpact>();
+			if (ddoi != null)
+			{
+				ddoi.mirroredSelfDamageFraction = (bStructuralIntegrityActive ? 0.1f : 1f);
+			}
+			bHasShield = parentHoverbike.modules.GetCount(techTypeDurability) > 0;
 		}
 
 		protected virtual void CheckSelfRepair()
@@ -539,6 +651,98 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 			return HasTravelModule();
 		}
+
+		private static float upgradedBoostMultiplier = 0.5f; // If upgraded boost is active, the boost force is set to the normal boost force multiplied by this value.
+
+		public bool HandleBoost(Hoverbike hoverbike, bool bRequestBoost)
+		{
+			float deltaTime = Time.deltaTime;
+
+			if (parentHoverbike == null && hoverbike != null)
+				Initialise(ref hoverbike);
+
+			if (bHasBoostUpgrade)
+			{
+				if (bRequestBoost && !isOverheated)
+				{
+					if (!isBoosting)
+					{
+						isBoosting = true;
+						hoverbike.boostFxControl.Play();
+						hoverbike.sfx_boost.Play();
+						hoverbike.SetBoostButtonState(false);
+						Player.main.playerAnimator.SetTrigger("hovercraft_button_3");
+					}
+
+					thisBoostDuration = Mathf.MoveTowards(thisBoostDuration, boostUpgradeDuration, deltaTime);
+					if (thisBoostDuration >= boostUpgradeDuration)
+					{
+						isOverheated = true;
+						hoverbike.boostReset = false;
+					}
+					else
+					{
+						hoverbike.boostFuel = defaultValues.GetOrDefault("forwardBoostForce", 28600f) * upgradedBoostMultiplier;
+					}
+				}
+				else
+				{
+					isBoosting = false;
+					thisBoostDuration = Mathf.MoveTowards(thisBoostDuration, 0f, deltaTime * (isOverheated ? cooldownRateOverheated : cooldownRate));
+					if (thisBoostDuration <= 0f)
+					{
+						isOverheated = false;
+						hoverbike.boostReset = true;
+					}
+					if (!isOverheated)
+						hoverbike.boostReset = true;
+				}
+			}
+			else
+			{
+				// We don't really need to do anything here... Our method's call replaces the point where the vanilla code checks the value of boostReset, so we can return that and there we go.
+				// In essence, at this point we want our method to return the result of "Should the normal boost happen?"
+				return bRequestBoost && hoverbike.boostReset;
+			}
+
+			return false;
+		}
+
+		// TODO: Figure out how to make the bar flash at "danger" levels.
+		// "danger" levels in this case would be about 25% shield strength, 80% of maximum boost duration - or at any percentage if the boost is overheated.
+		// This could be done by altering the alpha of the colour as a function of time; the problem I have is figuring out the algorithm.
+		public bool HUDUpdate(HoverbikeHUD hud)
+		{
+			if (!hud.hudActive)
+				return false;
+
+			if (bHasShield)
+			{
+				float shieldPct = Mathf.Clamp01(ShieldStrength / MaxShieldStrength);
+				hud.speedBar.fillAmount = shieldPct;
+			}
+			else
+				hud.speedBar.fillAmount = Mathf.Clamp(Mathf.Abs(hud.hoverbike.rb.velocity.magnitude), 0.0f, hud.hoverbike.topSpeed) / hud.hoverbike.topSpeed;
+
+			if (bHasBoostUpgrade)
+			{
+				float boostPct = thisBoostDuration / boostUpgradeDuration;
+				float boostColour = isOverheated ? 0f : 1 - boostPct;
+				hud.boostBar.fillAmount = Mathf.Clamp(boostPct, 0f, 1f);
+				hud.boostBar.color = new Color(1f, boostColour, boostColour);
+			}
+			else
+			{
+				if (hud.boostBar.fillAmount < hud.boostGoValue)
+					hud.boostBar.fillAmount = Mathf.Lerp(hud.boostBar.fillAmount, 1f, Time.deltaTime * 15f);
+				if (hud.boostBar.fillAmount > hud.boostGoValue)
+					hud.boostBar.fillAmount = Mathf.Lerp(hud.boostBar.fillAmount, 0.0f, Time.deltaTime);
+			}
+
+			return false;
+		}
+
+
 	}
 #endif
 }

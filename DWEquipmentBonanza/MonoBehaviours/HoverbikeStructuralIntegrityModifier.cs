@@ -68,11 +68,20 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
         public override float ModifyDamage(float damage, DamageType type)
         {
-            ErrorMessage.AddMessage($"HoverbikeStructuralIntegrityModifier modifying damage");
-            float modifiedDamage = damage;
+            HoverbikeUpdater updater = gameObject.GetComponent<HoverbikeUpdater>();
+            if (updater == null)
+                return damage;
+
+            ErrorMessage.AddMessage($"HoverbikeStructuralIntegrityModifier modifying damage; damage amount {damage}, type {type.ToString()}");
+            float modifiedDamage = damage * multiplier;
             if (bActive)
             {
-                parentEnergy ??= GetComponentInParent<EnergyMixin>();
+                modifiedDamage = updater.ShieldAbsorb(damage);
+                if (updater.bHasShield)
+                    return modifiedDamage;
+
+                // So at this point we know the Hoverbike has a Structural Integrity Field and not a Durability Upgrade.
+                EnergyMixin parentEnergy = GetComponentInParent<EnergyMixin>();
 
                 if (parentEnergy == null)
                 {

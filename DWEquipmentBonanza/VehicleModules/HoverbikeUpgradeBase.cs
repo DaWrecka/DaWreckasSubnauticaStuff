@@ -1,7 +1,10 @@
 ﻿using SMLHelper.V2.Assets;
+using SMLHelper.V2.Utility;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -24,17 +27,15 @@ namespace DWEquipmentBonanza.VehicleModules
         public override string[] StepsToFabricatorTab => new string[] { "Upgrades", "HoverbikeUpgrades" };
         public override Vector2int SizeInInventory => new Vector2int(1, 1);
 
-        /*internal abstract void PreUpdate(Hoverbike instance);
-        internal abstract void Update(Hoverbike instance);
-        internal abstract void PostUpdate(Hoverbike instance);
-
-        internal abstract void PostUpgradeModuleChange(Hoverbike instance);*/
-
         protected override Sprite GetItemSprite()
         {
-            if (sprite == null || sprite == SpriteManager.defaultSprite)
+            try
             {
-                sprite = SpriteManager.Get(spriteTemplate);
+                sprite ??= ImageUtils.LoadSpriteFromFile($"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/Assets/{ClassID}Icon.png") ?? SpriteManager.Get(spriteTemplate, null);
+            }
+            catch
+            {
+                sprite ??= SpriteManager.Get(spriteTemplate, null);
             }
 
             return sprite;
@@ -43,6 +44,10 @@ namespace DWEquipmentBonanza.VehicleModules
 
         public HoverbikeUpgradeBase(string classID, string Title, string Description) : base(classID, Title, Description)
         {
+            OnFinishedPatching += () =>
+            {
+                Main.AddModTechType(this.TechType);
+            };
         }
     }
 #endif

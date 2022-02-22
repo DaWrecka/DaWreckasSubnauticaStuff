@@ -48,7 +48,7 @@ A mod for customising capacities of oxygen tanks. Also contains a mode harkening
 ## CustomiseYourStorage
 A mod for customising capacities of storage lockers, including modded lockers.
 ## FuelCells (requires CustomBatteries)
-Adds mid-game batteries, by default positioned somewhere between standard and ion batteries. Also enables Lithium Ion Batteries and Power Cells as minor upgrades to the standard cells, and code which can be used to change the capacities of vanilla batteries/power cells. (documentation to follow)
+Adds mid-game batteries, by default positioned somewhere between standard and ion batteries. Also enables Lithium Ion Batteries and Power Cells as minor upgrades to the standard cells.
 	Requires CustomBatteries.
 ## GravTrapBeacons
 Adds beacons to Grav Traps, and allows them to be seen from any distance.
@@ -59,5 +59,9 @@ Increases or decreases the time taken required to build objects with the Habitat
 A conversion of my mod Ingredients from Scanning; scanning fragments you already have the blueprint for will grant ingredients from that recipe.
 ## TrueSolarPowerCells
 Changes the solar power cells in the Escape Pod so that they actually charge from the sun, at a comparable rate to a craftable solar panel.
-## Unaggressive Spike Plants
-Makes Spike Plants ignore players. They may still 
+## UnlockCustomisation
+Customise what blueprints unlock and when. Samples and help can be found in the config files.
+## Power Over Your Power
+Customise capacities of vanilla batteries. Could be used to customise mod batteries too, but this should only be done if they have no configuration themselves.
+## Unaggressive Flora
+Makes Spike Plants ignore players. They may still target fauna, just not players.

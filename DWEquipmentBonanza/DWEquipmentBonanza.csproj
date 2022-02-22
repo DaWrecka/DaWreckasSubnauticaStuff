@@ -57,6 +57,7 @@
     <Compile Include="Patches\Drillable.cs" />
     <Compile Include="Patches\ExosuitClawArm.cs" />
     <Compile Include="Patches\Hoverbike.cs" />
+    <Compile Include="Patches\HoverbikeHUD.cs" />
     <Compile Include="Patches\Hoverpad.cs" />
     <Compile Include="Patches\Inventory.cs" />
     <Compile Include="Patches\MeleeAttackPatches.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="Spawnables\ShadowLeviathanSample.cs" />
     <Compile Include="VehicleModules\ExosuitChargingModules.cs" />
     <Compile Include="VehicleModules\ExosuitLightningClawGeneratorModule.cs" />
+    <Compile Include="VehicleModules\HoverbikeBoostUpgradeModule.cs" />
     <Compile Include="VehicleModules\HoverbikeDurabilitySystem.cs" />
     <Compile Include="VehicleModules\HoverbikeSelfRepairModule.cs" />
     <Compile Include="VehicleModules\SeamothThermalModules.cs" />

@@ -107,8 +107,8 @@ namespace DWEquipmentBonanza
 	public class Main
 	{
 		internal static bool bVerboseLogging = true;
-		internal static bool bLogTranspilers = false;
-		internal const string version = "0.10.3.8";
+		internal static bool bLogTranspilers = true;
+		internal const string version = "0.10.4.0";
 #if SUBNAUTICA_STABLE
 		public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
 #endif
@@ -475,6 +475,7 @@ namespace DWEquipmentBonanza
 				new Blueprint_LightColdToUltimateHelmet(),
 				new SeaTruckUpgradeHorsepower2(),
 				new SeaTruckUpgradeHorsepower3(),
+				new HoverbikeBoostUpgradeModule(),
 #endif
 				new DiverPerimeterDefenceChip_Broken(),
 				new DiverPerimeterDefenceChipItem(),

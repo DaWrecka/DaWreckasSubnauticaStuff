@@ -39,15 +39,11 @@ namespace DWEquipmentBonanza.VehicleModules
                                                          // but it can still be instantiated. [unlike with SetActive(false)]
             }
 
-            gameObject.Set(GameObject.Instantiate(prefab));
+            gameObject.Set(prefab);
         }
 
         public HoverbikeSolarChargerModule() : base("HoverbikeSolarChargerModule", "Snowfox Solar Charger", "Recharges the Snowfox's battery while in sunlight. Does not stack.")
         {
-            OnFinishedPatching += () =>
-            {
-                Main.AddModTechType(this.TechType);
-            };
         }
     }
 #endif

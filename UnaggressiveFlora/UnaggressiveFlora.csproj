@@ -9,8 +9,8 @@
     <ProjectGuid>{B031192B-D007-46C6-B600-C3DAAB9A72D8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UnaggressiveSpikePlants</RootNamespace>
-    <AssemblyName>UnaggressiveSpikePlants</AssemblyName>
+    <RootNamespace>UnaggressiveFlora</RootNamespace>
+    <AssemblyName>UnaggressiveFlora</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -31,6 +31,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="mod_BelowZero.json" />
     <None Include="mod_Subnautica.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
