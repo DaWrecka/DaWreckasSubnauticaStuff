@@ -670,7 +670,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 						isBoosting = true;
 						hoverbike.boostFxControl.Play();
 						hoverbike.sfx_boost.Play();
-						hoverbike.SetBoostButtonState(false);
+						//hoverbike.SetBoostButtonState(false);
 						Player.main.playerAnimator.SetTrigger("hovercraft_button_3");
 					}
 
@@ -687,6 +687,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				}
 				else
 				{
+					if(isBoosting && !isOverheated)
 					isBoosting = false;
 					thisBoostDuration = Mathf.MoveTowards(thisBoostDuration, 0f, deltaTime * (isOverheated ? cooldownRateOverheated : cooldownRate));
 					if (thisBoostDuration <= 0f)
@@ -711,15 +712,53 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		// TODO: Figure out how to make the bar flash at "danger" levels.
 		// "danger" levels in this case would be about 25% shield strength, 80% of maximum boost duration - or at any percentage if the boost is overheated.
 		// This could be done by altering the alpha of the colour as a function of time; the problem I have is figuring out the algorithm.
+		public static readonly AnimationCurve gradientBoostNormal = new AnimationCurve(
+			new Keyframe(0f, 1f),
+			new Keyframe(0.7f, 1f),
+			new Keyframe(0.72f, 0f),
+			new Keyframe(0.74f, 1f),
+			new Keyframe(0.76f, 0f),
+			new Keyframe(0.78f, 1f),
+			new Keyframe(0.8f, 0f),
+			new Keyframe(0.82f, 1f),
+			new Keyframe(0.84f, 0f),
+			new Keyframe(0.86f, 1f),
+			new Keyframe(0.88f, 0f),
+			new Keyframe(0.9f, 1f),
+			new Keyframe(0.92f, 0f),
+			new Keyframe(0.94f, 1f),
+			new Keyframe(0.96f, 0f),
+			new Keyframe(0.98f, 1f),
+			new Keyframe(1f, 0f)
+		);
+
+		public static readonly AnimationCurve gradientBoostOverheated = new AnimationCurve(
+			new Keyframe(0f, 0f),
+			new Keyframe(0.1f, 1f),
+			new Keyframe(0.2f, 0f),
+			new Keyframe(0.3f, 1f),
+			new Keyframe(0.4f, 0f),
+			new Keyframe(0.5f, 1f),
+			new Keyframe(0.6f, 0f),
+			new Keyframe(0.7f, 1f),
+			new Keyframe(0.8f, 0f),
+			new Keyframe(0.9f, 1f),
+			new Keyframe(1f, 0f)
+		);
+
+		private float hudTime;
+
 		public bool HUDUpdate(HoverbikeHUD hud)
 		{
 			if (!hud.hudActive)
 				return false;
 
+			hudTime = (hudTime + Time.deltaTime) % 1f;
 			if (bHasShield)
 			{
 				float shieldPct = Mathf.Clamp01(ShieldStrength / MaxShieldStrength);
 				hud.speedBar.fillAmount = shieldPct;
+				hud.speedBar.color = new Color(1f, 1f, 1f, (shieldPct < 0.4 ? gradientBoostOverheated.Evaluate(hudTime) : 1f));
 			}
 			else
 				hud.speedBar.fillAmount = Mathf.Clamp(Mathf.Abs(hud.hoverbike.rb.velocity.magnitude), 0.0f, hud.hoverbike.topSpeed) / hud.hoverbike.topSpeed;
@@ -729,7 +768,17 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				float boostPct = thisBoostDuration / boostUpgradeDuration;
 				float boostColour = isOverheated ? 0f : 1 - boostPct;
 				hud.boostBar.fillAmount = Mathf.Clamp(boostPct, 0f, 1f);
-				hud.boostBar.color = new Color(1f, boostColour, boostColour);
+				//hud.boostBar.color = new Color(1f, boostColour, boostColour);
+				if (isOverheated)
+				{
+					hud.boostBar.color = new Color(1f, 0f, 0f, gradientBoostOverheated.Evaluate(hudTime));
+					parentHoverbike.goButtonColor = Color.red;
+				}
+				else
+				{
+					hud.boostBar.color = new Color(1f, boostColour, boostColour, gradientBoostNormal.Evaluate(boostPct));
+					parentHoverbike.goButtonColor = hud.boostBar.color;
+				}
 			}
 			else
 			{
