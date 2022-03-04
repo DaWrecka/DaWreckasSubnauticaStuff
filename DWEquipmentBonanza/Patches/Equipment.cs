@@ -49,6 +49,14 @@ namespace DWEquipmentBonanza.Patches
 
         }
 
+        //[HarmonyPatch(nameof(Equipment.GetItemInSlot))]
+        //[HarmonyPrefix]
+        //public static void PreGetItemInSlot(Equipment __instance, string slot)
+        //{
+        //    System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+        //    Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slot}) executing");
+        //}
+
         [HarmonyPostfix]
         [HarmonyPatch(nameof(Equipment.GetCount))]
         public static void PostGetCount(ref Equipment __instance, ref int __result, TechType techType)

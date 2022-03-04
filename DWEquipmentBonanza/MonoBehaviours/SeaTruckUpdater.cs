@@ -25,6 +25,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		private const float SonarCooldown = 5f;
 		internal const float SonarDisableThreshold = 100f;
 		protected static TechType sonarModuleTechType => Main.GetModTechType("SeaTruckSonarModule");
+		protected static TechType quantumModuleType => Main.GetModTechType("SeaTruckQuantumLocker");
+		public int QuantumModuleSlot { get; protected set; } = -1;
 		//protected static int solarCount;
 		//protected static int thermalCount;
 
@@ -106,6 +108,68 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			}
 		}
 
+		protected override void OnEquipModule(string slot, InventoryItem item)
+		{
+			//MethodBase thisMethod = MethodBase.GetCurrentMethod();
+			//MethodBase callingMethod = new StackFrame(1).GetMethod();
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}({this.GetInstanceID()}).{thisMethod.Name}({slot}, item TechType: {item.item.GetTechType().AsString()}, item ID {item.item.GetInstanceID()}) executing, invoked by: '{callingMethod.ReflectedType.Name}.{callingMethod.Name}'");
+
+			Pickupable pickup = item.item;
+			TechType moduleType = pickup.GetTechType();
+			//ErrorMessage.AddMessage($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}(): item TechType {moduleType.AsString()}");
+			if (moduleType == quantumModuleType)
+			{
+				VehicleQuantumLockerComponent componentQL = pickup.gameObject.GetComponent<VehicleQuantumLockerComponent>();
+				if (componentQL != null)
+					componentQL.ToggleQuantumStorage(false);
+			}
+			else if (ChargerWeights.TryGetValue(moduleType, out float weight))
+			{
+				//ErrorMessage.AddMessage($"Attempting to find VehicleCharger component");
+				VehicleCharger component = pickup.gameObject.GetComponent<VehicleCharger>();
+				if (component != null && activeChargers.Add(component))
+				{
+					// HashSet.Add() will only return true if the component isn't already in the set, so we know this code will only run if this VehicleCharger is being newly-added.
+					if (activeChargers.Count == 1) // This will only invoke if this is the first charger added; this prevents the timer from running multiple times consecutively
+						base.InvokeRepeating("UpdateRecharge", InvokeInterval, InvokeInterval);
+					chargerWeightCumulative += weight;
+					//ErrorMessage.AddMessage($"Adding {moduleType.AsString()} to active chargers list");
+					component.Init(parentVehicle);
+				}
+			}
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
+		}
+
+		protected override void OnUnequipModule(string slot, InventoryItem item)
+		{
+			string memberName = new StackFrame(1)?.GetMethod().Name;
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}({this.GetInstanceID()}).{thisMethod.Name}({slot}, item TechType: {item.item.GetTechType().AsString()}, item ID {item.item.GetInstanceID()}) base executing, invoked by: '{memberName}'");
+			Pickupable pickup = item.item;
+
+			TechType moduleType = pickup.GetTechType();
+			//ErrorMessage.AddMessage($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slot}, {item.item.name}): item TechType {moduleType.AsString()}");
+			if (moduleType == quantumModuleType)
+			{
+				VehicleQuantumLockerComponent componentQL = pickup.gameObject.GetComponent<VehicleQuantumLockerComponent>();
+				if (componentQL != null)
+					componentQL.ToggleQuantumStorage(false);
+			}
+			else if (ChargerWeights.TryGetValue(moduleType, out float weight))
+			{
+				chargerWeightCumulative -= weight;
+				//ErrorMessage.AddMessage($"Attempting to find VehicleCharger component");
+				VehicleCharger component = pickup.gameObject.GetComponent<VehicleCharger>();
+				if (component != null && activeChargers.Contains(component))
+				{
+					//ErrorMessage.AddMessage($"Removing {moduleType.AsString()} from active chargers list");
+					activeChargers.Remove(component);
+				}
+				if (activeChargers.Count < 1)
+					base.CancelInvoke("UpdateRecharge");
+			}
+			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slot}, {item.item.name}) end");
+		}
 		void ISerializationCallbackReceiver.OnAfterDeserialize()
 		{
 			CoroutineHost.StartCoroutine(OnAfterDeserializeCoroutine());
@@ -182,15 +246,15 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		protected override void OnSelect(int slotID) { }
 		internal override void PostNotifySelectSlot(MonoBehaviour instance, int slotID)
 		{
-			//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin; slotID = {slotID}, SeaTruckUpgrades.slotIDs.Length = {SeaTruckUpgrades.slotIDs.Length}");
 
 			if (parentVehicle == null)
 				return;
 
-			if (slotID >= SeaTruckUpgrades.slotIDs.Length)
+			if (slotID < 0 || slotID >= SeaTruckUpgrades.slotIDs.Length)
 			{
-				//Log.LogDebug("SeatruckUpdate.OnSelect() invoked with slotID outside the bounds of the slotIDs array");
+				Log.LogDebug("SeatruckUpdater.PostNotifySelectSlot() invoked with slotID outside the bounds of the slotIDs array");
 				return;
 			}
 
@@ -228,7 +292,26 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			if (parentVehicle == null)
 				return;
 
-			if (techType == sonarModuleTechType)
+			if (techType == quantumModuleType)
+			{
+				QuantumModuleSlot = (added ? slotID : -1);
+				string slot = SeaTruckUpgrades.slotIDs[slotID];
+				VehicleQuantumLockerComponent vQL = null;
+				try
+				{
+					InventoryItem item = (parentVehicle as SeaTruckUpgrades)?.modules.GetItemInSlot(slot);
+					vQL = item.item.gameObject.GetComponent<VehicleQuantumLockerComponent>();
+				}
+				catch (NullReferenceException nre)
+				{
+					Log.LogError(nre.ToString());
+				}
+				if (vQL != null)
+				{
+					vQL.ToggleQuantumStorage(added);
+				}
+			}
+			else if (techType == sonarModuleTechType)
 			{
 				sonarSlotID = (added ? slotID : -1);
 			}
@@ -271,6 +354,15 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				{
 					base.CancelInvoke("UpdateSonar");
 				}
+			}
+			else if (tt == quantumModuleType)
+			{
+				var playerTransform = Player.main.gameObject?.transform;
+				var QuantumStorage = QuantumLockerStorage.GetStorageContainer(false);
+				if (playerTransform != null && QuantumStorage != null)
+					QuantumStorage.Open(playerTransform);
+				else
+					Log.LogError("Couldn't open Seatruck Quantum Storage" + (playerTransform == null ? "; playerTransform is null" : "") + (QuantumStorage == null ? "; QuantumStorage is null" : ""), null, true);
 			}
 		}
 

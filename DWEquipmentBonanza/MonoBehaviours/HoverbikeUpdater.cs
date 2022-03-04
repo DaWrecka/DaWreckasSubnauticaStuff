@@ -126,10 +126,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		private static TechType techTypeRepair => Main.GetModTechType("HoverbikeSelfRepairModule");
 		private static TechType techTypeDurability => Main.GetModTechType("HoverbikeDurabilitySystem");
 		private static TechType techTypeBoostUpgrade => Main.GetModTechType("HoverbikeBoostUpgradeModule");
+		private static TechType techTypeQuantumLocker => Main.GetModTechType("HoverbikeQuantumLocker");
 
 		public bool bHasTravelModule { get; protected set; }
 		public bool bHasSelfRepair { get; protected set; }
 		public bool bBikeOverWater { get; protected set; }
+		public bool bConfigCoroutineState { get; protected set; }
 
 		// Operational values: Shield
 		public bool bHasShield { get; protected set; }
@@ -152,6 +154,11 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		public static float cooldownRate { get; protected set; } // How fast we cool down normally
 		public static float cooldownRateOverheated { get; protected set; } // How fast we cool down following an overheat event
 
+		// Operational and configurable values: Snowfox Quantum Locker
+		public KeyCode activationKey { get; protected set; }
+		public bool bHasQuantumLocker { get; protected set; }
+		private bool bLastHotkeyState = false; 
+
 		private void ApplyValues(DWConfig config, bool isEvent = false)
 		{
 			//if(isEvent)
@@ -169,16 +176,32 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			ShieldRechargeDelay = config.SnowfoxShieldRechargeDelay;
 			ShieldChargeRate = config.SnowfoxShieldRechargeRate * 0.01f;
 			ShieldEnergyConsumeRate = config.SnowfoxShieldEnergyRate * 0.01f;
+			activationKey = config.SnowfoxQuantumTrigger;
+			UWE.CoroutineHost.StartCoroutine(ApplyValuesCoroutine(config, isEvent));
+		}
+
+		private IEnumerator ApplyValuesCoroutine(DWConfig config, bool isEvent)
+		{
+			if (bConfigCoroutineState)
+				yield break;
+
+			bConfigCoroutineState = true;
+			while (parentHoverbike == null)
+			{
+				parentHoverbike = gameObject?.GetComponent<Hoverbike>();
+				yield return new WaitForEndOfFrame();
+			}
+
+			if(parentHoverbike?.gameObject != null && parentHoverbike.gameObject.TryGetComponent<DealDamageOnImpact>(out DealDamageOnImpact ddoi))
+				ddoi.damageBases = config.bSnowfoxDamageBases;
+			bConfigCoroutineState = false;
 		}
 
 		// Absorb incoming damage, returning any damage left over after the shield is depleted.
 		// Current implementation allows the shield to absorb any amount of damage, so long as it is not fully depleted.
 		internal float ShieldAbsorb(float incomingDamage)
 		{
-			if (!bHasShield)
-				return incomingDamage;
-
-			if (ShieldStrength > 0f && incomingDamage > 0f)
+			if (bHasShield && ShieldStrength > 0f && incomingDamage > 0f)
 			{
 				NextShieldRecharge = Time.time + ShieldRechargeDelay;
 				float absorbedDamage = Mathf.Min(ShieldStrength, incomingDamage);
@@ -371,6 +394,25 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		internal virtual void PostUpdate(Hoverbike instance = null)
 		{
+			if (bHasQuantumLocker && parentHoverbike != null && parentHoverbike.isPiloting)
+			{
+				bool hotkeyState = Input.GetKeyDown(activationKey);
+				if (!bLastHotkeyState)
+				{
+					if (hotkeyState)
+					{
+						if (bHasQuantumLocker)
+						{
+							var playerTransform = Player.main.gameObject?.transform;
+							var QuantumStorage = QuantumLockerStorage.GetStorageContainer(false);
+							if (playerTransform != null && QuantumStorage != null)
+								QuantumStorage.Open(playerTransform);
+						}
+					}
+				}
+
+				bLastHotkeyState = hotkeyState;
+			}
 		}
 
 		internal virtual void PreUpdateEnergy(Hoverbike instance = null)
@@ -493,6 +535,25 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			{
 				this.bHasBoostUpgrade = parentHoverbike.modules.GetCount(techTypeBoostUpgrade) > 0;
 			}
+			else if (techType == techTypeQuantumLocker)
+			{
+				string slot = SeaTruckUpgrades.slotIDs[slotID];
+				VehicleQuantumLockerComponent vQL = null;
+				try
+				{
+					InventoryItem item = parentHoverbike?.modules.GetItemInSlot(slot);
+					vQL = item.item.gameObject.GetComponent<VehicleQuantumLockerComponent>();
+				}
+				catch
+				{
+
+				}
+				if (vQL != null)
+				{
+					vQL.ToggleQuantumStorage(added);
+				}
+				this.bHasQuantumLocker = parentHoverbike.modules.GetCount(techTypeQuantumLocker) > 0;
+			}
 
 			if (TryGetDefaultFloat("enginePowerConsumption", out float defaultPowerConsumption))
 			{
@@ -573,8 +634,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		{
 			bool bStructuralIntegrityActive = (parentHoverbike.modules.GetCount(techTypeHullModule) + parentHoverbike.modules.GetCount(techTypeDurability)) > 0;
 			parentHoverbike.gameObject.EnsureComponent<HoverbikeStructuralIntegrityModifier>().SetActive(bStructuralIntegrityActive);
-			var ddoi = parentHoverbike.gameObject.GetComponent<DealDamageOnImpact>();
-			if (ddoi != null)
+			if(parentHoverbike.gameObject.TryGetComponent<DealDamageOnImpact>(out DealDamageOnImpact ddoi))
 			{
 				ddoi.mirroredSelfDamageFraction = (bStructuralIntegrityActive ? 0.1f : 1f);
 			}
@@ -714,22 +774,47 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		// This could be done by altering the alpha of the colour as a function of time; the problem I have is figuring out the algorithm.
 		public static readonly AnimationCurve gradientBoostNormal = new AnimationCurve(
 			new Keyframe(0f, 1f),
+			new Keyframe(0.5f, 1f),
+			new Keyframe(0.52f, 0f),
+			new Keyframe(0.54f, 1f),
+			new Keyframe(0.56f, 0f),
+			new Keyframe(0.58f, 1f),
+			new Keyframe(0.6f, 0f),
+			new Keyframe(0.62f, 1f),
+			new Keyframe(0.64f, 0f),
+			new Keyframe(0.66f, 1f),
+			new Keyframe(0.68f, 0f),
 			new Keyframe(0.7f, 1f),
-			new Keyframe(0.72f, 0f),
+			new Keyframe(0.71f, 0f),
+			new Keyframe(0.72f, 1f),
+			new Keyframe(0.73f, 0f),
 			new Keyframe(0.74f, 1f),
-			new Keyframe(0.76f, 0f),
+			new Keyframe(0.75f, 0f),
+			new Keyframe(0.76f, 1f),
+			new Keyframe(0.77f, 0f),
 			new Keyframe(0.78f, 1f),
-			new Keyframe(0.8f, 0f),
+			new Keyframe(0.79f, 0f),
+			new Keyframe(0.8f, 1f),
+			new Keyframe(0.81f, 0f),
 			new Keyframe(0.82f, 1f),
-			new Keyframe(0.84f, 0f),
+			new Keyframe(0.83f, 0f),
+			new Keyframe(0.84f, 1f),
+			new Keyframe(0.85f, 0f),
 			new Keyframe(0.86f, 1f),
-			new Keyframe(0.88f, 0f),
+			new Keyframe(0.87f, 0f),
+			new Keyframe(0.88f, 1f),
+			new Keyframe(0.89f, 0f),
 			new Keyframe(0.9f, 1f),
-			new Keyframe(0.92f, 0f),
+			new Keyframe(0.91f, 0f),
+			new Keyframe(0.92f, 1f),
+			new Keyframe(0.93f, 0f),
 			new Keyframe(0.94f, 1f),
-			new Keyframe(0.96f, 0f),
+			new Keyframe(0.95f, 0f),
+			new Keyframe(0.96f, 1f),
+			new Keyframe(0.97f, 0f),
 			new Keyframe(0.98f, 1f),
-			new Keyframe(1f, 0f)
+			new Keyframe(0.99f, 0f),
+			new Keyframe(1f, 1f)
 		);
 
 		public static readonly AnimationCurve gradientBoostOverheated = new AnimationCurve(

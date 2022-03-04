@@ -1,15 +1,13 @@
 ﻿using Common;
-using System.Collections;
-using System.Collections.Generic;
+using DWEquipmentBonanza.MonoBehaviours;
+using DWEquipmentBonanza.Patches;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
-using SMLHelper.V2.Handlers;
-using UnityEngine;
-using Logger = QModManager.Utility.Logger;
-using DWEquipmentBonanza.MonoBehaviours;
 using SMLHelper.V2.Utility;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
-using DWEquipmentBonanza.Patches;
+using UnityEngine;
 
 namespace DWEquipmentBonanza.VehicleModules
 {
@@ -38,11 +36,26 @@ namespace DWEquipmentBonanza.VehicleModules
 
         protected override Sprite GetItemSprite()
         {
-            sprite ??= ImageUtils.LoadSpriteFromFile(Path.Combine(Main.AssetsFolder, $"{ClassID}.png")) ?? SpriteManager.Get(spriteTemplate, null);
+            try
+            {
+                sprite ??= ImageUtils.LoadSpriteFromFile(Path.Combine(Main.AssetsFolder, $"{ClassID}.png"));
+            }
+            catch
+            {
+                if (spriteTemplate != TechType.None)
+                    sprite ??= SpriteManager.Get(spriteTemplate, null);
+                else
+                    Log.LogError($"Could not find a file named {Path.Combine(Main.AssetsFolder, $"{ClassID}.png")} and no spriteTemplate was set");
+            }
+
             return sprite;
         }
 
-        protected abstract GameObject ModifyPrefab(GameObject prefab);
+        protected virtual GameObject ModifyPrefab(GameObject prefab)
+        {
+            ModPrefabCache.AddPrefab(prefab, false);
+            return prefab;
+        }
 
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
@@ -54,12 +67,12 @@ namespace DWEquipmentBonanza.VehicleModules
 
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTemplate, true);
                 yield return task;
+
                 prefab = ModifyPrefab(GameObject.Instantiate(task.GetResult()));
 
                 prefab.name = ClassID;
                 //prefab.EnsureComponent<VehicleRepairComponent>();
                 // The code is handled by the SeatruckUpdater component, rather than anything here.
-                //ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
                 // but it can still be instantiated. [unlike with SetActive(false)]
             }
 
@@ -106,8 +119,9 @@ namespace DWEquipmentBonanza.VehicleModules
 
         protected override GameObject ModifyPrefab(GameObject prefab)
         {
-            ModPrefabCache.AddPrefab(prefab, false);
-            return prefab; // This module doesn't need to modify the prefab at all
+            var newGO = GameObject.Instantiate(prefab);
+            ModPrefabCache.AddPrefab(newGO, false);
+            return newGO; // This module doesn't need to modify the prefab at all
         }
 
         protected override void OnFinishedPatch(TechType thisType)

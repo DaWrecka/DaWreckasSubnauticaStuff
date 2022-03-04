@@ -14,6 +14,7 @@ namespace DWEquipmentBonanza.VehicleModules
     {
         //private GameObject prefab;
         protected override TechType spriteTemplate => TechType.VehicleArmorPlating; // Placeholder
+        protected override TechType prefabTemplate => TechType.HoverbikeJumpModule;
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -31,7 +32,7 @@ namespace DWEquipmentBonanza.VehicleModules
             };
         }
 
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        /*public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             if (prefab == null)
             {
@@ -43,7 +44,7 @@ namespace DWEquipmentBonanza.VehicleModules
             }
 
             gameObject.Set(prefab);
-        }
+        }*/
 
         public HoverbikeSelfRepairModule() : base("HoverbikeSelfRepairModule", "Self-Repair Module", "Nanotech repair system passively repairs damage to Snowfox systems. Consumes energy while in use.")
         {

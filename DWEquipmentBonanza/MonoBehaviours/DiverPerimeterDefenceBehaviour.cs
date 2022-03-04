@@ -38,6 +38,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		protected Pickupable thisPickup;
 		protected bool bDestroyWhenEmpty;
 		protected int _maxDischarges;
+		protected GameObject MyGO;
 		protected virtual int MaxDischarges
 		{
 			get
@@ -98,19 +99,47 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		{
 			if (thisPickup == null && gameObject.TryGetComponent<Pickupable>(out Pickupable component))
 				thisPickup = component;
+			CoroutineHost.StartCoroutine(GetGameObjectAsync());
+		}
+
+		private IEnumerator GetGameObjectAsync()
+		{
+			while (MyGO == null)
+			{
+				try
+				{
+					MyGO = gameObject;
+				}
+				catch(Exception ex)
+				{
+					Log.LogError($"Exception while trying to retrieve GameObject:");
+					Log.LogError(ex.ToString());
+					yield break;
+				}
+				yield return new WaitForEndOfFrame();
+			}
 		}
 
 		public void OnBeforeSerialize()
 		{
 			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			if (gameObject == null)
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): begin");
+			try
 			{
-				Log.LogError($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}) gameObject is null!");
+				if (MyGO == null)
+				{
+					Log.LogError($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}) gameObject is null!");
+					return;
+				}
+			}
+			catch(Exception e)
+			{
+				Log.LogError($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): Exception in OnBeforeSerialize:");
+				Log.LogError(e.ToString());
 				return;
 			}
 
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): begin");
-			string moduleId = gameObject.GetComponent<PrefabIdentifier>()?.id;
+			string moduleId = MyGO.GetComponent<PrefabIdentifier>()?.id;
 			if (string.IsNullOrEmpty(moduleId))
 			{
 

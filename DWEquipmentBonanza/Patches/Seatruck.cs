@@ -101,6 +101,31 @@ namespace DWEquipmentBonanza.Patches
 			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
 		}
 
+		//[HarmonyPrefix]
+		//[HarmonyPatch("OnUpgradeModuleChange", new Type[] { typeof(int), typeof(TechType), typeof(bool) })]
+		//public static void PreUpgradeModuleChange(SeaTruckUpgrades __instance, int slotID, TechType techType, bool added)
+		//{
+		//	System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+		//	Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}, {techType.AsString()}) executing");
+
+		//	Log.LogDebug($"SeaTruckUpgrades.slotIDs: length = {SeaTruckUpgrades.slotIDs.Length}");
+		//	for (int i = 0; i < SeaTruckUpgrades.slotIDs.Length; i++)
+		//	{
+		//		Log.LogDebug($"SeaTruckUpgrades.slotIDs[{i}] = {SeaTruckUpgrades.slotIDs[i]}");
+		//		try
+		//		{
+		//			TechType techTypeInSlot = __instance.modules.GetTechTypeInSlot(SeaTruckUpgrades.slotIDs[i]);
+		//			Log.LogDebug($"    techTypeInSlot = {techTypeInSlot.AsString()}");
+		//		}
+		//		catch(Exception ex)
+		//		{
+		//			Log.LogDebug($"    Exception calling GetTechTypeInSlot:");
+		//			Log.LogDebug(ex.ToString());
+		//		}
+		//	}
+		//	//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}, {techType.AsString()}) done");
+		//}
+
 		[HarmonyPostfix]
 		[HarmonyPatch("OnUpgradeModuleChange", new Type[] { typeof(int), typeof(TechType), typeof(bool) })]
 		public static void PostUpgradeModuleChange(SeaTruckUpgrades __instance, int slotID, TechType techType, bool added)
@@ -117,6 +142,7 @@ namespace DWEquipmentBonanza.Patches
 		{
 			//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
 			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}, {techType.AsString()}) executing");
+
 			__instance.gameObject.EnsureComponent<SeaTruckUpdater>()?.PostUpgradeModuleUse(__instance, techType, slotID);
 			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}, {techType.AsString()}) end");
 		}

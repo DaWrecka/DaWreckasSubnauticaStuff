@@ -45,6 +45,7 @@
     <Compile Include="MonoBehaviours\HoverpadUpdater.cs" />
     <Compile Include="MonoBehaviours\Powerglide.cs" />
     <Compile Include="MonoBehaviours\SeamothUpdater.cs" />
+    <Compile Include="MonoBehaviours\VehicleQuantumLockerComponent.cs" />
     <Compile Include="MonoBehaviours\SeaTruckUpdater.cs" />
     <Compile Include="MonoBehaviours\SurvivalsuitBehaviour.cs" />
     <Compile Include="MonoBehaviours\VehicleCharger.cs" />
@@ -79,8 +80,10 @@
     <Compile Include="VehicleModules\ExosuitLightningClawGeneratorModule.cs" />
     <Compile Include="VehicleModules\HoverbikeBoostUpgradeModule.cs" />
     <Compile Include="VehicleModules\HoverbikeDurabilitySystem.cs" />
+    <Compile Include="VehicleModules\HoverbikeQuantumLocker.cs" />
     <Compile Include="VehicleModules\HoverbikeSelfRepairModule.cs" />
     <Compile Include="VehicleModules\SeamothThermalModules.cs" />
+    <Compile Include="VehicleModules\SeaTruckQuantumLocker.cs" />
     <Compile Include="VehicleModules\VehicleRepairModule.cs" />
     <Compile Include="VehicleModules\SeatruckUnifiedModule.cs" />
     <Compile Include="VehicleModules\SeaTruckSonarModule.cs" />

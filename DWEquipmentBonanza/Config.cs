@@ -6,13 +6,14 @@ using SMLHelper.V2.Json;
 using SMLHelper.V2.Options;
 using SMLHelper.V2.Options.Attributes;
 using SMLHelper.V2.Handlers;
+using UnityEngine;
 
 #if SUBNAUTICA_STABLE
 	using Oculus.Newtonsoft.Json;
 	using Oculus.Newtonsoft.Json.Serialization;
 	using Oculus.Newtonsoft.Json.Converters;
 #elif BELOWZERO
-	using Newtonsoft.Json;
+using Newtonsoft.Json;
 	using Newtonsoft.Json.Serialization;
 	using Newtonsoft.Json.Converters;
 #endif
@@ -61,6 +62,12 @@ namespace DWEquipmentBonanza
 		public float HeatbladeDamage = HEATBLADE_DAMAGE_DEFAULT;
 
 #if BELOWZERO
+		[Keybind("Snowfox Quantum Storage trigger key")]
+		public KeyCode SnowfoxQuantumTrigger = KeyCode.C;
+
+		[Toggle(Id = "SnowfoxDamageBasesToggle", Label = "Snowfox can damage bases", Tooltip = "If enabled, the Snowfox can damage bases if it touches them")]
+		public bool bSnowfoxDamageBases = false;
+
 		[Slider("Spikey Trap tentacle health", SPIKEY_TRAP_HEALTH_MIN, SPIKEY_TRAP_HEALTH_MAX, DefaultValue = SPIKEY_TRAP_HEALTH_DEFAULT, Id = "SpikeyTrapHealth",
 			Step = 1f,
 			Tooltip = "Amount of damage that must be inflicted on a tentacle to convince a Spikey Trap to let go (UWE default: 7)")]

@@ -20,6 +20,8 @@ namespace DWEquipmentBonanza.VehicleModules
 
         //private GameObject prefab;
         protected override TechType spriteTemplate => TechType.SeaTruckUpgradeAfterburner; // Placeholder
+        protected override TechType prefabTemplate => TechType.HoverbikeJumpModule;
+
         protected override RecipeData GetBlueprintRecipe()
         {
             return new RecipeData()
@@ -32,20 +34,6 @@ namespace DWEquipmentBonanza.VehicleModules
                     }
                 )
             };
-        }
-
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            if (prefab == null)
-            {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.HoverbikeJumpModule);
-                yield return task;
-                prefab = GameObject.Instantiate<GameObject>(task.GetResult());
-                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
-                                                         // but it can still be instantiated. [unlike with SetActive(false)]
-            }
-
-            gameObject.Set(prefab);
         }
 
         public HoverbikeSpeedModule() : base("HoverbikeSpeedModule", "Snowfox Speed Module", "Increases Snowfox speed, but also significantly increases power consumption. Does not stack.")

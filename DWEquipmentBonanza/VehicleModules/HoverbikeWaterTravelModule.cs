@@ -14,6 +14,7 @@ namespace DWEquipmentBonanza.VehicleModules
     {
         //private GameObject prefab;
         protected override TechType spriteTemplate => TechType.CyclopsHullModule3; // Placeholder
+        protected override TechType prefabTemplate => TechType.HoverbikeJumpModule;
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -29,20 +30,6 @@ namespace DWEquipmentBonanza.VehicleModules
                     }
                 )
             };
-        }
-
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            if (prefab == null)
-            {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.HoverbikeJumpModule);
-                yield return task;
-                prefab = GameObject.Instantiate<GameObject>(task.GetResult());
-                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
-                                                         // but it can still be instantiated. [unlike with SetActive(false)]
-            }
-
-            gameObject.Set(prefab);
         }
 
         public HoverbikeWaterTravelModule() : base("HoverbikeWaterTravelModule", "Water Travel Module", "Increases the power of the Snowfox's hover pads, allowing travel over water in exchange for increased energy consumption.")

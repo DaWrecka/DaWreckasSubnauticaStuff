@@ -16,6 +16,7 @@ namespace DWEquipmentBonanza.VehicleModules
         private const float efficiencyModifier = 0.65f;
         private const int maxUpgrades = 2;
         protected override TechType spriteTemplate => TechType.SeaTruckUpgradeEnergyEfficiency; // Placeholder
+        protected override TechType prefabTemplate => TechType.HoverbikeJumpModule;
 
         //private GameObject prefab;
 
@@ -31,20 +32,6 @@ namespace DWEquipmentBonanza.VehicleModules
                     }
                 )
             };
-        }
-
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            if (prefab == null)
-            {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.HoverbikeJumpModule);
-                yield return task;
-                prefab = GameObject.Instantiate<GameObject>(task.GetResult());
-                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
-                                                         // but it can still be instantiated. [unlike with SetActive(false)]
-            }
-
-            gameObject.Set(GameObject.Instantiate(prefab));
         }
 
         public HoverbikeEngineEfficiencyModule() : base("HoverbikeEngineEfficiencyModule", "Snowfox Engine Efficiency Module", "Optimises Snowfox power use, reducing battery consumption by 35%. Stacks up to twice.")

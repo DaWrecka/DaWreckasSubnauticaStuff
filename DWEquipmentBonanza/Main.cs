@@ -107,8 +107,8 @@ namespace DWEquipmentBonanza
 	public class Main
 	{
 		internal static bool bVerboseLogging = true;
-		internal static bool bLogTranspilers = true;
-		internal const string version = "0.10.4.0";
+		internal static bool bLogTranspilers = false;
+		internal const string version = "0.10.5.0";
 #if SUBNAUTICA_STABLE
 		public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
 #endif
@@ -364,7 +364,7 @@ namespace DWEquipmentBonanza
 
 #if SUBNAUTICA_STABLE
 			Log.LogDebug("Checking for Nitrogen mod");
-			bool bHasN2 = QModServices.Main.ModPresent("NitrogenMod");
+			bool bHasN2 = QModServices.Main.ModPresent("NitrogenMod") || QModServices.Main.ModPresent("DeathRun");
 			//string sStatus = "Nitrogen mod " + (bHasN2 ? "" : "not ") + "present";
 			Log.LogDebug("Nitrogen mod " + (bHasN2 ? "" : "not ") + "present");
 
@@ -476,6 +476,8 @@ namespace DWEquipmentBonanza
 				new SeaTruckUpgradeHorsepower2(),
 				new SeaTruckUpgradeHorsepower3(),
 				new HoverbikeBoostUpgradeModule(),
+				new SeaTruckQuantumLocker(),
+				new HoverbikeQuantumLocker(),
 #endif
 				new DiverPerimeterDefenceChip_Broken(),
 				new DiverPerimeterDefenceChipItem(),
@@ -499,21 +501,21 @@ namespace DWEquipmentBonanza
 
 
 #if SUBNAUTICA_STABLE
+			foreach (string sTechType in new List<string> { "reinforcedsuit2", "reinforcedsuit3", "rivereelscale", "lavalizardscale" })
+			{
+				if (SMLHelper.V2.Handlers.TechTypeHandler.TryGetModdedTechType(sTechType, out TechType tt))
+				{
+					NitrogenTechtypes.Add(sTechType, tt);
+					bHasN2 = true;
+				}
+				else
+				{
+					Log.LogDebug($"Load(): Could not find TechType for Nitrogen class ID {sTechType}");
+				}
+			}
 			if (bHasN2)
 			{
 				Log.LogDebug($"Main.Load(): Found NitrogenMod, adding Nitrogen prefabs");
-				foreach (string sTechType in new List<string> { "reinforcedsuit2", "reinforcedsuit3", "rivereelscale", "lavalizardscale" })
-				{
-					if (SMLHelper.V2.Handlers.TechTypeHandler.TryGetModdedTechType(sTechType, out TechType tt))
-					{
-						NitrogenTechtypes.Add(sTechType, tt);
-						bHasN2 = true;
-					}
-					else
-					{
-						Log.LogDebug($"Load(): Could not find TechType for Nitrogen class ID {sTechType}");
-					}
-				}
 				prefabs.Add(new NitrogenBrineSuit2());
 				prefabs.Add(new NitrogenBrineSuit3());
 				prefabs.Add(new Blueprint_ReinforcedMk2toBrineMk2());

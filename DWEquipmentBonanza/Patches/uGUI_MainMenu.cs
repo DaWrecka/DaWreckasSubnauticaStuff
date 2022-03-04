@@ -43,7 +43,7 @@ namespace DWEquipmentBonanza.Patches
 				TechType.DrillableUranium
 			};
 			var classIDs = new Dictionary<string, string>() // The keys in this dictionary are used only to allow the classID to be given some human-readable identifier.
-			// These two classIDs are special - Kyanite is the only drillable with two different prefabs
+			// These first two classIDs are special - Kyanite is the only drillable with two different prefabs
 			{
 				{ "DrillableKyanite", "4f441e53-7a9a-44dc-83a4-b1791dc88ffd" },
 				{ "DrillableKyanite_Large", "853a9c5b-aba3-4d6b-a547-34553aa73fa9" },
@@ -71,7 +71,7 @@ namespace DWEquipmentBonanza.Patches
 				string techType = kvp.Key;
 				if (WorldEntityDatabase.TryGetInfo(classid, out var worldEntityInfo))
 				{
-					Log.LogDebug($"PostMenuCoroutine(): Setting CellLevel to VeryFar for classID '{classid}'");
+					Log.LogDebug($"PostMenuCoroutine(): Setting WorldEntityDatabase CellLevel to VeryFar for classID '{classid}'");
 					worldEntityInfo.cellLevel = LargeWorldEntity.CellLevel.VeryFar;
 
 					WorldEntityDatabase.main.infos[classid] = worldEntityInfo;
@@ -132,7 +132,7 @@ namespace DWEquipmentBonanza.Patches
 					LiveMixin mixin = prefab.GetComponent<LiveMixin>();
 					if (mixin != null && mixin.data != null)
 					{
-						// This shouldn't happen, but sadly indications are to the contrary
+						// This shouldn't be necessary, but sadly indications are to the contrary
 						if (Main.defaultHealth.ContainsKey(tt))
 							Log.LogWarning($"PostMenuCoroutine(): Default health value already recorded for TechType {tt.AsString()}");
 						else
@@ -151,6 +151,32 @@ namespace DWEquipmentBonanza.Patches
 					Log.LogDebug($"PostMenuCoroutine(): Failed to get prefab for TechType {tt.AsString()}");
 				}
 			}
+
+#if BELOWZERO
+			// These are completely unrelated to DWEB at present, but are used for testing and, if successful, might be usable
+			foreach (KeyValuePair<string, string> kvp in new Dictionary<string, string>()
+			{
+				{ "WorldEntities/Environment/Aurora/Aurora_ExtinguishableFire_Small", "14bbf7f0-4276-48bf-868b-317b366edd16" },
+				{ "WorldEntities/Environment/Aurora/Aurora_ExtinguishableFire_Medium","3877d31d-37a5-4c94-8eef-881a500c58bc" },
+				{ "WorldEntities/Environment/Aurora/Aurora_ExtinguishableFire_Medium_Tall", "afe53ea1-d2a8-4f76-8ffb-d41ff6046b52" }
+			})
+			{
+				Log.LogDebug($"Trying known classID for prefab with SN1 path: '{kvp.Key}'");
+
+				string classid = kvp.Value;
+				IPrefabRequest request = PrefabDatabase.GetPrefabAsync(classid);
+				yield return request;
+
+				if (request.TryGetPrefab(out GameObject prefab))
+				{
+					Log.LogDebug($"    Successfully retrieved a prefab for the classID {classid}");
+				}
+				if (PrefabDatabase.TryGetPrefabFilename(classid, out string filename))
+				{
+					Log.LogDebug($"    Got a prefab filename of '{filename}' for the classID {classid}");
+				}
+			}
+#endif
 
 			yield break;
 		}

@@ -14,7 +14,8 @@ namespace DWEquipmentBonanza.VehicleModules
     {
         public override float CraftingTime => 10f;
         protected override TechType spriteTemplate => TechType.VehicleArmorPlating; // Placeholder
-                                                                                                
+        protected override TechType prefabTemplate => TechType.HoverbikeJumpModule;
+
         //private GameObject prefab;
 
         protected override RecipeData GetBlueprintRecipe()
@@ -31,18 +32,6 @@ namespace DWEquipmentBonanza.VehicleModules
                     }
                 )
             };
-        }
-
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            if (prefab == null)
-            {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.HoverbikeJumpModule);
-                yield return task;
-                prefab = GameObject.Instantiate<GameObject>(task.GetResult());
-            }
-
-            gameObject.Set(GameObject.Instantiate(prefab));
         }
 
         public HoverbikeDurabilitySystem() : base("HoverbikeDurabilitySystem", "Hoverbike Durability System", "Energy field reduces incoming damage, and nanotech repair system passively repairs damage to Snowfox systems. Consumes energy while in use.")

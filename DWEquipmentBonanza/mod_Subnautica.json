@@ -7,7 +7,7 @@
   },
   "Id": "DWEquipmentBonanza",
   "AssemblyName": "DWEquipmentBonanza.dll",
-  "Version": "0.10.3.7",
+  "Version": "0.10.5.0",
   "Enable": true,
   "NexusId": {},
   "Game": "Subnautica",
@@ -21,7 +21,7 @@
     "FuelCells",
     "MidGameBatteries",
     "NuclearBatteries",
-    "EasyCraft_BZ"
+    "EasyCraft"
   ],
   "VersionChecker": {
     "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/DWEquipmentBonanza/mod_Subnautica.json"

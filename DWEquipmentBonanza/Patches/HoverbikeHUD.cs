@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace DWEquipmentBonanza.Patches
 {
+#if BELOWZERO
     [HarmonyPatch(typeof(HoverbikeHUD))]
     public class HoverbikeHUDPatches
     {
@@ -24,6 +25,6 @@ namespace DWEquipmentBonanza.Patches
 
             return updater.HUDUpdate(__instance);
         }
-
     }
+#endif
 }

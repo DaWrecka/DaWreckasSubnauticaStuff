@@ -10,7 +10,7 @@ using Logger = QModManager.Utility.Logger;
 namespace DWEquipmentBonanza.VehicleModules
 {
 #if BELOWZERO
-    internal class SeaTruckSonarModule : Equipable
+    internal class SeaTruckSonarModule : SeaTruckUpgradeModule<SeaTruckSonarModule>
     {
         internal const float EnergyCost = 20f;
 
@@ -23,9 +23,14 @@ namespace DWEquipmentBonanza.VehicleModules
         public override string[] StepsToFabricatorTab => new string[] { "SeaTruckUpgrade" };
         public override float CraftingTime => 10f;
         public override Vector2int SizeInInventory => new Vector2int(1, 1);
+        protected override TechType prefabTemplate => TechType.SeaTruckUpgradeEnergyEfficiency;
+        protected override TechType spriteTemplate => TechType.SeamothSonarModule;
 
-        private static GameObject prefab;
-
+        protected override GameObject ModifyPrefab(GameObject prefab)
+        {
+            ModPrefabCache.AddPrefab(prefab, false);
+            return prefab;
+        }
         protected override RecipeData GetBlueprintRecipe()
         {
             return new RecipeData()
@@ -53,11 +58,6 @@ namespace DWEquipmentBonanza.VehicleModules
             }
 
             gameObject.Set(GameObject.Instantiate(prefab));
-        }
-
-        protected override Sprite GetItemSprite()
-        {
-            return SpriteManager.Get(TechType.SeamothSonarModule);
         }
 
         public SeaTruckSonarModule() : base("SeaTruckSonarModule", "SeaTruck Sonar Module", "A dedicated system for detecting and displaying topographical data on the HUD.")

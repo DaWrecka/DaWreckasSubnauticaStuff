@@ -60,6 +60,7 @@ namespace UnlockCustomisation
                     }
                     else
                     {
+                        Log.LogDebug($"Setting TechType {tt.AsString()} as unlocked at start");
                         UnlockStartTypes.Add(tt);
                         KnownTechHandler.UnlockOnStart(tt);
                     }
@@ -95,6 +96,7 @@ namespace UnlockCustomisation
                 else
                     SingleUnlockTypes.Add(key);
 
+                Log.LogDebug($"Setting TechType {key.AsString()} as unlocking with {value.AsString()}");
                 KnownTechHandler.SetAnalysisTechEntry(value, new HashSet<TechType>() { key });
             }
 
@@ -137,6 +139,14 @@ namespace UnlockCustomisation
                 }
                 else
                 {
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append($"Setting TechType {tt.AsString()} as CompoundTech with values:");
+                    foreach (TechType comp in compoundTechs)
+                    {
+                        sb.AppendLine($"\t{comp.AsString()}");
+                    }
+
+                    Log.LogDebug(sb.ToString());
                     Reflection.AddCompoundTech(tt, compoundTechs.ToList<TechType>());
                 }
             }

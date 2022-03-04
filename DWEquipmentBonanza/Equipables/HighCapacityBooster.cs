@@ -122,11 +122,10 @@ namespace DWEquipmentBonanza.Equipables
 
                 prefab = GameObject.Instantiate(task.GetResult());
                 ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
-                
+
                 //GameObject go = GameObject.Instantiate(prefab);
-                Oxygen highCapOxygen = Main.HighCapacityTankPrefab.GetComponent<Oxygen>();
                 //Oxygen highCapOxygen = task.GetResult().GetComponent<Oxygen>();
-                if (highCapOxygen != null)
+                if (Main.HighCapacityTankPrefab.TryGetComponent<Oxygen>(out Oxygen highCapOxygen))
                 {
                     oxy = prefab.EnsureComponent<Oxygen>();
                     if (oxy != null)
@@ -145,8 +144,9 @@ namespace DWEquipmentBonanza.Equipables
 
             }
 
-            oxy = prefab.GetComponent<Oxygen>();
-            float oxyCap = oxy != null ? oxy.oxygenCapacity : -1f;
+            float oxyCap = -1f;
+            if(prefab.TryGetComponent<Oxygen>(out oxy))
+                oxyCap = oxy.oxygenCapacity;
             Log.LogDebug($"GameObject created with oxygenCapacity of {oxyCap}");
 
             gameObject.Set(prefab);

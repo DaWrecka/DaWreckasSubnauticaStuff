@@ -94,7 +94,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
                 if (parentEnergy.ConsumeEnergy(energyConsumption))
                 {
                     Log.LogDebug($"Hoverbike received {damage} damage, reduced by {damageReduction} costing {energyConsumption} energy");
-                    modifiedDamage -= damageReduction;
+                    
                 }
             }
 

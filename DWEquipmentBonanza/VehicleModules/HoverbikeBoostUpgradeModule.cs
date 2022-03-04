@@ -14,6 +14,7 @@ namespace DWEquipmentBonanza.VehicleModules
     internal class HoverbikeBoostUpgradeModule : HoverbikeUpgradeBase<HoverbikeBoostUpgradeModule>
     {
         protected override TechType spriteTemplate => TechType.HoverbikeJumpModule;
+        protected override TechType prefabTemplate => TechType.HoverbikeJumpModule;
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -29,19 +30,6 @@ namespace DWEquipmentBonanza.VehicleModules
                     new Ingredient(TechType.Magnetite, 1)
                 }
             };
-        }
-
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            if (prefab == null)
-            {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.HoverbikeJumpModule);
-                yield return task;
-                prefab = GameObject.Instantiate<GameObject>(task.GetResult());
-                ModPrefabCache.AddPrefab(prefab, false);
-            }
-
-            gameObject.Set(prefab);
         }
 
         public HoverbikeBoostUpgradeModule() : base("HoverbikeBoostUpgradeModule", "Snowfox Boost Upgrade", "Reworks boost system, allowing for continuous boost. Be aware of overheating.")

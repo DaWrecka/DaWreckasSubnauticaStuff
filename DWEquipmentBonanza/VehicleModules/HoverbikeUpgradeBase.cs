@@ -26,6 +26,7 @@ namespace DWEquipmentBonanza.VehicleModules
         public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;
         public override string[] StepsToFabricatorTab => new string[] { "Upgrades", "HoverbikeUpgrades" };
         public override Vector2int SizeInInventory => new Vector2int(1, 1);
+        protected abstract TechType prefabTemplate { get; }
 
         protected override Sprite GetItemSprite()
         {
@@ -41,6 +42,22 @@ namespace DWEquipmentBonanza.VehicleModules
             return sprite;
         }
 
+        protected virtual GameObject ModifyPrefab(GameObject original)
+        {
+            return original;
+        }
+
+        public override System.Collections.IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+            if (prefabTemplate == TechType.None)
+                yield break;
+
+            CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTemplate);
+            yield return task;
+
+            prefab = ModifyPrefab(ModPrefabCache.AddPrefabCopy(task.GetResult()));
+            gameObject.Set(prefab);
+        }
 
         public HoverbikeUpgradeBase(string classID, string Title, string Description) : base(classID, Title, Description)
         {
