@@ -34,6 +34,7 @@
     <Compile Include="Patches\Battery.cs" />
     <Compile Include="Patches\Knife.cs" />
     <Compile Include="Patches\Pickupable.cs" />
+    <Compile Include="Patches\TechTypeExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Spawnables\CoralSample.cs" />
   </ItemGroup>

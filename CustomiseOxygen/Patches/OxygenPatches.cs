@@ -25,6 +25,9 @@ namespace CustomiseOxygen.Patches
 
         private void Awake()
         {
+            if (uGUI_MainMenuPatches.bProcessing)
+                return;
+
             if (this.techType == TechType.None)
                 this.techType = CraftData.GetTechType(base.gameObject);
 
@@ -40,7 +43,7 @@ namespace CustomiseOxygen.Patches
                 return;
             }
 
-            if (Main.config.GetCapacityOverride(this.techType, out float capacityOverride, out float capacityMultiplier))
+            if (Main.config.GetCapacityOverride(this.techType, this.oxygen.oxygenCapacity, out float capacityOverride, out float capacityMultiplier))
             {
                 bool bIsManual = Main.config.bManualRefill;
                 Log.LogDebug($"CustomiseOxygen.Main.GetCapacityOverride returned true with values of capacityOverride={capacityOverride}, capacityMultiplier={capacityMultiplier}");
@@ -48,7 +51,6 @@ namespace CustomiseOxygen.Patches
                     this.oxygen.oxygenCapacity = capacityOverride;
                 else
                 {
-                    Main.config.SetCapacityOverride(this.techType, this.oxygen.oxygenCapacity, false, true);
                     this.oxygen.oxygenCapacity *= capacityMultiplier;
                 }
                 Log.LogDebug($"CustomOxy.Awake(): Oxygen capacity set to {this.oxygen.oxygenCapacity}");
@@ -61,17 +63,17 @@ namespace CustomiseOxygen.Patches
     {
         [HarmonyPrefix]
         [HarmonyPatch(typeof(Oxygen), "Awake")]
-        public static bool Prefix(ref Oxygen __instance)
+        public static bool PreAwake(ref Oxygen __instance)
         {
             if (!__instance.isPlayer)
             {
                 if (__instance.gameObject.GetComponent<CustomOxy>() == null)
                 {
-                    Logger.Log(Logger.Level.Debug, $"Adding CustomOxy component to instance {__instance.ToString()}");
+                    Logger.Log(Logger.Level.Debug, $"OxygenPatches.PreAwake(): Adding CustomOxy component to instance {__instance.ToString()}");
                     __instance.gameObject.EnsureComponent<CustomOxy>();
                 }
                 else
-                    Logger.Log(Logger.Level.Debug, $"CustomOxy already present on instance {__instance.ToString()}");
+                    Logger.Log(Logger.Level.Debug, $"OxygenPatches.PreAwake(): CustomOxy already present on instance {__instance.ToString()}");
                 return false;
             }
 

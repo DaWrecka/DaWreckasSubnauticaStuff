@@ -18,7 +18,7 @@ namespace FuelCells
 		// Declared as floats because the Battery class uses floats, so using floats here is the most straightforward way to avoid rounding errors.
 		[Slider("Base capacity of Small Fuel Cell", minCapacity, maxCapacity, DefaultValue = defaultCapacity, Id = "batteryCap", Step = 50, Tooltip = "Capacity of the Small Fuel Cell. The capacity of the full-sized Fuel Cell is a multiple of this value.\nGame must be restarted for changes to this setting to take effect."), OnChange(nameof(OnSliderChange))]
 		public float smallFuelCellCap = 400f;
-		[Slider("Large Fuel Cell capacity multiplier", minMultiplier, maxMultiplier, DefaultValue = defaultMultiplier, Id = "batteryMult", Step = 0.01f, Tooltip = "The capacity of the large Fuel Cell is equal to the Small Fuel Cell capacity, above, multiplied by this value.\nGame must be restarted for changes to this setting to take effect."), OnChange(nameof(OnSliderChange))]
+		[Slider("Large Fuel Cell capacity multiplier", minMultiplier, maxMultiplier, DefaultValue = defaultMultiplier, Id = "batteryMult", Step = 0.05f, Format = "{0:F2}", Tooltip = "The capacity of the large Fuel Cell is equal to the Small Fuel Cell capacity, above, multiplied by this value.\nGame must be restarted for changes to this setting to take effect."), OnChange(nameof(OnSliderChange))]
 		public float cellMultiplier = 2.25f;
 		internal float cellCap = 900f;
 

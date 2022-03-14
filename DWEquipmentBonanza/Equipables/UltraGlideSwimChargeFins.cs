@@ -75,12 +75,7 @@ namespace DWEquipmentBonanza.Equipables
 
         protected override Sprite GetItemSprite()
         {
-			if (icon == null)
-			{
-				icon = Common.Utility.SpriteUtils.GetSpriteWithNoDefault(TechType.SwimChargeFins);
-			}
-
-			return icon;
+			return icon ??= SpriteUtils.Get(TechType.SwimChargeFins, null);
         }
 
         private IEnumerator PostPatchSetup()

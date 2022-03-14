@@ -161,14 +161,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
     internal class SeaTruckRepairComponent : VehicleRepairComponent
     {
         private SeaTruckSegment _Segment;
-        private SeaTruckSegment thisSegment
-        {
-            get
-            {
-                _Segment ??= this.gameObject.GetComponent<SeaTruckSegment>();
-                return _Segment;
-            }
-        }
+        private SeaTruckSegment thisSegment => _Segment ??= this.gameObject.GetComponent<SeaTruckSegment>();
         private bool bIsCabSegment => (thisSegment != null && thisSegment.isMainCab);
         private bool bHasFrontConnection => (thisSegment != null && thisSegment.isFrontConnected);
 

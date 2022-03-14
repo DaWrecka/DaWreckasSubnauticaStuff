@@ -80,7 +80,9 @@ namespace DWEquipmentBonanza.Equipables
         protected override float maxDepth => 8000f;
         protected override float breathMultiplier => 0.50f;
         protected override float minTempBonus => 40f;
-#if BELOWZERO
+#if SUBNAUTICA_STABLE
+        protected override float DeathRunDepth => -1f;
+#elif BELOWZERO
         protected override TechType prefabTechType => TechType.ColdSuit;
 #endif
 

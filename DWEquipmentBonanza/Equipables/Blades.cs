@@ -146,13 +146,8 @@ namespace DWEquipmentBonanza
                 craftAmount = 1,
                 Ingredients = new List<Ingredient>(new Ingredient[]
                 {
-#if SUBNAUTICA_STABLE
-                    new Ingredient(TechType.DiamondBlade, 1),
-                    new Ingredient(TechType.Diamond, 1),
-#elif BELOWZERO
                     new Ingredient(TechType.Knife, 1),
                     new Ingredient(TechType.Diamond, 2),
-#endif
                     new Ingredient(TechType.Battery, 1),
                     new Ingredient(TechType.Quartz, 1),
                     new Ingredient(TechType.Aerogel, 1),

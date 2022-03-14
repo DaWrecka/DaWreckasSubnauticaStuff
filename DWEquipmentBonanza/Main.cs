@@ -108,7 +108,7 @@ namespace DWEquipmentBonanza
 	{
 		internal static bool bVerboseLogging = true;
 		internal static bool bLogTranspilers = false;
-		internal const string version = "0.10.5.0";
+		internal const string version = "0.11.2.0";
 #if SUBNAUTICA_STABLE
 		public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
 #endif
@@ -143,13 +143,15 @@ namespace DWEquipmentBonanza
 		internal static readonly string AssetsFolder = Path.Combine(modPath, "Assets");
 
 #if SUBNAUTICA_STABLE
-		private static readonly Type NitrogenMain = Type.GetType("NitrogenMod.Main, NitrogenMod", false, false);
-		private static readonly MethodInfo NitroAddDiveSuit = NitrogenMain?.GetMethod("AddDiveSuit", BindingFlags.Public | BindingFlags.Static);
+		private static Type NitrogenMain => Type.GetType("NitrogenMod.Main, NitrogenMod", false, true);
+		private static Type DeathRunMain => Type.GetType("DeathRun.DeathRun, DeathRun", false, true);
+		private static MethodInfo NitroAddDiveSuit => NitrogenMain?.GetMethod("AddDiveSuit", BindingFlags.Public | BindingFlags.Static);
+		private static MethodInfo DeathRunAddDiveSuit => DeathRunMain?.GetMethod("AddDiveSuit", BindingFlags.Public | BindingFlags.Static);
 		internal static readonly Texture2D glovesTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesskin.png"));
 		internal static readonly Texture2D suitTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitskin.png"));
 		internal static readonly Texture2D glovesIllumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidGlovesillum.png"));
 		internal static readonly Texture2D suitIllumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidSuitillum.png"));
-		public static bool bUseNitrogenAPI; // If true, use the Nitrogen API instead of patching GetTechTypeInSlot. Overrides bNoPatchTechTypeInSlot.
+		public static bool bUseNitrogenAPI => NitroAddDiveSuit != null || DeathRunAddDiveSuit != null; // If true, use the Nitrogen API instead of patching GetTechTypeInSlot. Overrides bNoPatchTechTypeInSlot.
 		private static Dictionary<string, TechType> NitrogenTechtypes = new Dictionary<string, TechType>();
 #elif BELOWZERO
 		//private static readonly Type VehicleUpgraderType = Type.GetType("UpgradedVehicles.VehicleUpgrader, UpgradedVehicles", false, false);
@@ -217,7 +219,7 @@ namespace DWEquipmentBonanza
 			equipTempBonus[itemType] = minTempBonus;
 		}
 
-		public static void AddDiveSuit(TechType diveSuit, float depth = 0f, float breathMultiplier = 1f, float minTempBonus = 0f)
+		public static void AddDiveSuit(TechType diveSuit, float depth = 0f, float breathMultiplier = 1f, float minTempBonus = 0f, float DeathRunDepth = -1f)
 		{
 #if SUBNAUTICA_STABLE
 			if (NitroAddDiveSuit != null)
@@ -225,6 +227,15 @@ namespace DWEquipmentBonanza
 				NitroAddDiveSuit.Invoke(null, new object[] { diveSuit, depth, breathMultiplier, minTempBonus });
 				return;
 			}
+
+			if (DeathRunAddDiveSuit != null)
+			{
+				DeathRunAddDiveSuit.Invoke(null, new object[] { diveSuit, depth, breathMultiplier, minTempBonus, DeathRunDepth });
+				return;
+			}
+
+			if (HasNitrogenMod())
+				Log.LogError($"Nitrogen mode is enabled, but neither NitrogenMod.AddDiveSuit nor DeathRun.AddDiveSuit could be found");
 #endif
 			equipTempBonus[diveSuit] = minTempBonus;
 		}
@@ -271,10 +282,7 @@ namespace DWEquipmentBonanza
 			return TechType.None;
 		}
 
-		public static bool HasNitrogenMod()
-		{
-			return QModServices.Main.ModPresent("NitrogenMod");
-		}
+		public static bool HasNitrogenMod() => NitrogenTechtypes.Count > 0;
 #endif
 
 		/*public struct DamageMod
@@ -364,9 +372,10 @@ namespace DWEquipmentBonanza
 
 #if SUBNAUTICA_STABLE
 			Log.LogDebug("Checking for Nitrogen mod");
-			bool bHasN2 = QModServices.Main.ModPresent("NitrogenMod") || QModServices.Main.ModPresent("DeathRun");
+			bool bHasN2 = QModServices.Main.ModPresent("NitrogenMod");
+			bool bHasDeathrun = QModServices.Main.ModPresent("DeathRun");
 			//string sStatus = "Nitrogen mod " + (bHasN2 ? "" : "not ") + "present";
-			Log.LogDebug("Nitrogen mod " + (bHasN2 ? "" : "not ") + "present");
+			Log.LogDebug("Nitrogen mod " + (bHasN2 ? "" : "not ") + "present; DeathRun mod " + (bHasDeathrun ? "" : "not ") + "present");
 
 #elif BELOWZERO
 			// We're going to try and remove crafting nodes from the root of the workbench menu and move them into tabs.
@@ -433,13 +442,30 @@ namespace DWEquipmentBonanza
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.HoverbikeJumpModule, new string[] { "Upgrades", "HoverbikeUpgrades" });
 #endif
 
+#if BELOWZERO
+			var armourData = new SMLHelper.V2.Crafting.RecipeData()
+			{
+				craftAmount = 1,
+				Ingredients = new List<Ingredient>()
+						{
+							new Ingredient(TechType.Lithium, 1),
+							new Ingredient(TechType.Titanium, 1)
+						}
+			};
+
+			//LanguageHandler.SetTechTypeName(TechType.VehicleArmorPlating, "Vehicle Storage Module");
+			//LanguageHandler.SetTechTypeTooltip(TechType.VehicleArmorPlating, "A small storage locker. Expands Exosuit storage capacity.");
+			CraftDataHandler.SetTechData(TechType.VehicleStorageModule, armourData);
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.SeamothUpgrades, TechType.VehicleArmorPlating, new string[] { "ExosuitModules" });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.VehicleArmorPlating, new string[] { "Upgrades", "ExosuitUpgrades" });
+			KnownTechHandler.SetAnalysisTechEntry(TechType.Exosuit, new TechType[] { TechType.VehicleArmorPlating });
+#endif
+
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.BodyMenuPath, "Suit Upgrades", SpriteManager.Get(Main.StillSuitType));
 			CraftTreeHandler.AddTabNode(CraftTree.Type.SeamothUpgrades, DWConstants.ChargerMenuPath, "Vehicle Chargers", SpriteManager.Get(TechType.ExosuitThermalReactorModule));
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.ChipsMenuPath, "Chips", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
-			//CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "ChipRecharge", "Chip Recharges", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
 
 			var prefabs = new List<Spawnable>() {
-				//new ExosuitLightningClawPrefab(),
 #if SUBNAUTICA_STABLE
 				new AcidGloves(),
 				new AcidHelmet(),
@@ -515,11 +541,22 @@ namespace DWEquipmentBonanza
 			}
 			if (bHasN2)
 			{
-				Log.LogDebug($"Main.Load(): Found NitrogenMod, adding Nitrogen prefabs");
-				prefabs.Add(new NitrogenBrineSuit2());
-				prefabs.Add(new NitrogenBrineSuit3());
-				prefabs.Add(new Blueprint_ReinforcedMk2toBrineMk2());
-				prefabs.Add(new Blueprint_ReinforcedMk3toBrineMk3());
+				if (DeathRunMain == null && NitrogenMain == null)
+				{
+					Log.LogError($"Found Nitrogen TechTypes but could not find DeathRun.Main type nor NitrogenMod.Main type");
+				}
+				else if (NitroAddDiveSuit == null && DeathRunAddDiveSuit == null)
+				{
+					Log.LogError($"Found NitrogenMod.Main type or DeathRun.Main type, but could not find corresponding AddDiveSuit method");
+				}
+				else
+				{
+					Log.LogDebug($"Main.Load(): Found NitrogenMod or DeathRun, adding Nitrogen prefabs");
+					prefabs.Add(new NitrogenBrineSuit2());
+					prefabs.Add(new NitrogenBrineSuit3());
+					prefabs.Add(new Blueprint_ReinforcedMk2toBrineMk2());
+					prefabs.Add(new Blueprint_ReinforcedMk3toBrineMk3());
+				}
 			}
 #endif
 

@@ -50,7 +50,7 @@ namespace DWEquipmentBonanza.Equipables
 
                 UnderwaterMotorPatches.AddSpeedModifier(this.TechType, -0.10625f);
                 Main.AddCustomOxyExclusion(this.TechType, true, true);
-                Main.AddCustomOxyTank(this.TechType, -1f, icon);
+                Main.AddCustomOxyTank(this.TechType, -1f, this.GetItemSprite());
             };
         }
 
@@ -86,16 +86,9 @@ namespace DWEquipmentBonanza.Equipables
 
         protected virtual IEnumerator PostPatchSetup()
         {
-            bool bWaiting = true;
-
-            while (bWaiting)
+            while (icon == null)
             {
-                if (icon == null)
-                {
-                    icon = SpriteUtils.GetSpriteWithNoDefault(TechType.HighCapacityTank);
-                }
-                else
-                    bWaiting = false;
+                icon ??= SpriteUtils.Get(TechType.HighCapacityTank, null);
 
                 yield return new WaitForSecondsRealtime(0.5f);
             }
@@ -105,7 +98,7 @@ namespace DWEquipmentBonanza.Equipables
         }
         protected override Sprite GetItemSprite()
         {
-            return (icon != null && icon != SpriteManager.defaultSprite) ? icon : SpriteManager.Get(TechType.HighCapacityTank);
+            return icon ??= SpriteUtils.Get(TechType.HighCapacityTank, null);
         }
 
 #if SUBNAUTICA_STABLE

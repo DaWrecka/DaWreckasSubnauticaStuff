@@ -7,7 +7,7 @@ using UWE;
 
 namespace Common
 {
-    class TransformUtils
+	static class TransformUtils
     {
 		public static GameObject FindDeepChild(GameObject parent, string childName)
 		{

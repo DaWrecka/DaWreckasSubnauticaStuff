@@ -68,6 +68,7 @@
     <Compile Include="Patches\Seatruck.cs" />
     <Compile Include="Patches\SpikeyTrap.cs" />
     <Compile Include="Patches\Survival.cs" />
+    <Compile Include="Patches\TechTypeExtensions.cs" />
     <Compile Include="Patches\TooltipFactory.cs" />
     <Compile Include="Patches\uGUI_Equipment.cs" />
     <Compile Include="Patches\uGUI_MainMenu.cs" />

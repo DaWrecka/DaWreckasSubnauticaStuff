@@ -17,14 +17,10 @@ namespace HabitatBuilderSpeed.Configuration
             Tooltip = "Time required to construct/deconstruct is multiplied by this value. Values lower than 1 make the Habitat Builder faster, values above 1 make it slower.\r\nValues lower than 0.5 are allowed, but may result in losing resources on deconstruction, and thus are not recommended."),
             OnChange(nameof(OnSliderChange))]
         public float builderMultiplier {
-            get
-            {
-                return this._builderMultiplier;
-            }
-            
+            get => this._builderMultiplier;
             set
             {
-                this._builderMultiplier = Mathf.Max(MIN_MULT, Mathf.Min(value, MAX_MULT));
+                this._builderMultiplier = Mathf.Clamp(value, MIN_MULT, MAX_MULT);
             }
         }
 

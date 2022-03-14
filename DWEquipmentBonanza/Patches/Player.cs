@@ -37,7 +37,7 @@ namespace DWEquipmentBonanza.Patches
 
         [HarmonyPrefix]
         [HarmonyPatch("UpdateReinforcedSuit")]
-        public static bool Prefix(ref Player __instance)
+        public static bool PreUpdateReinforcedSuit(ref Player __instance)
         {
 #if SUBNAUTICA_STABLE
             if (Main.bUseNitrogenAPI)
@@ -60,8 +60,12 @@ namespace DWEquipmentBonanza.Patches
 
         [HarmonyPostfix]
         [HarmonyPatch("UpdateReinforcedSuit")]
-        public static void Postfix(ref Player __instance)
+        public static void PostUpdateReinforcedSuit(ref Player __instance)
         {
+#if SUBNAUTICA_STABLE
+            if (Main.bUseNitrogenAPI)
+                return;
+#endif
             float maxTemp = __instance.temperatureDamage.minDamageTemperature;
             if (maxTemp != oldMaxTemp)
                 ErrorMessage.AddMessage($"Maximum safe water temperature now {maxTemp.ToString()}");

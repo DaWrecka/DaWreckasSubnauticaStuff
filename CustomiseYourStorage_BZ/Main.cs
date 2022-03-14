@@ -84,6 +84,7 @@ namespace CustomiseYourStorage
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.SeamothUpgrades, TechType.VehicleStorageModule, new string[] { "ExosuitModules" });
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.VehicleStorageModule, new string[] { "Upgrades", "ExosuitUpgrades" });
 			KnownTechHandler.SetAnalysisTechEntry(TechType.Exosuit, new TechType[] { TechType.VehicleStorageModule });*/
+
 			foreach (string s in stringBlacklist)
 			{
 				TechType tt = TechTypeUtils.GetTechType(s);

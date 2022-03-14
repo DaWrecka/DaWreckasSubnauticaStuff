@@ -11,10 +11,10 @@ using UWE;
 
 namespace DWEquipmentBonanza.Patches
 {
-    [HarmonyPatch(typeof(uGUI_MainMenu))]
-    public class uGUI_MainMenuPatches
-    {
-        [HarmonyPatch(nameof(uGUI_MainMenu.Start))]
+	[HarmonyPatch(typeof(uGUI_MainMenu))]
+	public class uGUI_MainMenuPatches
+	{
+        [HarmonyPatch("Start")]
         [HarmonyPostfix]
         public static void PostStart()
         {

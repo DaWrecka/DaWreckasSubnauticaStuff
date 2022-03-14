@@ -32,10 +32,13 @@ namespace DWEquipmentBonanza.Equipables
         public override Vector2int SizeInInventory => new(2, 3);
 
         [Obsolete]
-        protected virtual float SurvivalCapOverride => 150f;
-        protected virtual float maxDepth => 500f;
-        protected virtual float breathMultiplier => 1f;
-        protected virtual float minTempBonus => 10f;
+        protected virtual float SurvivalCapOverride { get; }
+        protected abstract float maxDepth { get; }
+        protected abstract float breathMultiplier { get; }
+        protected abstract float minTempBonus { get; }
+#if SUBNAUTICA_STABLE
+        protected abstract float DeathRunDepth { get; }
+#endif
         protected virtual TechType[] substitutions => new TechType[] { Main.StillSuitType };
         protected virtual TechType prefabTechType => Main.StillSuitType;
         protected virtual List<TechType> CompoundDependencies => new List<TechType>();
@@ -110,16 +113,13 @@ namespace DWEquipmentBonanza.Equipables
         {
         }
 
-        protected override float maxDepth => 800f;
+        protected override float maxDepth => 1300f;
         protected override float breathMultiplier => 0.90f;
         protected override float minTempBonus => 5f;
-        protected override TechType[] substitutions
-        {
-            get
-            {
-                return new TechType[] { Main.StillSuitType };
-            }
-        }
+#if SUBNAUTICA_STABLE
+        protected override float DeathRunDepth => 800f;
+#endif
+        protected override TechType[] substitutions => new TechType[] { Main.StillSuitType };
         public override EquipmentType EquipmentType => EquipmentType.Body;
         public override TechType RequiredForUnlock => Main.StillSuitType;
         public override Vector2int SizeInInventory => new(2, 2);
@@ -156,9 +156,12 @@ namespace DWEquipmentBonanza.Equipables
 
     public class ReinforcedSurvivalSuit : SurvivalSuitBase<ReinforcedSurvivalSuit>
     {
-        protected override float maxDepth => 1100f;
+        protected override float maxDepth => 1300f;
         protected override float breathMultiplier => 0.80f;
         protected override float minTempBonus => 35f;
+#if SUBNAUTICA_STABLE
+        protected override float DeathRunDepth => -1f;
+#endif
         public ReinforcedSurvivalSuit(string classId = "ReinforcedSurvivalSuit",
                 string friendlyName = "Reinforced Survival Suit",
                 string Description = "Enhanced survival suit with reinforcing fibres provides passive primary needs reduction and protection from physical force and high temperatures") : base(classId, friendlyName, Description)

@@ -14,19 +14,10 @@ namespace FuelCells.Patches
     [HarmonyPatch(typeof(Knife))]
     public static class KnifePatches
     {
-        private static Dictionary<TechType, float> _MakeHarvestables = new Dictionary<TechType, float>();
-
-		public static Dictionary<TechType, float> MakeHarvestables
-		{
-			get
-			{
-				return _MakeHarvestables;
-			}
-		}
-
+		public static Dictionary<TechType, float> MakeHarvestables { get; private set; } = new Dictionary<TechType, float>();
 		internal static void AddHarvestable(TechType ObjectToBeKnifed, float LiveMixinHealth)
 		{
-			_MakeHarvestables[ObjectToBeKnifed] = LiveMixinHealth;
+			MakeHarvestables[ObjectToBeKnifed] = LiveMixinHealth;
 		}
 
 		[HarmonyTranspiler]
@@ -83,7 +74,7 @@ namespace FuelCells.Patches
 			if (key == TechType.None)
 				return result;
 
-			if (_MakeHarvestables.TryGetValue(key, out float value))
+			if (MakeHarvestables.TryGetValue(key, out float value))
             {
 				Log.LogDebug($"InterceptTrace found closestObj with TechType {key}");
 				LiveMixin component = closestObj.EnsureComponent<LiveMixin>();

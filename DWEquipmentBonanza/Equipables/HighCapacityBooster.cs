@@ -89,12 +89,7 @@ namespace DWEquipmentBonanza.Equipables
         }
         protected override Sprite GetItemSprite()
         {
-            /*if (icon == null)
-            {
-                icon = SpriteManager.Get(TechType.HighCapacityTank, null);
-            }
-            return icon;*/
-            return SpriteManager.Get(TechType.HighCapacityTank);
+            return icon ??= SpriteManager.Get(TechType.HighCapacityTank, null);
         }
 
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)

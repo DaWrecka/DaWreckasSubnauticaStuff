@@ -55,15 +55,11 @@ namespace CustomiseOxygen
         [System.NonSerialized]
         private Dictionary<TechType, float> manualTypedCapacityOverrides = new Dictionary<TechType, float>();
 
-        public bool GetCapacityOverride(TechType tank, out float capacityOverride, out float capacityMultiplier)
+        public bool GetCapacityOverride(TechType tank, float baseCapacity, out float capacityOverride, out float capacityMultiplier)
         {
-            Dictionary<TechType, float> activeTypedCapacityOverrides;
-            if (Main.config.bManualRefill)
-                activeTypedCapacityOverrides = manualTypedCapacityOverrides; 
-            else
-                activeTypedCapacityOverrides = typedCapacityOverrides;
             // if return value is false, no override should be performed.
             // If return value is true, and capacityOverride == -1, then the base capacity should not be altered.
+            Dictionary<TechType, float> activeTypedCapacityOverrides = Main.config.bManualRefill ? manualTypedCapacityOverrides : typedCapacityOverrides;
 
             capacityOverride = -1f;
             capacityMultiplier = 1f;
@@ -93,6 +89,13 @@ namespace CustomiseOxygen
                     capacityOverride = value;
                     return true; // Don't apply multipliers
                 }
+                else
+                {
+#if !RELEASE
+                    Log.LogDebug($"DWOxyConfig.GetCapacityOverride: no override found for TechType {tank.AsString()}");
+#endif
+                }
+                Main.AddTank(tank, baseCapacity);
             }
 
             if (exclusion != Main.ExclusionType.Multipliers)
@@ -101,7 +104,7 @@ namespace CustomiseOxygen
             return true;
         }
 
-        public bool SetCapacityOverride(TechType tank, float capacity, bool bUpdateIfPresent = false, bool bIsDefault = false, bool bIsManualMode = false)
+        public bool SetCapacityOverride(TechType tank, float capacity, float speedModifier, bool bUpdateIfPresent = false, bool bIsDefault = false, bool bIsManualMode = false)
         {
             // if bIsDefault, the value should be added to the defaults list, not the active list.
             if (bIsDefault)
@@ -119,7 +122,7 @@ namespace CustomiseOxygen
                     return false;
                 }
 
-                Main.TankTypes.AddTank(tank, capacity, null, bUpdateIfPresent);
+                Main.AddTank(tank, capacity, null, bUpdateIfPresent);
                 defaultTankCapacities[tank.AsString(true)] = capacity;
                 return false;
             }
@@ -171,7 +174,7 @@ namespace CustomiseOxygen
                     continue;
                 }
 
-                SetCapacityOverride(tt, kvp.Value, false, false, false);
+                SetCapacityOverride(tt, kvp.Value, 1f, false, false, false);
             }
 
             if (manualCapacityOverrides == null || manualCapacityOverrides.Count < 1)
@@ -191,7 +194,7 @@ namespace CustomiseOxygen
                     continue;
                 }
 
-                SetCapacityOverride(tt, kvp.Value, false, false, true);
+                SetCapacityOverride(tt, kvp.Value, 1f, false, false, true);
             }
 
             if (bUpdated)

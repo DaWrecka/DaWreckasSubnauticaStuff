@@ -111,30 +111,14 @@ namespace DWEquipmentBonanza
         }
     }
 
-    internal class AcidSuit : Equipable
+    internal abstract class AcidSuitBase<T> : Equipable
     {
         private static Sprite itemSprite;
         private static GameObject prefab;
-
-        public AcidSuit(string classId = "AcidSuit", string friendlyName = "Brine Suit", string description = "Reinforced dive suit with an acid-resistant layer") : base(classId, friendlyName, description)
-        {
-            OnFinishedPatching += () =>
-            {
-                TechTypeUtils.AddModTechType(this.TechType);
-                EquipmentPatch.AddSubstitutions(this.TechType, new HashSet<TechType>() { TechType.RadiationSuit, TechType.ReinforcedDiveSuit });
-                Main.AddDiveSuit(this.TechType, this.maxDepth, this.breathMultiplier, this.minTempBonus);
-                Main.AddDamageResist(this.TechType, DamageType.Acid, 0.6f);
-                Reflection.AddCompoundTech(this.TechType, new List<TechType>()
-                {
-                    TechType.ReinforcedDiveSuit,
-                    TechType.RadiationSuit
-                });
-            };
-        }
-        protected virtual float maxDepth => 800f;
-        protected virtual float breathMultiplier => 0.85f;
-        protected virtual float minTempBonus => 15f;
-
+        protected abstract float maxDepth { get; }
+        protected abstract float breathMultiplier { get; }
+        protected abstract float minTempBonus { get; }
+        protected abstract float DeathRunDepth { get; }
         public override EquipmentType EquipmentType => EquipmentType.Body;
         public override Vector2int SizeInInventory => new(2, 2);
         public override TechType RequiredForUnlock => TechType.Unobtanium;
@@ -144,6 +128,21 @@ namespace DWEquipmentBonanza
         public override string[] StepsToFabricatorTab => new string[] { "Personal", "Equipment" };
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
 
+        public AcidSuitBase(string classId, string friendlyName, string description) : base(classId, friendlyName, description)
+        {
+            OnFinishedPatching += () =>
+            {
+                TechTypeUtils.AddModTechType(this.TechType);
+                EquipmentPatch.AddSubstitutions(this.TechType, new HashSet<TechType>() { TechType.RadiationSuit, TechType.ReinforcedDiveSuit });
+                Main.AddDiveSuit(this.TechType, this.maxDepth, this.breathMultiplier, this.minTempBonus, this.DeathRunDepth);
+                Main.AddDamageResist(this.TechType, DamageType.Acid, 0.6f);
+                Reflection.AddCompoundTech(this.TechType, new List<TechType>()
+                {
+                    TechType.ReinforcedDiveSuit,
+                    TechType.RadiationSuit
+                });
+            };
+        }
 #if SUBNAUTICA_STABLE
         public override GameObject GetGameObject()
         {
@@ -151,7 +150,7 @@ namespace DWEquipmentBonanza
             Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
             if (prefab == null)
             {
-                prefab = ModifyAndInstantiateGameObject(CraftData.GetPrefabForTechType(TechType.ReinforcedGloves));
+                prefab = ModifyAndInstantiateGameObject(CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit));
             }
 
             Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
@@ -164,7 +163,7 @@ namespace DWEquipmentBonanza
         {
             if (prefab == null)
             {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ReinforcedGloves);
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ReinforcedDiveSuit);
                 yield return task;
 
                 prefab = ModifyAndInstantiateGameObject(task.GetResult());
@@ -254,6 +253,17 @@ namespace DWEquipmentBonanza
         }
     }
 
+    internal class AcidSuit : AcidSuitBase<AcidSuit>
+    {
+        protected override float maxDepth => 800f;
+        protected override float breathMultiplier => 0.85f;
+        protected override float minTempBonus => 15f;
+        protected override float DeathRunDepth => -1f;
+        public AcidSuit(): base("AcidSuit", "Brine Suit", "Reinforced dive suit with an acid-resistant layer")
+        {
+        }
+    }
+
     abstract class Blueprint : Craftable
     {
         // A base class for all of the modification recipes that use existing suit pieces
@@ -323,7 +333,7 @@ namespace DWEquipmentBonanza
         }
     }*/
 
-    internal class NitrogenBrineSuit2 : AcidSuit
+    internal class NitrogenBrineSuit2 : AcidSuitBase<NitrogenBrineSuit2>
     {
         public static string title = "Brine Suit Mk2";
         public static string description = "Upgraded dive suit, immune to acid, heat protection up to 90C and depth protection up to 1300m";
@@ -335,14 +345,15 @@ namespace DWEquipmentBonanza
         protected override float maxDepth => 1300f;
         protected override float breathMultiplier => 0.75f;
         protected override float minTempBonus => 20f;
+        protected override float DeathRunDepth => -1f;
         protected override RecipeData GetBlueprintRecipe()
         {
             if (!Main.HasNitrogenMod())
-                return new RecipeData() { };
+                return new RecipeData() { craftAmount = 0 };
 
             TechType ttEelScale = Main.GetNitrogenTechtype("rivereelscale");
             if (ttEelScale == TechType.None)
-                return new RecipeData() { };
+                return new RecipeData() { craftAmount = 0 };
 
             RecipeData recipe = new RecipeData()
             {
@@ -379,7 +390,7 @@ namespace DWEquipmentBonanza
         }
     }
 
-    internal class NitrogenBrineSuit3 : AcidSuit
+    internal class NitrogenBrineSuit3 : AcidSuitBase<NitrogenBrineSuit3>
     {
         public static string title = "Brine Suit Mk3";
         public static string description = "Upgraded dive suit, immune to acid, heat protection up to 105C and effectively-unlimited depth protection";
@@ -390,17 +401,18 @@ namespace DWEquipmentBonanza
         protected override float maxDepth => 8000f;
         protected override float breathMultiplier => 0.55f;
         protected override float minTempBonus => 35f;
+        protected override float DeathRunDepth => -1f;
 
         protected override RecipeData GetBlueprintRecipe()
         {
             if (!Main.HasNitrogenMod())
-                return new RecipeData() { };
+                return new RecipeData() { craftAmount = 0 };
 
             TechType ttEelScale = Main.GetNitrogenTechtype("rivereelscale");
             TechType ttLizardScale = Main.GetNitrogenTechtype("lavalizardscale");
 
             if (ttEelScale == TechType.None || ttLizardScale == TechType.None)
-                return new RecipeData() { };
+                return new RecipeData() { craftAmount = 0 };
 
             RecipeData recipe = new RecipeData()
             {
@@ -411,14 +423,7 @@ namespace DWEquipmentBonanza
                     new Ingredient(TechType.Kyanite, 2),
                     new Ingredient(ttLizardScale, 2)
                 }),
-                //LinkedItems = new List<TechType>()
-                //{
-                //    TechTypeUtils.GetModTechType("AcidGloves"),
-                //    TechTypeUtils.GetModTechType("AcidHelmet")
-                //}
             };
-
-            
 
             return recipe;
         }

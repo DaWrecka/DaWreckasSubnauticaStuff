@@ -71,11 +71,7 @@ namespace DWEquipmentBonanza.Equipables
 
 		protected override Sprite GetItemSprite()
 		{
-			if (icon == null)
-			{
-				icon = SpriteUtils.GetSpriteWithNoDefault(TechType.Seaglide);
-			}
-			return icon;
+			return icon ??= SpriteUtils.Get(TechType.Seaglide, null);
 		}
 
 #if SUBNAUTICA_STABLE

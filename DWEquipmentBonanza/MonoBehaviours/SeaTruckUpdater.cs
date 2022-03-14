@@ -20,7 +20,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		protected SeaTruckMotor parentMotor => (parentVehicle is SeaTruckUpgrades stg ? stg.motor : null);
 		protected FMOD_CustomEmitter sonarSound;
 		protected bool bSonarActive = false;
-		protected int sonarSlotID = -1;
+		public int sonarSlotID { get; protected set; } = -1;
 
 		private const float SonarCooldown = 5f;
 		internal const float SonarDisableThreshold = 100f;

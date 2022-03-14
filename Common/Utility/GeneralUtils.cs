@@ -5,7 +5,7 @@ using Logger = QModManager.Utility.Logger;
 
 namespace Common
 {
-	class Log
+	static class Log
 	{
 		public static void LogDebug(string message, Exception ex = null, bool showOnScreen = false)
 		{

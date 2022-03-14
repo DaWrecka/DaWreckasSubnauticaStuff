@@ -15,7 +15,6 @@ namespace DWEquipmentBonanza.VehicleModules
     {
         public override EquipmentType EquipmentType => EquipmentType.SeamothModule;
         public override QuickSlotType QuickSlotType => QuickSlotType.Passive;
-        public override string[] StepsToFabricatorTab => new string[] { "SeamothModules" };
         protected override TechType template => TechType.SeamothSolarCharge;
 
         public SeamothChargerModule(string classID,

@@ -24,19 +24,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		ISerializationCallbackReceiver
 	{
 		protected IBattery _cell;
-		protected IBattery cell
-		{
-			get
-			{
-				_cell ??= gameObject.GetComponent<IBattery>();
-
-				return _cell;
-			}
-			set
-			{
-				_cell = value;
-			}
-		}
+		protected IBattery cell => _cell ??= gameObject.GetComponent<IBattery>();
 
 		protected virtual float ThermalChargeRate => 0f;
 		protected virtual float SolarChargeRate => 0f;
@@ -344,13 +332,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			get { return _charge; }
 			set { _charge = Mathf.Clamp(value, 0f, capacity); }
 		}
-		public float capacity
-		{
-			get
-			{
-				return cellCapacity;
-			}
-		}
+		public float capacity => cellCapacity;
 
 		public string GetChargeValueText()
 		{
@@ -365,7 +347,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		public override void Init(MonoBehaviour vehicle)
 		{
-			this.cell = this;
+			//this.cell = this;
 			base.Init(vehicle);
 			//ErrorMessage.AddMessage($"VehicleChargerMk2.Init: this.cell = {this.cell.ToString()}");
 		}
