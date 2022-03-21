@@ -109,7 +109,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
             // For some reason, relying on the legacy code has stopped working in SN1, but still works in BZ.
             if (powerGlideActive)
             {
-                Player.main.gameObject.GetComponent<Rigidbody>().AddForce(MainCameraControl.main.transform.forward * powerSeaglideForce, ForceMode.Force);
+                Player.main.gameObject.GetComponent<Rigidbody>().AddForce(MainCamera.camera.transform.forward * powerSeaglideForce, ForceMode.Force);
             }
 
             MeshRenderer[] meshRenderers = tool.GetAllComponentsInChildren<MeshRenderer>();
