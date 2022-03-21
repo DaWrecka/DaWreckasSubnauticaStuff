@@ -57,7 +57,7 @@ namespace CustomiseOxygen.Patches
 
             foreach (var tt in tanksCollection)
             {
-                Log.LogDebug($"uGUI_MainMenuPatches.PostMenuCoroutine(): Initial processing, TechType.{tt.techType.AsString()}");
+                Log.LogDebug($"uGUI_MainMenuPatches.PostMenuCoroutine(): Initial processing, TechType.{tt.techType.AsString()}, bUnlockAtStart: {tt.bUnlockAtStart}");
                 float capacity = -1f;
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(tt.techType);
                 yield return task;
@@ -70,7 +70,7 @@ namespace CustomiseOxygen.Patches
                     capacity = oxyComponent.oxygenCapacity;
 
                 Log.LogDebug($"uGUI_MainMenuPatches.PostMenuCoroutine(): For TechType.{tt.techType.AsString()}, got base capacity of {capacity}");
-                Main.AddTank(tt.techType, capacity, bUnlockAtStart: tt.bUnlockAtStart);
+                Main.AddTank(tt.techType, capacity, tt.bUnlockAtStart, null);
             }
 
             bProcessing = false;

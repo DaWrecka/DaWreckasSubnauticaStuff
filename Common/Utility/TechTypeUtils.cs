@@ -67,6 +67,11 @@ namespace Common
 			return null;
 		}
 
+		internal static bool TryGetModPrefab(TechType techType, out GameObject modPrefab)
+		{
+			return ModPrefabs.TryGetValue(techType.AsString(true), out modPrefab);
+		}
+
 		internal static bool TryGetModPrefab(string key, out GameObject modPrefab)
 		{
 			string lowerKey = key.ToLower();

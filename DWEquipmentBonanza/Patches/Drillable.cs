@@ -23,7 +23,10 @@ namespace DWEquipmentBonanza.Patches
             //    return;
 
             if (__instance.gameObject.GetComponent<FloatersTarget>() != null)
+            {
                 target = LargeWorldEntity.CellLevel.Medium;
+                return;
+            }
             else if (__instance.resources.Length < 1)
                 return;
 

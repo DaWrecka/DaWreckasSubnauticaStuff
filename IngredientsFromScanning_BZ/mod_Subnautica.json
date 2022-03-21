@@ -2,7 +2,7 @@
   "Id": "PartsFromScanning",
   "DisplayName": "Parts From Scanning",
   "Author": "DaWrecka w/ MrPurple6411",
-  "Version": "1.0.1.0",
+  "Version": "1.0.1.1",
   "Dependencies": [
     "SMLHelper"
   ],

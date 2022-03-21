@@ -35,7 +35,7 @@ namespace FuelCells
         private static string ModPath = Path.GetDirectoryName(myAssembly.Location);
         internal static string AssetsFolder = Path.Combine(ModPath, "Assets");
 
-        public const string version = "0.5.0.0";
+        public const string version = "0.5.0.1";
         public const string modName = "FuelCells";
         internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
         internal static TechType plasmaCoreType;

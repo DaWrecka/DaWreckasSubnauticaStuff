@@ -15,7 +15,7 @@ namespace PartsFromScanning
 	[QModCore]
 	public static class Main
 	{
-		internal const string version = "1.0.1.0";
+		internal const string version = "1.0.1.1";
 
 		internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
 

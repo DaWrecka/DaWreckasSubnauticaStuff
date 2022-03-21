@@ -204,44 +204,6 @@ namespace DWEquipmentBonanza
             return obj;
         }
 
-        protected override RecipeData GetBlueprintRecipe()
-        {
-            RecipeData recipe = new RecipeData()
-            {
-                craftAmount = 1,
-                Ingredients = new List<Ingredient>(new Ingredient[]
-                {
-                    /*new Ingredient(TechType.HydrochloricAcid, 1),
-                    new Ingredient(TechType.CreepvinePiece, 2),
-                    new Ingredient(TechType.Aerogel, 1),
-                    new Ingredient(TechType.AramidFibers, 3),
-                    new Ingredient(TechType.Diamond, 2),
-                    new Ingredient(TechType.Titanium, 2),
-                    new Ingredient(TechType.Lead, 2),
-                    new Ingredient(TechType.WiringKit, 1)*/
-                    new Ingredient(TechType.HydrochloricAcid, 1),
-                    new Ingredient(TechType.FiberMesh, 1),
-                    new Ingredient(TechType.Aerogel, 1),
-                    new Ingredient(TechType.RadiationGloves, 1),
-                    new Ingredient(TechType.RadiationHelmet, 1),
-                    new Ingredient(TechType.RadiationSuit, 1),
-                    new Ingredient(TechType.ReinforcedDiveSuit, 1),
-                    new Ingredient(TechType.ReinforcedGloves, 1),
-                    new Ingredient(TechType.Rebreather, 1)
-                }),
-                LinkedItems = new List<TechType>()
-                {
-                    TechTypeUtils.GetModTechType("AcidGloves"),
-                    TechTypeUtils.GetModTechType("AcidHelmet")
-                }
-            };
-
-            //recipe.LinkedItems.Add(AcidGlovesPrefab.TechTypeID);
-            //recipe.LinkedItems.Add(AcidHelmetPrefab.TechTypeID);
-
-            return recipe;
-        }
-
         protected override Sprite GetItemSprite()
         {
             if (itemSprite == null || itemSprite == SpriteManager.defaultSprite)
@@ -259,6 +221,33 @@ namespace DWEquipmentBonanza
         protected override float breathMultiplier => 0.85f;
         protected override float minTempBonus => 15f;
         protected override float DeathRunDepth => -1f;
+        protected override RecipeData GetBlueprintRecipe()
+        {
+            RecipeData recipe = new RecipeData()
+            {
+                craftAmount = 1,
+                Ingredients = new List<Ingredient>(new Ingredient[]
+                {
+                    new Ingredient(TechType.HydrochloricAcid, 1),
+                    new Ingredient(TechType.FiberMesh, 1),
+                    new Ingredient(TechType.Aerogel, 1),
+                    new Ingredient(TechType.RadiationGloves, 1),
+                    new Ingredient(TechType.RadiationSuit, 1),
+                    new Ingredient(TechType.ReinforcedDiveSuit, 1),
+                    new Ingredient(TechType.ReinforcedGloves, 1),
+                }),
+                LinkedItems = new List<TechType>()
+                {
+                    TechTypeUtils.GetModTechType("AcidGloves"),
+                }
+            };
+
+            //recipe.LinkedItems.Add(AcidGlovesPrefab.TechTypeID);
+            //recipe.LinkedItems.Add(AcidHelmetPrefab.TechTypeID);
+
+            return recipe;
+        }
+
         public AcidSuit(): base("AcidSuit", "Brine Suit", "Reinforced dive suit with an acid-resistant layer")
         {
         }

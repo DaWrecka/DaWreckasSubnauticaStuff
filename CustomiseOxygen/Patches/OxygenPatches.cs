@@ -18,9 +18,16 @@ namespace CustomiseOxygen.Patches
         public void OnCraftEnd(TechType techType)
         {
             this.techType = techType;
-            this.oxygen = base.GetComponent<Oxygen>();
-            if (Main.config.bManualRefill)
+            this.oxygen = gameObject?.GetComponent<Oxygen>();
+
+            if (this.oxygen == null)
+            {
+                GameObject.Destroy(this);
+            }
+            else if (Main.config.bManualRefill)
+            {
                 this.oxygen.oxygenAvailable = this.oxygen.oxygenCapacity;
+            }
         }
 
         private void Awake()
@@ -67,13 +74,7 @@ namespace CustomiseOxygen.Patches
         {
             if (!__instance.isPlayer)
             {
-                if (__instance.gameObject.GetComponent<CustomOxy>() == null)
-                {
-                    Logger.Log(Logger.Level.Debug, $"OxygenPatches.PreAwake(): Adding CustomOxy component to instance {__instance.ToString()}");
-                    __instance.gameObject.EnsureComponent<CustomOxy>();
-                }
-                else
-                    Logger.Log(Logger.Level.Debug, $"OxygenPatches.PreAwake(): CustomOxy already present on instance {__instance.ToString()}");
+                __instance.gameObject.EnsureComponent<CustomOxy>();
                 return false;
             }
 

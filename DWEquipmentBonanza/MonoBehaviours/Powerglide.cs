@@ -107,14 +107,10 @@ namespace DWEquipmentBonanza.MonoBehaviours
             tool.powerGlideForce = powerSeaglideForce;
 
             // For some reason, relying on the legacy code has stopped working in SN1, but still works in BZ.
-#if SUBNAUTICA_STABLE
             if (powerGlideActive)
             {
-                Player.main.gameObject.GetComponent<Rigidbody>().AddForce(this.gameObject.transform.forward * powerSeaglideForce, ForceMode.Force);
+                Player.main.gameObject.GetComponent<Rigidbody>().AddForce(MainCameraControl.main.transform.forward * powerSeaglideForce, ForceMode.Force);
             }
-#elif BELOWZERO
-            tool.powerGlideActive = powerGlideActive;
-#endif
 
             MeshRenderer[] meshRenderers = tool.GetAllComponentsInChildren<MeshRenderer>();
             SkinnedMeshRenderer[] skinnedMeshRenderers = tool.GetAllComponentsInChildren<SkinnedMeshRenderer>();

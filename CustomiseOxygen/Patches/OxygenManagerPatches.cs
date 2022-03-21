@@ -26,7 +26,7 @@ namespace CustomiseOxygen
         {
             return main.IsSwimming() || Main.config.bManualRefill;
         }
-        
+#if SUBNAUTICA_STABLE
         // Transpiler for the SpecialtyTanks.Update() method, from the DeathRun and NitrogenMod mods. Invoked from Main.Load() using PatchIfExists from weskey007
         public static IEnumerable<CodeInstruction> SpecialtyTankUpdateTranspiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -75,6 +75,7 @@ namespace CustomiseOxygen
 #endif
             return codes.AsEnumerable();
         }
+#endif
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(OxygenManager.AddOxygen))]

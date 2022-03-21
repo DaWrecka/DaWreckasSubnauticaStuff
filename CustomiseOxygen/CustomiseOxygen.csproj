@@ -19,7 +19,7 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BelowZero|AnyCPU' ">
-    <DefineConstants>BZ;BELOWZERO;LOGTRANSPILERS</DefineConstants>
+    <DefineConstants>BZ;BELOWZERO</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <GameDir>$(CommonDir)SubnauticaZero.Stable</GameDir>
@@ -30,7 +30,7 @@
     <OutputPath>BZ\bin\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Subnautica|AnyCPU'">
-    <DefineConstants>SN1;SUBNAUTICA_STABLE;LOGTRANSPILERS</DefineConstants>
+    <DefineConstants>SN1;SUBNAUTICA_STABLE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <GameDir>$(CommonDir)Subnautica.Stable</GameDir>

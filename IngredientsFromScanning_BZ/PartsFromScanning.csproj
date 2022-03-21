@@ -15,7 +15,7 @@
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BelowZero|AnyCPU'">
-    <DefineConstants>BZ;BELOWZERO</DefineConstants>
+    <DefineConstants>BZ;BELOWZERO;RELEASE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <GameDir>$(CommonDir)SubnauticaZero.Stable</GameDir>
@@ -28,7 +28,7 @@
     <OutputPath>..\Qmods\BelowZero\PartsFromScanning_BZ\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Subnautica|AnyCPU'">
-    <DefineConstants>SN1;SUBNAUTICA_STABLE</DefineConstants>
+    <DefineConstants>SN1;SUBNAUTICA_STABLE;RELEASE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <GameDir>$(CommonDir)Subnautica.Stable</GameDir>

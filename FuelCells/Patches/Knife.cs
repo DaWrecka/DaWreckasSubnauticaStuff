@@ -80,7 +80,7 @@ namespace FuelCells.Patches
 				LiveMixin component = closestObj.EnsureComponent<LiveMixin>();
 				if (component.data == null)
 				{
-					Log.LogDebug($"Adding LiveMixin data to object {closestObj.GetInstanceID()} with TechType {key}", null, true);
+					Log.LogDebug($"Adding LiveMixin data to object {closestObj.GetInstanceID()} with TechType {key}", null, false);
 					component.data = new LiveMixinData();
 					component.data.maxHealth = value;
 					component.health = value;

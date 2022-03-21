@@ -72,6 +72,7 @@ namespace CustomiseOxygen
                 return false;
 #endif
             }
+            Logger.Log(Logger.Level.Debug, $"DWOxyConfig.GetCapacityOverride called for TechType {tank.AsString()} with baseCapacity parameter of {baseCapacity}");
 
             if (exclusion == Main.ExclusionType.Both)
             {
@@ -95,11 +96,16 @@ namespace CustomiseOxygen
                     Log.LogDebug($"DWOxyConfig.GetCapacityOverride: no override found for TechType {tank.AsString()}");
 #endif
                 }
-                Main.AddTank(tank, baseCapacity);
+                Main.AddTank(tank, baseCapacity, bUnlockAtStart: false, Update: false);
             }
 
             if (exclusion != Main.ExclusionType.Multipliers)
                 capacityMultiplier = baseOxyMultiplier * (bManualRefill ? refillableMultiplier : 1);
+
+            if (defaultTankCapacities.TryGetValue(tank.AsString(), out float cap))
+                capacityOverride = cap * capacityMultiplier;
+
+
 
             return true;
         }
@@ -122,7 +128,7 @@ namespace CustomiseOxygen
                     return false;
                 }
 
-                Main.AddTank(tank, capacity, null, bUpdateIfPresent);
+                Main.AddTank(tank, capacity, bUpdateIfPresent, null);
                 defaultTankCapacities[tank.AsString(true)] = capacity;
                 return false;
             }
@@ -210,8 +216,6 @@ namespace CustomiseOxygen
                 Logger.Log(Logger.Level.Debug, "All values present and correct"); 
 #endif
             }
-
-
         }
     }
 }

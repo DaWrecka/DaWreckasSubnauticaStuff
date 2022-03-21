@@ -40,15 +40,18 @@ namespace CustomiseOxygen
 
         private struct PendingTankEntry
         {
-            public float capacity;
-            public Sprite icon;
-            public bool bUnlockAtStart;
+            public float capacity { get; private set; }
+            public Sprite icon { get; private set; }
+            public bool bUnlockAtStart { get; private set; }
+            public bool Update { get; private set; }
 
-            public PendingTankEntry(float cap, Sprite icon, bool bUnlockAtStart = false)
+
+            public PendingTankEntry(float cap, Sprite icon, bool bUnlockAtStart, bool bUpdate = false)
             {
                 this.capacity = cap;
                 this.icon = icon;
                 this.bUnlockAtStart = bUnlockAtStart;
+                this.Update = bUpdate;
             }
         }
 
@@ -75,19 +78,19 @@ namespace CustomiseOxygen
             Exclusions.Add(excludedTank, (ExclusionType)newExclusion);
         }
 
-        public static void AddTank(TechType tank, float capacity, Sprite sprite = null, bool bUnlockAtStart = false)
+        public static void AddTank(TechType tank, float capacity, bool bUnlockAtStart, Sprite sprite = null, bool Update = false)
         {
             if (pendingTanks.ContainsKey(tank))
             {
                 Log.LogDebug($"Main.AddTank(TechType: {tank.AsString()}): tank already pending");
                 return;
             }
-            if (processedTanks.Contains(tank))
+            if (processedTanks.Contains(tank) && !Update)
             {
                 Log.LogDebug($"Main.AddTank(TechType: {tank.AsString()}): Tank already processed");
                 return;
             }
-            Log.LogDebug($"Main.AddTank(TechType: {tank.AsString()}): Registering new tank with capacity {capacity}");
+            Log.LogDebug($"Main.AddTank(TechType: {tank.AsString()}): Registering new tank with capacity {capacity} and bUnlockAtStart: {bUnlockAtStart}");
 
             if (!config.defaultTankCapacities.ContainsKey(tank.AsString()))
             {
@@ -176,7 +179,7 @@ namespace CustomiseOxygen
                     if (icon != null)
                     {
                         Log.LogDebug($"WaitForSpriteHandler(): Found icon for TechType {keyString}: {icon.texture.name}");
-                        TankTypes.AddTank(key, capacity, icon, kvp.Value.bUnlockAtStart);
+                        TankTypes.AddTank(key, capacity, kvp.Value.bUnlockAtStart, icon, kvp.Value.Update);
                         removals.Add(key);
                     }
                     else
@@ -218,9 +221,9 @@ namespace CustomiseOxygen
             public float speedModifier { get; private set; }
             public bool bRefillStatus { get; private set; }
 
-            public TankType(TechType tank, float baseO2capacity, Sprite sprite = null, bool bUnlockAtStart = false, float speedModifier = 1f)
+            public TankType(TechType tank, float baseO2capacity, bool bUnlockAtStart, Sprite sprite = null, float speedModifier = 1f)
             {
-                Log.LogDebug($"TankType.AddTank(TechType: {tank.AsString()}): Registering tank TechType");
+                Log.LogDebug($"TankType.AddTank(TechType: {tank.AsString()}): Registering tank TechType, bUnlockAtStart: {bUnlockAtStart}");
                 if (sprite != null)
                     this.sprite = sprite;
                 else
@@ -232,7 +235,6 @@ namespace CustomiseOxygen
                 {
                     //new TankCraftHelper(tank).Patch();
                     this.refillTechType = TechTypeHandler.AddTechType((tank.AsString(false) + "Refill"), tankName + " Refill", "Refilled " + tankName, false);
-                    KnownTechHandler.SetAnalysisTechEntry(tank, new TechType[] { this.refillTechType });
                     SpriteHandler.RegisterSprite(this.refillTechType, this.sprite);
                     var techData = new RecipeData()
                     {
@@ -264,10 +266,19 @@ namespace CustomiseOxygen
                         CraftDataHandler.SetCraftingTime(this.refillTechType, 5f);
                     }
 
-                    Main.bannedTech.Add(this.refillTechType);
                     if (bUnlockAtStart)
+                    {
+                        Log.LogDebug($"TankType.AddTank(TechType: {tank.AsString()}): Setting to unlock at start");
                         KnownTechHandler.UnlockOnStart(this.refillTechType);
+                    }
+                    else
+                    {
+                        Log.LogDebug($"TankType.AddTank(TechType: {tank.AsString()}): Setting refill {this.refillTechType.AsString()} to unlock with TechType {tank.AsString()}");
+                        KnownTechHandler.SetAnalysisTechEntry(tank, new TechType[] { this.refillTechType });
+                    }
 
+
+                    Main.bannedTech.Add(this.refillTechType);
                     this.bRefillStatus = false;
                 }
                 else
@@ -286,7 +297,7 @@ namespace CustomiseOxygen
         {
             private Dictionary<TechType, TankType> TankTypes;
 
-            public bool AddTank(TechType tank, float baseCapacity, Sprite sprite = null, bool bUpdate = false, bool bUnlockAtStart = false)
+            public bool AddTank(TechType tank, float baseCapacity, bool bUnlockAtStart, Sprite sprite = null, bool bUpdate = false, float speedModifier = 1f)
             {
                 if (TankTypes == null)
                     TankTypes = new Dictionary<TechType, TankType>();
@@ -307,7 +318,7 @@ namespace CustomiseOxygen
 
                 Log.LogDebug($"TankTypes.AddTank(TechType: {tank.AsString()}): Adding Tank with capacity of {baseCapacity}"); 
 #endif
-                TankTypes.Add(tank, new TankType(tank, baseCapacity, bUnlockAtStart: bUnlockAtStart));
+                TankTypes.Add(tank, new TankType(tank, baseCapacity, bUnlockAtStart, sprite, speedModifier));
 
                 return true;
             }
@@ -373,12 +384,14 @@ namespace CustomiseOxygen
             var harmony = new Harmony($"DaWrecka_{assembly.GetName().Name}");
             harmony.PatchAll(assembly);
             config.Init();
+#if SUBNAUTICA_STABLE
             bool deathRunPatch = AssemblyUtils.PatchIfExists(harmony, "DeathRun", "DeathRun.NMBehaviours.SpecialtyTanks", "Update", null, null, new HarmonyMethod(typeof(OxygenManagerPatches), nameof(OxygenManagerPatches.SpecialtyTankUpdateTranspiler)));
             bool nitrogenPatch = AssemblyUtils.PatchIfExists(harmony, "NitrogenMod", "NitrogenMod.NMBehaviours.SpecialtyTanks", "Update", null, null, new HarmonyMethod(typeof(OxygenManagerPatches), nameof(OxygenManagerPatches.SpecialtyTankUpdateTranspiler)));
             if (deathRunPatch || nitrogenPatch)
             {
                 Log.LogDebug($"Patched SpecialtyTanks: Deathrun patch status {deathRunPatch}, NitrogenMod patch status {nitrogenPatch}");
             }
+#endif
         }
 
         [QModPostPatch]

@@ -108,7 +108,7 @@ namespace DWEquipmentBonanza
 	{
 		internal static bool bVerboseLogging = true;
 		internal static bool bLogTranspilers = false;
-		internal const string version = "0.11.2.0";
+		internal const string version = "0.12.0.0";
 #if SUBNAUTICA_STABLE
 		public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
 #endif
@@ -193,10 +193,11 @@ namespace DWEquipmentBonanza
 			}
 		}
 
+		//public static void AddTank(TechType tank, float capacity, bool bUnlockAtStart, Sprite sprite = null, bool Update = false)
 		internal static void AddCustomOxyTank(TechType tank, float capacity, Sprite icon = null, bool bUnlockAtStart = false)
 		{
 			if (CustomOxyAddTankMethod != null)
-				CustomOxyAddTankMethod.Invoke(null, new object[] { tank, capacity, icon, bUnlockAtStart });
+				CustomOxyAddTankMethod.Invoke(null, new object[] { tank, capacity, bUnlockAtStart, icon, false });
 			else
 			{
 				if (bCustomOxygenMode)
@@ -475,14 +476,21 @@ namespace DWEquipmentBonanza
 				new SeamothThermalModule(),
 				new SeamothThermalModuleMk2(),
 				new SeamothUnifiedChargerModule(),
+				new FlashlightHelmet(),
+				new IlluminatedRebreather(),
+				new LightRadHelmet(),
+				new UltimateHelmet(),
+				new Blueprint_LightRebreatherPlusRad(),
+				new Blueprint_LightRadHelmetPlusRebreather(),
+				new Blueprint_FlashlightPlusBrineHelmet(),
 #elif BELOWZERO
-				new InsulatedRebreather(),
 				new ReinforcedColdSuit(),
 				new ReinforcedColdGloves(),
 				new HighCapacityBooster(),
 				new SurvivalColdSuit(),
 				new SurvivalSuitBlueprint_FromReinforcedCold(),
 				new SurvivalSuitBlueprint_FromSurvivalCold(),
+				new SurvivalSuitBlueprint_FromReinforcedSurvival(),
 				new HoverbikeMobilityUpgrade(),
 				new SeaTruckSolarModule(),
 				new SeatruckSolarModuleMk2(),
@@ -491,19 +499,18 @@ namespace DWEquipmentBonanza
 				new SeatruckUnifiedChargerModule(),
 				new SeaTruckSonarModule(),
 				new ShadowLeviathanSample(),
-				new SurvivalSuitBlueprint_FromReinforcedSurvival(),
 				new IonBoosterTank(),
 				new SeatruckRepairModule(),
-				new IlluminatedRebreather(),
-				new LightColdHelmet(),
-				new UltimateHelmet(),
-				new Blueprint_LightRebreatherToUltimateHelmet(),
-				new Blueprint_LightColdToUltimateHelmet(),
 				new SeaTruckUpgradeHorsepower2(),
 				new SeaTruckUpgradeHorsepower3(),
 				new HoverbikeBoostUpgradeModule(),
 				new SeaTruckQuantumLocker(),
 				new HoverbikeQuantumLocker(),
+				new IlluminatedRebreather(),
+				new LightColdHelmet(),
+				new InsulatedRebreather(),
+				new UltimateHelmet(),
+				new Blueprint_LightColdToUltimateHelmet(),
 #endif
 				new DiverPerimeterDefenceChip_Broken(),
 				new DiverPerimeterDefenceChipItem(),
@@ -522,7 +529,7 @@ namespace DWEquipmentBonanza
 				new ExosuitSolarModuleMk2(),
 				new ExosuitThermalModuleMk2(),
 				new ExosuitUnifiedChargerModule(),
-				new VehicleRepairModule()
+				new VehicleRepairModule(),
 			};
 
 
