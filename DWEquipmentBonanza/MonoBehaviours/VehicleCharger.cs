@@ -452,5 +452,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			{ "Ridiculous", 0.55f },
 			{ "Insane", 0.3f }
 		};
+		protected override float ThermalChargeRate => difficultyKeyedThermalChargeRates.GetOrDefault(Main.config.ChargeDifficulty, 0f);
+		protected override float SolarChargeRate => difficultyKeyedSolarChargeRates.GetOrDefault(Main.config.ChargeDifficulty, 0f);
 	}
 }
