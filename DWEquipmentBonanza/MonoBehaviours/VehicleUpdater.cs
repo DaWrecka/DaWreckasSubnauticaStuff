@@ -55,7 +55,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		public static bool AddRepairModuleType(TechType newRepairModule)
 		{
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
 			if (newRepairModule == TechType.None)
 			{
 				//Log.LogError($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}(): attempt to add invalid repair module");

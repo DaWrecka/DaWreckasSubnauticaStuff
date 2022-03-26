@@ -92,7 +92,7 @@ namespace DWEquipmentBonanza.Equipables
         protected static GameObject prefab;
 
         public override EquipmentType EquipmentType => EquipmentType.Body;
-        public override TechType RequiredForUnlock => TechType.Unobtanium;
+		public override bool UnlockedAtStart => false;
         public override Vector2int SizeInInventory => new(2, 2);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;

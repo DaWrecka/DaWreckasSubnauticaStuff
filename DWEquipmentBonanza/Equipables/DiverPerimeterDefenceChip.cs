@@ -46,8 +46,7 @@ namespace DWEquipmentBonanza.Equipables
 		public override Vector2int SizeInInventory => new Vector2int(1, 1);
 		public override TechGroup GroupForPDA => TechGroup.Personal;
 		public override TechCategory CategoryForPDA => TechCategory.Equipment;
-		public override TechType RequiredForUnlock => TechType.Unobtanium;
-
+		public override bool UnlockedAtStart => false;
 		protected override RecipeData GetBlueprintRecipe()
 		{
 			return new RecipeData();

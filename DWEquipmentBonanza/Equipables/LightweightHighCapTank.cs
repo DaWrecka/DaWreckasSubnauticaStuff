@@ -60,7 +60,7 @@ namespace DWEquipmentBonanza.Equipables
 
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
 
-        public override TechType RequiredForUnlock => TechType.Unobtanium;
+        public override bool UnlockedAtStart => false;
 
         public override TechCategory CategoryForPDA => TechCategory.Equipment;
 

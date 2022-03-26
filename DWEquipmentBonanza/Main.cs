@@ -108,7 +108,7 @@ namespace DWEquipmentBonanza
 	{
 		internal static bool bVerboseLogging = true;
 		internal static bool bLogTranspilers = false;
-		internal const string version = "0.12.0.1";
+		internal const string version = "0.13.0.0";
 #if SUBNAUTICA_STABLE
 		public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
 #endif
@@ -169,7 +169,6 @@ namespace DWEquipmentBonanza
 
 #elif BELOWZERO
 				return TechType.WaterFiltrationSuit;
-
 #endif
 			}
 		}
@@ -186,23 +185,16 @@ namespace DWEquipmentBonanza
 		{
 			if (CustomOxyAddExclusionMethod != null)
 				CustomOxyAddExclusionMethod.Invoke(null, new object[] { excludedTank, bExcludeMultipliers, bExcludeOverride });
-			else
-			{
-				if(bCustomOxygenMode)
-					Log.LogError($"Could not get Custom Oxygen AddExclusion method");
-			}
+			else if(bCustomOxygenMode)
+				Log.LogError($"Could not get Custom Oxygen AddExclusion method");
 		}
 
-		//public static void AddTank(TechType tank, float capacity, bool bUnlockAtStart, Sprite sprite = null, bool Update = false)
 		internal static void AddCustomOxyTank(TechType tank, float capacity, Sprite icon = null, bool bUnlockAtStart = false)
 		{
 			if (CustomOxyAddTankMethod != null)
 				CustomOxyAddTankMethod.Invoke(null, new object[] { tank, capacity, bUnlockAtStart, icon, false });
-			else
-			{
-				if (bCustomOxygenMode)
-					Log.LogError($"Could not get Custom Oxygen AddTank method");
-			}
+			else if (bCustomOxygenMode)
+				Log.LogError($"Could not get Custom Oxygen AddTank method");
 		}
 
 		internal static void AddModTechType(TechType tech, GameObject prefab = null)
@@ -465,6 +457,41 @@ namespace DWEquipmentBonanza
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.BodyMenuPath, "Suit Upgrades", SpriteManager.Get(Main.StillSuitType));
 			CraftTreeHandler.AddTabNode(CraftTree.Type.SeamothUpgrades, DWConstants.ChargerMenuPath, "Vehicle Chargers", SpriteManager.Get(TechType.ExosuitThermalReactorModule));
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.ChipsMenuPath, "Chips", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
+
+			/*
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.KnifeMenuPath, "Knife Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_knifemenu"));
+			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HeatBlade" });
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HeatBlade, new string[] { DWConstants.KnifeMenuPath });
+			 */
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.BaseHelmetsMenuName, "Headwear", DWConstants.BaseHelmetsIcon, DWConstants.BaseHelmetPath);
+			foreach (TechType tt in new List<TechType>()
+			{
+				TechType.Rebreather,
+#if BELOWZERO
+				TechType.ColdSuitHelmet
+#endif
+			})
+			{
+				CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Personal", "Equipment", tt.AsString() });
+				CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, tt, DWConstants.BaseHelmetPath);
+			}
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.BaseSuitsMenuName, "Bodywear", DWConstants.BaseSuitsIcon, DWConstants.BaseSuitsPath);
+			foreach (TechType tt in new List<TechType>()
+			{
+				Main.StillSuitType,
+				TechType.ReinforcedDiveSuit,
+#if SUBNAUTICA
+				TechType.RadiationSuit
+#elif BELOWZERO
+				TechType.ColdSuit,
+				TechType.ColdSuitGloves
+#endif
+			})
+			{
+				CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Personal", "Equipment", tt.AsString() });
+				CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, tt, DWConstants.BaseSuitsPath);
+			}
+
 
 			var prefabs = new List<Spawnable>() {
 #if SUBNAUTICA_STABLE

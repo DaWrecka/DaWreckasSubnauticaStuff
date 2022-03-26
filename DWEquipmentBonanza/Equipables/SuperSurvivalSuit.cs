@@ -73,7 +73,7 @@ namespace DWEquipmentBonanza.Equipables
             Log.LogDebug($"SuperSurvivalSuit(): constructor end");
         }
 
-        public override TechType RequiredForUnlock => TechType.Unobtanium;
+        public override bool UnlockedAtStart => false;
         public override EquipmentType EquipmentType => EquipmentType.Body;
         [Obsolete]
         protected override float SurvivalCapOverride => 200f;
@@ -263,7 +263,7 @@ namespace DWEquipmentBonanza.Equipables
             };
         }
 
-        public override TechType RequiredForUnlock => TechType.Unobtanium;
+        public override bool UnlockedAtStart => false;
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -316,7 +316,7 @@ namespace DWEquipmentBonanza.Equipables
             };
         }
 
-        public override TechType RequiredForUnlock => TechType.Unobtanium;
+		public override bool UnlockedAtStart => false;
         protected override RecipeData GetBlueprintRecipe()
         {
             return new RecipeData()
@@ -351,7 +351,7 @@ namespace DWEquipmentBonanza.Equipables
             };
         }
 
-        public override TechType RequiredForUnlock => TechType.Unobtanium;
+		public override bool UnlockedAtStart => false;
         protected override RecipeData GetBlueprintRecipe()
         {
             return new RecipeData()

@@ -9,6 +9,7 @@ using Logger = QModManager.Utility.Logger;
 using DWEquipmentBonanza.MonoBehaviours;
 using SMLHelper.V2.Utility;
 using System.IO;
+using Common.Utility;
 #if SUBNAUTICA_STABLE
 using RecipeData = SMLHelper.V2.Crafting.TechData;
 using Sprite = Atlas.Sprite;
@@ -69,7 +70,7 @@ namespace DWEquipmentBonanza.VehicleModules
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.SeaTruckUpgradeEnergyEfficiency, true);
 #endif
                 yield return task;
-                prefab = GameObject.Instantiate(task.GetResult());
+                prefab = GameObjectUtils.InstantiateInactive(task.GetResult());
 
                 prefab.name = ClassID;
                 //prefab.EnsureComponent<VehicleRepairComponent>();

@@ -2,7 +2,7 @@
 ## CombinedItems
 DELETED - superceded by DWEquipmentBonanza
 ## DWEquipmentBonanza (requires CustomDataboxes)
-A mod inspired by Alexejhero's More Modified Items. As of 2021-03-22, has the following items:
+A mod initially inspired by Alexejhero's More Modified Items, and expanded as and when I receive new ideas.
 The following are crafted from the Workbench:
 * High Capacity Booster Tank: Booster tank with capacity of High Capacity Tank
 * Plasteel High Capacity Tank: a duplication of the Lightweight Ultra High Capacity Tank. Not currently-craftable.
@@ -11,11 +11,14 @@ The following are crafted from the Workbench:
 
 The following are crafted from the new Suit Upgrades tab in Workbench:
 * Reinforced Cold Suit: combination of Cold Suit and Reinforced Dive Suit. Has body suit and gloves. Unlocked with both Cold Suit and Reinforced Dive Suit.
-* Insulated Rebreather: Combination of Rebreather and Cold Helmet. Unlocked when both Cold Suit and Rebreather are unlocked.
 * Survival Suit: upgraded Stillsuit which passively regenerates food and water, instead of dumping water packs in inventory. Unlocked with Stillsuit.
 * Insulated Survival Suit: combination of Survival Suit and Cold Suit. Unlocked with same.
 * Reinforced Survival Suit: Combination of Reinforced Dive Suit and Survival Suit, unlocked with same.
 * Ultimate Survival Suit: combination of Reinforced Dive Suit, Cold Suit, and Survival Suit. Can be crafted from Reinforced Suit, Cold Suit, and Survival Suit, or from one of the combinations and its third part.
+* Insulated Rebreather: Combination of Rebreather and Cold Helmet. Unlocked when both Cold Suit and Rebreather are unlocked.
+* Light Cold Helmet: Combination of Headlamp and Cold Helmet
+* Light Rebreather: Combination of Headlamp and Rebreather
+* Ultimate Helmet: Combination of Headlamp, Rebreather and Cold Helmet. Can be crafted from all of those items, or one of the combinations and the remainder (e.g. Light Rebreather + Cold Helmet)
 
 The following are crafted from the Machines section of the Fabricator:
 * Powerglide: unlocked by scanning fragments. (see below for list of spawn biomes) Holding Shift provides significant speed bonus, although at significant energy cost.
@@ -26,17 +29,20 @@ The following are crafted from the Upgrades section of the Fabricator:  (Hoverbi
 * Snowfox Speed Module: Increases Snowfox speed, but increases energy consumption while moving.
 * Snowfox Structural Integrity Module: reduces damage taken by Snowfox, but consumes energy to do so.
 * Snowfox Self-Repair Module: Slow passive repair of damage to the Snowfox. Costs energy.
-* Snowfox Durability Module: Made by combining the Structural Integrity and Self-Repair Modules.
+* Snowfox Durability Module: Made by combining the Structural Integrity and Self-Repair Modules. Adds a shield which can absorb incoming damage. Once depleted, damage taken will reduce the Snowfox health. Shield will recharge after several seconds without taking damage.
 * Snowfox Water Travel Module: allows Snowfox to travel over water
 * Snowfox Mobility Upgrade: Combination of Engine Efficiency, Speed, Water Travel, and Jump modules; Supercedes Speed and Efficiency modules; does not provide as large a benefit as either module, but energy consumption is reduced compared to individual modules.
+* Snowfox Boost Upgrade Module: when equipped, the boost changes from periodic pulses to constant; Hold down the Sprint key to continue boosting. Continuous boost will create heat buildup, and if allowed to overheat the Snowfox must be allowed to cool fully before boost can be resumed.
 
 The following are crafted from the Vehicle Upgrade Console fabricator:
-* Exosuit Lightning Claw Generator: when equipped, attacks with the Exosuit's claw inflict Electrical damage, instantly repelling most marine fauna, including Leviathans.
+* Exosuit Lightning Claw Generator: when equipped, attacks with the Exosuit's claw inflict Electrical damage, instantly repelling most marine fauna, even Leviathans.
 * Seatruck Solar Module: Charges power cells when Seatruck is within 200m of the surface. Limited stacking ability.
 * Seatruck Thermal Module: Charges power cells when Seatruck is in hot areas. (25C or higher)  Limited stacking ability.
 * Seatruck Solar Module Mk2 and Thermal Module Mk2: as with the basic Solar and Thermal Modules, respectively, but also contains an internal battery, allowing the charger to provide limited power when away from its source of energy.  Limited stacking ability.
 * Seatruck Unified Charger Module: Charges power cells in sunlight and warmth, and also contains an internal battery. Limited stacking ability.
-* Seatruck Sonar Module: Press the associated hotkey to toggle the module; press it a second time to toggle it off. Acts exactly as the Seamoth sonar module did in SN1.
+* Seatruck Sonar Module: Press the associated hotkey to toggle the module; press it a second time to toggle it off. Besides the ability to toggle, acts exactly as the Seamoth sonar module did in SN1.
+* Seatruck Horsepower Upgrade Mk2 and Mk3: Improved versions of the Horsepower Upgrade.
+* Seatruck Quantum Locker: Quantum Locker which can be inserted into a Seatruck. To activate, press the associated number key. (if the module is in slot 5, press the 5 key)
 
 The following are crafted from a new tab in the Personal>Equipment tab of the Fabricator:
 * Diver Perimeter Defence Chip: a chip which inflicts electrical damage on predators just before they inflict damage. This is enough to repel everything up to and including a Void Chelicerate; however, the chip only works once and is then burned out. Mk2 and Mk3 versions are available.

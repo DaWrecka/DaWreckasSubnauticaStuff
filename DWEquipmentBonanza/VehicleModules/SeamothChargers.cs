@@ -110,7 +110,7 @@ namespace DWEquipmentBonanza.VehicleModules
                     {
                         new Ingredient(Main.GetModTechType("SeamothSolarModuleMk2"), 1),
                         new Ingredient(Main.GetModTechType("SeamothThermalModuleMk2"), 1),
-                        new Ingredient(TechType.AdvancedWiringKit, 1)
+                        new Ingredient(TechType.PrecursorKey_Purple, 1)
                     }
                 )
             };

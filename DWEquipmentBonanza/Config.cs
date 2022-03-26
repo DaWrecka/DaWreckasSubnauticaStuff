@@ -7,6 +7,7 @@ using SMLHelper.V2.Options;
 using SMLHelper.V2.Options.Attributes;
 using SMLHelper.V2.Handlers;
 using UnityEngine;
+using System;
 
 #if SUBNAUTICA_STABLE
 	using Oculus.Newtonsoft.Json;
@@ -49,6 +50,16 @@ namespace DWEquipmentBonanza
 		private const float HOVERPAD_RECHARGE_RATE = 1f;
 		private const float HOVERPAD_RECHARGE_RATE_MIN = 0.1f;
 		private const float HOVERPAD_RECHARGE_RATE_MAX = 10f;
+		private const string EASY = "Easy";
+		private const string HARD = "Hard";
+		private const string RIDICULOUS = "Ridiculous";
+		private const string INSANE = "Insane";
+
+		[Choice("Vehicle charger difficulty", new string[] { EASY, HARD, RIDICULOUS, INSANE }), OnChange(nameof(OnChoiceChanged))]
+		public string ChargeDifficulty;
+
+		[Choice("Self-repair charger difficulty", new string[] { EASY, HARD, RIDICULOUS, INSANE }), OnChange(nameof(OnChoiceChanged))]
+		public string SelfRepairDifficulty;
 
 		[Slider("Knife damage", KNIFE_DAMAGE_MIN, KNIFE_DAMAGE_MAX, DefaultValue = KNIFE_DAMAGE_DEFAULT, Id = "KnifeDamage",
 			Step = 0.1f, Format = "{0:F1}",
@@ -194,12 +205,20 @@ namespace DWEquipmentBonanza
 		public DWConfig() : base()
 		{
 			IngameMenuHandler.RegisterOnQuitEvent(this.OnQuitEvent);
+			if (string.IsNullOrEmpty(ChargeDifficulty))
+				ChargeDifficulty = EASY;
+			if (string.IsNullOrEmpty(SelfRepairDifficulty))
+				SelfRepairDifficulty = EASY;
 		}
 
 		private void OnSliderChange(SliderChangedEventArgs e)
 		{
 			if (onOptionChanged != null)
 				onOptionChanged.Invoke(this);
+		}
+
+		private void OnChoiceChanged(ChoiceChangedEventArgs e)
+		{
 		}
 
 		public void OnQuitEvent()

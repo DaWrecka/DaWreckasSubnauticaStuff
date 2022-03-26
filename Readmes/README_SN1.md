@@ -2,15 +2,10 @@
 ## BrineSuit
 DELETED - has been integrated into DWEquipmentBonanza
 ## DWEquipmentBonanza (requires CustomDataboxes)
-A mod inspired by Alexejhero's More Modified Items. As of 2021-03-22, has the following items:
+A mod initially inspired by Alexejhero's More Modified Items, and expanded as and when I receive new ideas.
 The following are crafted from the Workbench:
 * Plasteel High Capacity Tank: a duplication of the Lightweight Ultra High Capacity Tank. Not currently-craftable.
 * Ultra Glide Swim Charge Fins: a duplication of the same from More Modified Items.
-
-The following are crafted from the new Suit Upgrades tab in Workbench:
-* Brine Suit: combination of Radiation Suit and Reinforced Dive Suit. Has body suit, helmet and gloves. Unlocked with both Radiation Suit and Reinforced Dive Suit. Provides immunity to corrosive damage, including acid mushrooms and the corrosive brine in the Lost River.
-* Survival Suit: upgraded Stillsuit which passively regenerates food and water, instead of dumping water packs in inventory. Unlocked with Stillsuit.
-* Ultimate Survival Suit: combination of Brine Suit and Survival Suit.
 
 The following are crafted from the Machines section of the Fabricator:
 * Powerglide: unlocked by scanning fragments or databox. (see below for list of spawn biomes) Holding Shift provides significant speed bonus, although at significant energy cost.
@@ -28,6 +23,17 @@ The following are crafted from the Vehicle Upgrade Console fabricator:
 
 The following are crafted from a new tab in the Personal>Equipment tab of the Fabricator:
 * Diver Perimeter Defence Chip: a chip which inflicts electrical damage on predators just before they inflict damage. This is enough to repel everything up to and including a Void Leviathan; however, the chip only works once and is then burned out. Mk2 and Mk3 versions are available.
+
+The following are crafted from the Personal>Equipment menu
+* Headlamp: Head-mounted light
+
+The following are crafted from the new Suit Upgrades tab in Workbench:
+* Brine Suit: combination of Radiation Suit and Reinforced Dive Suit. Has body suit, helmet and gloves. Unlocked with both Radiation Suit and Reinforced Dive Suit. Provides immunity to corrosive damage, including acid mushrooms and the corrosive brine in the Lost River.
+* Survival Suit: upgraded Stillsuit which passively regenerates food and water, instead of dumping water packs in inventory. Unlocked with Stillsuit.
+* Ultimate Survival Suit: combination of Brine Suit and Survival Suit.
+* Light Rad Helmet: combination of Radiation Helmet and Headlamp.
+* Light Rebreather: Combination of Rebreather and Headlamp
+* Ultimate Helmet: Combination of Brine Helmet and Headlamp. Can be made by directly combining Headlamp, Radiation Helmet and Rebreather, or from combining intermediate items. (e.g. Brine Helmet + Headlamp, or Light Rebreather + Radiation Helmet) Other components may be required.
 
 Powerglide fragments spawn in the following biomes:
 	Dunes_TechSite

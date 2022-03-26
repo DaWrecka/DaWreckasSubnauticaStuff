@@ -26,7 +26,7 @@ namespace DWEquipmentBonanza.VehicleModules
                     {
                         new Ingredient(Main.GetModTechType("SeatruckSolarModuleMk2"), 1),
                         new Ingredient(Main.GetModTechType("SeatruckThermalModuleMk2"), 1),
-                        new Ingredient(TechType.AdvancedWiringKit, 1)
+                        new Ingredient(TechType.RadioTowerPPU, 1)
                     }
                 )
             };

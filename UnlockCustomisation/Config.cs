@@ -91,29 +91,30 @@ namespace UnlockCustomisation
                 {
                     // A duplicate key in this collection isn't necessarily an error; It may be that a single blueprint has been configured with multiple ways to unlock it.
                     // It's worth logging as a warning, however.
-                    Log.LogWarning($"Duplicate key '{kvp.Key}' found in SingleUnlocks collection; Verify that this is intended behaviour.");
+                    Log.LogWarning($"TechType '{kvp.Key}' found multiple times in SingleUnlocks collection; Verify that this is intended behaviour.");
                 }
                 else
                     SingleUnlockTypes.Add(key);
 
-                Log.LogDebug($"Setting TechType {key.AsString()} as unlocking with {value.AsString()}");
+                Log.LogDebug($"Setting blueprint {key.AsString()} to unlock with {value.AsString()}");
                 KnownTechHandler.SetAnalysisTechEntry(value, new HashSet<TechType>() { key });
             }
 
             foreach (KeyValuePair<string, List<string>> compound in CompoundTechs)
             {
-                TechType tt = TechTypeUtils.GetModTechType(compound.Key);
-                if (tt == TechType.None)
+                TechType target = TechTypeUtils.GetModTechType(compound.Key);
+                if (target == TechType.None)
                 {
                     Log.LogError($"Could not parse string '{compound.Key}' for key as TechType in CompoundTechs");
                     continue;
                 }
-                if (CompoundTechTypes.Contains(tt))
+                if (CompoundTechTypes.Contains(target))
                 {
-                    Log.LogWarning($"Multiple entries found in CompoundTechs for TechType {tt.AsString()}; Verify that this is intended behaviour.");
+                    Log.LogWarning($"Multiple entries found in CompoundTechs for TechType {target.AsString()}");
+                    Log.LogWarning($"Fail safe mode: Additional entries will be processed as normal. User should verify that this is intended, however.");
                 }
                 else
-                    CompoundTechTypes.Add(tt);
+                    CompoundTechTypes.Add(target);
 
                 HashSet<TechType> compoundTechs = new HashSet<TechType>();
                 foreach (string s in compound.Value)
@@ -121,11 +122,11 @@ namespace UnlockCustomisation
                     TechType t = TechTypeUtils.GetModTechType(s);
                     if (t == TechType.None)
                     {
-                        Log.LogError($"Could not parse string '{s}' as TechType in CompoundTechs collection, key {tt.AsString()}");
+                        Log.LogError($"Could not parse string '{s}' as TechType in CompoundTechs collection, key {target.AsString()}");
                     }
                     else if (compoundTechs.Contains(t))
                     {
-                        Log.LogError($"Duplicate entry '{s}' in CompoundTechs, key {tt.AsString()}");
+                        Log.LogError($"Duplicate entry '{s}' in CompoundTechs, key {target.AsString()}");
                     }
                     else
                     {
@@ -135,19 +136,19 @@ namespace UnlockCustomisation
 
                 if (compoundTechs.Count < 2)
                 {
-                    Log.LogWarning($"Not enough valid TechTypes found in list for CompoundTechs entry {tt.AsString()}; Verify the spelling of all entries within its list.");
+                    Log.LogWarning($"Not enough valid TechTypes found in list for CompoundTechs entry {target.AsString()}; Verify the spelling of all entries within its list.");
                 }
                 else
                 {
                     StringBuilder sb = new StringBuilder();
-                    sb.Append($"Setting TechType {tt.AsString()} as CompoundTech with values:");
+                    sb.Append($"Setting TechType {target.AsString()} as CompoundTech with values:");
                     foreach (TechType comp in compoundTechs)
                     {
                         sb.AppendLine($"\t{comp.AsString()}");
                     }
 
                     Log.LogDebug(sb.ToString());
-                    Reflection.AddCompoundTech(tt, compoundTechs.ToList<TechType>());
+                    Reflection.AddCompoundTech(target, compoundTechs.ToList<TechType>());
                 }
             }
         }

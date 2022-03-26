@@ -113,7 +113,11 @@ namespace DWEquipmentBonanza.VehicleModules
                     {
                         new Ingredient(Main.GetModTechType("ExosuitSolarModuleMk2"), 1),
                         new Ingredient(Main.GetModTechType("ExosuitThermalModuleMk2"), 1),
-                        new Ingredient(TechType.AdvancedWiringKit, 1)
+#if SUBNAUTICA
+                        new Ingredient(TechType.PrecursorKey_Purple, 1)
+#elif BELOWZERO
+                        new Ingredient(TechType.RadioTowerPPU, 1)
+#endif
                     }
                 )
             };

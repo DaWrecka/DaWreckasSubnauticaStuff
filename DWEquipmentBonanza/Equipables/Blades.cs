@@ -131,7 +131,7 @@ namespace DWEquipmentBonanza
             yield return task;
             hbPrefab = task.GetResult();
 
-            task = CraftData.GetPrefabForTechTypeAsync(TechType.DiamondBlade);
+            task = CraftData.GetPrefabForTechTypeAsync(TechType.Knife);
             yield return task;
 
             prefab = SetupPrefab(task.GetResult());

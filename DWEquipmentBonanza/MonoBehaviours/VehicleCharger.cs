@@ -31,7 +31,6 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		[SerializeField]
 		protected float _charge;
-		protected virtual float cellCapacity => 0f;
 		public virtual float dischargeRate => 1f; // Maximum rate of discharge for any internal cell, measured in units/s
 		private MonoBehaviour _parent;
 		private MonoBehaviour parentVehicle
@@ -55,7 +54,21 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		public float lastSolarCharge { get; protected set; }
 		public float lastThermalCharge { get; protected set; }
 		private PrefabIdentifier prefabIdentifier => this.gameObject?.GetComponent<PrefabIdentifier>();
-		private string moduleId => prefabIdentifier?.id;
+		protected string moduleId => prefabIdentifier?.id;
+		protected virtual Dictionary<string, float> difficultyKeyedSolarChargeRates { get; } = new Dictionary<string, float>()
+		{
+			{ "Easy", 0.75f },
+			{ "Hard", 0.5f },
+			{ "Ridiculous", 0.4f },
+			{ "Insane", 0.2f }
+		};
+		protected virtual Dictionary<string, float> difficultyKeyedThermalChargeRates { get; } = new Dictionary<string, float>()
+		{
+			{ "Easy", 0.75f },
+			{ "Hard", 0.5f },
+			{ "Ridiculous", 0.4f },
+			{ "Insane", 0.2f }
+		};
 
 		public virtual void Init(MonoBehaviour vehicle)
 		{
@@ -208,14 +221,6 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				}
 			}
 
-			if (Main.saveCache.TryGetModuleCharge(moduleId, out float charge))
-			{
-				Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.name}) Retrieved charge value of {charge} from disk for module ID of '{moduleId}'");
-				cell.charge = charge;
-			}
-			else
-				Log.LogWarning($"VehicleCharger.OnAfterDeserialize({this.name}) Failed to retrieve charge value from disk for module ID of '{moduleId}'; is this a new module?");
-
 			// Re-activate the charger, so that it continues to charge the vehicle after a game load
 			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.name}) Waiting for parentVehicle");
 			Transform parent = (this.transform != null && this.transform.parent != null ? this.transform.parent: null);
@@ -315,37 +320,78 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 	public class VehicleThermalChargerMk1 : VehicleCharger
 	{
-		protected override float ThermalChargeRate => 0.75f;
+        protected override Dictionary<string, float> difficultyKeyedSolarChargeRates { get; } = new Dictionary<string, float>();
+		protected override Dictionary<string, float> difficultyKeyedThermalChargeRates { get; } = new Dictionary<string, float>()
+		{
+			{ "Easy", 0.75f },
+			{ "Hard", 0.5f },
+			{ "Ridiculous", 0.4f },
+			{ "Insane", 0.2f }
+		};
+
+		protected override float ThermalChargeRate => difficultyKeyedThermalChargeRates.GetOrDefault(Main.config.ChargeDifficulty, 0f);
 	}
 
 	public class VehicleSolarChargerMk1 : VehicleCharger
 	{
-		protected override float SolarChargeRate => 0.75f;
+		protected override Dictionary<string, float> difficultyKeyedSolarChargeRates { get; } = new Dictionary<string, float>()
+		{
+			{ "Easy", 0.75f },
+			{ "Hard", 0.5f },
+			{ "Ridiculous", 0.4f },
+			{ "Insane", 0.2f }
+		};
+		protected override Dictionary<string, float> difficultyKeyedThermalChargeRates { get; } = new Dictionary<string, float>()
+		{
+			{ "Easy", 0.75f },
+			{ "Hard", 0.5f },
+			{ "Ridiculous", 0.4f },
+			{ "Insane", 0.2f }
+		};
+		protected override float ThermalChargeRate => 0f;
+		protected override float SolarChargeRate => difficultyKeyedSolarChargeRates.GetOrDefault(Main.config.ChargeDifficulty, 0f);
 	}
 
 	public abstract class VehicleChargerMk2 : VehicleCharger, IBattery
 	{
-		protected override float cellCapacity => 120f;
+		protected virtual float baseCapacity => 20f;
+		protected abstract Dictionary<string, float> difficultyTypedCapacityMultipliers { get; }
 
 		public float charge
 		{
 			get { return _charge; }
 			set { _charge = Mathf.Clamp(value, 0f, capacity); }
 		}
-		public float capacity => cellCapacity;
+		public float capacity => baseCapacity * (difficultyTypedCapacityMultipliers != null ? difficultyTypedCapacityMultipliers.GetOrDefault(Main.config.ChargeDifficulty, 0f) : 0f);
 
 		public string GetChargeValueText()
 		{
-			float num = this._charge / this.cellCapacity;
+			float num = this._charge / this.capacity;
 #if SUBNAUTICA_STABLE
-			return Language.main.GetFormat<float, int, float>("BatteryCharge", num, Mathf.RoundToInt(this._charge), this.cellCapacity);
+			return Language.main.GetFormat<float, int, float>("BatteryCharge", num, Mathf.RoundToInt(this._charge), this.capacity);
 #elif BELOWZERO
-			return Language.main.GetFormat<string, float, int, float>("BatteryCharge", ColorUtility.ToHtmlStringRGBA(Battery.gradient.Evaluate(num)), num, Mathf.RoundToInt(this._charge), this.cellCapacity);
+			return Language.main.GetFormat<string, float, int, float>("BatteryCharge", ColorUtility.ToHtmlStringRGBA(Battery.gradient.Evaluate(num)), num, Mathf.RoundToInt(this._charge), this.capacity);
 #endif
 
 		}
 
-		public override void Init(MonoBehaviour vehicle)
+        public override IEnumerator PostDeserialize()
+        {
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.name}): begin");
+
+			if (Main.saveCache.TryGetModuleCharge(moduleId, out float charge))
+			{
+				Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.name}) Retrieved charge value of {charge} from disk for module ID of '{moduleId}'");
+				cell.charge = Mathf.Min(charge, this.capacity);
+			}
+			else
+				Log.LogWarning($"VehicleCharger.OnAfterDeserialize({this.name}) Failed to retrieve charge value from disk for module ID of '{moduleId}'; is this a new module?");
+
+			return base.PostDeserialize();
+        }
+
+        public override void Init(MonoBehaviour vehicle)
 		{
 			//this.cell = this;
 			base.Init(vehicle);
@@ -355,17 +401,56 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 	public class VehicleThermalChargerMk2 : VehicleChargerMk2
 	{
-		protected override float ThermalChargeRate => 1f;
+		private Dictionary<string, float> capacityMultipliers { get; } = new Dictionary<string, float>()
+		{
+			{ "Easy", 5f },
+			{ "Hard", 4f },
+			{ "Ridiculous", 3f },
+			{ "Insane", 2f }
+		};
+		protected override Dictionary<string, float> difficultyTypedCapacityMultipliers => capacityMultipliers;
+		protected override float ThermalChargeRate => difficultyKeyedThermalChargeRates.GetOrDefault(Main.config.ChargeDifficulty, 0f);
+		protected override float SolarChargeRate => 0f;
+		protected override float baseCapacity => 20f;
 	}
 
 	public class VehicleSolarChargerMk2 : VehicleChargerMk2
 	{
-		protected override float SolarChargeRate => 1f;
+		private Dictionary<string, float> capacityMultipliers { get; } = new Dictionary<string, float>()
+		{
+			{ "Easy", 6f },
+			{ "Hard", 4f },
+			{ "Ridiculous", 3f },
+			{ "Insane", 2f }
+		};
+		protected override Dictionary<string, float> difficultyTypedCapacityMultipliers => capacityMultipliers;
+		protected override float ThermalChargeRate => 0f;
+		protected override float SolarChargeRate => difficultyKeyedSolarChargeRates.GetOrDefault(Main.config.ChargeDifficulty, 0f);
 	}
 	public class VehicleUnifiedCharger : VehicleChargerMk2
 	{
-		protected override float ThermalChargeRate => 1f;
-		protected override float SolarChargeRate => 1f;
-		protected override float cellCapacity => 200f;
+		protected override float baseCapacity => 20f;
+		private Dictionary<string, float> capacityMultipliers { get; } = new Dictionary<string, float>()
+		{
+			{ "Easy", 6f },
+			{ "Hard", 4f },
+			{ "Ridiculous", 3f },
+			{ "Insane", 2f }
+		};
+		protected override Dictionary<string, float> difficultyTypedCapacityMultipliers => capacityMultipliers;
+		protected override Dictionary<string, float> difficultyKeyedSolarChargeRates { get; } = new Dictionary<string, float>()
+		{
+			{ "Easy", 1f },
+			{ "Hard", 0.75f },
+			{ "Ridiculous", 0.55f },
+			{ "Insane", 0.3f }
+		};
+		protected override Dictionary<string, float> difficultyKeyedThermalChargeRates { get; } = new Dictionary<string, float>()
+		{
+			{ "Easy", 1f },
+			{ "Hard", 0.75f },
+			{ "Ridiculous", 0.55f },
+			{ "Insane", 0.3f }
+		};
 	}
 }

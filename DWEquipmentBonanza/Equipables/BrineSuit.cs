@@ -121,11 +121,11 @@ namespace DWEquipmentBonanza
         protected abstract float DeathRunDepth { get; }
         public override EquipmentType EquipmentType => EquipmentType.Body;
         public override Vector2int SizeInInventory => new(2, 2);
-        public override TechType RequiredForUnlock => TechType.Unobtanium;
+        public override bool UnlockedAtStart => false;
         public override TechGroup GroupForPDA => TechGroup.Personal;
         public override TechCategory CategoryForPDA => TechCategory.Equipment;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;
-        public override string[] StepsToFabricatorTab => new string[] { "Personal", "Equipment" };
+        public override string[] StepsToFabricatorTab => DWConstants.BaseSuitsPath;
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
 
         public AcidSuitBase(string classId, string friendlyName, string description) : base(classId, friendlyName, description)
@@ -327,8 +327,7 @@ namespace DWEquipmentBonanza
         public static string title = "Brine Suit Mk2";
         public static string description = "Upgraded dive suit, immune to acid, heat protection up to 90C and depth protection up to 1300m";
 
-        public override string[] StepsToFabricatorTab => new string[] { "Personal", "Equipment" };
-
+        public override string[] StepsToFabricatorTab => DWConstants.BaseSuitsPath;
         public override TechType RequiredForUnlock => Main.GetNitrogenTechtype("rivereelscale");
 
         protected override float maxDepth => 1300f;
@@ -384,8 +383,7 @@ namespace DWEquipmentBonanza
         public static string title = "Brine Suit Mk3";
         public static string description = "Upgraded dive suit, immune to acid, heat protection up to 105C and effectively-unlimited depth protection";
 
-        public override string[] StepsToFabricatorTab => new string[] { "Personal", "Equipment" };
-
+        public override string[] StepsToFabricatorTab => DWConstants.BaseSuitsPath;
         public override TechType RequiredForUnlock => Main.GetNitrogenTechtype("lavalizardscale");
         protected override float maxDepth => 8000f;
         protected override float breathMultiplier => 0.55f;

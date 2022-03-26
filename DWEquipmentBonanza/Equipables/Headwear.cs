@@ -35,7 +35,7 @@ namespace DWEquipmentBonanza.Equipables
         public override EquipmentType EquipmentType => EquipmentType.Head;
         public override Vector2int SizeInInventory => new(2, 2);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
-        public override TechType RequiredForUnlock => TechType.Unobtanium;
+        public override bool UnlockedAtStart => RequiredForUnlock == TechType.None && (compoundTech == null || compoundTech.Count < 2);
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
         public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
 
@@ -116,7 +116,8 @@ namespace DWEquipmentBonanza.Equipables
         protected override List<TechType> compoundTech => null;
         protected override List<TechType> substitutions => null;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;
-        public override string[] StepsToFabricatorTab => new string[] { "Personal", "Equipment" };
+        public override TechType RequiredForUnlock => TechType.PrecursorIonCrystal;
+        public override string[] StepsToFabricatorTab => DWConstants.BaseHelmetPath;
 
         public static bool bPrefabsPrepared { get; private set; }
         protected override RecipeData GetBlueprintRecipe()
@@ -305,9 +306,7 @@ namespace DWEquipmentBonanza.Equipables
         protected override List<TechType> substitutions => new List<TechType>()
         {
             TechType.Rebreather,
-#if BELOWZERO
             Main.GetModTechType("FlashlightHelmet")
-#endif
         };
 
         protected override RecipeData GetBlueprintRecipe()
@@ -384,7 +383,7 @@ namespace DWEquipmentBonanza.Equipables
         protected override TechType prefabTemplate => TechType.RadiationHelmet;
         protected override List<TechType> compoundTech => new List<TechType>
         {
-            TechType.RadiationHelmet,
+            TechType.RadiationSuit,
             Main.GetModTechType("FlashlightHelmet") // And this is why I named my SN1 version the same as the BZ version
         };
 
@@ -444,8 +443,161 @@ namespace DWEquipmentBonanza.Equipables
 
     internal class AcidHelmet : HeadwearBase<AcidHelmet>
     {
-        public static Texture2D texture { get; internal set; }
-        public static Texture2D illumTexture { get; internal set; }
+        public static class illumTextureDict
+        {
+            private static Dictionary<TechType, Texture2D> _illumTextureDict { get; } = new Dictionary<TechType, Texture2D>();
+
+            public static bool TryGetValue(TechType target, out Texture2D texture)
+            {
+                return _illumTextureDict.TryGetValue(target, out texture);
+            }
+
+            public static bool TryGetValue(TechType mainTarget, out Texture2D texture, TechType fallback)
+            {
+                if (_illumTextureDict.TryGetValue(mainTarget, out texture))
+                    return true;
+
+                // else
+                if(fallback != TechType.None)
+                    return _illumTextureDict.TryGetValue(fallback, out texture);
+
+                return false;
+            }
+
+            public static bool TryGetValue(TechType mainTarget, out Texture2D texture, ICollection<TechType> alternatives)
+            {
+                if (_illumTextureDict.TryGetValue(mainTarget, out texture))
+                    return true;
+
+                if (alternatives != null && alternatives.Count > 0)
+                {
+                    foreach (TechType tt in alternatives)
+                    {
+                        if (_illumTextureDict.TryGetValue(tt, out texture))
+                            return true;
+                    }
+                }
+
+                return false;
+            }
+
+            public static void Add(TechType techType, Texture2D texture)
+            {
+                _illumTextureDict.Add(techType, texture);
+            }
+
+            public static Texture2D GetOrDefault(TechType techType, Texture2D defaultTexture = null)
+            {
+                return _illumTextureDict.GetOrDefault(techType, defaultTexture);
+            }
+
+            public static Texture2D GetOrDefault(TechType techType, TechType fallbackTechType = TechType.None)
+            {
+                Texture2D texture;
+
+                if (_illumTextureDict.TryGetValue(techType, out texture))
+                    return texture;
+                else if (fallbackTechType != TechType.None && _illumTextureDict.TryGetValue(fallbackTechType, out texture))
+                    return texture;
+
+                return null;
+            }
+
+            public static Texture2D GetOrDefault(TechType techType, TechType[] fallbackTechTypes = null)
+            {
+                Texture2D texture;
+
+                if (_illumTextureDict.TryGetValue(techType, out texture))
+                    return texture;
+
+                if (fallbackTechTypes != null)
+                {
+                    foreach(TechType tt in fallbackTechTypes)
+                        if(tt != TechType.None && _illumTextureDict.TryGetValue(tt, out texture))
+                    return texture;
+                }
+
+                return null;
+            }
+        }
+        public static class textureDict
+        {
+            private static Dictionary<TechType, Texture2D> _textureDict { get; } = new Dictionary<TechType, Texture2D>();
+
+            public static bool TryGetValue(TechType target, out Texture2D texture)
+            {
+                return _textureDict.TryGetValue(target, out texture);
+            }
+
+            public static bool TryGetValue(TechType mainTarget, out Texture2D texture, TechType fallback)
+            {
+                if (_textureDict.TryGetValue(mainTarget, out texture))
+                    return true;
+
+                // else
+                if (fallback != TechType.None)
+                    return _textureDict.TryGetValue(fallback, out texture);
+
+                return false;
+            }
+
+            public static bool TryGetValue(TechType mainTarget, out Texture2D texture, ICollection<TechType> alternatives)
+            {
+                if (_textureDict.TryGetValue(mainTarget, out texture))
+                    return true;
+
+                if (alternatives != null && alternatives.Count > 0)
+                {
+                    foreach (TechType tt in alternatives)
+                    {
+                        if (_textureDict.TryGetValue(tt, out texture))
+                            return true;
+                    }
+                }
+
+                return false;
+            }
+
+            public static void Add(TechType techType, Texture2D texture)
+            {
+                _textureDict.Add(techType, texture);
+            }
+
+            public static Texture2D GetOrDefault(TechType techType, Texture2D defaultTexture = null)
+            {
+                return _textureDict.GetOrDefault(techType, defaultTexture);
+            }
+
+            public static Texture2D GetOrDefault(TechType techType, TechType fallbackTechType = TechType.None)
+            {
+                Texture2D texture;
+
+                if (_textureDict.TryGetValue(techType, out texture))
+                    return texture;
+                else if (fallbackTechType != TechType.None && _textureDict.TryGetValue(fallbackTechType, out texture))
+                    return texture;
+
+                return null;
+            }
+
+
+            public static Texture2D GetOrDefault(TechType techType, TechType[] fallbackTechTypes = null)
+            {
+                Texture2D texture;
+
+                if (_textureDict.TryGetValue(techType, out texture))
+                    return texture;
+
+                if (fallbackTechTypes != null)
+                {
+                    foreach (TechType tt in fallbackTechTypes)
+                        if (tt != TechType.None && _textureDict.TryGetValue(tt, out texture))
+                            return texture;
+                }
+
+                return null;
+            }
+        }
         protected override float tempBonus => 8f;
 
         protected override TechType prefabTemplate => TechType.Rebreather;
@@ -454,21 +606,14 @@ namespace DWEquipmentBonanza.Equipables
             TechType.Rebreather,
             TechType.RadiationHelmet
         };
-        protected override List<TechType> compoundTech => null;
-        protected override TechType spriteTemplate => TechType.None;
-        public override CraftTree.Type FabricatorType => CraftTree.Type.None;
-        public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
-
-        public AcidHelmet() : base("AcidHelmet", "Brine Helmet", "Rebreather treated with an acid-resistant layer")
+        protected override List<TechType> compoundTech => new()
         {
-            OnFinishedPatching += () =>
-            {
-                TechTypeUtils.AddModTechType(this.TechType);
-                Main.AddDamageResist(this.TechType, DamageType.Acid, 0.25f);
-                texture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetskin.png"));
-                illumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetillum.png"));
-            };
-        }
+            TechType.Rebreather,
+            TechType.RadiationSuit
+        };
+        protected override TechType spriteTemplate => TechType.None;
+        public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;
+        public override string[] StepsToFabricatorTab => DWConstants.BaseHelmetPath;
 
         public override EquipmentType EquipmentType => EquipmentType.Head;
 
@@ -517,15 +662,22 @@ namespace DWEquipmentBonanza.Equipables
             var obj = GameObjectUtils.InstantiateInactive(prefab);
             Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
             Shader shader = Shader.Find("MarmosetUBER");
-            foreach (var renderer in renderers)
+            if (textureDict.TryGetValue(this.TechType, out Texture2D texture) && illumTextureDict.TryGetValue(this.TechType, out Texture2D illumTexture))
             {
-                foreach (Material material in renderer.materials)
+                foreach (var renderer in renderers)
                 {
-                    material.shader = shader; // apply the shader
-                    material.mainTexture = texture; // apply the main texture
-                    material.SetTexture(ShaderPropertyID._Illum, illumTexture); // apply the illum texture
-                    material.SetTexture("_SpecTex", texture); // apply the spec texture
+                    foreach (Material material in renderer.materials)
+                    {
+                        material.shader = shader; // apply the shader
+                        material.mainTexture = texture; // apply the main texture
+                        material.SetTexture(ShaderPropertyID._Illum, illumTexture); // apply the illum texture
+                        material.SetTexture("_SpecTex", material.mainTexture); // apply the spec texture
+                    }
                 }
+            }
+            else
+            {
+                Log.LogWarning($"Failed to retrieve diffuse and/or illum texture for TechType {this.TechType.AsString()}");
             }
             return obj;
         }
@@ -537,11 +689,23 @@ namespace DWEquipmentBonanza.Equipables
                 craftAmount = 1,
                 Ingredients = new List<Ingredient>()
                 {
+                    new Ingredient(TechType.Benzene, 1),
                     new Ingredient(TechType.FiberMesh, 1),
                     new Ingredient(TechType.Aerogel, 1),
                     new Ingredient(TechType.RadiationHelmet, 1),
                     new Ingredient(TechType.Rebreather, 1)
                 }
+            };
+        }
+
+        public AcidHelmet() : base("AcidHelmet", "Brine Helmet", "Rebreather treated with an acid-resistant layer")
+        {
+            OnFinishedPatching += () =>
+            {
+                TechTypeUtils.AddModTechType(this.TechType);
+                Main.AddDamageResist(this.TechType, DamageType.Acid, 0.25f);
+                textureDict.Add(this.TechType, ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetskin.png")));
+                illumTextureDict.Add(this.TechType, ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetillum.png")));
             };
         }
     }
@@ -583,7 +747,7 @@ namespace DWEquipmentBonanza.Equipables
         public override EquipmentType EquipmentType => EquipmentType.Head;
         public override Vector2int SizeInInventory => new(2, 2);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
-        public override TechType RequiredForUnlock => TechType.Unobtanium;
+		public override bool UnlockedAtStart => false;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
         public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
 
@@ -683,7 +847,7 @@ namespace DWEquipmentBonanza.Equipables
         protected static Sprite sprite;
         protected static TechType fallbackSprite => Main.GetModTechType("UltimateHelmet");
         public override Vector2int SizeInInventory => new(2, 2);
-        public override TechType RequiredForUnlock => TechType.Unobtanium;
+		public override bool UnlockedAtStart => false;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
         public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
 
@@ -740,7 +904,7 @@ namespace DWEquipmentBonanza.Equipables
         protected static Sprite sprite;
         protected TechType fallbackSprite => Main.GetModTechType("UltimateHelmet");
         public override Vector2int SizeInInventory => new(2, 2);
-        public override TechType RequiredForUnlock => TechType.Unobtanium;
+        public override bool UnlockedAtStart => false;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
         public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
 
@@ -798,7 +962,7 @@ namespace DWEquipmentBonanza.Equipables
         protected static Sprite sprite;
         protected TechType fallbackSprite => Main.GetModTechType("UltimateHelmet");
         public override Vector2int SizeInInventory => new(2, 2);
-        public override TechType RequiredForUnlock => TechType.Unobtanium;
+        public override bool UnlockedAtStart => false;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
         public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
 
@@ -856,7 +1020,7 @@ namespace DWEquipmentBonanza.Equipables
         protected static Sprite sprite;
         protected TechType fallbackSprite => Main.GetModTechType("UltimateHelmet");
         public override Vector2int SizeInInventory => new(2, 2);
-        public override TechType RequiredForUnlock => TechType.Unobtanium;
+        public override bool UnlockedAtStart => false;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
         public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
 
@@ -970,17 +1134,25 @@ namespace DWEquipmentBonanza.Equipables
         {
 #if SUBNAUTICA
             var obj = FlashlightHelmet.PreparePrefab(GameObjectUtils.InstantiateInactive(prefab), this.ClassID);
+            TechType fallback = Main.GetModTechType("AcidHelmet");
             Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
             Shader shader = Shader.Find("MarmosetUBER");
-            foreach (var renderer in renderers)
+            if (AcidHelmet.textureDict.TryGetValue(this.TechType, out Texture2D texture, new TechType[] { fallback }) && AcidHelmet.illumTextureDict.TryGetValue(this.TechType, out Texture2D illumTexture, new TechType[] { fallback }))
             {
-                foreach (Material material in renderer.materials)
+                foreach (var renderer in renderers)
                 {
-                    material.shader = shader; // apply the shader
-                    material.mainTexture = AcidHelmet.texture; // apply the main texture
-                    material.SetTexture(ShaderPropertyID._Illum, AcidHelmet.illumTexture); // apply the illum texture
-                    material.SetTexture("_SpecTex", AcidHelmet.texture); // apply the spec texture
+                    foreach (Material material in renderer.materials)
+                    {
+                        material.shader = shader; // apply the shader
+                        material.mainTexture = texture; // apply the main texture
+                        material.SetTexture(ShaderPropertyID._Illum, illumTexture); // apply the illum texture
+                        material.SetTexture("_SpecTex", material.mainTexture); // apply the spec texture
+                    }
                 }
+            }
+            else
+            {
+                Log.LogWarning($"Failed to retrieve diffuse and/or illum texture for TechType {this.TechType.AsString()}");
             }
 #elif BELOWZERO
             var obj = GameObjectUtils.InstantiateInactive(prefab);
@@ -1013,8 +1185,8 @@ namespace DWEquipmentBonanza.Equipables
 #if SUBNAUTICA
             TechTypeUtils.AddModTechType(this.TechType);
             Main.AddDamageResist(this.TechType, DamageType.Acid, 0.25f);
-            AcidHelmet.texture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetskin.png"));
-            AcidHelmet.illumTexture = ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetillum.png"));
+            AcidHelmet.textureDict.Add(this.TechType, ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetskin.png")));
+            AcidHelmet.illumTextureDict.Add(this.TechType, ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetillum.png")));
 #elif BELOWZERO
             TooltipFactoryPatches.AddNoBarTechType(this.TechType);
 #endif

@@ -31,8 +31,23 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
         protected static float fPassiveEnergyConsumptionPerSecond = 1f;
         protected static float fPassiveHealthRegenerationPerSecond = 0.5f;
-        protected static float fActiveModeEnergyMultiplier = 10f; // Energy consumption is multiplied by this amount in active mode
-        protected static float fActiveModeHealthRegenMultiplier = 8f; // Health regeneration is multiplied by this amount in active mode
+        protected static Dictionary<string, float> ActiveModeEnergyMultipliers { get; } = new Dictionary<string, float>() // Energy consumption is multiplied by this amount in active mode
+        {
+            { "Easy", 10f },
+            { "Hard", 12f },
+            { "Ridiculous", 15f },
+            { "Insane", 20f }
+        };
+        protected float fActiveModeEnergyMultiplier => ActiveModeEnergyMultipliers.GetOrDefault(Main.config.SelfRepairDifficulty, 10f);
+        protected static Dictionary<string, float> ActiveModeHealthRegenMultipliers { get; } = new Dictionary<string, float>()
+        {
+            { "Easy", 8f },
+            { "Hard", 6f },
+            { "Ridiculous", 3f },
+            { "Insane", 2f }
+        };
+
+        protected static float fActiveModeHealthRegenMultiplier => ActiveModeHealthRegenMultipliers.GetOrDefault(Main.config.SelfRepairDifficulty, 2f); // Health regeneration is multiplied by this amount in active mode
 
         protected virtual LiveMixin GetVehicleMixin()
         {

@@ -87,7 +87,7 @@
     <Compile Include="VehicleModules\HoverbikeDurabilitySystem.cs" />
     <Compile Include="VehicleModules\HoverbikeQuantumLocker.cs" />
     <Compile Include="VehicleModules\HoverbikeSelfRepairModule.cs" />
-    <Compile Include="VehicleModules\SeamothThermalModules.cs" />
+    <Compile Include="VehicleModules\SeamothChargers.cs" />
     <Compile Include="VehicleModules\SeaTruckQuantumLocker.cs" />
     <Compile Include="VehicleModules\VehicleRepairModule.cs" />
     <Compile Include="VehicleModules\SeatruckUnifiedModule.cs" />

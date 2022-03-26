@@ -60,7 +60,7 @@ namespace DWEquipmentBonanza.Equipables
         public override EquipmentType EquipmentType => EquipmentType.Tank;
         public override Vector2int SizeInInventory => new Vector2int(3, 4);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
-        public override TechType RequiredForUnlock => TechType.Unobtanium;
+		public override bool UnlockedAtStart => false;
         public override TechCategory CategoryForPDA => TechCategory.Equipment;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
         public override string[] StepsToFabricatorTab => new string[] { DWConstants.TankMenuPath };
