@@ -23,6 +23,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 	{
 		[SerializeField]
 		protected HashSet<VehicleCharger> activeChargers = new HashSet<VehicleCharger>();
+		protected VehicleRepairComponent repairComponent;
 
 		protected const float ChargerWeightLimit = 4.5f; // Maximum value of connected chargers. If a new charger would take the weight above this limit, it will not be allowed.
 		protected static Dictionary<TechType, float> ChargerWeights = new Dictionary<TechType, float>();
@@ -212,13 +213,17 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			}
 			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slot}, {item.item.name}) end");
 		}
+
 		protected virtual void OnToggle(int slotID, bool state)
 		{
 			if (slotID == repairSlotID)
 			{
-				gameObject.EnsureComponent<VehicleRepairComponent>().SetActiveState(state);
+				repairComponent ??= gameObject.EnsureComponent<VehicleRepairComponent>();
+				repairComponent.SetActiveState(state);
+				ErrorMessage.AddMessage("Repair module state: " + (state ? "active" : "passive"));
 			}
 		}
+
 		protected virtual void OnSelect(int slotID)
 		{
 #if BELOWZERO
@@ -363,17 +368,19 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		internal virtual void PostUpgradeModuleChange(int slotID, TechType techType, bool added, MonoBehaviour instance)
 		{
+			if (repairModuleTechTypes.Contains(techType))
+			{
+				this.repairComponent ??= gameObject.EnsureComponent<VehicleRepairComponent>();
+				this.repairSlotID = (added ? slotID : -1);
+				this.repairComponent.SetEnabled(added, instance);
+				this.repairComponent.SetActiveState(false);
+			}
+
 			// We do some charger handling in this method, because this method is invoked for each equipped module following a game load.
 			// We only check for added == true because OnUnequipModule still works for unequipping, as that can only meaningfully happen during gameplay.
 			if (added)
 			{
-				if (repairModuleTechTypes.Contains(techType))
-				{
-					VehicleRepairComponent component = gameObject.EnsureComponent<VehicleRepairComponent>();
-					component.SetEnabled(true);
-					component.SetActiveState(false);
-				}
-				else if (ChargerWeights.ContainsKey(techType))
+				if (ChargerWeights.ContainsKey(techType))
 				{
 					Vehicle v = gameObject.GetComponent<Vehicle>();
 					string slot = v.slotIDs[slotID];
@@ -390,14 +397,19 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			//Log.LogDebug($"{this.name}.PostUpgradeModuleUse({tt.AsString()} begin");
 			if (repairModuleTechTypes.Contains(tt))
 			{
-				bool state = gameObject.EnsureComponent<VehicleRepairComponent>().ToggleActiveState(instance);
+				bool state = (repairComponent ??= gameObject.EnsureComponent<VehicleRepairComponent>()).ToggleActiveState(instance);
 				ErrorMessage.AddMessage("Repair module state: " + (state ? "active" : "passive"));
 			}
 			//Log.LogDebug($"{this.name}.PostUpgradeModuleUse({tt.AsString()} end");
 		}
 
-		internal virtual bool PreQuickSlotIsToggled(MonoBehaviour instance, int slotID)
+		internal virtual bool PreQuickSlotIsToggled(MonoBehaviour instance, ref bool result, int slotID)
 		{
+			if (slotID == repairSlotID && repairComponent != null)
+			{
+				result = repairComponent.GetIsActive();
+				return false;
+			}
 			return true;
 		}
 

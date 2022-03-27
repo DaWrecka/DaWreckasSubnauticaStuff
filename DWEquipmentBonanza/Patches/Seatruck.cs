@@ -206,15 +206,11 @@ namespace DWEquipmentBonanza.Patches
 			//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
 			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
 			//__result = slotID >= 0 && slotID < SeaTruckUpgrades.slotIDs.Length && (TechData.GetSlotType(__instance.GetSlotBinding(slotID)) == QuickSlotType.Passive || this.quickSlotToggled[slotID]);
-			__result = __result || __instance.gameObject.EnsureComponent<SeaTruckUpdater>().PreQuickSlotIsToggled(__instance, slotID);
-			//Log.LogDebug($"PreSeatruckIsToggled: slotID = {slotID}, __result = {__result}");
-			if (__result)
+			if (__instance.gameObject.EnsureComponent<SeaTruckUpdater>().PreQuickSlotIsToggled(__instance, ref __result, slotID))
 			{
-				//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() __result = {__result}, returning false");
 				return false;
 			}
 
-			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() __result = {__result}, returning true");
 			return true;
 		}
 	}

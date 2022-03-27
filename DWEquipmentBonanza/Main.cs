@@ -106,7 +106,7 @@ namespace DWEquipmentBonanza
 	[QModCore]
 	public class Main
 	{
-		internal const string version = "0.13.0.2";
+		internal const string version = "0.13.0.3";
 		internal static bool bVerboseLogging = true;
 		internal static bool bLogTranspilers = false;
 #if SUBNAUTICA_STABLE

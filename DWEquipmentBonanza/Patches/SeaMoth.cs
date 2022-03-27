@@ -51,65 +51,12 @@ namespace DWEquipmentBonanza.Patches
 			__instance.gameObject.EnsureComponent<SeamothUpdater>()?.PostUpgradeModuleUse(__instance, techType, slotID);
 		}
 
-		// SeaMoth doesn't have a NotifySelectSlot, but that's okay, we can manage
-		/*
-		[HarmonyPatch(nameof(SeaMoth.NotifySelectSlot))]
-		[HarmonyPostfix]
-		public static void PostNotifySelectSlot(SeaMoth __instance, int slotID)
-		{
-			__instance.gameObject.EnsureComponent<SeamothUpdater>()?.PostNotifySelectSlot(__instance, slotID);
-		}
-		*/
-
-		/*[HarmonyPatch(nameof(SeaMoth.IsAllowedToAdd))]
-		[HarmonyPrefix]
-		public static bool PreIsAllowedToAdd(SeaMoth __instance, Pickupable pickupable, bool verbose, ref bool __result)
-		{
-			TechType techType = pickupable.GetTechType();
-
-			SeamothUpdater stu = __instance.gameObject.GetComponent<SeamothUpdater>();
-			if (stu != null)
-			{
-				bool bAllowed = stu.AllowedToAdd(techType, out bool bOverride, out string message);
-				if (bOverride)
-				{
-					if (!string.IsNullOrEmpty(message))
-						ErrorMessage.AddMessage(message);
-					__result = bAllowed;
-					return false;
-				}
-			}
-
-			return true;
-		}*/
-
 		[HarmonyPatch(nameof(SeaMoth.OnPilotModeEnd))]
 		[HarmonyPostfix]
 		public static void PostOnPilotEnd(SeaMoth __instance)
 		{
 			__instance.gameObject.EnsureComponent<SeamothUpdater>()?.PostOnPilotEnd();
 		}
-
-		/*[HarmonyPatch("IQuickSlots.IsToggled")]
-		[HarmonyPrefix]
-		public static bool PreSeaMothIsToggled(SeaMoth __instance, ref bool __result, int slotID)
-		{
-			//__result = slotID >= 0 && slotID < SeaTruckUpgrades.slotIDs.Length && (TechData.GetSlotType(__instance.GetSlotBinding(slotID)) == QuickSlotType.Passive || this.quickSlotToggled[slotID]);
-			__result = __result || __instance.gameObject.EnsureComponent<SeamothUpdater>().PreQuickSlotIsToggled(__instance, slotID);
-			//Log.LogDebug($"PreSeatruckIsToggled: slotID = {slotID}, __result = {__result}");
-			if (__result)
-				return false;
-
-			return true;
-		}
-
-		[HarmonyPatch("IQuickSlots.IsToggled")]
-		[HarmonyPostfix]
-		public static void PostSeaMothIsToggled(SeaMoth __instance, ref bool __result, int slotID)
-		{
-			//__result = slotID >= 0 && slotID < SeaTruckUpgrades.slotIDs.Length && (TechData.GetSlotType(__instance.GetSlotBinding(slotID)) == QuickSlotType.Passive || this.quickSlotToggled[slotID]);
-			//Log.LogDebug($"PostSeatruckIsToggled: slotID = {slotID}, __result = {__result}");
-		}*/
 	}
 #endif
 }

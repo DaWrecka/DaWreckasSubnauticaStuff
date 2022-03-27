@@ -113,10 +113,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			base.PostUpgradeModuleChange(slotID, techType, added, instance);
 			if (techType == repairModuleTechType)
 			{
-				if (added)
-					repairSlotID = slotID;
-				else
-					repairSlotID = -1;
+				repairSlotID = (added ? slotID : -1);
 
 				VehicleRepairComponent repairComponent = gameObject.EnsureComponent<VehicleRepairComponent>();
 				repairComponent.SetEnabled(added, parentVehicle);
@@ -132,7 +129,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			}
 		}
 
-		internal override bool PreQuickSlotIsToggled(MonoBehaviour instance, int slotID)
+		internal override bool PreQuickSlotIsToggled(MonoBehaviour instance, ref bool __result, int slotID)
 		{
 			if (slotID == repairSlotID)
 				return gameObject.EnsureComponent<VehicleRepairComponent>().GetIsActive();

@@ -116,10 +116,5 @@ namespace DWEquipmentBonanza.MonoBehaviours
 					bJetsUpgraded = GetModuleCount(TechType.ExosuitJetUpgradeModule) > 0;
 			}
 		}
-
-		internal override void PostUpgradeModuleUse(MonoBehaviour instance, TechType tt, int slotID) { }
-
-		internal override bool PreQuickSlotIsToggled(MonoBehaviour instance, int slotID) { return true; }
-
 	}
 }

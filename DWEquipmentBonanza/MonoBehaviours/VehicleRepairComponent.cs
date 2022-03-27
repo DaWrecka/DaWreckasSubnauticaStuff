@@ -13,21 +13,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
         protected MonoBehaviour ParentVehicle; // this will either be a Seamoth component, Exosuit component, or SeaTruckMotor component
 
         // On the surface these accessors could be done with properties; they're defined as virtual so that subclasses can override them, however.
-        protected bool _enabled;
+        public bool _enabled { get; protected set; }
 
-        public virtual bool GetIsEnabled()
-        {
-            //System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            //Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
+        public virtual bool GetIsEnabled() => this._enabled; // Once added, the component won't be removed; if the upgrade module is removed, regeneration will be disabled using this
 
-            return _enabled;
-        } // Once added, the component won't be removed; if the upgrade module is removed, regeneration will be disabled using this
-
-        protected bool _active;
-        public virtual bool GetIsActive()
-        {
-            return this._active;
-        } // In active mode, health regeneration is greatly increased, but so is energy consumption
+        public bool _active { get; protected set; }
+        public virtual bool GetIsActive() => this._active; // In active mode, health regeneration is greatly increased, but so is energy consumption
 
         protected static float fPassiveEnergyConsumptionPerSecond = 1f;
         protected static float fPassiveHealthRegenerationPerSecond = 0.5f;

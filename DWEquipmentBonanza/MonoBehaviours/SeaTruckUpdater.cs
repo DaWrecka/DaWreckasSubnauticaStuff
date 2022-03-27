@@ -366,9 +366,10 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			}
 		}
 
-		internal override bool PreQuickSlotIsToggled(MonoBehaviour instance, int slotID)
+		internal override bool PreQuickSlotIsToggled(MonoBehaviour instance, ref bool result, int slotID)
 		{
-			return (slotID == sonarSlotID && bSonarActive) || (slotID == repairSlotID && gameObject.EnsureComponent<SeaTruckRepairComponent>().GetIsActive());
+			result = (slotID == sonarSlotID && bSonarActive) || (slotID == repairSlotID && gameObject.EnsureComponent<SeaTruckRepairComponent>().GetIsActive());
+			return result;
 		}
 
 		private void UpdateSonar()
