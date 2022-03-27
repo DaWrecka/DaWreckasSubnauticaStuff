@@ -6,6 +6,7 @@ using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Handlers;
 using UnityEngine;
 using Logger = QModManager.Utility.Logger;
+using Common.Utility;
 
 namespace DWEquipmentBonanza.VehicleModules
 {
@@ -47,17 +48,19 @@ namespace DWEquipmentBonanza.VehicleModules
 
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
-            if (prefab == null)
+            GameObject modPrefab;
+
+            if (!TechTypeUtils.TryGetModPrefab(this.TechType, out modPrefab))
             {
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.SeaTruckUpgradeEnergyEfficiency);
                 yield return task;
-                prefab = GameObject.Instantiate<GameObject>(task.GetResult());
+                modPrefab = GameObjectUtils.InstantiateInactive(task.GetResult());
                 // The code is handled by the SeatruckUpdater component, rather than anything here.
-                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
+                ModPrefabCache.AddPrefab(modPrefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
                                                          // but it can still be instantiated. [unlike with SetActive(false)]
             }
 
-            gameObject.Set(GameObject.Instantiate(prefab));
+            gameObject.Set(modPrefab);
         }
 
         public SeaTruckSonarModule() : base("SeaTruckSonarModule", "SeaTruck Sonar Module", "A dedicated system for detecting and displaying topographical data on the HUD.")

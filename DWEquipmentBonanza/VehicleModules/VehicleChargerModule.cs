@@ -1,4 +1,6 @@
-﻿using DWEquipmentBonanza.MonoBehaviours;
+﻿using Common;
+using Common.Utility;
+using DWEquipmentBonanza.MonoBehaviours;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Utility;
 using System;
@@ -24,8 +26,6 @@ namespace DWEquipmentBonanza.VehicleModules
         public override string[] StepsToFabricatorTab => new string[] { DWConstants.ChargerMenuPath };
         public override float CraftingTime => 10f;
         public override Vector2int SizeInInventory => new Vector2int(1, 1);
-
-        protected static GameObject prefab;
         protected virtual TechType template => TechType.None;
         public override QuickSlotType QuickSlotType => QuickSlotType.Passive;
         public override EquipmentType EquipmentType => EquipmentType.VehicleModule;
@@ -35,32 +35,47 @@ namespace DWEquipmentBonanza.VehicleModules
 #if SUBNAUTICA_STABLE
         public override GameObject GetGameObject()
         {
-            if (prefab == null && template != TechType.None)
-            {
-                prefab = CraftData.InstantiateFromPrefab(template);
-                ModPrefabCache.AddPrefab(prefab, false);
-                prefab.EnsureComponent<Y>();
-            }
+            GameObject modPrefab;
 
-            return prefab;
+            if (template != TechType.None)
+            {
+                if (!TechTypeUtils.TryGetModPrefab(this.TechType, out modPrefab))
+                {
+
+                    modPrefab = GameObjectUtils.InstantiateInactive(CraftData.GetPrefabForTechType(template));
+                    //ModPrefabCache.AddPrefab(modPrefab, false);
+                    modPrefab.EnsureComponent<Y>();
+                    TechTypeUtils.AddModTechType(this.TechType, modPrefab);
+                }
+            }
+            else
+                modPrefab = null;
+
+            return modPrefab;
         }
 
 #elif BELOWZERO
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
-            if (prefab == null && template != TechType.None)
+            GameObject modPrefab;
+
+            if (template != TechType.None)
             {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(template);
-                yield return task;
-                prefab = GameObject.Instantiate<GameObject>(task.GetResult());
-                // The code is handled by the SeatruckUpdater component, rather than anything here.
-                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
-                                                         // but it can still be instantiated. [unlike with SetActive(false)]
-
-                prefab.EnsureComponent<Y>();
+                if (!TechTypeUtils.TryGetModPrefab(this.TechType, out modPrefab))
+                {
+                    CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(template);
+                    yield return task;
+                    modPrefab = GameObjectUtils.InstantiateInactive(task.GetResult());
+                    //ModPrefabCache.AddPrefab(modPrefab, false);
+                    modPrefab.EnsureComponent<Y>();
+                    TechTypeUtils.AddModTechType(this.TechType, modPrefab);
+                }
             }
+            else
+                modPrefab = null;
 
-            gameObject.Set(prefab);
+
+            gameObject.Set(modPrefab);
         }
 #endif
 

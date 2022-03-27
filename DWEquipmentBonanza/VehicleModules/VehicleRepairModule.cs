@@ -38,7 +38,6 @@ namespace DWEquipmentBonanza.VehicleModules
         public override float CraftingTime => 5f;
         public override Vector2int SizeInInventory => new Vector2int(1, 1);
 
-        private static GameObject prefab;
         private static Sprite sprite;
 
         protected override RecipeData GetBlueprintRecipe()
@@ -58,7 +57,9 @@ namespace DWEquipmentBonanza.VehicleModules
 
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
-            if (prefab == null)
+            GameObject modPrefab;
+
+            if (!TechTypeUtils.TryGetModPrefab(this.TechType, out modPrefab))
             {
                 //TaskResult<GameObject> prefabResult = new TaskResult<GameObject>();
                 //yield return CraftData.InstantiateFromPrefabAsync(TechType.SeaTruckUpgradeEnergyEfficiency, prefabResult, false);
@@ -70,16 +71,17 @@ namespace DWEquipmentBonanza.VehicleModules
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.SeaTruckUpgradeEnergyEfficiency, true);
 #endif
                 yield return task;
-                prefab = GameObjectUtils.InstantiateInactive(task.GetResult());
+                modPrefab = GameObjectUtils.InstantiateInactive(task.GetResult());
 
-                prefab.name = ClassID;
+                modPrefab.name = ClassID;
                 //prefab.EnsureComponent<VehicleRepairComponent>();
                 // The code is handled by the SeatruckUpdater component, rather than anything here.
                 //ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
-                                                         // but it can still be instantiated. [unlike with SetActive(false)]
+                                                           // but it can still be instantiated. [unlike with SetActive(false)]
+                TechTypeUtils.AddModTechType(this.TechType, modPrefab);
             }
 
-            gameObject.Set(prefab);
+            gameObject.Set(modPrefab);
         }
 
         protected override Sprite GetItemSprite()

@@ -2,7 +2,7 @@
   "Id": "VehiclePrompts",
   "DisplayName": "Named Vehicle Prompts",
   "Author": "DaWrecka",
-  "Version": "1.0.0.1",
+  "Version": "1.0.0.2",
   "Dependencies": [
     "SMLHelper"
   ],

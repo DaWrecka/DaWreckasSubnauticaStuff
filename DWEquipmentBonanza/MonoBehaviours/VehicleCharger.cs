@@ -377,6 +377,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
         public override IEnumerator PostDeserialize()
         {
+			yield return base.PostDeserialize();
 			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
 			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.name}): begin");
 
@@ -388,7 +389,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			else
 				Log.LogWarning($"VehicleCharger.OnAfterDeserialize({this.name}) Failed to retrieve charge value from disk for module ID of '{moduleId}'; is this a new module?");
 
-			return base.PostDeserialize();
+			yield break;
         }
 
         public override void Init(MonoBehaviour vehicle)

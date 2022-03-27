@@ -20,7 +20,7 @@ namespace NamedVehiclePrompts
     [QModCore]
     public class Main
     {
-        internal const string version = "1.0.0.1";
+        internal const string version = "1.0.0.2";
         internal static string ModPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         internal static string languageFile = ModPath + "/Assets/language.json";
         internal static Dictionary<string, string> vehiclePromptDict = new Dictionary<string, string>();
@@ -56,7 +56,7 @@ namespace NamedVehiclePrompts
                     prompt = prompt.Replace("<vehicle>", VehicleName);
 #if !RELEASE
 
-                Logger.Log(Logger.Level.Debug, $"Main.TryGetVehiclePrompt: got prompt value of {prompt} with key {targetKey}"); 
+                //Logger.Log(Logger.Level.Debug, $"Main.TryGetVehiclePrompt: got prompt value of {prompt} with key {targetKey}"); 
 #endif
             }
 

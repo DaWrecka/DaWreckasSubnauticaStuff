@@ -26,7 +26,6 @@ namespace DWEquipmentBonanza.VehicleModules
         protected abstract TechType prefabTemplate { get; }
         protected virtual TechType spriteTemplate => TechType.None;
 
-        protected static GameObject prefab;
         protected static Sprite sprite;
 
         protected virtual void OnFinishedPatch(TechType thisType)
@@ -59,7 +58,14 @@ namespace DWEquipmentBonanza.VehicleModules
 
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
-            if (prefab == null && prefabTemplate != TechType.None)
+            GameObject modPrefab;
+
+            if (TechTypeUtils.TryGetModPrefab(this.TechType, out modPrefab))
+            {
+                gameObject.Set(modPrefab);
+                yield break;
+            }
+            else if (prefabTemplate != TechType.None)
             {
                 //TaskResult<GameObject> prefabResult = new TaskResult<GameObject>();
                 //yield return CraftData.InstantiateFromPrefabAsync(TechType.SeaTruckUpgradeEnergyEfficiency, prefabResult, false);
@@ -68,15 +74,17 @@ namespace DWEquipmentBonanza.VehicleModules
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTemplate, true);
                 yield return task;
 
-                prefab = ModifyPrefab(GameObject.Instantiate(task.GetResult()));
+                modPrefab = ModifyPrefab(GameObject.Instantiate(task.GetResult()));
 
-                prefab.name = ClassID;
+                modPrefab.name = ClassID;
                 //prefab.EnsureComponent<VehicleRepairComponent>();
                 // The code is handled by the SeatruckUpdater component, rather than anything here.
                 // but it can still be instantiated. [unlike with SetActive(false)]
             }
+            else
+                modPrefab = null;
 
-            gameObject.Set(prefab);
+            gameObject.Set(modPrefab);
         }
 
         public SeaTruckUpgradeModule(string classId, string friendlyName, string description) : base(classId, friendlyName, description)

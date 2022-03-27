@@ -14,7 +14,7 @@ using System.Diagnostics;
 namespace DWEquipmentBonanza.MonoBehaviours
 {
 #if SUBNAUTICA_STABLE
-	public class SeamothUpdater : VehicleUpdater, ISerializationCallbackReceiver
+	public class SeamothUpdater : VehicleUpdater
     {
 		protected static TechType repairModuleTechType => Main.GetModTechType("VehicleRepairModule");
 
@@ -110,7 +110,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			if (parentVehicle == null)
 				return;
 
-
+			base.PostUpgradeModuleChange(slotID, techType, added, instance);
 			if (techType == repairModuleTechType)
 			{
 				if (added)
