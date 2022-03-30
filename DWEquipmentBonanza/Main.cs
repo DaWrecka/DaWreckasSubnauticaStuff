@@ -106,7 +106,7 @@ namespace DWEquipmentBonanza
 	[QModCore]
 	public class Main
 	{
-		internal const string version = "0.13.0.3";
+		internal const string version = "0.13.0.4";
 		internal static bool bVerboseLogging = true;
 		internal static bool bLogTranspilers = false;
 #if SUBNAUTICA_STABLE
@@ -335,17 +335,17 @@ namespace DWEquipmentBonanza
 		{
 			float baseDamage = damage;
 			float damageMod = 0f;
-			Log.LogDebug($"Main.ModifyDamage called: tt = {tt.ToString()}, damage = {damage}; DamageType = {type}");
+			//Log.LogDebug($"Main.ModifyDamage called: tt = {tt.ToString()}, damage = {damage}; DamageType = {type}");
 			//foreach (DamageResistance r in DamageResistances)
 			if (DamageResistances.TryGetValue(tt, out Dictionary<DamageType, float> diList))
 			{
 				if (diList.TryGetValue(type, out float mult))
 				{
-					Log.LogDebug($"Got damage multiplier of {mult}");
+					//Log.LogDebug($"Got damage multiplier of {mult}");
 					damageMod += baseDamage * mult;
 				}
 			}
-			Log.LogDebug($"DamageMod = {damageMod}");
+			//Log.LogDebug($"DamageMod = {damageMod}");
 			return damageMod;
 		}
 

@@ -3,11 +3,11 @@
 
   <PropertyGroup Condition="'$(Configuration)' == 'BelowZero'">
     <DefineConstants>BZ;BELOWZERO</DefineConstants>
-    <GameDir>$(CommonDir)SubnauticaZero.Stable</GameDir>
+    <GameDir>$(CommonDir)SubnauticaZero</GameDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Subnautica'">
     <DefineConstants>SN1;SUBNAUTICA_STABLE</DefineConstants>
-    <GameDir>$(CommonDir)Subnautica.Stable</GameDir>
+    <GameDir>$(CommonDir)Subnautica</GameDir>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration.StartsWith('BelowZero'))">
     <GameName>BelowZero</GameName>
@@ -25,7 +25,7 @@
     <Optimize>true</Optimize>
     <LangVersion>latest</LangVersion>
     <ReferencePath>
-      $(GameDir)\BepInEx\core;$(GameDir)\BepInEx\plugins\QModManager;$(GameDir)\Qmods\$(SMLHelperFolder);$(GameDir)\$(DataFolder)\Managed\publicized_assemblies;$(GameDir)\$(DataFolder)\Managed;$(SolutionDir)\Libs\$(Configuration)
+      $(GameDir)\BepInEx\core\;$(GameDir)\BepInEx\plugins\QModManager\;$(GameDir)\Qmods\$(SMLHelperFolder)\;$(GameDir)\$(DataFolder)\Managed\publicized_assemblies\;$(GameDir)\$(DataFolder)\Managed\
     </ReferencePath>
   </PropertyGroup>
 </Project>

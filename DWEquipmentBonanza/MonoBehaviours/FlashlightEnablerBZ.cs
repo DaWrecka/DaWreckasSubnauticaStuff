@@ -12,6 +12,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
     internal class FlashlightEnablerBZ : MonoBehaviour
     {
         private ToggleLights thisToggleLights;
+        private GameObject lightsGrandParent;
         private bool bLightActive = true;
         private const float timerInterval = 0.1f;
 
@@ -24,9 +25,9 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
         private void UpdateLights()
         {
-            GameObject parentObject = thisToggleLights.lightsParent.transform.parent.gameObject;
-            if (parentObject != null && parentObject.activeSelf != bLightActive)
-                parentObject.SetActive(bLightActive);
+            lightsGrandParent = thisToggleLights.lightsParent.transform.parent.gameObject;
+            if (lightsGrandParent != null && lightsGrandParent.activeSelf != bLightActive)
+                lightsGrandParent.SetActive(bLightActive);
         }
 
         public void OnLightsToggled(bool active)

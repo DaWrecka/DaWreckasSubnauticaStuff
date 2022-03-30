@@ -113,7 +113,7 @@ namespace DWEquipmentBonanza.Patches
 			float lastRemovedBatteryCharge = __instance == null ? -1f : __instance.lastRemovedBatteryCharge;
 #endif
 			bool bIsChip = chipTechTypes.Contains(techType);
-			Log.LogDebug($"InventoryPatches.PostRemoveItem: found lastRemovedBatteryCharge of {lastRemovedBatteryCharge} and bIsChip: {bIsChip}");
+			//Log.LogDebug($"InventoryPatches.PostRemoveItem: found lastRemovedBatteryCharge of {lastRemovedBatteryCharge} and bIsChip: {bIsChip}");
 			if (lastRemovedBatteryCharge > 1f)
 			{
 				if (bIsChip)

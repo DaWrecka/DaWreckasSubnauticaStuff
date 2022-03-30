@@ -13,7 +13,7 @@ namespace DWEquipmentBonanza.VehicleModules
 #if BELOWZERO
     internal class SeaTruckSonarModule : SeaTruckUpgradeModule<SeaTruckSonarModule>
     {
-        internal const float EnergyCost = 20f;
+        internal const float EnergyCost = 1f;
 
         public override EquipmentType EquipmentType => EquipmentType.SeaTruckModule;
         public override QuickSlotType QuickSlotType => QuickSlotType.Selectable;

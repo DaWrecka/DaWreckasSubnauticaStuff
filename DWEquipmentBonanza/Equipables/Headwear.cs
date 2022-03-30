@@ -109,7 +109,6 @@ namespace DWEquipmentBonanza.Equipables
 #if SUBNAUTICA
     public class FlashlightHelmet : HeadwearBase<FlashlightHelmet>
     {
-        public static GameObject flashlightPrefab { get; internal set; }
         public static GameObject flashlightHelmetPrefab { get; internal set; }
         protected override TechType prefabTemplate => TechType.Rebreather;
 
@@ -117,6 +116,7 @@ namespace DWEquipmentBonanza.Equipables
         protected override List<TechType> substitutions => null;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;
         public override TechType RequiredForUnlock => TechType.PrecursorIonCrystal;
+        public override bool UnlockedAtStart => false;
         public override string[] StepsToFabricatorTab => DWConstants.BaseHelmetPath;
 
         public static bool bPrefabsPrepared { get; private set; }
@@ -141,7 +141,7 @@ namespace DWEquipmentBonanza.Equipables
 
             if (!TechTypeUtils.TryGetModPrefab(this.TechType, out modPrefab))
             {
-                FlashlightHelmet.flashlightPrefab ??= CraftData.GetPrefabForTechType(TechType.Flashlight);
+                FlashlightHelmetComponent.SetFlashlightPrefab(CraftData.GetPrefabForTechType(TechType.Flashlight));
                 flashlightHelmetPrefab ??= CraftData.GetPrefabForTechType(TechType.Rebreather, false);
 
                 modPrefab = ModifyGameObject(flashlightHelmetPrefab);
@@ -182,7 +182,7 @@ namespace DWEquipmentBonanza.Equipables
 #if ASYNC
             CoroutineHost.StartCoroutine(SetUpPrefabsCoroutine());
 #else
-            FlashlightHelmet.flashlightPrefab ??= CraftData.GetPrefabForTechType(TechType.Flashlight);
+            FlashlightHelmetComponent.SetFlashlightPrefab(CraftData.GetPrefabForTechType(TechType.Flashlight));
             bPrefabsPrepared = true;
 #endif
         }
@@ -190,12 +190,12 @@ namespace DWEquipmentBonanza.Equipables
         public static IEnumerator SetUpPrefabsCoroutine()
         {
             bPrefabsPrepared = true;
-            if (FlashlightHelmet.flashlightPrefab == null)
+            if (FlashlightHelmetComponent.flashlightPrefab == null)
             {
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.Flashlight);
                 yield return task;
 
-                FlashlightHelmet.flashlightPrefab = task.GetResult();
+                FlashlightHelmetComponent.SetFlashlightPrefab(task.GetResult());
             }
 
             if (FlashlightHelmet.flashlightHelmetPrefab == null)
@@ -217,18 +217,18 @@ namespace DWEquipmentBonanza.Equipables
                 return null;
             }
 
-            FlashlightHelmetComponentSN1 headlightComponent = prefabToModify.GetComponent<FlashlightHelmetComponentSN1>();
+            FlashlightHelmetComponent headlightComponent = prefabToModify.GetComponent<FlashlightHelmetComponent>();
             if(headlightComponent == null)
             {
                 Log.LogDebug($"Setting up prefab {classID}");
                 prefabToModify.name = classID;
-                headlightComponent = prefabToModify.AddComponent<FlashlightHelmetComponentSN1>();
+                headlightComponent = prefabToModify.AddComponent<FlashlightHelmetComponent>();
 
                 Log.LogDebug($"prefab {classID}: Adding StorageRoot child");
                 headlightComponent.storageRoot = prefabToModify.FindChild("StorageRoot") ?? new GameObject("StorageRoot", new Type[] { typeof(ChildObjectIdentifier) });
 
                 Log.LogDebug($"prefab {classID}: Adding HeadLampParent"); 
-                var lightsParent = FlashlightHelmetComponentSN1.lightsParent ??= prefabToModify.FindChild("HeadLampParent") ?? new GameObject("HeadLampParent");
+                var lightsParent = FlashlightHelmetComponent.lightsParent ??= prefabToModify.FindChild("HeadLampParent") ?? new GameObject("HeadLampParent");
                 lightsParent.transform.SetParent(Player.main.gameObject.transform);
                 lightsParent.name = "HeadLampParent";
                 Log.LogDebug($"prefab {classID}: Adding spotlight object");
@@ -243,8 +243,8 @@ namespace DWEquipmentBonanza.Equipables
                 {
                     spotLightObject.name = "HeadFlashLight_spot";
                     spotLight.type = LightType.Spot;
-                    spotLight.spotAngle = 90f;
-                    spotLight.innerSpotAngle = 71.41338f;
+                    spotLight.spotAngle = 60f;
+                    spotLight.innerSpotAngle = 45.07401f;
                     spotLight.color = new Color(0.992f, 0.992f, 0.996f, 1);
                     spotLight.range = 50;
                     spotLight.shadows = LightShadows.Hard;
@@ -272,7 +272,7 @@ namespace DWEquipmentBonanza.Equipables
                 headlightComponent.toggleLights.energyMixin.storageRoot = headlightComponent.storageRoot.GetComponent<ChildObjectIdentifier>();
                 headlightComponent.toggleLights.lightsParent = lightsParent;
                 Log.LogDebug($"prefab {classID}: Configuring lights on/off sounds");
-                var toggleLightsPrefab = FlashlightHelmet.flashlightPrefab.GetComponent<ToggleLights>();
+                var toggleLightsPrefab = FlashlightHelmetComponent.flashlightPrefab.GetComponent<ToggleLights>();
                 headlightComponent.toggleLights.lightsOnSound = toggleLightsPrefab.lightsOnSound;
                 headlightComponent.toggleLights.lightsOffSound = toggleLightsPrefab.lightsOffSound;
                 Log.LogDebug($"prefab {classID}: Setup complete");
@@ -296,7 +296,11 @@ namespace DWEquipmentBonanza.Equipables
 
     internal class IlluminatedRebreather : HeadwearBase<IlluminatedRebreather>
     {
+#if SUBNAUTICA
         protected override TechType prefabTemplate => TechType.Rebreather;
+#elif BELOWZERO
+        protected override TechType prefabTemplate => TechType.FlashlightHelmet;
+#endif
         protected override List<TechType> compoundTech => new List<TechType>
         {
             TechType.Rebreather,
@@ -342,7 +346,9 @@ namespace DWEquipmentBonanza.Equipables
 #if SUBNAUTICA
             return FlashlightHelmet.PreparePrefab(GameObjectUtils.InstantiateInactive(go), this.ClassID);
 #elif BELOWZERO
-            return GameObjectUtils.InstantiateInactive(go);
+            var prefab = GameObjectUtils.InstantiateInactive(go);
+            prefab.EnsureComponent<FlashlightHelmetComponent>();
+            return prefab;
 #endif
         }
 
@@ -825,6 +831,7 @@ namespace DWEquipmentBonanza.Equipables
                 yield return task;
 
                 modPrefab = GameObjectUtils.InstantiateInactive(task.GetResult());
+                modPrefab.EnsureComponent<FlashlightHelmetComponent>();
                 //ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
             }
 
@@ -853,7 +860,7 @@ namespace DWEquipmentBonanza.Equipables
 
         protected static Sprite StaticGetItemSprite()
         {
-            sprite ??= SpriteManager.Get(fallbackSprite, null);
+            sprite ??= SpriteUtils.Get(fallbackSprite, null);
 
             return sprite;
         }
@@ -871,7 +878,7 @@ namespace DWEquipmentBonanza.Equipables
                 Ingredients = new List<Ingredient>()
                 {
                     new Ingredient(Main.GetModTechType("LightColdHelmet"), 1),
-                    new Ingredient(TechType.ColdSuitHelmet, 1),
+                    new Ingredient(TechType.Rebreather, 1),
                     new Ingredient(TechType.RadioTowerPPU, 1)
                 }
             };
@@ -1087,7 +1094,7 @@ namespace DWEquipmentBonanza.Equipables
 #if SUBNAUTICA
         protected override TechType prefabTemplate => TechType.Rebreather;
 #elif BELOWZERO
-        protected override TechType prefabTemplate => TechType.ColdSuitHelmet;
+        protected override TechType prefabTemplate => TechType.FlashlightHelmet;
 #endif
         protected override List<TechType> compoundTech => new List<TechType>
         {
@@ -1157,7 +1164,6 @@ namespace DWEquipmentBonanza.Equipables
 #elif BELOWZERO
             var obj = GameObjectUtils.InstantiateInactive(prefab);
 #endif
-
             return obj;
         }
 
@@ -1173,6 +1179,8 @@ namespace DWEquipmentBonanza.Equipables
                 yield return task;
 
                 modPrefab = ModifyGameObject(task.GetResult());
+
+                modPrefab.EnsureComponent<FlashlightHelmetComponent>();
                 TechTypeUtils.AddModTechType(this.TechType, modPrefab);
 
             }

@@ -1,4 +1,5 @@
-﻿using DWEquipmentBonanza.MonoBehaviours;
+﻿using Common;
+using DWEquipmentBonanza.MonoBehaviours;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,8 @@ namespace DWEquipmentBonanza.Patches
         [HarmonyPatch(nameof(VehicleDockingBay.OnTriggerEnter))]
         public static bool PreTriggerEnter(Collider other)
         {
+            Log.LogDebug($"VehicleDockingBay.OnTriggerEnter() fired: Collider name {other.name}");
+
             if (other is ResourceCollider)
                 return false;
 

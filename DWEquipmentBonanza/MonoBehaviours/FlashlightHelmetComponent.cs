@@ -11,13 +11,17 @@ using UnityEngine;
 
 namespace DWEquipmentBonanza.MonoBehaviours
 {
+	public class FlashlightHelmetComponent : MonoBehaviour,
 #if SUBNAUTICA_STABLE
-	public class FlashlightHelmetComponentSN1 : MonoBehaviour,
 		IInventoryDescriptionSN1,
+#elif BELOWZERO
+		IInventoryDescription,
+#endif
 		IEquippable
 	{
+		public static GameObject flashlightPrefab { get; internal set; }
+		public static GameObject lightsParent { get; internal set; }
 		private const float eyeOffset = 0.1f;
-		public static GameObject lightsParent;
 		//public Light pointLight { get; internal set; }
 		//public Light spotLight { get; internal set; }
 		public ToggleLights toggleLights { get; internal set; }
@@ -31,6 +35,11 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		//public bool bLastUpdateToggleLights { get; private set; }
 		public bool bLightsActive => (toggleLights != null ? toggleLights.GetLightsActive() : false);
 		private GameObject lightSocket;
+
+		public static void SetFlashlightPrefab(GameObject prefab)
+		{
+			flashlightPrefab ??= prefab;
+		}
 
 		private GameObject GetEquipmentModel(Player main, TechType forType)
 		{
@@ -75,12 +84,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		public void Start()
 		{
-			Log.LogDebug($"FlashlightHelmetComponentSN1.Start()");
+			Log.LogDebug($"FlashlightHelmetComponent.Start()");
 
 			thisObject = this.gameObject;
 			this.storageRoot = this.gameObject.FindChild("StorageRoot") ?? new GameObject("StorageRoot", new Type[] { typeof(ChildObjectIdentifier) });
 
-			var lightsParent = FlashlightHelmetComponentSN1.lightsParent ??= Player.main.gameObject.FindChild("HeadFlashlightParent") ?? new GameObject("HeadFlashlightParent");
+			var lightsParent = FlashlightHelmetComponent.lightsParent ??= Player.main.gameObject.FindChild("HeadFlashlightParent") ?? new GameObject("HeadFlashlightParent");
 			lightsParent.transform.SetParent(Player.main.gameObject.transform);
 			lightsParent.name = "HeadLampParent";
 			var spotLightObject = lightsParent.FindChild("HeadFlashLight_spot") ?? new GameObject("HeadFlashLight_spot", new Type[] { typeof(Light) });
@@ -94,8 +103,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			{
 				spotLightObject.name = "HeadFlashLight_spot";
 				spotLight.type = LightType.Spot;
-				spotLight.spotAngle = 90f;
-				spotLight.innerSpotAngle = 71.41338f;
+				spotLight.spotAngle = 60f;
+				spotLight.innerSpotAngle = 45.07401f;
 				spotLight.color = new Color(0.992f, 0.992f, 0.996f, 1);
 				spotLight.range = 50;
 				spotLight.shadows = LightShadows.Hard;
@@ -117,11 +126,11 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			}
 
 			this.toggleLights = this.gameObject.EnsureComponent<ToggleLights>();
-			this.toggleLights.energyMixin = this.gameObject.EnsureComponent<FreeEnergyMixin>();
+			this.toggleLights.energyMixin = this.gameObject.EnsureComponent<EnergyMixin>();
 			this.toggleLights.energyMixin.storageRoot = this.storageRoot.GetComponent<ChildObjectIdentifier>();
 			this.toggleLights.energyMixin.OnCraftEnd(TechType.None);
-			this.toggleLights.lightsParent = FlashlightHelmetComponentSN1.lightsParent;
-			var toggleLightsPrefab = FlashlightHelmet.flashlightPrefab.GetComponent<ToggleLights>();
+			this.toggleLights.lightsParent = FlashlightHelmetComponent.lightsParent;
+			var toggleLightsPrefab = FlashlightHelmetComponent.flashlightPrefab.GetComponent<ToggleLights>();
 			this.toggleLights.lightsOnSound = toggleLightsPrefab.lightsOnSound;
 			this.toggleLights.lightsOffSound = toggleLightsPrefab.lightsOffSound;
 			this.toggleLights.energyPerSecond = 0f;
@@ -132,11 +141,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		{
 			if (slot != "Head")
 				return;
-			this.toggleLights ??= this.gameObject.GetComponent<ToggleLights>();
+			this.toggleLights ??= this.gameObject.EnsureComponent<ToggleLights>();
 			//this.pickupableModel ??= this.gameObject.FindChild("Rebreather");
 			this.mainCollider = this.gameObject.GetComponent<Collider>();
 
-			this.mainCollider.enabled = false;
+			if(this.mainCollider != null)
+				this.mainCollider.enabled = false;
 			this.gameObject.SetActive(true);
 			//ModelPlug.PlugIntoSocket(this.lightModelPlug, this.lightSocket.transform);
 			if (this.toggleLights == null)
@@ -151,31 +161,40 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			{
 				R.enabled = false;
 			}
-			this.mainCollider.enabled = false;
 		}
 
 		public void OnUnequip(GameObject sender, string slot)
 		{
-			Log.LogDebug($"FlashlightHelmetComponentSN1.OnUnequip: sender = {sender.ToString()}, slot = {slot}");
+			Log.LogDebug($"FlashlightHelmetComponent.OnUnequip: sender = {sender.ToString()}, slot = {slot}");
 
 			if (slot != "Head")
 				return;
 			//ModelPlug.PlugIntoSocket(this.lightModelPlug, this.transform);
+
+			Log.LogDebug($"FlashlightHelmetComponent.OnUnequip: getting ToggleLights"); 
 			this.toggleLights ??= this.gameObject.GetComponent<ToggleLights>();
 
 			this.gameObject.SetActive(false);
-			this.gameObject.GetComponent<BoxCollider>().enabled = true;
+			Collider C = this.gameObject.GetComponent<BoxCollider>();
+			if (C is not null)
+				this.gameObject.GetComponent<BoxCollider>().enabled = true;
+			else
+			{
+				Log.LogDebug($"FlashlightHelmetComponent.OnUnequip: No BoxCollider found");
+			}
 
 			if (this.toggleLights == null)
-				Log.LogError($"toggleLights is null!");
+				Log.LogDebug($"FlashlightHelmetComponent.OnUnequip: toggleLights is null!");
 			else
 				this.toggleLights.SetLightsActive(false);
 
+			Log.LogDebug($"FlashlightHelmetComponent.OnUnequip: Seting renderers active");
 			foreach (Renderer R in this.gameObject.GetComponentsInChildren<Renderer>())
 			{
 				R.enabled = true;
 			}
-			this.mainCollider.enabled = true;
+			if(this.mainCollider != null)
+				this.mainCollider.enabled = true;
 		}
 
 		public void UpdateEquipped(GameObject sender, string slot)
@@ -183,12 +202,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			if (MainCameraControl.main.enabled)
 			{
 				var lastTargetRotation = MainCamera.camera.transform.rotation;
-				FlashlightHelmetComponentSN1.lightsParent.transform.rotation = lastTargetRotation;
-				var lastActualRotation = FlashlightHelmetComponentSN1.lightsParent.transform.rotation;
-				FlashlightHelmetComponentSN1.lightsParent.transform.position = MainCamera.camera.transform.position + (MainCamera.camera.transform.forward * eyeOffset);
+				lightsParent.transform.rotation = lastTargetRotation;
+				var lastActualRotation = lightsParent.transform.rotation;
+				lightsParent.transform.position = MainCamera.camera.transform.position + (MainCamera.camera.transform.forward * eyeOffset);
 			}
 			else
-				FlashlightHelmetComponentSN1.lightsParent.transform.localRotation = Quaternion.identity;
+				lightsParent.transform.localRotation = Quaternion.identity;
 			if (Inventory.main.GetHeldObject() != null || Player.main.isPiloting)
 			{
 				//bLastUpdateToggleLights = false;
@@ -199,5 +218,4 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			this.toggleLights.CheckLightToggle();
 		}
 	}
-#endif
 }
