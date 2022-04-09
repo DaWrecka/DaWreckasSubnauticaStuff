@@ -33,11 +33,14 @@ namespace DWEquipmentBonanza
 {
 	[FileName("DWEquipmentBonanza")]
 	[Serializable]
-	internal class DWDataFile : SaveDataCache
+	public class DWDataFile : SaveDataCache
 	{
 		private HashSet<ISerializationCallbackReceiver> activeReceivers = new HashSet<ISerializationCallbackReceiver>();
 		public Dictionary<string, float> ModuleCharges = new Dictionary<string, float>();
-
+#if SUBNAUTICA
+		public Vector3 HeadlampDataboxPosition { get; set; }
+		public Vector3 HeadlampDataboxRotation { get; set; }
+#endif
 		internal void Init()
 		{
 			if (ModuleCharges == null)
@@ -61,6 +64,9 @@ namespace DWEquipmentBonanza
 			{
 				try
 				{
+					if (c == null)
+						continue;
+
 					c.OnBeforeSerialize();
 				}
 				catch (Exception e)
@@ -106,16 +112,16 @@ namespace DWEquipmentBonanza
 	[QModCore]
 	public class Main
 	{
-		internal const string version = "0.13.0.4";
+		internal const string version = "0.13.0.5";
 		internal static bool bVerboseLogging = true;
 		internal static bool bLogTranspilers = false;
 #if SUBNAUTICA_STABLE
-		public static bool bInAcid = false; // Whether or not the player is currently immersed in acid
+		public static bool bInAcid { get; internal set; } = false; // Whether or not the player is currently immersed in acid
 #endif
 		public static HashSet<string> playerSlots => Equipment.slotMapping.Keys.ToHashSet<string>();
 
 		internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
-		internal static DWDataFile saveCache { get; private set; }
+		public static DWDataFile saveCache { get; private set; }
 
 		private static readonly Type CustomiseOxygen = Type.GetType("CustomiseOxygen.Main, CustomiseOxygen", false, false);
 		private static readonly MethodInfo CustomOxyAddExclusionMethod = CustomiseOxygen?.GetMethod("AddExclusion", BindingFlags.Public | BindingFlags.Static);
@@ -605,7 +611,7 @@ namespace DWEquipmentBonanza
 
 			Databox powerglideDatabox = new Databox()
 			{
-				DataboxID = "PowerglideDatabox",
+				DataboxID = "Powerglide",
 				PrimaryDescription = PowerglideEquipable.friendlyName + " Databox",
 				SecondaryDescription = PowerglideEquipable.description,
 				TechTypeToUnlock = GetModTechType("PowerglideEquipable"),
@@ -626,6 +632,25 @@ namespace DWEquipmentBonanza
 
 			saveCache = SaveDataHandler.Main.RegisterSaveDataCache<DWDataFile>();
 			saveCache.Init();
+
+#if SUBNAUTICA_STABLE
+			Databox headLampDatabox = new Databox()
+			{
+				DataboxID = "Headlamp",
+				PrimaryDescription = FlashlightHelmet.friendlyName + " Databox",
+				SecondaryDescription = FlashlightHelmet.desc,
+				TechTypeToUnlock = GetModTechType("FlashlightHelmet"),
+				CoordinatedSpawns = new List<Spawnable.SpawnLocation>()
+				{
+					new Spawnable.SpawnLocation(new Vector3(-403f, -229.8f, -98.48f), Vector3.zero),
+				},
+				ModifyGameObject = (Action<GameObject>)(go =>
+				{
+					go.EnsureComponent<OverrideTransform>();
+				})
+			};
+			headLampDatabox.Patch();
+#endif
 
 			var harmony = new Harmony($"DaWrecka_{myAssembly.GetName().Name}");
 			harmony.PatchAll(myAssembly);

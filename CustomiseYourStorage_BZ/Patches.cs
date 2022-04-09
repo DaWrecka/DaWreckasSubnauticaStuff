@@ -35,7 +35,7 @@ namespace CustomiseYourStorage.Patches
 			string lowerID = ContainerID.ToLower();
 
 #if SUBNAUTICA_STABLE
-			if(lowerID == "escapepod.storagecontainer")
+			if (lowerID == "escapepod.storagecontainer")
 #elif BELOWZERO
 			if (lowerID == "none.storagecontiner") //(sic)
 #endif
@@ -45,7 +45,7 @@ namespace CustomiseYourStorage.Patches
 				int X = Main.config.DroppodWidth;
 				int Y = Main.config.DroppodHeight;
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Setting LifePod locker to size ({X}, {Y})"); 
+				Logger.Log(Logger.Level.Debug, $"Setting LifePod locker to size ({X}, {Y})");
 #endif
 				__instance.Resize(X, Y);
 				if (Main.config.defaultLifepodLockerInventoryTypes.Count > 0)
@@ -69,7 +69,7 @@ namespace CustomiseYourStorage.Patches
 			if (techType == TechType.None)
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Container {name} has TechType of None and is not the Lifepod locker, skipping"); 
+				Logger.Log(Logger.Level.Debug, $"Container {name} has TechType of None and is not the Lifepod locker, skipping");
 #endif
 				return;
 			}
@@ -77,7 +77,7 @@ namespace CustomiseYourStorage.Patches
 			if (Main.StorageBlacklist.Contains(techType))
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Container TechType {techType} present on blacklist, skipping"); 
+				Logger.Log(Logger.Level.Debug, $"Container TechType {techType} present on blacklist, skipping");
 #endif
 				return;
 			}
@@ -90,7 +90,7 @@ namespace CustomiseYourStorage.Patches
 			if (Main.config.TryGetModSize(lowerID, out NewSize))
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Configuration for storage container {ContainerID} was found with value of ({NewSize.x}, {NewSize.y})"); 
+				Logger.Log(Logger.Level.Debug, $"Configuration for storage container {ContainerID} was found with value of ({NewSize.x}, {NewSize.y})");
 #endif
 				__instance.Resize(NewSize.x, NewSize.y);
 				return;
@@ -100,13 +100,13 @@ namespace CustomiseYourStorage.Patches
 			{
 				// TryGetModSize returned false, but with a non-zero vector; this should mean that the value was found, but with default value.
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Storage container {ContainerID} was found, but with default values; nothing to do."); 
+				Logger.Log(Logger.Level.Debug, $"Storage container {ContainerID} was found, but with default values; nothing to do.");
 #endif
 				return;
 			}
 #if !RELEASE
 
-			Logger.Log(Logger.Level.Info, $"Storage container identifier {ContainerID} was not found in configuration settings; using default values"); 
+			Logger.Log(Logger.Level.Info, $"Storage container identifier {ContainerID} was not found in configuration settings; using default values");
 #endif
 			Main.config.AddContainer(lowerID, __instance.width, __instance.height);
 		}
@@ -133,6 +133,8 @@ namespace CustomiseYourStorage.Patches
 
 				inventoryItem2.item.Initialize();
 				container.container.UnsafeAdd(inventoryItem2);
+				if (!KnownTech.Contains(tt))
+					KnownTech.Add(tt, true);
 			}
 			yield break;
 		}
@@ -168,7 +170,7 @@ namespace CustomiseYourStorage.Patches
 			if (techType == TechType.None)
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Info, $"Container {name} has TechType of None and is not the Lifepod locker, skipping"); 
+				Logger.Log(Logger.Level.Info, $"Container {name} has TechType of None and is not the Lifepod locker, skipping");
 #endif
 				return;
 			}
@@ -178,7 +180,7 @@ namespace CustomiseYourStorage.Patches
 			if (Main.config.TryGetModSize(ContainerID, out NewSize))
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Configuration for items container {ContainerID} was found with value of ({NewSize.x}, {NewSize.y})"); 
+				Logger.Log(Logger.Level.Debug, $"Configuration for items container {ContainerID} was found with value of ({NewSize.x}, {NewSize.y})");
 #endif
 				__instance.container.Resize(NewSize.x, NewSize.y);
 				return;
@@ -188,13 +190,13 @@ namespace CustomiseYourStorage.Patches
 			{
 				// TryGetNewSize returned false, but with a non-zero vector; this should mean that the value was found, but with default value.
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Items container {ContainerID} was found, but with default values; nothing to do."); 
+				Logger.Log(Logger.Level.Debug, $"Items container {ContainerID} was found, but with default values; nothing to do.");
 #endif
 				return;
 			}
 #if !RELEASE
 
-			Logger.Log(Logger.Level.Info, $"Items container identifier {ContainerID} was not found in configuration settings; using default values"); 
+			Logger.Log(Logger.Level.Info, $"Items container identifier {ContainerID} was not found in configuration settings; using default values");
 #endif
 			Main.config.AddContainer(lowerID, __instance.width, __instance.height);
 		}
@@ -209,7 +211,7 @@ namespace CustomiseYourStorage.Patches
 			int maxWater = Main.config.FiltrationWater;
 			Vector2int newContainerSize = new Vector2int(Main.config.FiltrationWidth, Main.config.FiltrationHeight);
 #if !RELEASE
-			Logger.Log(Logger.Level.Debug, $"Reconfiguring Filtration Machine {__instance.gameObject.name} with configuration values of: maxSalt {maxSalt}, maxWater {maxWater}, new size ({newContainerSize.x}, {newContainerSize.y})"); 
+			Logger.Log(Logger.Level.Debug, $"Reconfiguring Filtration Machine {__instance.gameObject.name} with configuration values of: maxSalt {maxSalt}, maxWater {maxWater}, new size ({newContainerSize.x}, {newContainerSize.y})");
 #endif
 
 			__instance.maxSalt = maxSalt;

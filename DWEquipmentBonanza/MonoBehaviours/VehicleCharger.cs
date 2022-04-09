@@ -25,6 +25,50 @@ namespace DWEquipmentBonanza.MonoBehaviours
 	{
 		protected IBattery _cell;
 		protected IBattery cell => _cell ??= gameObject.GetComponent<IBattery>();
+		private GameObject _thisGameObject;
+		protected GameObject thisGameObject
+		{
+			get
+			{
+				try
+				{
+					return _thisGameObject ??= this.gameObject;
+				}
+				catch
+				{
+					return null;
+				}
+			}
+		}
+		private PrefabIdentifier _prefabIdentifier;
+		protected PrefabIdentifier prefabIdentifier
+		{
+			get
+			{
+				try
+				{
+					return _prefabIdentifier ??= thisGameObject?.GetComponent<PrefabIdentifier>();
+				}
+				catch
+				{
+					return null;
+				}
+			}
+		}
+		protected string moduleId
+		{
+			get
+			{
+				try
+				{
+					return prefabIdentifier?.id;
+				}
+				catch
+				{
+					return String.Empty;
+				}
+			}
+		}
 
 		protected virtual float ThermalChargeRate => 0f;
 		protected virtual float SolarChargeRate => 0f;
@@ -53,8 +97,6 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		public float lastExcess { get; protected set; }
 		public float lastSolarCharge { get; protected set; }
 		public float lastThermalCharge { get; protected set; }
-		private PrefabIdentifier prefabIdentifier => this.gameObject?.GetComponent<PrefabIdentifier>();
-		protected string moduleId => prefabIdentifier?.id;
 		protected virtual Dictionary<string, float> difficultyKeyedSolarChargeRates { get; } = new Dictionary<string, float>()
 		{
 			{ "Easy", 0.75f },
@@ -73,9 +115,31 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		public virtual void Init(MonoBehaviour vehicle)
 		{
 			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): begin");
+			try
+			{
+				Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): begin; module ID {moduleId}");
+			}
+			catch
+			{
+				Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): begin");
+				base.InvokeRepeating("InitialiseCharge", 0.5f, 0.5f); // We do this as a timer rather than a coroutine so that if 'get_gameObject' throws an exception, as it appears wont to do,
+				// the code will keep attempting to save the charge.
+			}
 
 			parentVehicle = vehicle;
+		}
+
+		private void InitialiseCharge()
+		{
+			try
+			{
+				Main.saveCache.AddModuleCharge(this.moduleId, this._charge);
+				base.CancelInvoke("InitialiseCharge");
+			}
+			catch
+			{
+			}
+
 		}
 
 		public float ConsumeEnergy(float energy)
@@ -157,13 +221,25 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			return 0f;
 		}
 
+		public bool bSerialising { get; private set; }
+
 		[ProtoBeforeSerialization]
 		public void OnBeforeSerialize()
+		{
+			bSerialising = true;
+			CoroutineHost.StartCoroutine(PreSerializeCoroutine());
+			while (bSerialising)
+			{
+			}
+		}
+
+		public IEnumerator PreSerializeCoroutine()
 		{
 			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
 			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): begin");
 
-			if (cell == null)
+
+			/*if (cell == null)
 			{
 				Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): no battery cell found");
 				return;
@@ -179,9 +255,19 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			{
 				Log.LogError($"Invalid ID for object");
 				return;
-			}
+			}*/
+
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): Waiting for cell");
+			yield return new WaitUntil(() => cell != null);
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): Waiting for prefabIdentifier");
+			yield return new WaitUntil(() => prefabIdentifier != null);
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): Waiting for valid moduleID");
+			yield return new WaitUntil(() => !string.IsNullOrEmpty(moduleId));
+
 			Log.LogDebug($"Saving charge value of {cell.charge} to disk for module ID of '{moduleId}'");
 			Main.saveCache.AddModuleCharge(moduleId, cell.charge);
+			bSerialising = false;
+			yield break;
 		}
 
 		[ProtoBeforeDeserialization]
@@ -215,10 +301,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			if (string.IsNullOrEmpty(moduleId))
 			{
 				Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.name}) waiting for GameObject and/or PrefabIdentifier");
-				while (string.IsNullOrEmpty(moduleId))
-				{
-					yield return new WaitForSecondsRealtime(0.2f);
-				}
+				yield return new WaitUntil(() => !string.IsNullOrEmpty(moduleId));
 			}
 
 			// Re-activate the charger, so that it continues to charge the vehicle after a game load

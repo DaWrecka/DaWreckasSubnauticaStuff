@@ -97,8 +97,6 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		public void Awake()
 		{
-			if (thisPickup == null && gameObject.TryGetComponent<Pickupable>(out Pickupable component))
-				thisPickup = component;
 			CoroutineHost.StartCoroutine(GetGameObjectAsync());
 		}
 
@@ -118,6 +116,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				}
 				yield return new WaitForEndOfFrame();
 			}
+			if (thisPickup == null && MyGO.TryGetComponent<Pickupable>(out Pickupable component))
+				thisPickup = component;
 		}
 
 		public void OnBeforeSerialize()

@@ -121,15 +121,17 @@ namespace CustomiseOxygen
             bWaitingForSpriteHandler = true;
 
 #if SUBNAUTICA_STABLE
-            while (SpriteUtils.Get(TechType.Cutefish, null) == null || Language.main == null || uGUI.isLoading || !bMainMenuHasLoaded)
+            //while (SpriteUtils.Get(TechType.Cutefish, null) == null || Language.main == null || uGUI.isLoading || !bMainMenuHasLoaded)
+            yield return new WaitUntil(() => (SpriteUtils.Get(TechType.Cutefish, null) == null || Language.main == null || uGUI.isLoading || !bMainMenuHasLoaded));
 #elif BELOWZERO
             //while (!SpriteManager.hasInitialized || Language.main == null || uGUI.isLoading || !bMainMenuHasLoaded)
-            while(!bMainMenuHasLoaded)
+            //while(!bMainMenuHasLoaded)
+            yield return new WaitUntil(() => bMainMenuHasLoaded);
 #endif
-            {
+            /*{
                 Log.LogDebug($"WaitForSpriteHandler() waiting for 0.5 seconds");
                 yield return new WaitForSecondsRealtime(0.5f);
-            }
+            }*/
 
             Log.LogDebug($"WaitForSpriteHandler(): Sprite manager initialisation complete. pendingTanks.Count == {pendingTanks.Count}");
             HashSet<TechType> removals = new HashSet<TechType>();

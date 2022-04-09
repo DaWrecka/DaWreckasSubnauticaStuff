@@ -287,9 +287,11 @@ namespace DWEquipmentBonanza.Equipables
             SetUpPrefabs();
         }
 
-        public FlashlightHelmet(string classID = "FlashlightHelmet",
-            string friendlyName = "Headlamp",
-            string Description = "Head-mounted light for hands-free illumination") : base(classID, friendlyName, Description)
+        internal const string classID = "FlashlightHelmet";
+        internal const string friendlyName = "Headlamp";
+        internal const string desc = "Head-mounted light for hands-free illumination";
+
+        public FlashlightHelmet() : base(classID, friendlyName, desc)
         { }
     }
 #endif

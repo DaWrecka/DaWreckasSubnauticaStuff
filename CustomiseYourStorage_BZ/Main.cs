@@ -13,7 +13,7 @@ namespace CustomiseYourStorage
 	[QModCore]
 	public class Main
 	{
-		internal const string version = "1.0.0.2";
+		internal const string version = "1.0.0.3";
 
 		internal static DWStorageConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWStorageConfig>();
 		//internal static readonly DWStorageConfigNonSML config = DWStorageConfigNonSML.LoadConfig(Path.Combine(new string[] { Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "config.json" }));
@@ -30,7 +30,7 @@ namespace CustomiseYourStorage
 		// Similarly, we exclude the planters because they, too, have visuals associated with them that are likely to go ka-ka if we expand the storage.
 		{
 #if SUBNAUTICA_STABLE
-			"EscapePod.StorageContainer", // We've given the DropPod special treatment, so we're keeping it for the the Lifepod.
+			"EscapePod.StorageContainer", // We've given the DropPod special treatment, so we're keeping it for the Lifepod.
 					// This might seem counter-intuitive, blacklisting the Escape Pod locker when we could easily customise it the same way as any other container,
 					// but the BZ version of this mod was developed before the SN1 version, so the Droppod code was implemented before the SN1 version of the mod.
 #elif BELOWZERO

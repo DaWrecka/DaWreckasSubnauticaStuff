@@ -40,6 +40,9 @@ namespace CombinedItems.Patches
 				// I could probably rewrite this with DamageModifier components, but I'm still not sure whether those actually work in SN1.
 				// By default, DamageModifier components only modify a single DamageType, but all we'd have to do is add multiple DamageModifier components.
 				// Or even code a custom DamageModifier.
+				// Plus, using DamageModifiers carries the disadvantage that no combination of them could reduce damage all the way to zero, unless one of them actually set the damage to zero.
+				// This makes it insufficient for the Brine Suit, which has multiple components that all reduce the final damage by a fixed proportion of the original damage.
+				// There's still a workaround for this, in that a fourth DamageModifier could be added/removed when the set is completed/broken, one that does set acid damage to zero.
 
 				Equipment equipment = Inventory.main.equipment;
 				Player __instance = Player.main;
@@ -49,10 +52,18 @@ namespace CombinedItems.Patches
 					float damageMod = Main.ModifyDamage(techTypeInSlot, baseDamage, type);
 					newDamage -= damageMod;
 				}
-				
+
 				// This is to cover the instances where the player is in acid, gets in a vehicle - sound is stopped by above - and then gets out again.
-				if (type == DamageType.Acid && newDamage > 0f && !Player.main.acidLoopingSound.playing)
-					Player.main.acidLoopingSound.Start();
+				if (type == DamageType.Acid)
+				{
+					if (newDamage > 0f)
+					{
+						if (!Player.main.acidLoopingSound.playing)
+							Player.main.acidLoopingSound.Start();
+					}
+					else if (Player.main.acidLoopingSound.playing)
+						Player.main.acidLoopingSound.Stop();
+				}
 			}
 
 			return System.Math.Max(newDamage, 0f);

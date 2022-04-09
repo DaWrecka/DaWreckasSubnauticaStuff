@@ -372,7 +372,10 @@ namespace CustomiseYourStorage.Configuration
 				{
 					TechType tt = TechTypeUtils.GetTechType(s);
 					if (tt != TechType.None)
+					{
 						defaultLifepodLockerInventoryTypes.Add(tt);
+
+					}
 					else
 					{
 						Log.LogWarning($"Could not parse string '{s}' as TechType in defaultLifepodLockerInventory");

@@ -2,7 +2,7 @@
   "Id": "CustomiseYourStorage",
   "DisplayName": "Customise Your Storage",
   "Author": "DaWrecka",
-  "Version": "1.0.0.2",
+  "Version": "1.0.0.3",
   "Dependencies": [
     "SMLHelper"
   ],

@@ -14,6 +14,7 @@ using DWEquipmentBonanza.Patches;
 using DWEquipmentBonanza.MonoBehaviours;
 using SMLHelper.V2.Handlers;
 using System.Diagnostics;
+using Common.Utility;
 #if SUBNAUTICA_STABLE
 using RecipeData = SMLHelper.V2.Crafting.TechData;
 using Sprite = Atlas.Sprite;
@@ -206,7 +207,7 @@ namespace DWEquipmentBonanza.Equipables
 		{
 			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
 			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
-			GameObject obj = GameObject.Instantiate<GameObject>(prefab);
+			GameObject obj = GameObjectUtils.InstantiateInactive(prefab);
 
 			DiverPerimeterDefenceBehaviour behaviour = obj.EnsureComponent<DiverPerimeterDefenceBehaviour>();
 			behaviour.Initialise(this.TechType);
@@ -218,10 +219,7 @@ namespace DWEquipmentBonanza.Equipables
 
 		protected override Sprite GetItemSprite()
 		{
-			if (icon == null || icon == SpriteManager.defaultSprite)
-			{
-				icon = SpriteManager.Get(templateTechType);
-			}
+			icon ??= (templateTechType != TechType.None ? SpriteUtils.Get(templateTechType, null) : null);
 			return icon;
 		}
 		protected virtual IEnumerator PostPatchSetup()
@@ -410,13 +408,14 @@ namespace DWEquipmentBonanza.Equipables
 				Ingredients = new List<Ingredient>(new Ingredient[]
 					{
 						new Ingredient(Main.GetModTechType("DiverDefenceSystemMk2"), 1),
+						new Ingredient(TechType.Nickel, 1),
 #if SUBNAUTICA_STABLE
-						new Ingredient(TechType.PrecursorKey_Blue, 1),
+						new Ingredient(TechType.PrecursorKey_Orange, 1),
+						new Ingredient(TechType.PrecursorIonCrystal, 1),
 #elif BELOWZERO
 						new Ingredient(Main.GetModTechType("ShadowLeviathanSample"), 1),
-#endif
-						new Ingredient(TechType.Nickel, 1),
 						new Ingredient(TechType.PrecursorIonBattery, 1)
+#endif
 					}
 				)
 			};

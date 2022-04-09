@@ -73,6 +73,7 @@
     <Compile Include="MonoBehaviours\HoverbikeStructuralIntegrityModifier.cs" />
     <Compile Include="MonoBehaviours\HoverbikeUpdater.cs" />
     <Compile Include="MonoBehaviours\HoverpadUpdater.cs" />
+    <Compile Include="MonoBehaviours\OverrideTransform.cs" />
     <Compile Include="MonoBehaviours\Powerglide.cs" />
     <Compile Include="MonoBehaviours\SeamothUpdater.cs" />
     <Compile Include="MonoBehaviours\VehicleQuantumLockerComponent.cs" />
