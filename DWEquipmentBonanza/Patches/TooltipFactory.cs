@@ -150,7 +150,10 @@ namespace DWEquipmentBonanza.Patches
 		}
 
 #if BELOWZERO
-		[HarmonyPatch("GetBarValue")]
+		[HarmonyPatch("GetBarValue", new[]
+		{
+			typeof(Pickupable)
+		} )]
 		[HarmonyTranspiler]
 		public static IEnumerable<CodeInstruction> GetBarValueTranspiler(IEnumerable<CodeInstruction> instructions)
 		{

@@ -14,7 +14,10 @@ namespace CombinedItems.Patches
 	internal class DamageSystemPatches
 	{
 		[HarmonyPostfix]
-		[HarmonyPatch(nameof(DamageSystem.CalculateDamage))]
+		[HarmonyPatch(nameof(DamageSystem.CalculateDamage), new[]
+		{
+			typeof(float), typeof(DamageType), typeof(GameObject), typeof(GameObject)
+		})]
 		public static float PostCalculateDamage(float damage, DamageType type, GameObject target, GameObject dealer = null)
 		{
 			TechType targetTT = target != null ? CraftData.GetTechType(target) : TechType.None;
