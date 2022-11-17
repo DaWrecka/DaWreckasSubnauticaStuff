@@ -183,7 +183,7 @@ namespace DWEquipmentBonanza.Patches
 		internal static void PreUpdateStats(Survival __instance, float timePassed)
 		{
 			bool bHasSurvivalSuit = PlayerPatch.bHasSurvivalSuit;
-			if (bHasSurvivalSuit && GameModeUtils.RequiresSurvival() && !Player.main.IsFrozenStats())
+			if (bHasSurvivalSuit && GameModeManager.GetOption<bool>(GameOption.Hunger) && GameModeManager.GetOption<bool>(GameOption.Thirst) && !Player.main.IsFrozenStats())
 			{
 				preHunger = __instance.food;
 				preWater = __instance.water;

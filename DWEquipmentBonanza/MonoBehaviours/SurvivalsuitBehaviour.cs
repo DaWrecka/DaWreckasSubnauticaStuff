@@ -29,7 +29,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
         public void UpdateHunger(GameObject sender)
         {
-            if (GameModeUtils.RequiresSurvival() && !Player.main.IsFrozenStats())
+            if (GameModeManager.GetOption<bool>(GameOption.Hunger) && !Player.main.IsFrozenStats())
             {
                 float deltaTime = Time.deltaTime;
 

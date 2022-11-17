@@ -228,8 +228,11 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		{
 			bSerialising = true;
 			CoroutineHost.StartCoroutine(PreSerializeCoroutine());
+
 			while (bSerialising)
 			{
+				//do not try to force async methods to be sync. This caused the game to freeze whenever a vehicle charger was picked up.
+				break;
 			}
 		}
 
