@@ -1,4 +1,5 @@
-﻿using DWEquipmentBonanza;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using DWEquipmentBonanza;
 using DWEquipmentBonanza.VehicleModules;
 using DWEquipmentBonanza.MonoBehaviours;
 using Common;
@@ -8,11 +9,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
-using QModManager.Utility;
+#if QMM
+	using QModManager.Utility;
+#endif
 using UnityEngine;
 using System.Reflection;
 using System.Reflection.Emit;
-#if BELOWZERO
+#if !LEGACY
 	using TMPro;
 #endif
 
@@ -89,8 +92,8 @@ namespace DWEquipmentBonanza.Patches
 		[HarmonyPatch("Start")]
 		public static void PostStart(SeaTruckUpgrades __instance)
 		{
-			//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
 			if (__instance?.gameObject != null)
 			{
 				MonoBehaviour m = __instance as MonoBehaviour;
@@ -98,35 +101,50 @@ namespace DWEquipmentBonanza.Patches
 				//component.Initialise(ref m);  // This is now handled in VehicleUpdater.Start()
 			}
 
-			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
 		}
 
-		//[HarmonyPrefix]
-		//[HarmonyPatch("OnUpgradeModuleChange", new Type[] { typeof(int), typeof(TechType), typeof(bool) })]
-		//public static void PreUpgradeModuleChange(SeaTruckUpgrades __instance, int slotID, TechType techType, bool added)
-		//{
-		//	System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-		//	Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}, {techType.AsString()}) executing");
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(SeaTruckUpgrades.LazyInitialize))]
+        public static void PostInitialize(SeaTruckUpgrades __instance)
+        {
+            System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
+            if (__instance?.gameObject != null)
+            {
+                MonoBehaviour m = __instance as MonoBehaviour;
+                SeaTruckUpdater component = __instance.gameObject.EnsureComponent<SeaTruckUpdater>();
+                //component.Initialise(ref m);  // This is now handled in VehicleUpdater.Start()
+            }
 
-		//	Log.LogDebug($"SeaTruckUpgrades.slotIDs: length = {SeaTruckUpgrades.slotIDs.Length}");
-		//	for (int i = 0; i < SeaTruckUpgrades.slotIDs.Length; i++)
-		//	{
-		//		Log.LogDebug($"SeaTruckUpgrades.slotIDs[{i}] = {SeaTruckUpgrades.slotIDs[i]}");
-		//		try
-		//		{
-		//			TechType techTypeInSlot = __instance.modules.GetTechTypeInSlot(SeaTruckUpgrades.slotIDs[i]);
-		//			Log.LogDebug($"    techTypeInSlot = {techTypeInSlot.AsString()}");
-		//		}
-		//		catch(Exception ex)
-		//		{
-		//			Log.LogDebug($"    Exception calling GetTechTypeInSlot:");
-		//			Log.LogDebug(ex.ToString());
-		//		}
-		//	}
-		//	//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}, {techType.AsString()}) done");
-		//}
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
+        }
+        //[HarmonyPrefix]
+        //[HarmonyPatch("OnUpgradeModuleChange", new Type[] { typeof(int), typeof(TechType), typeof(bool) })]
+        //public static void PreUpgradeModuleChange(SeaTruckUpgrades __instance, int slotID, TechType techType, bool added)
+        //{
+        //	System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+        //	Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}, {techType.AsString()}) executing");
 
-		[HarmonyPostfix]
+        //	Log.LogDebug($"SeaTruckUpgrades.slotIDs: length = {SeaTruckUpgrades.slotIDs.Length}");
+        //	for (int i = 0; i < SeaTruckUpgrades.slotIDs.Length; i++)
+        //	{
+        //		Log.LogDebug($"SeaTruckUpgrades.slotIDs[{i}] = {SeaTruckUpgrades.slotIDs[i]}");
+        //		try
+        //		{
+        //			TechType techTypeInSlot = __instance.modules.GetTechTypeInSlot(SeaTruckUpgrades.slotIDs[i]);
+        //			Log.LogDebug($"    techTypeInSlot = {techTypeInSlot.AsString()}");
+        //		}
+        //		catch(Exception ex)
+        //		{
+        //			Log.LogDebug($"    Exception calling GetTechTypeInSlot:");
+        //			Log.LogDebug(ex.ToString());
+        //		}
+        //	}
+        //	//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slotID}, {techType.AsString()}) done");
+        //}
+
+        [HarmonyPostfix]
 		[HarmonyPatch("OnUpgradeModuleChange", new Type[] { typeof(int), typeof(TechType), typeof(bool) })]
 		public static void PostUpgradeModuleChange(SeaTruckUpgrades __instance, int slotID, TechType techType, bool added)
 		{

@@ -1,15 +1,16 @@
-﻿using System.Reflection;
+﻿using CustomiseOxygen;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle(CustomiseOxygen.Main.AssemblyTitle)]
+[assembly: AssemblyTitle(CustomiseOxygenPlugin.MODNAME)]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct(CustomiseOxygen.Main.AssemblyProduct)]
+[assembly: AssemblyProduct(CustomiseOxygenPlugin.MODNAME)]
 [assembly: AssemblyCopyright("Copyright ©  2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -32,5 +33,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion(CustomiseOxygen.Main.AssemblyVersion)]
-[assembly: AssemblyFileVersion(CustomiseOxygen.Main.AssemblyVersion)]
+[assembly: AssemblyVersion(CustomiseOxygenPlugin.version)]
+[assembly: AssemblyFileVersion(CustomiseOxygenPlugin.version)]

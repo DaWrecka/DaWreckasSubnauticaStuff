@@ -1,5 +1,16 @@
-﻿using SMLHelper.V2.Assets;
-using SMLHelper.V2.Utility;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
+using SMLHelper.V2.Assets;
+using SMLHelper.V2.Crafting;
+using SMLHelper.V2.Handlers;
+#endif
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -59,12 +70,15 @@ namespace DWEquipmentBonanza.VehicleModules
             gameObject.Set(prefab);
         }
 
+        protected virtual void OnFinishedPatch()
+        {
+            Main.AddModTechType(this.TechType);
+        }
+
         public HoverbikeUpgradeBase(string classID, string Title, string Description) : base(classID, Title, Description)
         {
-            OnFinishedPatching += () =>
-            {
-                Main.AddModTechType(this.TechType);
-            };
+            //Console.WriteLine($"{this.ClassID} constructing");
+            OnFinishedPatching += OnFinishedPatch;
         }
     }
 #endif

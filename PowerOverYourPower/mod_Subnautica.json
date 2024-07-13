@@ -2,7 +2,7 @@
   "Id": "PowerOverYourPower",
   "DisplayName": "PowerOverYourPower",
   "Author": "DaWrecka",
-  "Version": "1.0.0.0",
+  "Version": "0.5.0.0",
   "Dependencies": [
     "SMLHelper"
   ],

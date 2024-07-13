@@ -8,8 +8,13 @@ using HarmonyLib;
 using Common;
 using UnityEngine;
 using UWE;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+#else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
+#endif
 
 namespace FuelCells.Patches
 {
@@ -124,7 +129,7 @@ namespace FuelCells.Patches
 		{
 			float batteryChargePct = (__instance.charge / __instance._capacity);
 			Log.LogDebug($"BatteryPatches.PostDeserialise: Processing battery instance {__instance.GetInstanceID()}");
-/*#if SUBNAUTICA_STABLE
+/*#if SN1
 			TechTag tt = __instance.gameObject?.GetComponent<TechTag>();
 			if(tt != null)
 //#elif BELOWZERO*/

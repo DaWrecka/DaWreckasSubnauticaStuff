@@ -1,11 +1,26 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using System.Collections;
 using System.Collections.Generic;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Handlers;
+#endif
 using UnityEngine;
+#if BEPINEX
+    using BepInEx;
+    using BepInEx.Logging;
+#elif QMM
 using Logger = QModManager.Utility.Logger;
+#endif
 using DWEquipmentBonanza.MonoBehaviours;
 
 namespace DWEquipmentBonanza.VehicleModules
@@ -43,14 +58,16 @@ namespace DWEquipmentBonanza.VehicleModules
             };
         }
 
+        protected override void OnFinishedPatch()
+        {
+            base.OnFinishedPatch();
+            HoverbikeUpdater.AddEfficiencyMultiplier(this.TechType, efficiencyModifier, upgradePriority, maxStack);
+            HoverbikeUpdater.AddMovementModifier(this.TechType, speedMultiplier, cooldownMultiplier, upgradePriority, maxStack);
+            //Main.AddModTechType(this.TechType);
+        }
+
         public HoverbikeMobilityUpgrade() : base("HoverbikeMobilityUpgrade", "Snowfox Mobility Upgrade", "Allows Snowfox to jump, travel on water, and provides a modest bonus to speed, without increasing power consumption. Does not stack with Speed Module or Efficiency Upgrade.")
         {
-            OnFinishedPatching += () =>
-            {
-                HoverbikeUpdater.AddEfficiencyMultiplier(this.TechType, efficiencyModifier, upgradePriority, maxStack);
-                HoverbikeUpdater.AddMovementModifier(this.TechType, speedMultiplier, cooldownMultiplier, upgradePriority, maxStack);
-                Main.AddModTechType(this.TechType);
-            };
         }
     }
 #endif

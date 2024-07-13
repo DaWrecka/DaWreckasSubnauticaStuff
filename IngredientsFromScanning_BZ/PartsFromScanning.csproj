@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="..\GameDir.targets" />
+  <Import Project="$(SolutionDir)\Configurations.targets" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Subnautica</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -13,35 +13,25 @@
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <LangVersion>8.0</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BelowZero|AnyCPU'">
-    <DefineConstants>BZ;BELOWZERO;RELEASE</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <GameDir>$(CommonDir)SubnauticaZero.Stable</GameDir>
-    <DataFolder>SubnauticaZero_Data</DataFolder>
-    <SMLHelperFolder>SMLHelper_BZ</SMLHelperFolder>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <AssemblyName>PartsFromScanning_BZ</AssemblyName>
-    <LangVersion>8.0</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <OutputPath>..\Qmods\BelowZero\PartsFromScanning_BZ\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Subnautica|AnyCPU'">
-    <DefineConstants>SN1;SUBNAUTICA_STABLE;RELEASE</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <GameDir>$(CommonDir)Subnautica.Stable</GameDir>
-    <DataFolder>Subnautica_Data</DataFolder>
-    <SMLHelperFolder>Modding Helper</SMLHelperFolder>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>8.0</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
     <AssemblyName>PartsFromScanning</AssemblyName>
-    <OutputPath>..\Qmods\Subnautica\PartsFromScanning\</OutputPath>
   </PropertyGroup>
+  <PropertyGroup>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)\References.targets" />
   <ItemGroup>
-    <Reference Include="0Harmony">
+    <!--<Reference Include="0Harmony">
       <HintPath>$(GameDir)\BepInEx\core\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
@@ -52,6 +42,10 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>$(GameDir)\$(DataFolder)\Managed\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="BepInEx, Version=5.4.21.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Subnautica.LivingLarge\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>$(GameDir)\$(DataFolder)\Managed\Newtonsoft.Json.dll</HintPath>
@@ -65,6 +59,9 @@
       <HintPath>$(GameDir)\QMods\$(SMLHelperFolder)\SMLHelper.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="SMLHelper">
+      <HintPath>..\..\..\Subnautica.LivingLarge\BepInEx\plugins\Modding Helper\SMLHelper.dll</HintPath>
+    </Reference>-->
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -74,11 +71,9 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
-      <HintPath>$(GameDir)\$(DataFolder)\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(GameDir)\$(DataFolder)\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -94,7 +89,24 @@
     <None Include="mod_BelowZero.json" />
     <None Include="mod_Subnautica.json" />
   </ItemGroup>
-  <Import Project="..\Common\Common.projitems" Label="Shared" />
+  <Import Project="$(SolutionDir)\Common\Common.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\PostBuildEvents.targets" />
+  <Import Project="$(SolutionDir)\PostBuildEvents.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>echo GameDir: '$(GameDir)'
+echo DataFolder: '$(DataFolder)'
+echo SMLHelperFolder: '$(SMLHelperFolder)'
+echo ModBaseDir: '$(ModBaseDir)'
+echo PluginLoaderPath: '$(PluginLoaderPath)'
+echo SolutionDir: '$(SolutionDir)'
+echo UseAsync: '$(UseAsync)'
+echo UseQMM: '$(UseQMM)'
+echo UseSML: '$(UseSML)'
+</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>echo on
+pwsh -ExecutionPolicy Unrestricted -file "$(SolutionDir)post-build.ps1" -Config "$(ConfigurationName)" -ProjectDir "$(ProjectDir)\" -GameDir "$(GameDir)" -TargetPath "$(TargetPath)" -AssemblyName "$(AssemblyName)" -SolutionDir "$(SolutionDir)\" -PluginLoaderPath "$(PluginLoaderPath)"
+		</PostBuildEvent>
+  </PropertyGroup>
 </Project>

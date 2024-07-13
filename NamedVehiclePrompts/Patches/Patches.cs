@@ -71,9 +71,9 @@ namespace NamedVehiclePrompts.Patches
             if (Main.TryGetVehiclePrompt(handText, Language.main.GetCurrentLanguage(), subName, out string prompt))
             {
                 if (bLog) ErrorMessage.AddMessage($"TryGetVehiclePrompt returned true with value for prompt of '{prompt}'");
-#if SUBNAUTICA_STABLE
+#if SUBNAUTICA_LEGACY
                 HandReticle.main.SetInteractText(prompt);
-#elif BELOWZERO
+#elif SUBNAUTICA_LL || BELOWZERO
                 HandReticle.main.SetText(HandReticle.TextType.Hand, prompt, true);
 #endif
                 HandReticle.main.SetIcon(HandReticle.IconType.Hand, 1f);
@@ -94,7 +94,7 @@ namespace NamedVehiclePrompts.Patches
         [HarmonyPrefix]
         public static bool Prefix(ref DockedVehicleHandTarget __instance, GUIHand hand)
         {
-#if SUBNAUTICA_STABLE
+#if SN1
             Vehicle dockedVehicle = __instance.dockingBay.GetDockedVehicle();
 #elif BELOWZERO
 #endif
@@ -118,7 +118,7 @@ namespace NamedVehiclePrompts.Patches
             string prompt = "";
             string vehicleName = dockedVehicle.GetName();
             result = Main.TryGetVehiclePrompt(text, Language.main.GetCurrentLanguage(), dockedVehicle.GetName(), out prompt);
-            //Logger.Log(Logger.Level.Debug, $"DockedVehicleHandTarget_OnHandHover_Patch.Prefix(): with docked vehicle {vehicleName}, called OnHandHover with text {text}; Main.TryGetVehiclePrompt({text}) returned prompt '{prompt}'", null, true);
+            //Log.LogDebug($"DockedVehicleHandTarget_OnHandHover_Patch.Prefix(): with docked vehicle {vehicleName}, called OnHandHover with text {text}; Main.TryGetVehiclePrompt({text}) returned prompt '{prompt}'", null, true);
             if (result)
             {
                 text = prompt;

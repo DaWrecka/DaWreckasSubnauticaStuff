@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
 using CustomiseYourStorage.Configuration;
-using Logger = QModManager.Utility.Logger;
+using Common;
 
 namespace CustomiseYourStorage
 {
@@ -17,13 +17,13 @@ namespace CustomiseYourStorage
 		public static bool UpdateStorageSize(ref Exosuit __instance)
 		{
 			//var exoConfig = Main.config.ExosuitConfig;
-			var X = Main.config.ExosuitWidth;
-			var Y = Main.config.ExosuitHeight;
-			var perModule = Main.config.ExosuitModuleHeight;
+			var X = CustomiseStoragePlugin.config.ExosuitWidth;
+			var Y = CustomiseStoragePlugin.config.ExosuitHeight;
+			var perModule = CustomiseStoragePlugin.config.ExosuitModuleHeight;
 			int moduleCount = __instance.modules.GetCount(TechType.VehicleStorageModule);
 			var height = Y + (moduleCount * perModule);
 #if !RELEASE
-			Logger.Log(Logger.Level.Debug, $"Exosuit.UpdateStorageSize prefixed with Exosuit config of ({X}, {Y}, {perModule}); Number of VehicleStorageModule units found: {moduleCount}"); 
+            Log.LogDebug($"Exosuit.UpdateStorageSize prefixed with Exosuit config of ({X}, {Y}, {perModule}); Number of VehicleStorageModule units found: {moduleCount}"); 
 #endif
 			__instance.storageContainer.Resize(X, height);
 
@@ -36,7 +36,7 @@ namespace CustomiseYourStorage
 		{
 			if (pickupable.GetTechType() == TechType.VehicleStorageModule)
 			{
-				__result = __instance.storageContainer.container.HasRoomFor(Main.config.ExosuitWidth, Main.config.ExosuitModuleHeight);
+				__result = __instance.storageContainer.container.HasRoomFor(CustomiseStoragePlugin.config.ExosuitWidth, CustomiseStoragePlugin.config.ExosuitModuleHeight);
 				if (verbose && !__result)
 				{
 					ErrorMessage.AddDebug(Language.main.Get("ExosuitStorageShrinkError"));

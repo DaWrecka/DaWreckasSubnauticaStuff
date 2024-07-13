@@ -1,32 +1,51 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.IO;
 using System.Reflection;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Assets.Gadgets;
+using Nautilus.Crafting;
+using Nautilus.Utility;
+using Nautilus.Handlers;
+using Ingredient = CraftData.Ingredient;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+#else
+using RecipeData = SMLHelper.V2.Crafting.TechData;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
-using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
+using SMLHelper.V2.Handlers;
+#endif
 using UnityEngine;
 using UWE;
 using DWEquipmentBonanza.MonoBehaviours;
 using DWEquipmentBonanza.Patches;
-#if SUBNAUTICA_STABLE
-    using RecipeData = SMLHelper.V2.Crafting.TechData;
+#if SN1
     using Sprite = Atlas.Sprite;
     using Object = UnityEngine.Object;
+using Nautilus.Assets.PrefabTemplates;
 #endif
 
 namespace DWEquipmentBonanza.Equipables
 {
     abstract public class SurvivalSuitBase<T> : Equipable
     {
+#if NAUTILUS
+        protected override TechType templateType => TechType.ReinforcedDiveSuit;
+        protected override string templateClassId => string.Empty;
+#endif
+
         public SurvivalSuitBase(string classId,
                 string friendlyName,
                 string Description) : base(classId, friendlyName, Description)
         {
-            OnFinishedPatching += () => OnFinishedPatch();
+            Log.LogDebug($"{this.ClassID} constructing");
+            OnFinishedPatching += OnFinishedPatch;
         }
 
         public override Vector2int SizeInInventory => new(2, 3);
@@ -36,7 +55,7 @@ namespace DWEquipmentBonanza.Equipables
         protected abstract float maxDepth { get; }
         protected abstract float breathMultiplier { get; }
         protected abstract float minTempBonus { get; }
-#if SUBNAUTICA_STABLE
+#if SN1
         protected abstract float DeathRunDepth { get; }
 #endif
         protected virtual TechType[] substitutions => new TechType[] { Main.StillSuitType };
@@ -49,34 +68,35 @@ namespace DWEquipmentBonanza.Equipables
 
         protected virtual void OnFinishedPatch()
         {
+            //Console.WriteLine($"{this.ClassID} OnFinishedPatch begin");
+            //Console.WriteLine($"{this.ClassID} calling AddModTechType");
             Main.AddModTechType(this.TechType);
+            //Console.WriteLine($"{this.ClassID} PlayerPatch.AddSurvivalSuit()");
             PlayerPatch.AddSurvivalSuit(this.TechType);
             //Main.AddSubstitution(this.TechType, Main.StillSuitType);
             foreach (TechType tt in substitutions)
             {
+                //Console.WriteLine($"{this.ClassID} AddSubstitution({tt.AsString()}");
                 Main.AddSubstitution(this.TechType, tt);
             }
 
             if (CompoundDependencies.Count > 0)
             {
+                //Console.WriteLine($"{this.ClassID} AddCompoundTech");
                 Reflection.AddCompoundTech(this.TechType, CompoundDependencies);
             }
             //SurvivalPatches.AddNeedsCapOverride(this.TechType, SurvivalCapOverride);
+            //Console.WriteLine($"{this.ClassID} AddDiveSuit");
             Main.AddDiveSuit(this.TechType, maxDepth, breathMultiplier, minTempBonus);
         }
 
-#if SUBNAUTICA_STABLE
-        public override GameObject GetGameObject()
+#if NAUTILUS
+        public override void ModifyClone(CloneTemplate clone)
         {
-            if (prefab == null)
-            {
-                prefab = PrepareGameObject(CraftData.GetPrefabForTechType(prefabTechType));
-            }
-
-            return prefab;
+            clone.ModifyPrefab += PrepareGameObject;
         }
-#endif
 
+#elif ASYNC
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             if (prefab == null)
@@ -91,6 +111,26 @@ namespace DWEquipmentBonanza.Equipables
             yield break;
         }
 
+#else
+        public override GameObject GetGameObject()
+        {
+            if (prefab == null)
+            {
+                prefab = PrepareGameObject(CraftData.GetPrefabForTechType(prefabTechType));
+            }
+
+            return prefab;
+        }
+#endif
+
+#if NAUTILUS
+        public void PrepareGameObject(GameObject prefab)
+        {
+            if (prefab.TryGetComponent<Stillsuit>(out Stillsuit s))
+                GameObject.DestroyImmediate(s);
+            prefab.EnsureComponent<SurvivalsuitBehaviour>();
+        }
+#else
         protected virtual GameObject PrepareGameObject(GameObject prefab)
         {
             GameObject obj = GameObject.Instantiate<GameObject>(prefab);
@@ -100,9 +140,9 @@ namespace DWEquipmentBonanza.Equipables
             obj.EnsureComponent<SurvivalsuitBehaviour>();
             ModPrefabCache.AddPrefab(obj, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it;
                                                   // the prefab doesn't show up in the world [as with SetActive(false)] but because it's not been set inactive, it can instantiate active GameObjects immediately.
-
             return obj;
         }
+#endif
     }
 
     public class SurvivalSuit : SurvivalSuitBase<SurvivalSuit>
@@ -116,7 +156,7 @@ namespace DWEquipmentBonanza.Equipables
         protected override float maxDepth => 1300f;
         protected override float breathMultiplier => 0.90f;
         protected override float minTempBonus => 5f;
-#if SUBNAUTICA_STABLE
+#if SN1
         protected override float DeathRunDepth => 800f;
 #endif
         protected override TechType[] substitutions => new TechType[] { Main.StillSuitType };
@@ -134,7 +174,7 @@ namespace DWEquipmentBonanza.Equipables
                         new Ingredient(Main.StillSuitType, 1),
                         new Ingredient(TechType.AdvancedWiringKit, 1),
                         new Ingredient(TechType.JellyPlant, 1),
-#if SUBNAUTICA_STABLE
+#if SN1
                         new Ingredient(TechType.KooshChunk, 1)
 #elif BELOWZERO
                         new Ingredient(TechType.KelpRootPustule, 1)
@@ -159,7 +199,7 @@ namespace DWEquipmentBonanza.Equipables
         protected override float maxDepth => 1300f;
         protected override float breathMultiplier => 0.80f;
         protected override float minTempBonus => 35f;
-#if SUBNAUTICA_STABLE
+#if SN1
         protected override float DeathRunDepth => -1f;
 #endif
         public ReinforcedSurvivalSuit(string classId = "ReinforcedSurvivalSuit",
@@ -218,6 +258,7 @@ namespace DWEquipmentBonanza.Equipables
                 string friendlyName = "Insulated Survival Suit",
                 string Description = "Enhanced survival suit provides passive primary needs reduction and protection from extreme cold.") : base(classId, friendlyName, Description)
         {
+            //Console.WriteLine($"{this.ClassID} constructing");
         }
 
         protected override float maxDepth => 1300f;
@@ -270,6 +311,8 @@ namespace DWEquipmentBonanza.Equipables
             };
         }
 
+#if NAUTILUS
+#elif ASYNC
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             Stillsuit s;
@@ -297,6 +340,8 @@ namespace DWEquipmentBonanza.Equipables
             gameObject.Set(go);
         }
 
+#else
+#endif
         protected override Sprite GetItemSprite()
         {
             return SpriteManager.Get(Main.StillSuitType);

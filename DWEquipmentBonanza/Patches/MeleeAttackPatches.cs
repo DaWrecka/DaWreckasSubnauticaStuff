@@ -1,4 +1,5 @@
-﻿using DWEquipmentBonanza.Equipables;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using DWEquipmentBonanza.Equipables;
 using DWEquipmentBonanza.MonoBehaviours;
 using Common;
 using HarmonyLib;

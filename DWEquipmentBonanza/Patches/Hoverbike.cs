@@ -1,4 +1,5 @@
-﻿using DWEquipmentBonanza;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using DWEquipmentBonanza;
 using DWEquipmentBonanza.VehicleModules;
 using DWEquipmentBonanza.MonoBehaviours;
 using Common;
@@ -8,7 +9,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
-using QModManager.Utility;
 using UnityEngine;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -136,8 +136,8 @@ namespace DWEquipmentBonanza.Patches
             if (Main.bLogTranspilers)
             {
                 Log.LogDebug("Dump of Hoverbike.HoverEngines method, pre-transpiler:");
-                for (i = 0; i < codes.Count; i++)
-                    Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
+                Log.LogInfo("Dump of Hoverbike.HoverEngines method, pre-transpiler:");
+                GeneralUtils.LogTranspiler(codes);
 
                 i = -1;
             }
@@ -248,8 +248,8 @@ namespace DWEquipmentBonanza.Patches
             if (Main.bLogTranspilers)
             {
                 Log.LogDebug("Dump of Hoverbike.HoverEngines method, post-transpiler:");
-                for (i = 0; i < codes.Count; i++)
-                    Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
+                Log.LogInfo("Dump of Hoverbike.HoverEngines method, post-transpiler:");
+                GeneralUtils.LogTranspiler(codes);
 
                 i = -1;
             }

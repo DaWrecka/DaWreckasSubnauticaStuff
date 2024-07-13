@@ -1,22 +1,29 @@
 ﻿using System.Collections.Generic;
-using Logger = QModManager.Utility.Logger;
 using System.IO;
 using System.Reflection;
+#if NAUTILUS
+using Nautilus.Json;
+using Nautilus.Options;
+using Nautilus.Options.Attributes;
+using Nautilus.Handlers;
+#else
 using SMLHelper.V2.Json;
 using SMLHelper.V2.Options;
 using SMLHelper.V2.Options.Attributes;
 using SMLHelper.V2.Handlers;
+#endif
 using UnityEngine;
 using System;
 
-#if SUBNAUTICA_STABLE
+#if LEGACY
 	using Oculus.Newtonsoft.Json;
 	using Oculus.Newtonsoft.Json.Serialization;
 	using Oculus.Newtonsoft.Json.Converters;
-#elif BELOWZERO
-using Newtonsoft.Json;
+#else
+	using Newtonsoft.Json;
 	using Newtonsoft.Json.Serialization;
 	using Newtonsoft.Json.Converters;
+using Nautilus.Utility;
 #endif
 
 namespace DWEquipmentBonanza
@@ -55,10 +62,10 @@ namespace DWEquipmentBonanza
 		private const string RIDICULOUS = "Ridiculous";
 		private const string INSANE = "Insane";
 
-		[Choice("Vehicle charger difficulty", new string[] { EASY, HARD, RIDICULOUS, INSANE }), OnChange(nameof(OnChoiceChanged))]
+		[Choice("Vehicle charger difficulty", new string[] { EASY, HARD, RIDICULOUS, INSANE })] //, OnChange(nameof(OnChoiceChanged))]
 		public string ChargeDifficulty;
 
-		[Choice("Self-repair charger difficulty", new string[] { EASY, HARD, RIDICULOUS, INSANE }), OnChange(nameof(OnChoiceChanged))]
+		[Choice("Self-repair charger difficulty", new string[] { EASY, HARD, RIDICULOUS, INSANE })] //, OnChange(nameof(OnChoiceChanged))]
 		public string SelfRepairDifficulty;
 
 		[Slider("Knife damage", KNIFE_DAMAGE_MIN, KNIFE_DAMAGE_MAX, DefaultValue = KNIFE_DAMAGE_DEFAULT, Id = "KnifeDamage",
@@ -104,8 +111,8 @@ namespace DWEquipmentBonanza
 			Tooltip = "Maximum health of Exosuit; The default health of 600 is multiplied by this value.\nThe game must be restarted for this change to take effect.")]
 		public float ExosuitHealthMult = 1f;
 
-#if SUBNAUTICA_STABLE
-		[Slider("SeaMoth health multiplier", VEHICLE_HEALTH_MIN, VEHICLE_HEALTH_MAX, DefaultValue = 1f, Id = "SeaMothHealthMult",
+#if SN1
+        [Slider("SeaMoth health multiplier", VEHICLE_HEALTH_MIN, VEHICLE_HEALTH_MAX, DefaultValue = 1f, Id = "SeaMothHealthMult",
 			Step = 0.05f, Format = "{0:F2}",
 			Tooltip = "Maximum health of SeaMoth; The default health of 200 is multiplied by this value.\nThe game must be restarted for this change to take effect.")]
 		public float SeaMothHealthMult = 1f;
@@ -204,7 +211,13 @@ namespace DWEquipmentBonanza
 
 		public DWConfig() : base()
 		{
-			IngameMenuHandler.RegisterOnQuitEvent(this.OnQuitEvent);
+            if (this.OnQuitEvent != null)
+#if NAUTILUS
+                SaveUtils.RegisterOnQuitEvent(this.OnQuitEvent);
+#else
+			
+				IngameMenuHandler.RegisterOnQuitEvent(this.OnQuitEvent);
+#endif
 			if (string.IsNullOrEmpty(ChargeDifficulty))
 				ChargeDifficulty = EASY;
 			if (string.IsNullOrEmpty(SelfRepairDifficulty))
@@ -217,9 +230,11 @@ namespace DWEquipmentBonanza
 				onOptionChanged.Invoke(this);
 		}
 
+		/*
 		private void OnChoiceChanged(ChoiceChangedEventArgs e)
 		{
 		}
+		*/
 
 		public void OnQuitEvent()
 		{

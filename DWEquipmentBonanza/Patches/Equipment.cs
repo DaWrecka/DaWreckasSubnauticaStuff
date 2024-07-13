@@ -1,11 +1,15 @@
 ﻿using Common;
 using HarmonyLib;
+#if NAUTILUS
+using Nautilus.Utility;
+using Common.NautilusHelper;
+#else
 using SMLHelper.V2.Utility;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
-using Logger = QModManager.Utility.Logger;
 
 namespace DWEquipmentBonanza.Patches
 {
@@ -26,7 +30,7 @@ namespace DWEquipmentBonanza.Patches
             if (Substitutions.TryGetValue(vanilla, out set))
             {
                 set.Add(custom);
-                //Logger.Log(Logger.Level.Debug, $"EquipmentPatch.AddSubstitution: Added sub {custom.AsString()} to existing HashSet for TechType {vanilla.AsString()}, new count for this vanilla TechType {set.Count}");
+                Log.LogDebug($"EquipmentPatch.AddSubstitution: Added sub {custom.AsString()} to existing HashSet for TechType {vanilla.AsString()}, new count for this vanilla TechType {set.Count}");
                 return;
             }
 
@@ -35,7 +39,7 @@ namespace DWEquipmentBonanza.Patches
                 custom
             };
             Substitutions.Add(vanilla, set);
-            //Logger.Log(Logger.Level.Debug, $"EquipmentPatch.AddSubstitution: Added new substitution set for TechType {vanilla.AsString()} with sub {custom.AsString()}");
+            Log.LogDebug($"EquipmentPatch.AddSubstitution: Added new substitution set for TechType {vanilla.AsString()} with sub {custom.AsString()}");
             //substitutionTargets.Add(substitution);
 
         }
@@ -63,16 +67,16 @@ namespace DWEquipmentBonanza.Patches
         {
             if (!Substitutions.ContainsKey(techType))
                 return; // No need to do anything more.
-            //Log.LogDebug($"EquipmentPatch.PostGetCount: executing with parameters __result {__result.ToString()}, techType {techType.AsString()}");
+            Log.LogDebug($"EquipmentPatch.PostGetCount: executing with parameters __result {__result.ToString()}, techType {techType.AsString()}");
 
             Dictionary<TechType, int> equipCount = __instance.GetInstanceField("equippedCount", BindingFlags.NonPublic | BindingFlags.Instance) as Dictionary<TechType, int>;
 
             if (Substitutions.TryGetValue(techType, out HashSet<TechType> subs))
             {
-                //Log.LogDebug($"EquipmentPatch.PostGetCount: got substitution set with {subs.Count} members");
+                Log.LogDebug($"EquipmentPatch.PostGetCount: got substitution set with {subs.Count} members");
                 foreach (TechType sub in subs)
                 {
-                    /*if (equipCount.TryGetValue(sub, out int c))
+                    if (equipCount.TryGetValue(sub, out int c))
                     {
                         //Log.LogDebug($"EquipmentPatch.PostGetCount: found TechType {sub.AsString()} equipped {c} times");
                         __result += c;
@@ -80,11 +84,11 @@ namespace DWEquipmentBonanza.Patches
                     else
                     {
                         //Log.LogDebug($"EquipmentPatch.PostGetCount: TechType {sub.AsString()} not found in equipment.");
-                    }*/
-                    __result += equipCount.GetOrDefault(sub, 0);
+                    }
+                    //__result += equipCount.GetOrDefault(sub, 0);
                 }
             }
-            //Log.LogDebug($"EquipmentPatch.PostGetCount: finished with result {__result.ToString()}");
+            Log.LogDebug($"EquipmentPatch.PostGetCount: finished with result {__result.ToString()}");
         }
 
         [HarmonyPostfix]

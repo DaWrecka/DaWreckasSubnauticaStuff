@@ -1,4 +1,6 @@
-﻿using Logger = QModManager.Utility.Logger;
+﻿#if QMM
+using Logger = QModManager.Utility.Logger;
+#endif
 using Common;
 using HarmonyLib;
 
@@ -12,10 +14,10 @@ namespace CustomiseYourStorage
 		public static void Postfix(ref Inventory __instance)
 		{
 			//Vector2int invSize = Main.config.InventorySize;
-			int X = Main.config.InvWidth;
-			int Y = Main.config.InvHeight;
+			int X = CustomiseStoragePlugin.config.InvWidth;
+			int Y = CustomiseStoragePlugin.config.InvHeight;
 #if !RELEASE
-			Logger.Log(Logger.Level.Debug, $"Inventory.Awake() postfix: Resizing with values of ({X}, {Y})"); 
+            Log.LogDebug($"Inventory.Awake() postfix: Resizing with values of ({X}, {Y})"); 
 #endif
 			__instance.container.Resize(X, Y);
 			__instance.container.onResize += OnInventoryResize;
@@ -23,8 +25,8 @@ namespace CustomiseYourStorage
 
 		internal static void OnInventoryResize(int width, int height)
 		{
-			int forceWidth = System.Math.Max(width, Main.config.InvWidth);
-			int forceHeight = System.Math.Max(height, Main.config.InvHeight);
+			int forceWidth = System.Math.Max(width, CustomiseStoragePlugin.config.InvWidth);
+			int forceHeight = System.Math.Max(height, CustomiseStoragePlugin.config.InvHeight);
 
 			if (forceWidth > width || forceHeight > height)
 			{

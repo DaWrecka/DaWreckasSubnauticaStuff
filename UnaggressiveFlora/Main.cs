@@ -30,7 +30,7 @@ namespace UnaggressiveFlora
     [HarmonyPatch]
     public static class FloraPatches
     {
-#if SUBNAUTICA_STABLE
+#if SN1
         [HarmonyPatch(typeof(RangeTargeter), nameof(RangeTargeter.IsTargetValid))]
         [HarmonyPostfix]
         public static void PostIsTargetValid(RangeTargeter __instance, ref bool __result, IEcoTarget ecoTarget)

@@ -35,7 +35,7 @@ namespace DWEquipmentBonanza.Patches
             {
                 lwe.cellLevel = target; 
             }
-#if SUBNAUTICA_STABLE
+#if LEGACY && SN1
             __instance.kChanceToSpawnResources = Mathf.Max(DWConstants.newKyaniteChance, __instance.kChanceToSpawnResources);
 #endif
         }

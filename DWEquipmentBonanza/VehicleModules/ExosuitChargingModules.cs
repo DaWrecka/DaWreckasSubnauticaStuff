@@ -1,9 +1,22 @@
-﻿using DWEquipmentBonanza.MonoBehaviours;
-using SMLHelper.V2.Crafting;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using DWEquipmentBonanza.MonoBehaviours;
 using System.Collections.Generic;
 using UnityEngine;
-#if SUBNAUTICA_STABLE
+using System;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
+using SMLHelper.V2.Assets;
+using SMLHelper.V2.Crafting;
+using SMLHelper.V2.Handlers;
+#if SN1
     using RecipeData = SMLHelper.V2.Crafting.TechData;
+#endif
 #endif
 
 namespace DWEquipmentBonanza.VehicleModules
@@ -11,19 +24,26 @@ namespace DWEquipmentBonanza.VehicleModules
     public abstract class ExosuitChargerModule<Y> : VehicleChargerModule<Y> where Y : MonoBehaviour
     {
         public override EquipmentType EquipmentType => EquipmentType.ExosuitModule;
-        protected override TechType template => TechType.ExosuitThermalReactorModule;
+        protected override TechType templateType => TechType.ExosuitThermalReactorModule;
+
+#if NAUTILUS
+        public override void FinalisePrefab(CustomPrefab prefab)
+        {
+            base.FinalisePrefab(prefab);
+            ExosuitUpdater.AddChargerType(this.TechType, ChargerWeight);
+        }
+#else
+        protected override void OnFinishedPatch()
+        {
+            base.OnFinishedPatch();
+            ExosuitUpdater.AddChargerType(this.TechType, ChargerWeight);
+        }
+#endif
 
         public ExosuitChargerModule(string classID,
             string friendlyName,
             string description) : base(classID, friendlyName, description)
         {
-            OnFinishedPatching += () =>
-            {
-                ExosuitUpdater.AddChargerType(this.TechType, ChargerWeight);
-#if !BELOWZERO
-                SeamothUpdater.AddChargerType(this.TechType, ChargerWeight);
-#endif
-            };
         }
     }
 
@@ -113,7 +133,7 @@ namespace DWEquipmentBonanza.VehicleModules
                     {
                         new Ingredient(Main.GetModTechType("ExosuitSolarModuleMk2"), 1),
                         new Ingredient(Main.GetModTechType("ExosuitThermalModuleMk2"), 1),
-#if SUBNAUTICA
+#if SN1
                         new Ingredient(TechType.PrecursorKey_Purple, 1)
 #elif BELOWZERO
                         new Ingredient(TechType.RadioTowerPPU, 1)

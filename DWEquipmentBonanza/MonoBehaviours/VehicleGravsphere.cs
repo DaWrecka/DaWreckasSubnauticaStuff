@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,15 +9,52 @@ using UnityEngine;
 
 namespace DWEquipmentBonanza.MonoBehaviours
 {
-    internal class ResourceCollider : SphereCollider
+    public class ResourceCollider : SphereCollider
     {
-        public ResourceCollider(SphereCollider source = null)
+        // An internal class whose sole purpose is to make it easier to patch VehicleDockingBay.OnTriggerEnter to ignore vehicle-mounted gravtraps.
+        // We do this by replacing SphereColliders on such gravtraps with ResourceColliders, and patching VehicleDockingBay.OnTriggerEnter to ignore any collider which is a ResourceCollider
+        // This method adds a new ResourceCollider, copies properties across to the new one, and assuming all went well, destroys the old and returns the new collider.
+        public static ResourceCollider ReplaceSphereCollider(SphereCollider replaceTarget)
         {
-            if (source != null)
+            if (replaceTarget is ResourceCollider R)
             {
-
+                Log.LogDebug($"ReplaceSphereCollider exiting: Target is already a ResourceCollider");
+                return R;
             }
-            this.isTrigger = true;
+
+            GameObject goParent = replaceTarget.gameObject;
+            if (goParent == null)
+            {
+                Log.LogDebug($"ReplaceSphereCollider exiting: no valid parent GameObject");
+                return null;
+            }
+
+            ResourceCollider newCollider = goParent.AddComponent(typeof(ResourceCollider)) as ResourceCollider;
+            if (newCollider == null)
+            {
+                Log.LogDebug($"ReplaceSphereCollider exiting: failed adding ResourceCollider component");
+                return null;
+            }
+
+            try
+            {
+                newCollider.radius = replaceTarget.radius;
+                newCollider.center = replaceTarget.center;
+                newCollider.enabled = replaceTarget.enabled;
+                newCollider.isTrigger = replaceTarget.isTrigger;
+                newCollider.contactOffset = replaceTarget.contactOffset;
+                newCollider.sharedMaterial = replaceTarget.sharedMaterial;
+                newCollider.material = replaceTarget.material;
+                GameObject.Destroy(replaceTarget);
+            }
+            catch (Exception e)
+            {
+                Log.LogDebug($"ReplaceSphereCollider exiting: exception caught\n{e.ToString()}");
+                GameObject.Destroy(newCollider);
+                return null;
+            }
+
+            return newCollider;
         }
     }
 

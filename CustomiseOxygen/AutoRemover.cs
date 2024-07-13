@@ -12,7 +12,7 @@ namespace CustomiseOxygen
 	{
 		public void OnCraftEnd(TechType target)
 		{
-			if (Main.bannedTech.Contains(target))
+			if (CustomiseOxygenPlugin.bannedTech.Contains(target))
 			{
 				Log.LogDebug($"AutoRemover: Destroying object");
 				GameObject.Destroy(this.gameObject);

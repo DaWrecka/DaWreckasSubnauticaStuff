@@ -2,36 +2,55 @@
 //using SMLHelper.V2.Options;
 //using SMLHelper.V2.Options.Attributes;
 using System.Collections.Generic;
-using Logger = QModManager.Utility.Logger;
+#if BEPINEX
+	using BepInEx;
+	using BepInEx.Logging;
+#elif QMM
+	using QModManager.API.ModLoading;
+#endif
 using System.IO;
-#if SUBNAUTICA_STABLE
+#if LEGACY
 using Oculus.Newtonsoft.Json;
 using Oculus.Newtonsoft.Json.Converters;
 using Oculus.Newtonsoft.Json.Serialization;
-#elif BELOWZERO
+#else
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 #endif
 using System.Reflection;
-using SMLHelper.V2.Json;
 using Common;
-using SMLHelper.V2.Options.Attributes;
-using SMLHelper.V2.Options;
 using UnityEngine;
+#if NAUTILUS
+using Nautilus.Json;
+using Nautilus.Options;
+using Nautilus.Options.Attributes;
+using Nautilus.Handlers;
+#else
+using SMLHelper.V2.Json;
+using SMLHelper.V2.Options;
+using SMLHelper.V2.Options.Attributes;
+using SMLHelper.V2.Handlers;
+#endif
 
 namespace CustomiseYourStorage.Configuration
 {
 	internal class DWStorageConfig : ConfigFile
 	{
-#if SUBNAUTICA_STABLE
-		private const string AdvancedInventoryAssembly = "AdvancedInventory";
+#if LEGACY
+        private const string AdvancedInventoryAssembly = "AdvancedInventory";
+#elif BEPINEX
+        private const string AdvancedInventoryAssembly = "sn.advancedinventory.mod";
 #elif BELOWZERO
 		private const string AdvancedInventoryAssembly = "AdvancedInventory_BZ";
 #endif
 
-		private static readonly HashSet<string> heightSliders = new HashSet<string>() { "DroppodHeight", "ExosuitHeight", "ExosuitModuleHeight", "FiltrationHeight", "InvHeight", "BioreactorHeight", "CyclopsHeight" };
+        private static readonly HashSet<string> heightSliders = new HashSet<string>() { "DroppodHeight", "ExosuitHeight", "ExosuitModuleHeight", "FiltrationHeight", "InvHeight", "BioreactorHeight", "CyclopsHeight" };
+#if QMM
 		private static bool bHasAdvancedInventory => QModManager.API.QModServices.Main.ModPresent(AdvancedInventoryAssembly);
+#elif BEPINEX
+		private static bool bHasAdvancedInventory => BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(AdvancedInventoryAssembly);
+#endif
 		private static int MaxHeight => (bHasAdvancedInventory ? 12 : 8);
 		private readonly Vector2int nullVector = new Vector2int(0, 0); // Used for quick comparison
 
@@ -115,15 +134,15 @@ namespace CustomiseYourStorage.Configuration
 		public List<string> defaultBlueprintsToUnlock = new List<string>();
 		private Dictionary<TechType, int> unlockedBlueprints = new Dictionary<TechType, int>(); // This set is used to tell whether or not we've unlocked a blueprint already, and therefore whether or not an entry is duplicated.
 
-#if SUBNAUTICA_STABLE
-		private const string PodName = "LifePod";
+#if SN1
+        private const string PodName = "LifePod";
 #elif BELOWZERO
 		private const string PodName = "Drop pod";
 #endif
 
-		//public Vector2int LifepodLockerSize = new Vector2int(0, 0);
-#if SUBNAUTICA_STABLE
-		[Slider("LifePod locker width", 4, 8, DefaultValue = 4, Id = nameof(DroppodWidth),
+        //public Vector2int LifepodLockerSize = new Vector2int(0, 0);
+#if SN1
+        [Slider("LifePod locker width", 4, 8, DefaultValue = 4, Id = nameof(DroppodWidth),
 			Step = 1f,
 			Tooltip = "Width of the LifePod locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int DroppodWidth = 4;
@@ -134,8 +153,8 @@ namespace CustomiseYourStorage.Configuration
 		public int DroppodWidth = 6;
 #endif
 
-#if SUBNAUTICA_STABLE
-		[Slider("LifePod locker height", 4, 8, DefaultValue = 6, Id = nameof(DroppodHeight),
+#if SN1
+        [Slider("LifePod locker height", 4, 8, DefaultValue = 6, Id = nameof(DroppodHeight),
 			Step = 1f,
 			Tooltip = "Width of the LifePod locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int DroppodHeight = 8;
@@ -146,8 +165,8 @@ namespace CustomiseYourStorage.Configuration
 		public int DroppodHeight = 8;
 #endif
 
-#if SUBNAUTICA_STABLE
-		[Slider("Cyclops locker width", 4, 8, DefaultValue = 3, Id = nameof(CyclopsWidth),
+#if SN1
+        [Slider("Cyclops locker width", 4, 8, DefaultValue = 3, Id = nameof(CyclopsWidth),
 			Step = 1f,
 			Tooltip = "Width of the Cyclops lockers, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int CyclopsWidth = 3;
@@ -214,7 +233,11 @@ namespace CustomiseYourStorage.Configuration
 		{
 			if (heightSliders.Contains(e.Id))
 			{
+#if NAUTILUS
+				GameObject go = e.Value as GameObject;
+#else
 				GameObject go = e.GameObject;
+#endif
 				GameObject slider = go.transform.Find("Slider").gameObject;
 				slider.GetComponent<uGUI_SnappingSlider>().maxValue = MaxHeight;
 			}
@@ -233,11 +256,11 @@ namespace CustomiseYourStorage.Configuration
 		{
 			string lowID = Identifier.ToLower();
 			Vector2int defaultSize;
-			bool bHasDefault = defaultStorageSizes.TryGetValue(Identifier, out defaultSize);
+			bool bHasDefault = defaultStorageSizes.TryGetValue(lowID, out defaultSize);
 			if (bHasDefault)
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Found default values for ID {Identifier} using TryGetValue");
+				Log.LogDebug($"Found default values for ID {Identifier} using TryGetValue");
 #endif
 			}
 			else
@@ -253,7 +276,7 @@ namespace CustomiseYourStorage.Configuration
 						bHasDefault = true;
 						defaultSize = kvp.Value;
 #if !RELEASE
-						Logger.Log(Logger.Level.Debug, $"Found default values for ID {Identifier} on manual review that were not found with TryGetValue");
+						Log.LogDebug($"Found default values for ID {Identifier} on manual review that were not found with TryGetValue");
 #endif
 						break;
 					}
@@ -264,7 +287,7 @@ namespace CustomiseYourStorage.Configuration
 			if (StorageSizes.TryGetValue(Identifier, out newSize))
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Found configured values for ID {Identifier} using TryGetValue");
+				Log.LogDebug($"Found configured values for ID {Identifier} using TryGetValue");
 #endif
 				if (bHasDefault)
 				{
@@ -282,7 +305,7 @@ namespace CustomiseYourStorage.Configuration
 					{
 						newSize = kvp.Value;
 #if !RELEASE
-						Logger.Log(Logger.Level.Debug, $"Found configured values for ID {Identifier} on manual review that were not found with TryGetValue");
+						Log.LogDebug($"Found configured values for ID {Identifier} on manual review that were not found with TryGetValue");
 #endif
 						if (bHasDefault)
 							return !(newSize.Equals(defaultSize));
@@ -292,9 +315,9 @@ namespace CustomiseYourStorage.Configuration
 				}
 			}
 
-			// Couldn't find a value for this identifier, so:
+            // Couldn't find a value for this identifier, so:
 #if !RELEASE
-			Logger.Log(Logger.Level.Debug, "Could not find " + (bHasDefault ? "" : "default or ") + "configured values for the identifier " + Identifier);
+            Log.LogDebug("Could not find " + (bHasDefault ? "" : "default or ") + "configured values for the identifier " + Identifier);
 #endif
 			return false;
 		}
@@ -400,7 +423,7 @@ namespace CustomiseYourStorage.Configuration
 						}
 						else
 						{
-							SMLHelper.V2.Handlers.KnownTechHandler.UnlockOnStart(tt);
+							KnownTechHandler.UnlockOnStart(tt);
 							unlockedBlueprints[tt] = 1;
 						}
 					}

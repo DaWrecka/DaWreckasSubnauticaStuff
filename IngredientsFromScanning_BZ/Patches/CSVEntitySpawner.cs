@@ -1,18 +1,24 @@
 ﻿using HarmonyLib;
-using SMLHelper.V2.Crafting;
-using SMLHelper.V2.Handlers;
+// using SMLHelper.V2.Crafting;
+// using SMLHelper.V2.Handlers;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+#if QMM
 using Logger = QModManager.Utility.Logger;
-#if SUBNAUTICA_STABLE
+#endif
+/*
+#if SN1
 using RecipeData = SMLHelper.V2.Crafting.TechData;
+#endif
+#if SUBNAUTICA_LEGACY
 using Json = Oculus.Newtonsoft.Json;
-#elif BELOWZERO
+#else
 using Json = Newtonsoft.Json;
 #endif
+*/
 
 
 // Based HEAVILY on MrPurple6411's Copper from Scan code. For "based heavily" read "nicked almost wholesale".
@@ -20,7 +26,7 @@ using Json = Newtonsoft.Json;
 namespace PartsFromScanning.Patches
 {
     /*
-    #if !BELOWZERO
+#if !BELOWZERO
         [HarmonyPatch(typeof(PDAScanner), nameof(PDAScanner.CanScan), new Type[] { typeof(GameObject) })]
         internal class PDAScanner_CanScan_Patch
         {
@@ -33,7 +39,7 @@ namespace PartsFromScanning.Patches
                 }
 
                 __result = false;
-                //Logger.Log(Logger.Level.Debug, $"PDAScanner.CanScan Override: checking GameObject: {JsonConvert.SerializeObject(go.GetInstanceID(), Newtonsoft.Json.Formatting.Indented)}");
+                //Log.LogDebug($"PDAScanner.CanScan Override: checking GameObject: {JsonConvert.SerializeObject(go.GetInstanceID(), Newtonsoft.Json.Formatting.Indented)}");
 
                 UniqueIdentifier component = go.GetComponent<UniqueIdentifier>();
                 if (component != null)
@@ -49,7 +55,7 @@ namespace PartsFromScanning.Patches
                 return false;
             }
         }
-    #endif
+#endif
     */
 
     [HarmonyPatch(typeof(CSVEntitySpawner))]
@@ -59,7 +65,7 @@ namespace PartsFromScanning.Patches
         [HarmonyPatch(nameof(CSVEntitySpawner.GetPrefabForSlot))]
         private static void PreGetPrefabForSlot(ref bool filterKnown)
         {
-            filterKnown = filterKnown && Main.config.bUnknownFragmentsOnly; // That's all we need to do.
+            filterKnown = filterKnown && PartsFromScanningPlugin.config.bUnknownFragmentsOnly; // That's all we need to do.
         }
     }
 }

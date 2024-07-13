@@ -1,11 +1,15 @@
-﻿using HarmonyLib;
-using SMLHelper.V2.Handlers;
+﻿#if BEPINEX
+	using BepInEx;
+	using BepInEx.Logging;
+#elif QMM
+	using QModManager.API;
+	using QModManager.API.ModLoading;
+#endif
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using QModManager.API;
-using QModManager.API.ModLoading;
 using DWEquipmentBonanza.Equipables;
 using DWEquipmentBonanza.Patches;
 using DWEquipmentBonanza.VehicleModules;
@@ -13,16 +17,31 @@ using Common;
 using UWE;
 using UnityEngine;
 using DWEquipmentBonanza.Spawnables;
-using SMLHelper.V2.Assets;
 using System.Collections;
 using System.IO;
-using SMLHelper.V2.Utility;
 using CustomDataboxes.API;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Handlers;
+using Nautilus.Utility;
+using Nautilus.Json.Attributes;
+using Nautilus.Json;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
+using SMLHelper.V2.Assets;
+using SMLHelper.V2.Handlers;
+using SMLHelper.V2.Utility;
 using SMLHelper.V2.Json.Attributes;
 using SMLHelper.V2.Json;
+#endif
 using DWEquipmentBonanza.MonoBehaviours;
-#if SUBNAUTICA_STABLE
+using Main = DWEquipmentBonanza.DWEBPlugin;
+#if SN1
 	using Sprite = Atlas.Sprite;
+#endif
+#if LEGACY
 	using Oculus.Newtonsoft.Json;
 	using Oculus.Newtonsoft.Json.Serialization;
 	using Oculus.Newtonsoft.Json.Converters;
@@ -35,10 +54,10 @@ namespace DWEquipmentBonanza
 	[Serializable]
 	public class DWDataFile : SaveDataCache
 	{
-		private HashSet<ISerializationCallbackReceiver> activeReceivers = new HashSet<ISerializationCallbackReceiver>();
+		private HashSet<IProtoEventListener> activeReceivers = new();
 		public Dictionary<string, float> ModuleCharges = new Dictionary<string, float>();
-#if SUBNAUTICA
-		public Vector3 HeadlampDataboxPosition { get; set; }
+#if SN1
+        public Vector3 HeadlampDataboxPosition { get; set; }
 		public Vector3 HeadlampDataboxRotation { get; set; }
 #endif
 		internal void Init()
@@ -60,7 +79,7 @@ namespace DWEquipmentBonanza
 
 		internal void OnSave()
 		{
-			foreach (var c in activeReceivers)
+			/*foreach (var c in activeReceivers)
 			{
 				try
 				{
@@ -74,7 +93,7 @@ namespace DWEquipmentBonanza
 					Log.LogError($"Exception calling OnBeforeSerialize() in {c.GetType().ToString()}! Saving may not account for this object properly.", e, true);
 					//Log.LogError(e.ToString());
 				}
-			}
+			}*/
 		}
 
 		public void AddModuleCharge(string UUID, float charge)
@@ -97,7 +116,7 @@ namespace DWEquipmentBonanza
 		// ISerializationCallbackReceiver is supposed to receive callbacks when game saving begins, but it doesn't seem to be working properly.
 		// Worse, they seem to receive OnBeforeSerialize() callbacks at the start of the *loading* process.
 		// Here, such receivers register themselves so that the SaveDataCache can make *sure* that they get a call.
-		public bool RegisterReceiver(ISerializationCallbackReceiver v)
+		public bool RegisterReceiver(IProtoEventListener v)
 		{
 			if (v == null || activeReceivers.Contains(v))
 				return false;
@@ -106,17 +125,41 @@ namespace DWEquipmentBonanza
 			return true;
 		}
 
-		public bool UnregisterReceiver(ISerializationCallbackReceiver v) => activeReceivers.Remove(v);
+		public bool UnregisterReceiver(IProtoEventListener v) => activeReceivers.Remove(v);
 	}
 
-	[QModCore]
-	public class Main
-	{
-		internal const string version = "0.13.0.5";
+#if BEPINEX
+    [BepInPlugin(GUID, pluginName, version)]
+	[BepInDependency(Common.Constants.DeathRunGUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(Common.Constants.CustomiseOxygenGUID, BepInDependency.DependencyFlags.SoftDependency)]
+
+#if BELOWZERO
+	[BepInProcess("SubnauticaZero.exe")]
+#elif SN1
+    [BepInProcess("Subnautica.exe")]
+#endif
+    public class DWEBPlugin : BaseUnityPlugin
+    {
+#elif QMM
+    [QModCore]
+	public static class DWEBPlugin
+    {
+#endif
+#region[Declarations]
+	public const string
+            MODNAME = "DWEquipmentBonanza",
+            AUTHOR = "dawrecka",
+            GUID = "com." + AUTHOR + "." + MODNAME;
+			private const string pluginName = "DW's Equipment Bonanza";
+			internal const string version = "0.20.0.0";
+		//private const string CustomOxygenGUID = "com." + AUTHOR + "." + "CustomiseOxygen";
+#endregion
+
+        private static readonly Harmony harmony = new Harmony(GUID);
 		internal static bool bVerboseLogging = true;
 		internal static bool bLogTranspilers = false;
-#if SUBNAUTICA_STABLE
-		public static bool bInAcid { get; internal set; } = false; // Whether or not the player is currently immersed in acid
+#if SN1
+        public static bool bInAcid { get; internal set; } = false; // Whether or not the player is currently immersed in acid
 #endif
 		public static HashSet<string> playerSlots => Equipment.slotMapping.Keys.ToHashSet<string>();
 
@@ -148,8 +191,8 @@ namespace DWEquipmentBonanza
 		private static readonly string modPath = Path.GetDirectoryName(myAssembly.Location);
 		internal static readonly string AssetsFolder = Path.Combine(modPath, "Assets");
 
-#if SUBNAUTICA_STABLE
-		private static Type NitrogenMain => Type.GetType("NitrogenMod.Main, NitrogenMod", false, true);
+#if SN1
+        private static Type NitrogenMain => Type.GetType("NitrogenMod.Main, NitrogenMod", false, true);
 		private static Type DeathRunMain => Type.GetType("DeathRun.DeathRun, DeathRun", false, true);
 		private static MethodInfo NitroAddDiveSuit => NitrogenMain?.GetMethod("AddDiveSuit", BindingFlags.Public | BindingFlags.Static);
 		private static MethodInfo DeathRunAddDiveSuit => DeathRunMain?.GetMethod("AddDiveSuit", BindingFlags.Public | BindingFlags.Static);
@@ -163,21 +206,26 @@ namespace DWEquipmentBonanza
 		//private static readonly Type VehicleUpgraderType = Type.GetType("UpgradedVehicles.VehicleUpgrader, UpgradedVehicles", false, false);
 		//private static readonly MethodInfo VehicleUpgraderAddSpeedModifier = VehicleUpgraderType?.GetMethod("AddSpeedModifier", BindingFlags.Public | BindingFlags.Static);
 #endif
-		private static readonly bool bCustomOxygenMode = QModServices.Main.ModPresent("CustomiseOxygen");
+
+#if QMM
+		private static bool bCustomOxygenMode => QModServices.Main.ModPresent("CustomiseOxygen");
+#elif BEPINEX
+		private static bool bCustomOxygenMode => BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(Common.Constants.CustomiseOxygenGUID);
+#endif
 
 		internal static GameObject HighCapacityTankPrefab = null;
 		internal static TechType StillSuitType
 		{
 			get
 			{
-#if SUBNAUTICA_STABLE
+#if LEGACY
 				return TechType.Stillsuit;
 
-#elif BELOWZERO
+#else
 				return TechType.WaterFiltrationSuit;
 #endif
-			}
-		}
+            }
+        }
 
 		private static Dictionary<TechType, float> equipTempBonus = new Dictionary<TechType, float>();
 
@@ -205,8 +253,10 @@ namespace DWEquipmentBonanza
 
 		internal static void AddModTechType(TechType tech, GameObject prefab = null)
 		{
-			TechTypeUtils.AddModTechType(tech, prefab);
-		}
+            //Console.WriteLine($"AddModTechType running: tech={tech.AsString()}");
+            TechTypeUtils.AddModTechType(tech, prefab);
+            //Console.WriteLine($"AddModTechType complete");
+        }
 
 		public static TechType GetModTechType(string key)
 		{
@@ -220,7 +270,7 @@ namespace DWEquipmentBonanza
 
 		public static void AddDiveSuit(TechType diveSuit, float depth = 0f, float breathMultiplier = 1f, float minTempBonus = 0f, float DeathRunDepth = -1f)
 		{
-#if SUBNAUTICA_STABLE
+#if SN1
 			if (NitroAddDiveSuit != null)
 			{
 				NitroAddDiveSuit.Invoke(null, new object[] { diveSuit, depth, breathMultiplier, minTempBonus });
@@ -269,14 +319,14 @@ namespace DWEquipmentBonanza
 			return count;
 		}
 
-#if SUBNAUTICA_STABLE
+#if SN1
 		public static TechType GetNitrogenTechtype(string name)
 		{
 			TechType tt;
 			if (NitrogenTechtypes.TryGetValue(name, out tt))
 				return tt;
 
-			if (SMLHelper.V2.Handlers.TechTypeHandler.TryGetModdedTechType(name, out tt))
+			if (Common.TechTypeUtils.TryGetModTechType(name, out tt))
 				return tt;
 			return TechType.None;
 		}
@@ -284,7 +334,7 @@ namespace DWEquipmentBonanza
 		public static bool HasNitrogenMod() => NitrogenTechtypes.Count > 0;
 #endif
 
-		/*public struct DamageMod
+        /*public struct DamageMod
 		{
 			public DamageType damageType;
 			public float damageMult;
@@ -296,7 +346,7 @@ namespace DWEquipmentBonanza
 			}
 		}*/
 
-		/*internal struct DamageResistance
+        /*internal struct DamageResistance
 		{
 			public TechType TechType;
 			public DamageInfo[] damageInfoList;
@@ -308,13 +358,13 @@ namespace DWEquipmentBonanza
 			}
 		}*/
 
-		// This particular system is not that useful, but it could be expanded to allow any sort of equipment type to reduce damage.
-		// For example, you could add a chip that projects a sort of shield that protects from environmental damage, such as Acid, Radiation, Heat, Poison, or others.
-		// Although the system would need to be extended to allow, say, a shield that drains a battery when resisting damage.
-		//Interfaces would be the way I think, but I've not yet wrapped my brain around that.
-		// BZ has a DamageModifier component available that does basically this, but it's unclear to what extent, if any, it works in SN1.
-		//private static Dictionary<TechType, List<DamageMod>> DamageResistances = new Dictionary<TechType, List<DamageMod>>();
-		public static Dictionary<TechType, Dictionary<DamageType, float> > DamageResistances = new Dictionary<TechType, Dictionary<DamageType, float> >();
+        // This particular system is not that useful, but it could be expanded to allow any sort of equipment type to reduce damage.
+        // For example, you could add a chip that projects a sort of shield that protects from environmental damage, such as Acid, Radiation, Heat, Poison, or others.
+        // Although the system would need to be extended to allow, say, a shield that drains a battery when resisting damage.
+        //Interfaces would be the way I think, but I've not yet wrapped my brain around that.
+        // BZ has a DamageModifier component available that does basically this, but it's unclear to what extent, if any, it works in SN1.
+        //private static Dictionary<TechType, List<DamageMod>> DamageResistances = new Dictionary<TechType, List<DamageMod>>();
+        public static Dictionary<TechType, Dictionary<DamageType, float> > DamageResistances = new Dictionary<TechType, Dictionary<DamageType, float> >();
 
 		public static void AddDamageResist(TechType tt, DamageType damageType, float damageMult)
 		{
@@ -355,39 +405,53 @@ namespace DWEquipmentBonanza
 			return damageMod;
 		}
 
-		[QModPrePatch]
-		public static void PrePatch()
-		{
-		}
-
+#if QMM
 		[QModPatch]
-		public static void Load()
+#endif
+		public void Awake()
 		{
+			string thisName = Assembly.GetExecutingAssembly().GetName().Name;
+			//Console.WriteLine($"{thisName} Awake() executing");
+#if LEGACY
 			if (QModServices.Main.ModPresent("CombinedItems") || QModServices.Main.ModPresent("AcidProofSuit"))
 			{
 				throw new Exception("Equipment Bonanza is a replacement for Combined Items and Brine Suit and is not compatible with either. Remove those mods and try again.");
 			}
+#endif
 			CoroutineHost.StartCoroutine(PrePatchCoroutine());
 
-#if SUBNAUTICA_STABLE
-			Log.LogDebug("Checking for Nitrogen mod");
+#if SN1
+            Log.LogDebug("Checking for Nitrogen mod");
+#if QMM
 			bool bHasN2 = QModServices.Main.ModPresent("NitrogenMod");
 			bool bHasDeathrun = QModServices.Main.ModPresent("DeathRun");
+#else
+			bool bHasN2 = false;
+			bool bHasDeathrun = false; // TODO: This needs to be updated if/when Nitrogen/Deathrun are updated for LivingLarge.
+#endif
 			//string sStatus = "Nitrogen mod " + (bHasN2 ? "" : "not ") + "present";
 			Log.LogDebug("Nitrogen mod " + (bHasN2 ? "" : "not ") + "present; DeathRun mod " + (bHasDeathrun ? "" : "not ") + "present");
 
 #elif BELOWZERO
-			// We're going to try and remove crafting nodes from the root of the workbench menu and move them into tabs.
-			// Knives
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.KnifeMenuPath, "Knife Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_knifemenu"));
-			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HeatBlade" });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HeatBlade, new string[] { DWConstants.KnifeMenuPath });
+            // We're going to try and remove crafting nodes from the root of the workbench menu and move them into tabs.
+            //Console.WriteLine($"{thisName} Reordering Workbench");
+            // Knives
+            //Console.WriteLine($"{thisName} Creating Knife Upgrades tab");
+            CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.KnifeMenuPath, "Knife Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_knifemenu"));
+            //Console.WriteLine($"{thisName} Removing existing Heatblade node");
+            CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HeatBlade" });
+            //Console.WriteLine($"{thisName} Creating new Heatblade node");
+            CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HeatBlade, new string[] { DWConstants.KnifeMenuPath });
 
-			// Tanks
-			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HighCapacityTank" });
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.TankMenuPath, "Tank Upgrades", SpriteManager.Get(TechType.HighCapacityTank));
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.PlasteelTank, new string[] { DWConstants.TankMenuPath });
-			CraftDataHandler.SetTechData(TechType.PlasteelTank, new SMLHelper.V2.Crafting.RecipeData()
+            // Tanks
+            //Console.WriteLine($"{thisName} Removing existing HighCapacityTank node");
+            CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HighCapacityTank" });
+            //Console.WriteLine($"{thisName} Creating Tank Upgrades node");
+            CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.TankMenuPath, "Tank Upgrades", SpriteManager.Get(TechType.HighCapacityTank));
+            //Console.WriteLine($"{thisName} Adding Plasteel Tank node");
+            CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.PlasteelTank, new string[] { DWConstants.TankMenuPath });
+            //Console.WriteLine($"{thisName} Setting Plasteel Tank recipe");
+            CraftDataHandler.SetTechData(TechType.PlasteelTank, new SMLHelper.V2.Crafting.RecipeData()
 				{
 					craftAmount = 1,
 					Ingredients = new List<Ingredient>()
@@ -399,11 +463,14 @@ namespace DWEquipmentBonanza
 					}
 				}
 			);
-			 CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HighCapacityTank, new string[] { DWConstants.TankMenuPath });
-			KnownTechHandler.SetAnalysisTechEntry(TechType.HighCapacityTank, new TechType[] { TechType.PlasteelTank });
+            //Console.WriteLine($"{thisName} Adding new HighCapacityTank node");
+            CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HighCapacityTank, new string[] { DWConstants.TankMenuPath });
+            //Console.WriteLine($"{thisName} Setting AnalysisTechEntry for PlasteelTank");
+            KnownTechHandler.SetAnalysisTechEntry(TechType.HighCapacityTank, new TechType[] { TechType.PlasteelTank });
 
-			// Fins menu
-			CraftDataHandler.SetTechData(TechType.UltraGlideFins, new SMLHelper.V2.Crafting.RecipeData()
+            // Fins menu
+            //Console.WriteLine($"{thisName} Setting Ultra Glide Fins recipe");
+            CraftDataHandler.SetTechData(TechType.UltraGlideFins, new SMLHelper.V2.Crafting.RecipeData()
 				{
 					craftAmount = 1,
 					Ingredients = new List<Ingredient>()
@@ -415,33 +482,51 @@ namespace DWEquipmentBonanza
 					}
 				}
 			);
-			KnownTechHandler.SetAnalysisTechEntry(TechType.SwimChargeFins, new TechType[] { TechType.UltraGlideFins }); 
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.UltraGlideFins, new string[] { DWConstants.FinsMenuPath });
-			
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.FinsMenuPath, "Fin Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_finsmenu"));
-			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "SwimChargeFins" });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SwimChargeFins, new string[] { DWConstants.FinsMenuPath });
+            //Console.WriteLine($"{thisName} Setting AnalysisTechEntry for UltraGlideFins");
+            KnownTechHandler.SetAnalysisTechEntry(TechType.SwimChargeFins, new TechType[] { TechType.UltraGlideFins });
+            //Console.WriteLine($"{thisName} Adding crafting node for UltraGlideFins");
+            CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.UltraGlideFins, new string[] { DWConstants.FinsMenuPath });
 
-			// Seatruck Upgrades
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.SeatruckMenuPath, "Seatruck Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "fabricator_seatruckupgrades"));
-			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "SeaTruckUpgradeHull2" });
-			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "SeaTruckUpgradeHull3" });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SeaTruckUpgradeHull2, new string[] { DWConstants.SeatruckMenuPath });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SeaTruckUpgradeHull3, new string[] { DWConstants.SeatruckMenuPath });
+            //Console.WriteLine($"{thisName} Creating Fin Upgrades tab");
+            CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.FinsMenuPath, "Fin Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_finsmenu"));
+            //Console.WriteLine($"{thisName} Removing existing SwimChargeFins node");
+            CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "SwimChargeFins" });
+            //Console.WriteLine($"{thisName} Creating new SwimChargeFins crafting node");
+            CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SwimChargeFins, new string[] { DWConstants.FinsMenuPath });
 
-			// Exosuit Upgrades
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "ExosuitMenu", "Exosuit Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_exosuitmenu"));
-			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "ExoHullModule2" });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.ExoHullModule2, new string[] { "ExosuitMenu" });
+            // Seatruck Upgrades
+            //Console.WriteLine($"{thisName} Creating Seatruck Upgrades tab");
+            CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.SeatruckMenuPath, "Seatruck Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "fabricator_seatruckupgrades"));
+            //Console.WriteLine($"{thisName} Removing existing SeaTruckUpgradeHull2 node");
+            CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "SeaTruckUpgradeHull2" });
+            //Console.WriteLine($"{thisName} Removing existing SeaTruckUpgradeHull3 node");
+            CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "SeaTruckUpgradeHull3" });
+            //Console.WriteLine($"{thisName} Creating new SeaTruckUpgradeHull2 node");
+            CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SeaTruckUpgradeHull2, new string[] { DWConstants.SeatruckMenuPath });
+            //Console.WriteLine($"{thisName} Creating new SeaTruckUpgradeHull3 node");
+            CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SeaTruckUpgradeHull3, new string[] { DWConstants.SeatruckMenuPath });
 
-			// Now our custom stuff
-			CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Machines", "HoverbikeSilentModule" });
-			CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Machines", "HoverbikeJumpModule" });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.HoverbikeIceWormReductionModule, new string[] { "Upgrades", "HoverbikeUpgrades" });
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.HoverbikeJumpModule, new string[] { "Upgrades", "HoverbikeUpgrades" });
+            // Exosuit Upgrades
+            //Console.WriteLine($"{thisName} Creating Exosuit Upgrades tab");
+            CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "ExosuitMenu", "Exosuit Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_exosuitmenu"));
+            //Console.WriteLine($"{thisName} Removing existing ExoHullModule2 node");
+            CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "ExoHullModule2" });
+            //Console.WriteLine($"{thisName} Creating new ExoHullModule2 node");
+            CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.ExoHullModule2, new string[] { "ExosuitMenu" });
+
+            // Now our custom stuff
+            //Console.WriteLine($"{thisName} Removing existing HoverbikeSilentModule node");
+            CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Machines", "HoverbikeSilentModule" });
+            //Console.WriteLine($"{thisName} Removing existing HoverbikeJumpModule node");
+            CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Machines", "HoverbikeJumpModule" });
+            //Console.WriteLine($"{thisName} Creating new HoverbikeIceWormReductionModule node");
+            CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.HoverbikeIceWormReductionModule, new string[] { "Upgrades", "HoverbikeUpgrades" });
+            //Console.WriteLine($"{thisName} Creating new HoverbikeJumpModule node");
+            CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.HoverbikeJumpModule, new string[] { "Upgrades", "HoverbikeUpgrades" });
 #endif
 
 #if BELOWZERO
+            /*
 			var armourData = new SMLHelper.V2.Crafting.RecipeData()
 			{
 				craftAmount = 1,
@@ -455,21 +540,28 @@ namespace DWEquipmentBonanza
 			//LanguageHandler.SetTechTypeName(TechType.VehicleArmorPlating, "Vehicle Storage Module");
 			//LanguageHandler.SetTechTypeTooltip(TechType.VehicleArmorPlating, "A small storage locker. Expands Exosuit storage capacity.");
 			CraftDataHandler.SetTechData(TechType.VehicleStorageModule, armourData);
-			CraftTreeHandler.AddCraftingNode(CraftTree.Type.SeamothUpgrades, TechType.VehicleArmorPlating, new string[] { "ExosuitModules" });
+			*/
+            //Console.WriteLine($"{thisName} Adding VehicleArmorPlating crafting nodes");
+            CraftTreeHandler.AddCraftingNode(CraftTree.Type.SeamothUpgrades, TechType.VehicleArmorPlating, new string[] { "ExosuitModules" });
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, TechType.VehicleArmorPlating, new string[] { "Upgrades", "ExosuitUpgrades" });
-			KnownTechHandler.SetAnalysisTechEntry(TechType.Exosuit, new TechType[] { TechType.VehicleArmorPlating });
+            //Console.WriteLine($"{thisName} Setting VehicleArmorPlating AnalysisTechEntry");
+            KnownTechHandler.SetAnalysisTechEntry(TechType.Exosuit, new TechType[] { TechType.VehicleArmorPlating });
 #endif
 
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.BodyMenuPath, "Suit Upgrades", SpriteManager.Get(Main.StillSuitType));
-			CraftTreeHandler.AddTabNode(CraftTree.Type.SeamothUpgrades, DWConstants.ChargerMenuPath, "Vehicle Chargers", SpriteManager.Get(TechType.ExosuitThermalReactorModule));
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.ChipsMenuPath, "Chips", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
+            //Console.WriteLine($"{thisName} Adding Suit Upgrades tab node");
+            CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.BodyMenuPath, "Suit Upgrades", SpriteManager.Get(Main.StillSuitType));
+            //Console.WriteLine($"{thisName} Adding Vehicle Chargers tab node");
+            CraftTreeHandler.AddTabNode(CraftTree.Type.SeamothUpgrades, DWConstants.ChargerMenuPath, "Vehicle Chargers", SpriteManager.Get(TechType.ExosuitThermalReactorModule));
+            //Console.WriteLine($"{thisName} Adding Chips tab node");
+            CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.ChipsMenuPath, "Chips", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
 
-			/*
+            /*
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.KnifeMenuPath, "Knife Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_knifemenu"));
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HeatBlade" });
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HeatBlade, new string[] { DWConstants.KnifeMenuPath });
 			 */
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.BaseHelmetsMenuName, "Headwear", DWConstants.BaseHelmetsIcon, DWConstants.BaseHelmetPath);
+            //Console.WriteLine($"{thisName} Adding Headwear tab node");
+            CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.BaseHelmetsMenuName, "Headwear", DWConstants.BaseHelmetsIcon, DWConstants.BaseHelmetPath);
 			foreach (TechType tt in new List<TechType>()
 			{
 				TechType.Rebreather,
@@ -478,15 +570,17 @@ namespace DWEquipmentBonanza
 #endif
 			})
 			{
-				CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Personal", "Equipment", tt.AsString() });
-				CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, tt, DWConstants.BaseHelmetPath);
+                //Console.WriteLine($"{thisName} Removing existing {tt.AsString()} node");
+                CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Personal", "Equipment", tt.AsString() });
+                //Console.WriteLine($"{thisName} Adding new {tt.AsString()} node");
+                CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, tt, DWConstants.BaseHelmetPath);
 			}
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.BaseSuitsMenuName, "Bodywear", DWConstants.BaseSuitsIcon, DWConstants.BaseSuitsPath);
 			foreach (TechType tt in new List<TechType>()
 			{
 				Main.StillSuitType,
 				TechType.ReinforcedDiveSuit,
-#if SUBNAUTICA
+#if SN1
 				TechType.RadiationSuit
 #elif BELOWZERO
 				TechType.ColdSuit,
@@ -494,13 +588,18 @@ namespace DWEquipmentBonanza
 #endif
 			})
 			{
-				CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Personal", "Equipment", tt.AsString() });
-				CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, tt, DWConstants.BaseSuitsPath);
+                //Console.WriteLine($"{thisName} Removing existing {tt.AsString()} node");
+                CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Personal", "Equipment", tt.AsString() });
+                //Console.WriteLine($"{thisName} Adding new {tt.AsString()} node");
+                CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, tt, DWConstants.BaseSuitsPath);
 			}
 
-
-			var prefabs = new List<Spawnable>() {
-#if SUBNAUTICA_STABLE
+            //Console.WriteLine($"{thisName} Preparing Spawnables list");
+            var prefabs = new List<Spawnable>() {
+                new SurvivalSuit(),
+                new ReinforcedSurvivalSuit(),
+                new SuperSurvivalSuit(),
+#if SN1
 				new AcidGloves(),
 				new AcidHelmet(),
 				new AcidSuit(),
@@ -513,7 +612,7 @@ namespace DWEquipmentBonanza
 				new IlluminatedRebreather(),
 				new LightRadHelmet(),
 				new UltimateHelmet(),
-				new Blueprint_LightRebreatherPlusRad(),
+				new Blueprint_LightRebreatherPlus(),
 				new Blueprint_LightRadHelmetPlusRebreather(),
 				new Blueprint_FlashlightPlusBrineHelmet(),
 #elif BELOWZERO
@@ -524,7 +623,6 @@ namespace DWEquipmentBonanza
 				new SurvivalSuitBlueprint_FromReinforcedCold(),
 				new SurvivalSuitBlueprint_FromSurvivalCold(),
 				new SurvivalSuitBlueprint_FromReinforcedSurvival(),
-				new HoverbikeMobilityUpgrade(),
 				new SeaTruckSolarModule(),
 				new SeatruckSolarModuleMk2(),
 				new SeatruckThermalModule(),
@@ -543,7 +641,8 @@ namespace DWEquipmentBonanza
 				new LightColdHelmet(),
 				new InsulatedRebreather(),
 				new UltimateHelmet(),
-				new Blueprint_LightColdToUltimateHelmet(),
+                new Blueprint_LightRebreatherPlus(),
+                new Blueprint_LightColdToUltimateHelmet(),
 #endif
 				new DiverPerimeterDefenceChip_Broken(),
 				new DiverPerimeterDefenceChipItem(),
@@ -551,9 +650,7 @@ namespace DWEquipmentBonanza
 				new DiverDefenceMk2_FromBrokenChip(),
 				new DiverDefenceSystemMk3(),
 				new PowerglideFragmentPrefab(),
-				new SurvivalSuit(),
-				new PowerglideEquipable(),
-				new ReinforcedSurvivalSuit(),
+				new DWEBPowerglide(),
 				new ExosuitLightningClawGeneratorModule(),
 				new Vibroblade(),
 				new DWUltraGlideSwimChargeFins(),
@@ -566,10 +663,10 @@ namespace DWEquipmentBonanza
 			};
 
 
-#if SUBNAUTICA_STABLE
-			foreach (string sTechType in new List<string> { "reinforcedsuit2", "reinforcedsuit3", "rivereelscale", "lavalizardscale" })
+#if SN1
+            foreach (string sTechType in new List<string> { "reinforcedsuit2", "reinforcedsuit3", "rivereelscale", "lavalizardscale" })
 			{
-				if (SMLHelper.V2.Handlers.TechTypeHandler.TryGetModdedTechType(sTechType, out TechType tt))
+				if (TechTypeUtils.TryGetModTechType(sTechType, out TechType tt))
 				{
 					NitrogenTechtypes.Add(sTechType, tt);
 					bHasN2 = true;
@@ -601,48 +698,70 @@ namespace DWEquipmentBonanza
 #endif
 
 			// These may depend on Nitrogen, or they may not; but if they do they must be loaded afterwards.
-			prefabs.Add(new SuperSurvivalSuit());
+			//prefabs.Add(new SuperSurvivalSuit());
 
 
 			foreach (Spawnable s in prefabs)
 			{
+				//Console.WriteLine($"Patching {s.ClassID}");
 				s.Patch();
 			}
 
-			Databox powerglideDatabox = new Databox()
+            //Console.WriteLine($"{thisName} Patching Powerglide databox");
+            Databox powerglideDatabox = new Databox()
 			{
 				DataboxID = "Powerglide",
-				PrimaryDescription = PowerglideEquipable.friendlyName + " Databox",
-				SecondaryDescription = PowerglideEquipable.description,
-				TechTypeToUnlock = GetModTechType("PowerglideEquipable"),
-#if SUBNAUTICA_STABLE
+				PrimaryDescription = DWEBPowerglide.friendlyName + " Databox",
+				SecondaryDescription = DWEBPowerglide.description,
+				TechTypeToUnlock = GetModTechType("DWEBPowerglide"),
+#if LEGACY
+	#if SN1
 				CoordinatedSpawns = new List<Spawnable.SpawnLocation>()
 				{
 					new Spawnable.SpawnLocation(new Vector3(-1407.51f, -332.47f, 740.66f), new Vector3(6.93f, 275.67f, 0.00f)),
 					//new Spawnable.SpawnLocation(new Vector3(-1384.79f, -330.18f, 718.84f), new Vector3(1.22f, 194.60f, 357.64f))
 				}
-#elif BELOWZERO
+	#elif BELOWZERO
 				CoordinatedSpawns = new List<Spawnable.SpawnLocation>()
 				{
 					new Spawnable.SpawnLocation(new Vector3(285f, -242.07f, -1299f), new Vector3(344f, 3.77f, 14f))
 				}
+	#endif
+#else
+	#if SN1
+                CoordinatedSpawns = new List<SpawnLocation>()
+                {
+                    new SpawnLocation(new Vector3(-1407.51f, -332.47f, 740.66f), new Vector3(6.93f, 275.67f, 0.00f)),
+					//new Spawnable.SpawnLocation(new Vector3(-1384.79f, -330.18f, 718.84f), new Vector3(1.22f, 194.60f, 357.64f))
+				}
+	#elif BELOWZERO
+				CoordinatedSpawns = new List<Spawnable.SpawnLocation>()
+				{
+					new Spawnable.SpawnLocation(new Vector3(285f, -242.07f, -1299f), new Vector3(344f, 3.77f, 14f))
+				}
+	#endif
 #endif
-			};
+            };
 			powerglideDatabox.Patch();
 
+			//Console.WriteLine($"{thisName} Registering SaveDataCache");
+#if LEGACY
 			saveCache = SaveDataHandler.Main.RegisterSaveDataCache<DWDataFile>();
+#else
+			saveCache = SaveDataHandler.RegisterSaveDataCache<DWDataFile>();
+#endif
 			saveCache.Init();
 
-#if SUBNAUTICA_STABLE
-			Databox headLampDatabox = new Databox()
+#if SN1
+            Databox headLampDatabox = new Databox()
 			{
 				DataboxID = "Headlamp",
 				PrimaryDescription = FlashlightHelmet.friendlyName + " Databox",
 				SecondaryDescription = FlashlightHelmet.desc,
 				TechTypeToUnlock = GetModTechType("FlashlightHelmet"),
-				CoordinatedSpawns = new List<Spawnable.SpawnLocation>()
+				CoordinatedSpawns = new List<SpawnLocation>()
 				{
-					new Spawnable.SpawnLocation(new Vector3(-403f, -229.8f, -98.48f), Vector3.zero),
+					new SpawnLocation(new Vector3(-403f, -229.8f, -98.48f), Vector3.zero),
 				},
 				ModifyGameObject = (Action<GameObject>)(go =>
 				{
@@ -652,47 +771,56 @@ namespace DWEquipmentBonanza
 			headLampDatabox.Patch();
 #endif
 
-			var harmony = new Harmony($"DaWrecka_{myAssembly.GetName().Name}");
+			Log.LogDebug($"DWEBPlugin.Awake: Patching all");
 			harmony.PatchAll(myAssembly);
-			/*if (QModServices.Main.ModPresent("UpgradedVehicles"))
+            /*if (QModServices.Main.ModPresent("UpgradedVehicles"))
 			{
 				Log.LogDebug("UpgradedVehicles found, attempting to patch GetSpeedMultiplierBonus method");
 				bool success = AssemblyUtils.PatchIfExists(harmony, "UpgradedVehicles", "UpgradedVehicles.VehicleUpgrader", "GetSpeedMultiplierBonus", null, new HarmonyMethod(typeof(HorsepowerPatches), nameof(HorsepowerPatches.PostGetBonusGetSpeedMultiplierBonus)), null);
 				Log.LogDebug("Patching " + (success ? "success" : "fail"));
 			}*/
-		}
 
-
-
-		[QModPostPatch]
-		public static void PostPatch()
-		{
 #if BELOWZERO
-			Sprite hoverbike = SpriteManager.Get(SpriteManager.Group.Pings, "Hoverbike");
-			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "HoverbikeUpgrades", "Snowfox Upgrades", hoverbike, new string[] { "Upgrades" });
-			foreach (Spawnable s in new List<Spawnable>() {
-				new HoverbikeWaterTravelModule(),
-				new HoverbikeSolarChargerModule(),
-				new HoverbikeStructuralIntegrityModule(),
-				new HoverbikeEngineEfficiencyModule(),
-				new HoverbikeSelfRepairModule(),
-				new HoverbikeDurabilitySystem(),
-				new HoverbikeSpeedModule(),
-			})
-			{
-				s.Patch();
-			}
+
+            Sprite hoverbike = SpriteManager.Get(SpriteManager.Group.Pings, "Hoverbike");
+            //Console.WriteLine($"{thisName} Adding Snowfox Upgrades tab");
+            CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "HoverbikeUpgrades", "Snowfox Upgrades", hoverbike, new string[] { "Upgrades" });
+            foreach (Spawnable s in new List<Spawnable>() {
+                new HoverbikeWaterTravelModule(),
+                new HoverbikeSolarChargerModule(),
+                new HoverbikeStructuralIntegrityModule(),
+                new HoverbikeEngineEfficiencyModule(),
+                new HoverbikeSelfRepairModule(),
+                new HoverbikeDurabilitySystem(),
+                new HoverbikeSpeedModule(),
+                new HoverbikeMobilityUpgrade(),
+            })
+            {
+                //Console.WriteLine($"{thisName} Patching {s.ClassID}");
+                s.Patch();
+            }
 
 
-			//Batteries.PostPatch();
-			LanguageHandler.SetLanguageLine("SeamothWelcomeAboard", "Welcome aboard captain.");
+            //Batteries.PostPatch();
+            LanguageHandler.SetLanguageLine("SeamothWelcomeAboard", "Welcome aboard captain.");
 #endif
+        }
+
+
+#if QMM
+		[QModPostPatch]
+#endif
+        public static void Start()
+		{
 			CoroutineHost.StartCoroutine(PostPatchCoroutine());
 		}
 
 		internal static IEnumerator PrePatchCoroutine()
 		{
-			yield break;
+            //Console.WriteLine($"{Assembly.GetExecutingAssembly().GetName().Name} PrePatchCoroutine() executing");
+            //stuff
+            //Console.WriteLine($"{Assembly.GetExecutingAssembly().GetName().Name} PrePatchCoroutine() complete");
+            yield break;
 		}
 		
 		internal static IEnumerator PostPatchCoroutine()

@@ -1,6 +1,11 @@
 ﻿using FuelCells.Patches;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Handlers;
+#else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Handlers;
+#endif
 using Story;
 using System;
 using System.Collections;

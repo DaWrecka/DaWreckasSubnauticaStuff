@@ -34,7 +34,7 @@ namespace PrawnSuitArmSwitcher.ExosuitArms
             {
                 IExosuitArm exosuitArm = GetIExosuitArm(fieldName);
                 if (exosuitArm != null)
-#if SUBNAUTICA_STABLE
+#if SN1
                     exosuitArm.Reset();
 #elif BELOWZERO
                     exosuitArm.ResetArm();

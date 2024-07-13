@@ -4,29 +4,59 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
-using QModManager.API.ModLoading;
-using SMLHelper.V2.Crafting;
-using SMLHelper.V2.Handlers;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UWE;
-using Logger = QModManager.Utility.Logger;
 using static HandReticle;
 using Common.Utility;
-#if SUBNAUTICA_STABLE
-using RecipeData = SMLHelper.V2.Crafting.TechData;
+
+#if NAUTILUS
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
+using SMLHelper.V2.Crafting;
+using SMLHelper.V2.Handlers;
+#endif
+
+#if BEPINEX
+    using BepInEx;
+    using BepInEx.Logging;
+#elif QMM
+    using QModManager.API.ModLoading;
+    using Logger = QModManager.Utility.Logger;
+#endif
+
+#if SN1
 using Sprite = Atlas.Sprite;
 using Object = UnityEngine.Object;
 #endif
 
 namespace CustomiseOxygen
 {
-    [QModCore]
-    public class Main
+#if BEPINEX
+    [BepInPlugin(GUID, pluginName, version)]
+    [BepInProcess(Common.Constants.SubnauticaEXE)]
+    [BepInDependency(Common.Constants.MoreModifiedItemsGUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(Common.Constants.DeathRunGUID, BepInDependency.DependencyFlags.SoftDependency)]
+    public class CustomiseOxygenPlugin : BaseUnityPlugin
     {
-        internal const string AssemblyTitle = "CustomiseOxygen";
-        internal const string AssemblyProduct = "CustomiseOxygen";
-        internal const string AssemblyVersion = "1.1.0.0";
+#elif QMM
+    [QModCore]
+	public static class CustomiseOxygenPlugin
+    {
+#endif
+#region[Declarations]
+        public const string
+            MODNAME = "CustomiseOxygen",
+            AUTHOR = "dawrecka",
+            GUID = "com." + AUTHOR + "." + MODNAME;
+        internal const string pluginName = "Customise Oxygen";
+        public const string version = "1.1.0.0";
+#endregion
+
+        private static readonly Harmony harmony = new Harmony(GUID);
         //private static FieldInfo CraftTreeCraftableTech => typeof(CraftTree).GetField("craftableTech", BindingFlags.NonPublic | BindingFlags.Static);
 
         // Exclusions which can be added by external mods, such as CombinedItems.
@@ -35,7 +65,7 @@ namespace CustomiseOxygen
             None = 0,
             Multipliers = 1,    // Don't multiply capacity, but allow CapacityOverrides to override the capacity.
             Override = 2,       // Don't allow CapacityOverrides, but apply multipliers
-            Both = 3           // Don't apply CapacityOverrides or multipliers
+            Both = 3           // Don't apply anything
         }
 
         private struct PendingTankEntry
@@ -56,7 +86,14 @@ namespace CustomiseOxygen
         }
 
         internal static Dictionary<TechType, ExclusionType> Exclusions = new Dictionary<TechType, ExclusionType>();
-        internal static HashSet<TechType> bannedTech = new HashSet<TechType>();
+        internal static HashSet<TechType> bannedTech = new HashSet<TechType>()
+        {
+#if SN1
+            TechType.Cyclops
+#elif BELOWZERO
+            TechType.Seatruck
+#endif
+        };
         //private static List<PendingTankEntry> pendingTanks = new List<PendingTankEntry>();
         private static Dictionary<TechType, PendingTankEntry> pendingTanks = new Dictionary<TechType, PendingTankEntry>();
         private static HashSet<TechType> processedTanks = new HashSet<TechType>();
@@ -69,17 +106,20 @@ namespace CustomiseOxygen
             ExclusionType newExclusion = (ExclusionType)((bExcludeMultipliers ? 1 : 0) + (bExcludeOverride ? 2 : 0));
             if (Exclusions.ContainsKey(excludedTank))
             {
-                Logger.Log(Logger.Level.Debug, $"Modifying exclusion for TechType.{excludedTank} to {newExclusion.ToString()}");
+                Log.LogDebug($"Modifying exclusion for TechType.{excludedTank} to {newExclusion.ToString()}");
                 Exclusions[excludedTank] = (ExclusionType)newExclusion;
                 return;
             }
 
-            Logger.Log(Logger.Level.Debug, $"Assigning new exclusion for TechType.{excludedTank} as {newExclusion.ToString()}");
+            Log.LogDebug($"Assigning new exclusion for TechType.{excludedTank} as {newExclusion.ToString()}");
             Exclusions.Add(excludedTank, (ExclusionType)newExclusion);
         }
 
         public static void AddTank(TechType tank, float capacity, bool bUnlockAtStart, Sprite sprite = null, bool Update = false)
         {
+            if (bannedTech.Contains(tank))
+                return;
+
             if (pendingTanks.ContainsKey(tank))
             {
                 Log.LogDebug($"Main.AddTank(TechType: {tank.AsString()}): tank already pending");
@@ -120,10 +160,10 @@ namespace CustomiseOxygen
 
             bWaitingForSpriteHandler = true;
 
-#if SUBNAUTICA_STABLE
+#if LEGACY
             //while (SpriteUtils.Get(TechType.Cutefish, null) == null || Language.main == null || uGUI.isLoading || !bMainMenuHasLoaded)
-            yield return new WaitUntil(() => (SpriteUtils.Get(TechType.Cutefish, null) == null || Language.main == null || uGUI.isLoading || !bMainMenuHasLoaded));
-#elif BELOWZERO
+            yield return new WaitUntil(() => (SpriteUtils.Get(TechType.Cutefish, null) != null && Language.main != null && !uGUI.isLoading && bMainMenuHasLoaded));
+#else
             //while (!SpriteManager.hasInitialized || Language.main == null || uGUI.isLoading || !bMainMenuHasLoaded)
             //while(!bMainMenuHasLoaded)
             yield return new WaitUntil(() => bMainMenuHasLoaded);
@@ -233,11 +273,17 @@ namespace CustomiseOxygen
                 string tankName = Language.main.Get(tank);
                 this.BaseO2Capacity = baseO2capacity;
                 this.speedModifier = speedModifier;
-                if (Main.config.bManualRefill)
+                if (CustomiseOxygenPlugin.config.bManualRefill)
                 {
                     //new TankCraftHelper(tank).Patch();
+#if NAUTILUS
+                    this.refillTechType = EnumHandler.AddEntry<TechType>((tank.AsString(false) + "Refill"))
+                        //.WithPdaInfo(tankName + " Refill", "Refilled " + tankName, unlockAtStart: false)
+                        .WithIcon(SpriteManager.Get(tank));
+#else
                     this.refillTechType = TechTypeHandler.AddTechType((tank.AsString(false) + "Refill"), tankName + " Refill", "Refilled " + tankName, false);
                     SpriteHandler.RegisterSprite(this.refillTechType, this.sprite);
+#endif
                     var techData = new RecipeData()
                     {
                         craftAmount = 0,
@@ -248,13 +294,17 @@ namespace CustomiseOxygen
                     };
                     techData.LinkedItems.Add(tank);
 
+#if NAUTILUS
+                    CraftDataHandler.SetRecipeData(this.refillTechType, techData);
+#else
                     CraftDataHandler.SetTechData(this.refillTechType, techData);
+#endif
                     CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, this.refillTechType, new string[] {
                         "Personal",
                         "TankRefill"
                     });
-#if SUBNAUTICA_STABLE
-                    if(CraftData.GetCraftTime(tank, out float craftTime))
+#if SN1
+                    if (CraftData.GetCraftTime(tank, out float craftTime))
 #elif BELOWZERO
                     if (TechData.GetCraftTime(tank, out float craftTime))
 #endif
@@ -279,8 +329,8 @@ namespace CustomiseOxygen
                         KnownTechHandler.SetAnalysisTechEntry(tank, new TechType[] { this.refillTechType });
                     }
 
-
-                    Main.bannedTech.Add(this.refillTechType);
+                    //CraftTree.AddToCraftableTech
+                    CustomiseOxygenPlugin.bannedTech.Add(this.refillTechType);
                     this.bRefillStatus = false;
                 }
                 else
@@ -346,11 +396,16 @@ namespace CustomiseOxygen
                         Log.LogDebug($"TankTypes.CheckRefillCraftable(TechType: {tank.AsString()}): {tankType.refillTechType.AsString()} has been registered with TankTypes, checking craftability");
                         //if (CraftTree.IsCraftable(tankType.refillTechType))
                         //HashSet<TechType> craftableTech = (HashSet<TechType>)CraftTreeCraftableTech.GetValue(null);
+#if NAUTILUS
+                        //if (CraftTree.IsCraftable(tankType.refillTechType))
+                        if(CraftData.Get(tankType.refillTechType) != null )
+#else
                         if (CraftTree.craftableTech == null)
                         {
                             Log.LogDebug($"TankTypes.CheckRefillCraftable(TechType: {tank.AsString()}): Cannot verify craftable status, craftableTech is null!");
                         }
                         else if (CraftTree.craftableTech.Contains(tankType.refillTechType))
+#endif
                         {
                             Log.LogDebug($"TankTypes.CheckRefillCraftable(TechType: {tank.AsString()}): Successfully registered craftable refill");
                         }
@@ -379,14 +434,15 @@ namespace CustomiseOxygen
 
         internal static DWOxyConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWOxyConfig>();
 
+#if QMM
         [QModPatch]
-        public void Load()
+#endif
+        public void Start()
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            var harmony = new Harmony($"DaWrecka_{assembly.GetName().Name}");
-            harmony.PatchAll(assembly);
+            harmony.PatchAll();
             config.Init();
-#if SUBNAUTICA_STABLE
+            Log.InitialiseLog(GUID);
+#if SN1
             bool deathRunPatch = AssemblyUtils.PatchIfExists(harmony, "DeathRun", "DeathRun.NMBehaviours.SpecialtyTanks", "Update", null, null, new HarmonyMethod(typeof(OxygenManagerPatches), nameof(OxygenManagerPatches.SpecialtyTankUpdateTranspiler)));
             bool nitrogenPatch = AssemblyUtils.PatchIfExists(harmony, "NitrogenMod", "NitrogenMod.NMBehaviours.SpecialtyTanks", "Update", null, null, new HarmonyMethod(typeof(OxygenManagerPatches), nameof(OxygenManagerPatches.SpecialtyTankUpdateTranspiler)));
             if (deathRunPatch || nitrogenPatch)
@@ -396,7 +452,9 @@ namespace CustomiseOxygen
 #endif
         }
 
+#if QMM
         [QModPostPatch]
+#endif
         public static void PostPatch()
         {
             // Calling these in the main Patch() routine is too early, as the sprite atlases have not yet finished loading.

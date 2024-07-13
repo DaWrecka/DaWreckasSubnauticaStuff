@@ -105,7 +105,7 @@ namespace RecyclotronModSupport.Patches
         public static bool PreGetIngredients(ref Recyclotron __instance, ref List<Ingredient> __result)
         {
 #if !RELEASE
-			Logger.Log(Logger.Level.Debug, $"Recyclotron_GetIngredients_Patch executing"); 
+			Log.LogDebug($"Recyclotron_GetIngredients_Patch executing"); 
 #endif
 			List<Ingredient> ingredients = (List<Ingredient>)RecyclotronIngredients.GetValue(null);
 			if (ingredients == null)
@@ -116,26 +116,26 @@ namespace RecyclotronModSupport.Patches
 				return true;
 			}
 
-			Logger.Log(Logger.Level.Debug, $"List ingredients received through Reflection"); 
+			Log.LogDebug($"List ingredients received through Reflection"); 
 			HashSet<TechType> batteryTech = (HashSet<TechType>)RecyclotronBatteryTech.GetValue(null);
 			if (batteryTech == null)
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Failed to acquire HashSet batteryTech through Reflection"); 
+				Log.LogDebug($"Failed to acquire HashSet batteryTech through Reflection"); 
 #endif
 				return true;
 			}
 
-			Logger.Log(Logger.Level.Debug, $"HashSet batteryTech received through Reflection"); 
+			Log.LogDebug($"HashSet batteryTech received through Reflection"); 
 #if !RELEASE
-			Logger.Log(Logger.Level.Debug, $"Reflection values received"); 
+			Log.LogDebug($"Reflection values received"); 
 #endif
 
 			ingredients.Clear();
 			if (__instance.GetWasteCount() == 1)
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Recyclotron found one item in waste list");
+				Log.LogDebug($"Recyclotron found one item in waste list");
 #endif
 				Pickupable pickup = __instance.GetCurrent().inventoryItem.item;
 				GameObject gameObject = pickup.gameObject;
@@ -143,12 +143,12 @@ namespace RecyclotronModSupport.Patches
 				if (gameObject)
 				{
 					TechType tt = pickup.GetTechType();
-					Logger.Log(Logger.Level.Debug, $"Item in waste list has TechType {tt.AsString(false)}"); 
+					Log.LogDebug($"Item in waste list has TechType {tt.AsString(false)}"); 
 					ReadOnlyCollection<Ingredient> readOnlyCollection = TechData.GetIngredients(tt);
 					if (readOnlyCollection == null) // Try the SMLHelper method instead
 					{
 #if !RELEASE
-						Logger.Log(Logger.Level.Debug, $"TechData.GetIngredients failed for TechType {tt.AsString(false)}, attempting SMLHelper"); 
+						Log.LogDebug($"TechData.GetIngredients failed for TechType {tt.AsString(false)}, attempting SMLHelper"); 
 #endif
 						List<Ingredient> ingredientsList = CraftDataHandler.GetRecipeData(tt)?.Ingredients;
 						if (ingredientsList != null)
@@ -156,7 +156,7 @@ namespace RecyclotronModSupport.Patches
 						else
 						{
 #if !RELEASE
-							Logger.Log(Logger.Level.Debug, $"Failed to get ingredients list for TechType {tt.AsString(false)} using SMLHelper"); 
+							Log.LogDebug($"Failed to get ingredients list for TechType {tt.AsString(false)} using SMLHelper"); 
 #endif
 						}
 					}
@@ -165,7 +165,7 @@ namespace RecyclotronModSupport.Patches
 						foreach (Ingredient ingredient in readOnlyCollection)
 						{
 #if !RELEASE
-							Logger.Log(Logger.Level.Debug, $"Processing Ingredients member {ingredient.techType}"); 
+							Log.LogDebug($"Processing Ingredients member {ingredient.techType}"); 
 #endif
 							if (!batteryTech.Contains(ingredient.techType))
 							{

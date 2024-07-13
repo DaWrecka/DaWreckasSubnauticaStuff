@@ -33,7 +33,7 @@ namespace DWEquipmentBonanza.Patches
                 return;
 
             float mult = 1f;
-            Equipment modules = __instance.motor?.upgrades?.modules;
+            Equipment modules = (__instance.motor != null && __instance.motor.upgrades != null ? __instance.motor.upgrades.modules : null);
             if(modules != null)
                 foreach (var kvp in speedMultipliers)
                 {

@@ -1,9 +1,18 @@
-﻿using SMLHelper.V2.Json;
+﻿#if NAUTILUS
+using Nautilus.Json;
+using Nautilus.Options;
+using Nautilus.Options.Attributes;
+using Nautilus.Handlers;
+#else
+using SMLHelper.V2.Json;
 using SMLHelper.V2.Options;
 using SMLHelper.V2.Options.Attributes;
 using SMLHelper.V2.Handlers;
+#endif
 using System.Collections.Generic;
+#if QMM
 using Logger = QModManager.Utility.Logger;
+#endif
 using Common;
 //using static CustomiseOxygen.Main;
 
@@ -59,33 +68,33 @@ namespace CustomiseOxygen
         {
             // if return value is false, no override should be performed.
             // If return value is true, and capacityOverride == -1, then the base capacity should not be altered.
-            Dictionary<TechType, float> activeTypedCapacityOverrides = Main.config.bManualRefill ? manualTypedCapacityOverrides : typedCapacityOverrides;
+            Dictionary<TechType, float> activeTypedCapacityOverrides = CustomiseOxygenPlugin.config.bManualRefill ? manualTypedCapacityOverrides : typedCapacityOverrides;
 
             capacityOverride = -1f;
             capacityMultiplier = 1f;
-            Main.ExclusionType exclusion = Main.Exclusions.GetOrDefault(tank, Main.ExclusionType.None);
+            CustomiseOxygenPlugin.ExclusionType exclusion = CustomiseOxygenPlugin.Exclusions.GetOrDefault(tank, CustomiseOxygenPlugin.ExclusionType.None);
 
             if (tank == TechType.None)
             {
 #if !RELEASE
-                Logger.Log(Logger.Level.Debug, $"DWOxyConfig.GetCapacityOverride called with invalid TechType None");
+                Log.LogDebug($"DWOxyConfig.GetCapacityOverride called with invalid TechType None");
                 return false;
 #endif
             }
-            Logger.Log(Logger.Level.Debug, $"DWOxyConfig.GetCapacityOverride called for TechType {tank.AsString()} with baseCapacity parameter of {baseCapacity}");
+            Log.LogDebug($"DWOxyConfig.GetCapacityOverride called for TechType {tank.AsString()} with baseCapacity parameter of {baseCapacity}");
 
-            if (exclusion == Main.ExclusionType.Both)
+            if (exclusion == CustomiseOxygenPlugin.ExclusionType.Both)
             {
-                Logger.Log(Logger.Level.Debug, $"DWOxyConfig.GetCapacityOverride called with excluded TechType {tank.AsString()}");
+                Log.LogDebug($"DWOxyConfig.GetCapacityOverride called with excluded TechType {tank.AsString()}");
                 return false;
             }
 
-            if (exclusion != Main.ExclusionType.Override)
+            if (exclusion != CustomiseOxygenPlugin.ExclusionType.Override)
             {
                 if (activeTypedCapacityOverrides.TryGetValue(tank, out float value))
                 {
 #if !RELEASE
-                    Logger.Log(Logger.Level.Debug, $"DWOxyConfig.GetCapacityOverride: found override value of {value} for tank TechType '{tank.AsString()}'");
+                    Log.LogDebug($"DWOxyConfig.GetCapacityOverride: found override value of {value} for tank TechType '{tank.AsString()}'");
 #endif
                     capacityOverride = value;
                     return true; // Don't apply multipliers
@@ -96,10 +105,10 @@ namespace CustomiseOxygen
                     Log.LogDebug($"DWOxyConfig.GetCapacityOverride: no override found for TechType {tank.AsString()}");
 #endif
                 }
-                Main.AddTank(tank, baseCapacity, bUnlockAtStart: false, Update: false);
+                CustomiseOxygenPlugin.AddTank(tank, baseCapacity, bUnlockAtStart: false, Update: false);
             }
 
-            if (exclusion != Main.ExclusionType.Multipliers)
+            if (exclusion != CustomiseOxygenPlugin.ExclusionType.Multipliers)
                 capacityMultiplier = baseOxyMultiplier * (bManualRefill ? refillableMultiplier : 1);
 
             if (defaultTankCapacities.TryGetValue(tank.AsString(), out float cap))
@@ -128,7 +137,7 @@ namespace CustomiseOxygen
                     return false;
                 }
 
-                Main.AddTank(tank, capacity, bUpdateIfPresent, null);
+                CustomiseOxygenPlugin.AddTank(tank, capacity, bUpdateIfPresent, null);
                 defaultTankCapacities[tank.AsString(true)] = capacity;
                 return false;
             }
@@ -175,7 +184,7 @@ namespace CustomiseOxygen
                 if (tt == TechType.None)
                 {
 #if !RELEASE
-                    Logger.Log(Logger.Level.Debug, $"Failed to load TechType for string '{kvp.Key}'"); 
+                    Log.LogDebug($"Failed to load TechType for string '{kvp.Key}'"); 
 #endif
                     continue;
                 }
@@ -195,7 +204,7 @@ namespace CustomiseOxygen
                 if(tt == TechType.None)
                 {
 #if !RELEASE
-                    Logger.Log(Logger.Level.Debug, $"Failed to load TechType for string '{kvp.Key}'");
+                    Log.LogDebug($"Failed to load TechType for string '{kvp.Key}'");
 #endif
                     continue;
                 }
@@ -207,13 +216,13 @@ namespace CustomiseOxygen
             {
                 Save();
 #if !RELEASE
-                Logger.Log(Logger.Level.Debug, "Some values reset to defaults"); 
+                Log.LogDebug("Some values reset to defaults"); 
 #endif
             }
             else
             {
 #if !RELEASE
-                Logger.Log(Logger.Level.Debug, "All values present and correct"); 
+                Log.LogDebug("All values present and correct"); 
 #endif
             }
         }

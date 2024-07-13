@@ -1,6 +1,10 @@
 ﻿using Common;
 using HarmonyLib;
+#if NAUTILUS
+using Nautilus.Handlers;
+#else
 using SMLHelper.V2.Handlers;
+#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;

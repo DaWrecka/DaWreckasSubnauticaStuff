@@ -1,17 +1,31 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using DWEquipmentBonanza.MonoBehaviours;
+using System.IO;
+using Common.Utility;
+using System;
+
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Nautilus.Utility;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Handlers;
-using UnityEngine;
-using Logger = QModManager.Utility.Logger;
-using DWEquipmentBonanza.MonoBehaviours;
 using SMLHelper.V2.Utility;
-using System.IO;
-using Common.Utility;
-#if SUBNAUTICA_STABLE
-using RecipeData = SMLHelper.V2.Crafting.TechData;
+    #if SN1
+        using RecipeData = SMLHelper.V2.Crafting.TechData;
+    #endif
+#endif
+#if SN1
 using Sprite = Atlas.Sprite;
 using Object = UnityEngine.Object;
 #endif
@@ -20,8 +34,13 @@ namespace DWEquipmentBonanza.VehicleModules
 {
     internal class VehicleRepairModule : Equipable
     {
+#if NAUTILUS
+        protected override TechType templateType => TechType.VehiclePowerUpgradeModule;
+        protected override string templateClassId => string.Empty;
+#endif
+
         public override EquipmentType EquipmentType => EquipmentType.VehicleModule;
-#if SUBNAUTICA_STABLE
+#if SN1
         public override QuickSlotType QuickSlotType => QuickSlotType.Toggleable;
 #elif BELOWZERO
         public override QuickSlotType QuickSlotType => QuickSlotType.Selectable;
@@ -30,13 +49,13 @@ namespace DWEquipmentBonanza.VehicleModules
         public override TechCategory CategoryForPDA => TechCategory.VehicleUpgrades;
         public override TechType RequiredForUnlock => TechType.BaseUpgradeConsole;
         public override CraftTree.Type FabricatorType => CraftTree.Type.SeamothUpgrades;
-#if SUBNAUTICA_STABLE
+#if SN1
         public override string[] StepsToFabricatorTab => new string[] { "CommonModules" };
 #elif BELOWZERO
         public override string[] StepsToFabricatorTab => new string[] { "ExosuitModules" };
 #endif
         public override float CraftingTime => 5f;
-        public override Vector2int SizeInInventory => new Vector2int(1, 1);
+        public override Vector2int SizeInInventory => new(1, 1);
 
         private static Sprite sprite;
 
@@ -55,6 +74,14 @@ namespace DWEquipmentBonanza.VehicleModules
             };
         }
 
+#if NAUTILUS
+        public override void ModPrefab(GameObject gameObject)
+        {
+            base.ModPrefab(gameObject);
+            gameObject.name = ClassID;
+            gameObject.EnsureComponent<VehicleRepairComponent>();
+        }
+#else
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             GameObject modPrefab;
@@ -65,7 +92,7 @@ namespace DWEquipmentBonanza.VehicleModules
                 //yield return CraftData.InstantiateFromPrefabAsync(TechType.SeaTruckUpgradeEnergyEfficiency, prefabResult, false);
                 //prefab = prefabResult.Get();
 
-#if SUBNAUTICA_STABLE
+#if SN1
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.SeamothReinforcementModule);
 #elif BELOWZERO
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.SeaTruckUpgradeEnergyEfficiency, true);
@@ -83,6 +110,7 @@ namespace DWEquipmentBonanza.VehicleModules
 
             gameObject.Set(modPrefab);
         }
+#endif
 
         protected override Sprite GetItemSprite()
         {
@@ -92,10 +120,11 @@ namespace DWEquipmentBonanza.VehicleModules
 
         public VehicleRepairModule() : base("VehicleRepairModule", "Vehicle Repair Module", "Passively repairs damaged hull for modest energy cost; in active mode, rapidly repairs damage, but at significant energy cost")
         {
+            //Console.WriteLine($"{this.ClassID} constructing");
             OnFinishedPatching += () =>
             {
                 Main.AddModTechType(this.TechType);
-#if SUBNAUTICA_STABLE
+#if SN1
                 bool success = SeamothUpdater.AddRepairModuleType(this.TechType);
                 bool successExo = ExosuitUpdater.AddRepairModuleType(this.TechType);
                 Log.LogDebug(($"Finished patching {this.TechType.AsString()}, added successfully: Seamoth {success}, Exosuit {successExo}"));

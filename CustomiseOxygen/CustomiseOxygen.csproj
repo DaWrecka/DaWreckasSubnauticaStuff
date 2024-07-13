@@ -12,36 +12,21 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CustomiseOxygen</RootNamespace>
     <AssemblyName>CustomiseOxygen</AssemblyName>
-    <OutputPath>$(SolutionDir)$(AssemblyName)\$(Configuration)\</OutputPath>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'BelowZero|AnyCPU' ">
-    <DefineConstants>BZ;BELOWZERO</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
-    <GameDir>$(CommonDir)SubnauticaZero.Stable</GameDir>
-    <DataFolder>SubnauticaZero_Data</DataFolder>
-    <SMLHelperFolder>SMLHelper_BZ</SMLHelperFolder>
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <OutputPath>BZ\bin\</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Subnautica|AnyCPU'">
-    <DefineConstants>SN1;SUBNAUTICA_STABLE</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <GameDir>$(CommonDir)Subnautica.Stable</GameDir>
-    <DataFolder>Subnautica_Data</DataFolder>
-    <SMLHelperFolder>Modding Helper</SMLHelperFolder>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <OutputPath>SN1\bin\</OutputPath>
+  <PropertyGroup Condition="'$(Configuration)' == 'Subnautica'">
+    <DefineConstants>SN1;SUBNAUTICA;SUBNAUTICA_LL;ASYNC;BEPINEX;NAUTILUS</DefineConstants>
   </PropertyGroup>
-  <ItemGroup>
-  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'SubnauticaLegacy'">
+    <DefineConstants>SN1;SUBNAUTICA;SUBNAUTICA_LEGACY;QMM;SMLHELPER</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="AutoRemover.cs" />
     <Compile Include="Config.cs" />

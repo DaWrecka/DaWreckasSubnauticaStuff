@@ -1,32 +1,55 @@
-﻿using DWEquipmentBonanza.MonoBehaviours;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using DWEquipmentBonanza.MonoBehaviours;
 using System.Collections.Generic;
 using System.Collections;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Assets.Gadgets;
+using Nautilus.Crafting;
+using Nautilus.Utility;
+using Nautilus.Handlers;
+using Ingredient = CraftData.Ingredient;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+#else
+using RecipeData = SMLHelper.V2.Crafting.TechData;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
+using SMLHelper.V2.Utility;
+using SMLHelper.V2.Handlers;
+#endif
 using UnityEngine;
 using DWEquipmentBonanza.Patches;
 using Common;
 using Common.Utility;
-#if SUBNAUTICA_STABLE
-using RecipeData = SMLHelper.V2.Crafting.TechData;
+#if SN1
 using Sprite = Atlas.Sprite;
-#elif BELOWZERO
+#endif
+
+#if !LEGACY
 using Newtonsoft;
 using Newtonsoft.Json;
+using System;
+
 #endif
 
 namespace DWEquipmentBonanza.Equipables
 {
-    class PowerglideEquipable: Equipable
+    class DWEBPowerglide: Equipable
 	{
-		protected static GameObject prefab;
-		protected static Sprite icon;
-		internal static string friendlyName => "PowerGlide";
-		internal static string description => "Hold Sprint for dramatic speed bonus underwater with increased energy consumption.";
+#if NAUTILUS
+        protected override TechType templateType => TechType.Seaglide;
+        protected override string templateClassId => string.Empty;
+#endif
 
-		public PowerglideEquipable() : base("PowerglideEquipable", friendlyName, description)
+		protected static Sprite icon;
+		internal const string friendlyName = "PowerGlide";
+		internal const string description = "Hold Sprint for dramatic speed bonus underwater with increased energy consumption.";
+
+		public DWEBPowerglide() : base("DWEBPowerglide", friendlyName, description)
 		{
-			OnFinishedPatching += () =>
+            //Console.WriteLine($"{this.ClassID} constructing");
+            OnFinishedPatching += () =>
 			{
 				Main.AddModTechType(this.TechType);
 				PlayerToolPatches.AddToolSubstitution(this.TechType, TechType.Seaglide);
@@ -46,7 +69,7 @@ namespace DWEquipmentBonanza.Equipables
         //public override TechType RequiredForUnlock => Main.powerglideFrag.TechType;
         public override TechType RequiredForUnlock => Main.GetModTechType("PowerglideFragment");
         public override string DiscoverMessage => $"{this.FriendlyName} Unlocked!";
-		public override bool AddScannerEntry => true;
+		//public override bool AddScannerEntry => true;
 		public override int FragmentsToScan => 4;
 		public override float TimeToScanFragment => 5f;
 		public override bool DestroyFragmentOnScan => true;
@@ -74,24 +97,8 @@ namespace DWEquipmentBonanza.Equipables
 			return icon ??= SpriteUtils.Get(TechType.Seaglide, null);
 		}
 
-#if SUBNAUTICA_STABLE
-		public override GameObject GetGameObject()
-        {
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
-			if (prefab == null)
-			{
-				prefab = CraftData.InstantiateFromPrefab(TechType.Seaglide);
-				prefab.EnsureComponent<PowerglideBehaviour>();
-				ModPrefabCache.AddPrefab(prefab, false);
-			}
-
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
-
-			return prefab;
-        }
-#endif
-
+#if NAUTILUS
+#elif ASYNC
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
 		{
 			if (prefab == null)
@@ -109,5 +116,24 @@ namespace DWEquipmentBonanza.Equipables
 			go.EnsureComponent<PowerglideBehaviour>();
 			gameObject.Set(go);
 		}
-	}
+
+#else
+		public override GameObject GetGameObject()
+        {
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
+			if (prefab == null)
+			{
+				prefab = CraftData.InstantiateFromPrefab(TechType.Seaglide);
+				prefab.EnsureComponent<PowerglideBehaviour>();
+				ModPrefabCache.AddPrefab(prefab, false);
+			}
+
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
+
+			return prefab;
+        }
+
+#endif
+    }
 }

@@ -1,47 +1,57 @@
+using Main = DWEquipmentBonanza.DWEBPlugin;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+#if NAUTILUS
+using Nautilus.Handlers;
+using Nautilus.Assets;
+using Nautilus.Utility;
+using Nautilus.Json.Attributes;
+using Nautilus.Json;
+using Nautilus.Crafting;
+using Common.NautilusHelper;
+using Ingredient = CraftData.Ingredient;
+#else
+using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Utility;
+using SMLHelper.V2.Json.Attributes;
+using SMLHelper.V2.Json;
+#endif
 using UnityEngine;
-using SMLHelper.V2.Handlers;
 using System.Collections;
 using Common;
 using DWEquipmentBonanza.Patches;
 
-#if SUBNAUTICA_STABLE
-using RecipeData = SMLHelper.V2.Crafting.TechData;
-using Sprite = Atlas.Sprite;
-using Object = UnityEngine.Object;
+#if SN1
+    #if LEGACY
+        using RecipeData = SMLHelper.V2.Crafting.TechData;
+    #else
+        using RecipeData = Nautilus.Crafting.RecipeData;
+    #endif
+    using Sprite = Atlas.Sprite;
+    using Object = UnityEngine.Object;
 #endif
 
 namespace DWEquipmentBonanza
 {
-#if SUBNAUTICA_STABLE
+#if SN1
     internal class AcidGloves : Equipable
     {
         private static Sprite itemSprite;
         private static GameObject prefab;
         private const float tempBonus = 6f;
 
+        protected override TechType templateType => TechType.ReinforcedGloves;
+        protected override string templateClassId => string.Empty;
+
         public override EquipmentType EquipmentType => EquipmentType.Gloves;
         public override Vector2int SizeInInventory => new(2, 2);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
-        public override GameObject GetGameObject()
-        {
-            System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
-            if (prefab == null)
-            {
-                prefab = ModifyAndInstantiateGameObject(CraftData.GetPrefabForTechType(TechType.ReinforcedGloves));
-            }
 
-
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
-            return prefab;
-        }
-
+#if NAUTILUS
+#elif ASYNC
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             if (prefab == null)
@@ -55,6 +65,47 @@ namespace DWEquipmentBonanza
             gameObject.Set(prefab);
         }
 
+#else
+        public override GameObject GetGameObject()
+        {
+            System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
+            if (prefab == null)
+            {
+                prefab = ModifyAndInstantiateGameObject(CraftData.GetPrefabForTechType(TechType.ReinforcedGloves));
+            }
+
+
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
+            return prefab;
+        }
+#endif
+
+#if NAUTILUS
+        public override void ModPrefab(GameObject obj)
+        {
+            base.ModPrefab(obj);
+            Shader shader = Shader.Find("MarmosetUBER");
+            Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
+            foreach (var renderer in renderers)
+            {
+                if (renderer.name == "reinforced_suit_01_gloves")
+                {
+                    renderer.sharedMaterial.shader = shader;
+                    renderer.material.shader = shader;
+
+                    renderer.sharedMaterial.mainTexture = Main.glovesTexture;
+                    renderer.material.mainTexture = Main.glovesTexture;
+
+                    renderer.sharedMaterial.SetTexture("_Illum", Main.glovesIllumTexture);
+                    renderer.material.SetTexture("_Illum", Main.glovesIllumTexture);
+
+                    renderer.sharedMaterial.SetTexture("_SpecTex", Main.glovesTexture);
+                    renderer.material.SetTexture("_SpecTex", Main.glovesTexture);
+                }
+            }
+        }
+#else
         protected GameObject ModifyAndInstantiateGameObject(GameObject prefab)
         {
             var obj = GameObject.Instantiate(prefab);
@@ -79,6 +130,7 @@ namespace DWEquipmentBonanza
             }
             return obj;
         }
+#endif
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -101,6 +153,7 @@ namespace DWEquipmentBonanza
 
         public AcidGloves() : base("AcidGloves", "Brine Gloves", "Reinforced dive gloves with an acid-resistant layer")
         {
+#if !NAUTILUS
             OnFinishedPatching += () =>
             {
                 TechTypeUtils.AddModTechType(this.TechType);
@@ -108,6 +161,7 @@ namespace DWEquipmentBonanza
                 Main.AddDamageResist(this.TechType, DamageType.Acid, 0.15f);
                 Main.AddTempBonusOnly(this.TechType, tempBonus);
             };
+#endif
         }
     }
 
@@ -127,6 +181,11 @@ namespace DWEquipmentBonanza
         public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;
         public override string[] StepsToFabricatorTab => DWConstants.BaseSuitsPath;
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
+        public override List<TechType> CompoundTechsForUnlock { get; } = new List<TechType>()
+        {
+            TechType.ReinforcedDiveSuit,
+            TechType.RadiationSuit
+        };
 
         public AcidSuitBase(string classId, string friendlyName, string description) : base(classId, friendlyName, description)
         {
@@ -136,14 +195,59 @@ namespace DWEquipmentBonanza
                 EquipmentPatch.AddSubstitutions(this.TechType, new HashSet<TechType>() { TechType.RadiationSuit, TechType.ReinforcedDiveSuit });
                 Main.AddDiveSuit(this.TechType, this.maxDepth, this.breathMultiplier, this.minTempBonus, this.DeathRunDepth);
                 Main.AddDamageResist(this.TechType, DamageType.Acid, 0.6f);
-                Reflection.AddCompoundTech(this.TechType, new List<TechType>()
-                {
-                    TechType.ReinforcedDiveSuit,
-                    TechType.RadiationSuit
-                });
+                //Reflection.AddCompoundTech(this.TechType, compoundTechs);
+                Log.LogDebug($"{classId} finished patching");
             };
         }
-#if SUBNAUTICA_STABLE
+
+
+#if NAUTILUS
+        public override void ModPrefab(GameObject gameObject)
+        {
+            base.ModPrefab(gameObject);
+            Shader shader = Shader.Find("MarmosetUBER");
+            Renderer[] renderers = gameObject.GetComponentsInChildren<Renderer>();
+            foreach (var renderer in renderers)
+            {
+                if (renderer.name == "reinforced_suit_01")
+                {
+                    // apply the shader
+                    renderer.sharedMaterial.shader = shader;
+                    renderer.material.shader = shader;
+
+                    // apply the main texture
+                    renderer.sharedMaterial.mainTexture = Main.suitTexture;
+                    renderer.material.mainTexture = Main.suitTexture;
+                    renderer.materials[1].mainTexture = Main.suitTexture;
+
+                    // apply the spec map
+                    renderer.sharedMaterial.SetTexture("_SpecTex", Main.suitTexture);
+                    renderer.material.SetTexture("_SpecTex", Main.suitTexture);
+                    renderer.materials[1].SetTexture("_SpecTex", Main.suitTexture);
+
+                    // apply the illum map
+                    renderer.sharedMaterial.SetTexture(ShaderPropertyID._Illum, Main.suitIllumTexture);
+                    renderer.material.SetTexture(ShaderPropertyID._Illum, Main.suitIllumTexture);
+                    renderer.materials[1].SetTexture(ShaderPropertyID._Illum, Main.suitIllumTexture);
+                }
+            }
+        }
+#else
+#if ASYNC
+        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+            if (prefab == null)
+            {
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ReinforcedDiveSuit);
+                yield return task;
+
+                prefab = ModifyAndInstantiateGameObject(task.GetResult());
+            }
+
+            gameObject.Set(prefab);
+        }
+
+#else
         public override GameObject GetGameObject()
         {
             System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
@@ -158,19 +262,6 @@ namespace DWEquipmentBonanza
             return prefab;
         }
 #endif
-
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            if (prefab == null)
-            {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ReinforcedDiveSuit);
-                yield return task;
-
-                prefab = ModifyAndInstantiateGameObject(task.GetResult());
-            }
-
-            gameObject.Set(prefab);
-        }
 
         protected GameObject ModifyAndInstantiateGameObject(GameObject prefab)
         {
@@ -203,6 +294,7 @@ namespace DWEquipmentBonanza
             }
             return obj;
         }
+#endif
 
         protected override Sprite GetItemSprite()
         {
@@ -217,10 +309,19 @@ namespace DWEquipmentBonanza
 
     internal class AcidSuit : AcidSuitBase<AcidSuit>
     {
+#if NAUTILUS
+        protected override TechType templateType => TechType.ReinforcedDiveSuit;
+        protected override string templateClassId => string.Empty;
+#endif
         protected override float maxDepth => 800f;
         protected override float breathMultiplier => 0.85f;
         protected override float minTempBonus => 15f;
         protected override float DeathRunDepth => -1f;
+        public override List<TechType> CompoundTechsForUnlock => new List<TechType>()
+        {
+            TechType.ReinforcedDiveSuit,
+            TechType.RadiationSuit
+        };
         protected override RecipeData GetBlueprintRecipe()
         {
             RecipeData recipe = new RecipeData()
@@ -262,11 +363,8 @@ namespace DWEquipmentBonanza
 
         public virtual QuickSlotType QuickSlotType => QuickSlotType.None;
 
-        public override GameObject GetGameObject()
-        {
-            return CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit);
-        }
-
+#if NAUTILUS
+#elif ASYNC
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ReinforcedDiveSuit);
@@ -274,6 +372,13 @@ namespace DWEquipmentBonanza
 
             gameObject.Set(task.GetResult());
         }
+
+#else
+        public override GameObject GetGameObject()
+        {
+            return CraftData.GetPrefabForTechType(TechType.ReinforcedDiveSuit);
+        }
+#endif
 
         protected override Sprite GetItemSprite()
         {
@@ -324,6 +429,10 @@ namespace DWEquipmentBonanza
 
     internal class NitrogenBrineSuit2 : AcidSuitBase<NitrogenBrineSuit2>
     {
+#if NAUTILUS
+        protected override TechType templateType => TechType.ReinforcedDiveSuit;
+        protected override string templateClassId => string.Empty;
+#endif
         public static string title = "Brine Suit Mk2";
         public static string description = "Upgraded dive suit, immune to acid, heat protection up to 90C and depth protection up to 1300m";
 
@@ -380,6 +489,10 @@ namespace DWEquipmentBonanza
 
     internal class NitrogenBrineSuit3 : AcidSuitBase<NitrogenBrineSuit3>
     {
+#if NAUTILUS
+        protected override TechType templateType => TechType.ReinforcedDiveSuit;
+        protected override string templateClassId => string.Empty;
+#endif
         public static string title = "Brine Suit Mk3";
         public static string description = "Upgraded dive suit, immune to acid, heat protection up to 105C and effectively-unlimited depth protection";
 
@@ -537,6 +650,10 @@ namespace DWEquipmentBonanza
     internal class Blueprint_ReinforcedMk2toBrineMk2 : Blueprint
     {
         // This is the recipe that turns a Reinforced Dive Suit Mk2 into a Brine Suit Mk2
+#if NAUTILUS
+        protected override TechType templateType => TechType.ReinforcedDiveSuit;
+        protected override string templateClassId => string.Empty;
+#endif
         public override string[] StepsToFabricatorTab => new string[] { "ReinforcedSuits" };
 
         protected override RecipeData GetBlueprintRecipe()
@@ -568,6 +685,10 @@ namespace DWEquipmentBonanza
     internal class Blueprint_ReinforcedMk3toBrineMk3 : Blueprint
     {
         // This is the recipe that turns a Reinforced Dive Suit Mk3 into a Brine Suit Mk3
+#if NAUTILUS
+        protected override TechType templateType => TechType.ReinforcedDiveSuit;
+        protected override string templateClassId => string.Empty;
+#endif
         public override string[] StepsToFabricatorTab => new string[] { "ReinforcedSuits" };
 
         protected override RecipeData GetBlueprintRecipe()
@@ -635,4 +756,4 @@ namespace DWEquipmentBonanza
         }
     }*/
 #endif
-}
+    }

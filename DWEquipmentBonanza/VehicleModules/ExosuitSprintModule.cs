@@ -1,14 +1,24 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Handlers;
-using UnityEngine;
-using Logger = QModManager.Utility.Logger;
-
-#if SUBNAUTICA_STABLE
-using RecipeData = SMLHelper.V2.Crafting.TechData;
+#if SN1
+    using RecipeData = SMLHelper.V2.Crafting.TechData;
+#endif
+#endif
+#if SN1
 using Sprite = Atlas.Sprite;
 using Object = UnityEngine.Object;
 #elif BELOWZERO
@@ -16,6 +26,7 @@ using Object = UnityEngine.Object;
 
 namespace DWEquipmentBonanza.VehicleModules
 {
+    /*
     internal class ExosuitSprintModule : Equipable
     {
         public override EquipmentType EquipmentType => EquipmentType.ExosuitModule;
@@ -34,17 +45,6 @@ namespace DWEquipmentBonanza.VehicleModules
         {
             return new RecipeData()
             {
-                /*craftAmount = 1,
-                Ingredients = new List<Ingredient>(new Ingredient[]
-                    {
-                        new Ingredient(TechType.Titanium, 3),
-                        new Ingredient(TechType.Nickel, 2),
-                        new Ingredient(TechType.Kyanite, 1),
-                        new Ingredient(TechType.Lubricant, 1),
-                        new Ingredient(TechType.WiringKit, 1),
-                        new Ingredient(TechType.HydraulicFluid, 1)
-                    }
-                )*/
             };
         }
 
@@ -74,5 +74,5 @@ namespace DWEquipmentBonanza.VehicleModules
                 Main.AddModTechType(this.TechType);
             };
         }
-    }
+    }*/
 }

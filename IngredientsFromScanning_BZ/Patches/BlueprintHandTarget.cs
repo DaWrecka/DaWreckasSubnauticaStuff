@@ -1,19 +1,30 @@
 ﻿using HarmonyLib;
-using SMLHelper.V2.Crafting;
-using SMLHelper.V2.Handlers;
+#if NAUTILUS
+    using Nautilus.Crafting;
+    using Nautilus.Handlers;
+    using RecipeData = Nautilus.Crafting.RecipeData;
+#else
+    using SMLHelper.V2.Crafting;
+    using SMLHelper.V2.Handlers;
+    #if SN1
+    using RecipeData = SMLHelper.V2.Crafting.TechData;
+    #endif
+#endif
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+#if QMM
 using Logger = QModManager.Utility.Logger;
-#if SUBNAUTICA_STABLE
-using RecipeData = SMLHelper.V2.Crafting.TechData;
+#endif
+
+
+#if SUBNAUTICA_LEGACY
 using Json = Oculus.Newtonsoft.Json;
 #elif BELOWZERO
 using Json = Newtonsoft.Json;
 #endif
-
 
 namespace PartsFromScanning.Patches
 {
@@ -25,13 +36,13 @@ namespace PartsFromScanning.Patches
         [HarmonyPatch(nameof(PDAScanner.CanScan), new Type[] { typeof(GameObject) } )]
         private static bool Prefix(ref bool __result, GameObject go)
         {
-            if (!Main.config.bOverrideMapRoom)
+            if (!PartsFromScanningPlugin.config.bOverrideMapRoom)
             {
                 return true;
             }
 
             __result = false;
-            //Logger.Log(Logger.Level.Debug, $"PDAScanner.CanScan Override: checking GameObject: {JsonConvert.SerializeObject(go.GetInstanceID(), Newtonsoft.Json.Formatting.Indented)}");
+            //Log.LogDebug($"PDAScanner.CanScan Override: checking GameObject: {JsonConvert.SerializeObject(go.GetInstanceID(), Newtonsoft.Json.Formatting.Indented)}");
 
             UniqueIdentifier component = go.GetComponent<UniqueIdentifier>();
             if (component != null)

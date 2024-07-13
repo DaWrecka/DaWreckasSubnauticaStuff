@@ -1,31 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Import Project="$(SolutionDir)\GameDir.targets" />
+	<!--<PropertyGroup>
+		<UseQMM>true</UseQMM>
+		<UseBepInEx>false</UseBepInEx>
+		<IsLegacy>false</IsLegacy>
+		<UseAsync>false</UseAsync>
+		<UseSML>true</UseSML>
+	</PropertyGroup>-->
 
-  <PropertyGroup Condition="'$(Configuration)' == 'BelowZero'">
-    <DefineConstants>BZ;BELOWZERO</DefineConstants>
-    <GameDir>$(CommonDir)SubnauticaZero</GameDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Subnautica'">
-    <DefineConstants>SN1;SUBNAUTICA_STABLE</DefineConstants>
-    <GameDir>$(CommonDir)Subnautica</GameDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(Configuration.StartsWith('BelowZero'))">
-    <GameName>BelowZero</GameName>
-    <DataFolder>SubnauticaZero_Data</DataFolder>
-    <SMLHelperFolder>SMLHelper_BZ</SMLHelperFolder>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(Configuration.StartsWith('Subnautica'))">
-    <GameName>Subnautica</GameName>
-    <DataFolder>Subnautica_Data</DataFolder>
-    <SMLHelperFolder>Modding Helper</SMLHelperFolder>
-  </PropertyGroup>
-  <PropertyGroup>
-    <OutputPath>..\Qmods\$(Configuration)\$(AssemblyName)\</OutputPath>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <LangVersion>latest</LangVersion>
-    <ReferencePath>
-      $(GameDir)\BepInEx\core\;$(GameDir)\BepInEx\plugins\QModManager\;$(GameDir)\Qmods\$(SMLHelperFolder)\;$(GameDir)\$(DataFolder)\Managed\publicized_assemblies\;$(GameDir)\$(DataFolder)\Managed\
-    </ReferencePath>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)' == 'BelowZeroLegacy'">
+		<DefineConstants>BZ;BELOWZERO;ASYNC;QMM;SMLHELPER</DefineConstants>
+		<UseQMM>true</UseQMM>
+		<UseBepInEx>false</UseBepInEx>
+		<IsLegacy>true</IsLegacy>
+		<PluginLoaderPath>QMods</PluginLoaderPath>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)' == 'BelowZero'">
+		<DefineConstants>BZ;BELOWZERO;ASYNC;BEPINEX;NAUTILUS</DefineConstants>
+		<PluginLoaderPath>BepInEx\plugins\</PluginLoaderPath>
+		<IsLegacy>false</IsLegacy>
+		<UseQMM>false</UseQMM>
+		<UseBepInEx>true</UseBepInEx>
+		<UseAsync>true</UseAsync>
+		<UseSML>false</UseSML>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)' == 'Subnautica'">
+		<DefineConstants>SN1;SUBNAUTICA_LL;ASYNC;BEPINEX;NAUTILUS</DefineConstants>
+		<PluginLoaderPath>BepInEx\plugins</PluginLoaderPath>
+		<IsLegacy>false</IsLegacy>
+		<UseQMM>false</UseQMM>
+		<UseBepInEx>true</UseBepInEx>
+		<UseAsync>true</UseAsync>
+		<UseSML>false</UseSML>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)' == 'SubnauticaLegacy'">
+		<DefineConstants>SN1;SUBNAUTICA_LEGACY;QMM;SMLHELPER</DefineConstants>
+		<PluginLoaderPath>QMods</PluginLoaderPath>
+		<IsLegacy>true</IsLegacy>
+		<UseQMM>true</UseQMM>
+		<UseBepInEx>false</UseBepInEx>
+	</PropertyGroup>
+	<PropertyGroup Condition="$(Configuration.StartsWith('BelowZero'))">
+		<GameName>BelowZero</GameName>
+		<DataFolder>SubnauticaZero_Data</DataFolder>
+		<SMLHelperFolder>SMLHelper_BZ</SMLHelperFolder>
+		<GameDir>$(CommonDir)\SubnauticaZero</GameDir>
+		<ReferencePath>$(GameDir)\BepInEx\core\;$(GameDir)\BepInEx\plugins\;$(GameDir)\BepInEx\plugins\$(SMLHelperFolder)\;$(GameDir)\BepInEx\plugins\QModManager\;$(GameDir)\Qmods\$(SMLHelperFolder)\;$(GameDir)\$(DataFolder)\Managed\publicized_assemblies\;$(GameDir)\$(DataFolder)\Managed\;$(GameDir)\BepInEx\plugins\Nautilus\
+		</ReferencePath>
+	</PropertyGroup>
+	<PropertyGroup Condition="$(Configuration.StartsWith('Subnautica'))">
+		<GameName>Subnautica</GameName>
+		<DataFolder>Subnautica_Data</DataFolder>
+		<SMLHelperFolder>Modding Helper</SMLHelperFolder>
+		<GameDir>$(CommonDir)\Subnautica</GameDir>
+		<ReferencePath>$(GameDir)\BepInEx\core\;$(GameDir)\BepInEx\plugins\;$(GameDir)\BepInEx\plugins\$(SMLHelperFolder)\;$(GameDir)\BepInEx\plugins\QModManager\;$(GameDir)\Qmods\$(SMLHelperFolder)\;$(GameDir)\$(DataFolder)\Managed\publicized_assemblies\;$(GameDir)\$(DataFolder)\Managed\;$(GameDir)\BepInEx\plugins\Nautilus\
+		</ReferencePath>
+	</PropertyGroup>
+	<PropertyGroup>
+		<OutputPath>$(GameDir)\$(PluginLoaderPath)\$(Configuration)\$(AssemblyName)\</OutputPath>
+		<ModBaseDir>$(GameDir)\$(PluginLoaderPath)</ModBaseDir>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<PlatformTarget>x64</PlatformTarget>
+		<Optimize>true</Optimize>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+
 </Project>

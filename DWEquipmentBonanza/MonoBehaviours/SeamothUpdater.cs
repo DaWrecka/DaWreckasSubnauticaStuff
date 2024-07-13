@@ -10,11 +10,12 @@ using UWE;
 using System.Collections;
 using System.Reflection;
 using System.Diagnostics;
+using Main = DWEquipmentBonanza.DWEBPlugin;
 
 namespace DWEquipmentBonanza.MonoBehaviours
 {
-#if SUBNAUTICA_STABLE
-	public class SeamothUpdater : VehicleUpdater
+#if SN1
+    public class SeamothUpdater : VehicleUpdater
     {
 		protected static TechType repairModuleTechType => Main.GetModTechType("VehicleRepairModule");
 

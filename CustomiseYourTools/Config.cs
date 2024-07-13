@@ -1,5 +1,14 @@
-﻿using SMLHelper.V2.Json;
+﻿#if NAUTILUS
+using Nautilus.Json;
+using Nautilus.Options;
+using Nautilus.Options.Attributes;
+using Nautilus.Handlers;
+#else
+using SMLHelper.V2.Json;
+using SMLHelper.V2.Options;
 using SMLHelper.V2.Options.Attributes;
+using SMLHelper.V2.Handlers;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;

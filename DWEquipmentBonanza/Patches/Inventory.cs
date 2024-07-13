@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
@@ -107,8 +108,8 @@ namespace DWEquipmentBonanza.Patches
 		[HarmonyPostfix]
 		internal static void PostRemoveItem(ItemsContainer __instance, TechType techType)
 		{
-#if SUBNAUTICA_STABLE
-			float lastRemovedBatteryCharge = 1f; // SN1 has no routines for storing the charge of consumed batteries, at least not in vanilla. So we're going to use vanilla assumptions, and assume full charge.
+#if SN1
+            float lastRemovedBatteryCharge = 1f; // SN1 has no routines for storing the charge of consumed batteries, at least not in vanilla. So we're going to use vanilla assumptions, and assume full charge.
 #elif BELOWZERO
 			float lastRemovedBatteryCharge = __instance == null ? -1f : __instance.lastRemovedBatteryCharge;
 #endif

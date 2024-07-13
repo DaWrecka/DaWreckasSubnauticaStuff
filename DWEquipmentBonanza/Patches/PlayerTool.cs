@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using HarmonyLib;
 using System.Collections.Generic;
 
 namespace DWEquipmentBonanza.Patches
@@ -8,10 +9,10 @@ namespace DWEquipmentBonanza.Patches
     {
         // The key is a modded TechType, while the value is a vanilla TechType.
         // The idea is that the modded TechType will use the animation of the TechType in the value
-        // For example, if the Key is "powerglideequipable", then value will be for Seaglide.
+        // For example, if the Key is "DWEBPowerglide", then value will be for Seaglide.
         private static Dictionary<string, TechType> animToolSubstitutions = new Dictionary<string, TechType>();
 
-        //private static TechType powerGlideTechType => Main.GetModTechType("PowerglideEquipable");
+        //private static TechType powerGlideTechType => Main.GetModTechType("DWEBPowerglide");
 
         public static void AddToolSubstitution(TechType key, TechType value)
         {

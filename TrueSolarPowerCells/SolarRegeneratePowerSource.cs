@@ -13,14 +13,14 @@ namespace TrueSolarPowerCells
     internal class SolarRegeneratePowerSource : MonoBehaviour
     {
         private bool bInitialised;
-        protected float regenerationRate => Main.config.regenerationRate;
+        protected float regenerationRate => TSPCPlugin.config.regenerationRate;
         public PowerSource powerSource;
 
         public float regenerationThreshhold = 25f;
 
         public void Start()
         {
-            this.regenerationThreshhold = Main.config.regenerationThreshold;
+            this.regenerationThreshhold = TSPCPlugin.config.regenerationThreshold;
             CoroutineHost.StartCoroutine(SetupPowerSource());
         }
 
@@ -47,7 +47,12 @@ namespace TrueSolarPowerCells
         public void OnHover(HandTargetEventData eventData)
         {
             string format = Language.main.GetFormat<int, int>("PowerCellStatus", Mathf.FloorToInt(this.powerSource.GetPower()), Mathf.FloorToInt(this.powerSource.GetMaxPower()));
+#if LEGACY
             HandReticle.main.SetInteractText("RegenPowerCell", format, true, false, HandReticle.Hand.None);
+#else
+            //HandReticle.main.SetInteractText("RegenPowerCell", format, true, false, HandReticle.Hand.None);
+            HandReticle.main.SetText(HandReticle.TextType.Hand, "RegenPowerCell", true);
+#endif
         }
 
         private void CheckThreshold()

@@ -1,11 +1,11 @@
-﻿using FMOD.Studio;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using Logger = QModManager.Utility.Logger;
+using FMOD.Studio;
+using Common;
 
 namespace DWEquipmentBonanza.MonoBehaviours
 {
@@ -23,7 +23,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
         public override void Awake()
         {
 #if !RELEASE
-            Logger.Log(Logger.Level.Debug, "VibrobladeBehaviour.Awake() executing");
+            
+            Log.LogDebug("VibrobladeBehaviour.Awake() executing");
 #endif
 
             this.attackDist = 2f;
@@ -41,7 +42,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
         {
             Vector3 position = new Vector3();
             GameObject closestObj = null;
-#if SUBNAUTICA_STABLE
+#if SN1
             UWE.Utils.TraceFPSTargetPosition(Player.main.gameObject, this.attackDist, ref closestObj, ref position);
 #elif BELOWZERO
             Vector3 normal = new Vector3();
@@ -69,7 +70,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
                         ancestor.TakeDamage(thisDamage, position, this.damageType);
                         this.GiveResourceOnDamage(closestObj, ancestor.IsAlive(), wasAlive);
                     }
-#if SUBNAUTICA_STABLE
+#if SN1
                     Utils.PlayFMODAsset(this.attackSound, this.transform);
                     VFXSurface component = closestObj.GetComponent<VFXSurface>();
                     Vector3 euler = MainCameraControl.main.transform.eulerAngles + new Vector3(300f, 90f, 0.0f);
@@ -93,7 +94,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 #endif
             }
 
-#if SUBNAUTICA_STABLE
+#if SN1
             if (!(closestObj == null) || !(hand.GetActiveTarget() == null))
                 return;
             if (Player.main.IsUnderwater())

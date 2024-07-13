@@ -1,19 +1,33 @@
 ﻿using HarmonyLib;
-using SMLHelper.V2.Crafting;
-using SMLHelper.V2.Handlers;
+#if NAUTILUS
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Ingredient = CraftData.Ingredient;
+#else
+    using SMLHelper.V2.Crafting;
+    using SMLHelper.V2.Handlers;
+    #if SN1
+        using RecipeData = SMLHelper.V2.Crafting.TechData;
+    #endif
+#endif
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using Nautilus.Extensions;
+#if QMM
 using Logger = QModManager.Utility.Logger;
-#if SUBNAUTICA_STABLE
-using RecipeData = SMLHelper.V2.Crafting.TechData;
+#endif
+
+
+#if SUBNAUTICA_LEGACY
 using Json = Oculus.Newtonsoft.Json;
-#elif BELOWZERO
+#else
 using Json = Newtonsoft.Json;
 #endif
 
+using Common;
 
 // Based HEAVILY on MrPurple6411's Copper from Scan code. For "based heavily" read "nicked almost wholesale".
 
@@ -23,6 +37,92 @@ namespace PartsFromScanning.Patches
     [HarmonyPatch(typeof(CraftData))]
     internal class CraftData_Patch
     {
+        private static readonly HashSet<TechType> blacklistedItems = new() // Items that will not appear in the final recipe
+        {
+            TechType.AcidMushroom,
+            TechType.WhiteMushroom,
+            TechType.StalkerTooth,
+            TechType.Floater,
+            TechType.Bladderfish,
+            TechType.GasPod,
+        };
+
+        private static readonly HashSet<TechType> nonSimplifyItems = new() // Items that won't be simplified
+        {
+            TechType.Titanium,
+            TechType.Copper,
+            TechType.Silver,
+            TechType.Gold,
+            TechType.Glass,
+            TechType.Lubricant,
+            TechType.Benzene,
+            TechType.Silicone,
+            TechType.HydrochloricAcid,
+            TechType.ReactorRod,
+            TechType.Polyaniline,
+            TechType.PrecursorKey_Blue,
+            TechType.PrecursorKey_Purple,
+            TechType.PrecursorKey_Orange,
+            TechType.ComputerChip,
+            TechType.Aerogel
+        };
+
+        private static readonly Dictionary<string, string> TechTypeOverrides = new()
+        {
+            { "TechPistolFragment", "TechPistol" }
+
+        };
+
+        private static TechType GetOverrideTechType(TechType query)
+        {
+            if (TechTypeOverrides.TryGetValue(query.ToString(), out string value))
+            {
+                TechType overrideTech = TechTypeUtils.GetTechType(value);
+                return overrideTech;
+            }
+
+            return query;
+        }
+
+        protected static RecipeData AgnosticGetRecipe(TechType tt)
+        {
+            tt = GetOverrideTechType(tt);
+            Log.LogDebug($"Retrieving recipe for TechType {tt.ToString()}");
+
+            if (tt == TechType.None)
+            {
+                Log.LogError($"AgnosticGetRecipe: No TechType specified");
+                return null;
+            }
+#if NAUTILUS
+            var recipe = CraftDataHandler.GetRecipeData(tt);
+            if (recipe == null)
+                recipe = CraftDataHandler.GetModdedRecipeData(tt);
+
+            if (recipe == null)
+            {
+                
+            }
+            return recipe;
+            /*
+            var recipe = CraftData.Get(tt);
+
+            if (recipe == null)
+            {
+                return null;
+            }
+            return recipe.ConvertToRecipeData();*/
+
+
+#elif SN1
+            var recipe = CraftDataHandler.GetTechData(tt);
+            return recipe;
+#elif BELOWZERO
+            var recipe = CraftDataHandler.GetRecipeData(tt);
+            return recipe;
+#endif
+        }
+
         struct WeightedItem
         {
             public WeightedItem(float w, TechType t)
@@ -40,12 +140,12 @@ namespace PartsFromScanning.Patches
             // Ripped<cough>based upon MrPurple6411's method Deconstruct_Patch from the BuilderModule
             if (Player.main.isPiloting)
             {
-#if SUBNAUTICA_STABLE
+#if ASYNC
+                GameObject gameObject = CraftData.InstantiateFromPrefab(null, techType, false); // Coming back to this months later, I didn't think this worked in BZ, because it's not async. But apparently it does...
+#else
                 //GameObject gameObject = CraftData.InstantiateFromPrefab(techType, false);
                 GameObject prefabForTechType = CraftData.GetPrefabForTechType(techType, true);
                 GameObject gameObject = (prefabForTechType != null) ? global::Utils.SpawnFromPrefab(prefabForTechType, null) : global::Utils.CreateGenericLoot(techType);
-#elif BELOWZERO
-                GameObject gameObject = CraftData.InstantiateFromPrefab(null, techType, false); // Coming back to this months later, I didn't think this worked in BZ, because it's not async. But apparently it does...
 #endif
                 Pickupable pickup = gameObject.GetComponent<Pickupable>();
                 if (pickup != null)
@@ -54,7 +154,7 @@ namespace PartsFromScanning.Patches
 
                     // This is kind of messy but it's an easy way to get the cross-game code running. In SN1 modules will always == null so the block won't run; but it'll still compile.
                     Vehicle thisVehicle = Player.main.GetVehicle();
-#if SUBNAUTICA_STABLE
+#if SN1
                     if (thisVehicle != null)
 #elif BELOWZERO
                     SeaTruckUpgrades upgrades = Player.main.GetComponentInParent<SeaTruckUpgrades>();
@@ -82,7 +182,7 @@ namespace PartsFromScanning.Patches
                                         //uGUI_IconNotifier.main.Play(pickup.GetTechType(), uGUI_IconNotifier.AnimationType.From, null);
                                         uGUI_IconNotifier.main.Play(techType, uGUI_IconNotifier.AnimationType.From, null);
                                         pickup.PlayPickupSound();
-                                        Logger.Log(Logger.Level.Debug, $"Adding tech {techType} to Seatruck storage");
+                                        Log.LogDebug($"Adding tech {techType} to Seatruck storage");
                                         return;
                                     }
                                 }
@@ -102,7 +202,7 @@ namespace PartsFromScanning.Patches
                                 storageContainer.container.AddItem(pickup);
                                 int techCount = storageContainer.container.GetCount(techType);
 #if !RELEASE
-                                Logger.Log(Logger.Level.Debug, $"Adding tech {techType.AsString().PadLeft(15)} to Exosuit storage; previous count {lastCount}, new count {techCount}");
+                                Log.LogDebug($"Adding tech {techType.AsString().PadLeft(15)} to Exosuit storage; previous count {lastCount}, new count {techCount}");
 #endif
                                 if (techCount - lastCount == 1)
                                 {
@@ -118,7 +218,8 @@ namespace PartsFromScanning.Patches
 
                         else if (thisVehicle is SeaMoth seamoth)
                         {
-                            //bool storageCheck = false;
+                            // We don't need to do any excluding here for BZ; normally this block will never run, and if it does it's because the user has taken steps
+                            
                             List<IItemsContainer> containers = new List<IItemsContainer>();
                             seamoth.GetAllStorages(containers);
                             //for (int i = 0; i < 12; i++)
@@ -134,7 +235,7 @@ namespace PartsFromScanning.Patches
                                         iContainer.AddItem(pickup);
                                         int techCount = iContainer.GetCount(techType);
 #if !RELEASE
-                                        Logger.Log(Logger.Level.Debug, $"Adding tech {techType.AsString().PadLeft(15)} to Seamoth storage; previous count {lastCount}, new count {techCount}");
+                                        Log.LogDebug($"Adding tech {techType.AsString().PadLeft(15)} to Seamoth storage; previous count {lastCount}, new count {techCount}");
 #endif
                                         if (techCount - lastCount == 1)
                                         {
@@ -151,7 +252,7 @@ namespace PartsFromScanning.Patches
                                 catch (Exception e)
                                 {
 #if !RELEASE
-                                    Logger.Log(Logger.Level.Debug, $"Exception adding tech {techType} to Seamoth storage: {e.ToString()}");
+                                    Log.LogDebug($"Exception adding tech {techType} to Seamoth storage: {e.ToString()}");
 #endif
                                     continue;
                                 }
@@ -165,9 +266,18 @@ namespace PartsFromScanning.Patches
                 }
             }
 #if !RELEASE
-            Logger.Log(Logger.Level.Debug, $"Adding tech {techType} to player inventory");
+            Log.LogDebug($"Adding tech {techType} to player inventory");
 #endif
             CraftData.AddToInventory(techType, count, bNoMessage, bSpawnIfCantAdd);
+        }
+
+        private static List<Ingredient> GetIngredients(TechType tt)
+        {
+            var recipe = AgnosticGetRecipe(tt);
+            if (recipe == null)
+                return null;
+
+            return recipe.Ingredients;
         }
 
         [HarmonyPrefix]
@@ -178,40 +288,42 @@ namespace PartsFromScanning.Patches
             {
                 TechType scannedFragment = TechType.None;
                 RecipeData recipe = null;
+                RecipeData baseRecipe = null;
                 if (BlueprintHandTargetPatches.bIsDatabox)
                 {
                     //if (!Main.config.bInterceptDataboxes)
                     //    return true;
 
                     scannedFragment = BlueprintHandTargetPatches.databoxUnlock;
-                    if (Main.config.TryOverrideRecipe(scannedFragment, out recipe))
+                    if (PartsFromScanningPlugin.config.TryOverrideRecipe(scannedFragment, out baseRecipe))
                     {
 #if !RELEASE
-                        Logger.Log(Logger.Level.Debug, $"Using OverrideRecipe: {Json.JsonConvert.SerializeObject(recipe, Json.Formatting.Indented)}");
+                        Log.LogDebug($"Using OverrideRecipe: {Json.JsonConvert.SerializeObject(baseRecipe, Json.Formatting.Indented)}");
 #endif
                     }
                     else
                     {
-                        recipe = CraftDataHandler.GetTechData(scannedFragment);
+                        baseRecipe = AgnosticGetRecipe(scannedFragment);
                     }
                 }
                 else
                 {
-                    scannedFragment = PDAScanner.scanTarget.techType;
+                    var scanTarget = PDAScanner.scanTarget;
+                    scannedFragment = scanTarget.techType;
 #if !RELEASE
-                    Logger.Log(Logger.Level.Debug, $"Intercepting scan of fragment {scannedFragment.ToString()}");
+                    Log.LogDebug($"Intercepting scan of fragment {scannedFragment.ToString()}");
 #endif
 
-                    if (PartsFromScanning.Main.config.TryOverrideRecipe(scannedFragment, out recipe))
+                    if (PartsFromScanningPlugin.config.TryOverrideRecipe(scannedFragment, out baseRecipe))
                     {
 #if !RELEASE
-                        Logger.Log(Logger.Level.Debug, $"Using OverrideRecipe: {Json.JsonConvert.SerializeObject(recipe, Json.Formatting.Indented)}");
+                        Log.LogDebug($"Using OverrideRecipe: {Json.JsonConvert.SerializeObject(baseRecipe, Json.Formatting.Indented)}");
 #endif
                     }
                     else if ((int)scannedFragment > 1112 && (int)scannedFragment < 1117)
                     {
                         // TechTypes 1113 to 1116 are Cyclops fragments, which have no blueprint associated, so we need to process them specially.
-                        recipe = new RecipeData();
+                        baseRecipe = new RecipeData();
                         /*CyclopsHullFragment = 1113,
                         CyclopsBridgeFragment = 1114,
                         CyclopsEngineFragment = 1115,
@@ -220,25 +332,25 @@ namespace PartsFromScanning.Patches
                         switch ((int)scannedFragment)
                         {
                             case 1113:
-                                recipe.Ingredients.Add(new Ingredient(TechType.PlasteelIngot, 2));
-                                recipe.Ingredients.Add(new Ingredient(TechType.Lead, 1));
+                                baseRecipe.Ingredients.Add(new Ingredient(TechType.PlasteelIngot, 2));
+                                baseRecipe.Ingredients.Add(new Ingredient(TechType.Lead, 1));
                                 break;
                             case 1114:
-                                recipe.Ingredients.Add(new Ingredient(TechType.EnameledGlass, 3));
+                                baseRecipe.Ingredients.Add(new Ingredient(TechType.EnameledGlass, 3));
                                 break;
                             case 1115:
-                                recipe.Ingredients.Add(new Ingredient(TechType.Lubricant, 1));
-                                recipe.Ingredients.Add(new Ingredient(TechType.AdvancedWiringKit, 1));
-                                recipe.Ingredients.Add(new Ingredient(TechType.Lead, 1));
+                                baseRecipe.Ingredients.Add(new Ingredient(TechType.Lubricant, 1));
+                                baseRecipe.Ingredients.Add(new Ingredient(TechType.AdvancedWiringKit, 1));
+                                baseRecipe.Ingredients.Add(new Ingredient(TechType.Lead, 1));
                                 break;
                             case 1116:
-                                recipe.Ingredients.Add(new Ingredient(TechType.PlasteelIngot, 2));
+                                baseRecipe.Ingredients.Add(new Ingredient(TechType.PlasteelIngot, 2));
                                 break;
                         }
-                        recipe.Ingredients.Add(new Ingredient(TechType.Lead, 1));
-                        recipe.Ingredients.Add(new Ingredient(TechType.PlasteelIngot, 1));
+                        baseRecipe.Ingredients.Add(new Ingredient(TechType.Lead, 1));
+                        baseRecipe.Ingredients.Add(new Ingredient(TechType.PlasteelIngot, 1));
 #if !RELEASE
-                        Logger.Log(Logger.Level.Debug, $"Using recipe from manual override: {Json.JsonConvert.SerializeObject(recipe, Json.Formatting.Indented)}");
+                        Log.LogDebug($"Using recipe from manual override: {Json.JsonConvert.SerializeObject(baseRecipe, Json.Formatting.Indented)}");
 #endif
                     }
                     else
@@ -247,55 +359,44 @@ namespace PartsFromScanning.Patches
                         if (entryData == null) // Sanity check; this should always be true
                         {
 #if !RELEASE
-                            Logger.Log(Logger.Level.Debug, $"Failed to find EntryData for fragment");
+                            Log.LogDebug($"Failed to find EntryData for fragment");
 #endif
                             /*CraftData.AddToInventory(TechType.Titanium);
                             CraftData.AddToInventory(TechType.Titanium); // Adding them one-by-one so as to prevent it being caught by this very routine.*/
                             return true;
                         }
-                        //Logger.Log(Logger.Level.Debug, $"Found entryData {entryData.ToString()}");
+                        //Log.LogDebug($"Found entryData {entryData.ToString()}");
 #if !RELEASE
-                        Logger.Log(Logger.Level.Debug, $"Found entryData {Json.JsonConvert.SerializeObject(entryData, Json.Formatting.Indented)}");
+                        Log.LogDebug($"Found entryData {Json.JsonConvert.SerializeObject(entryData, Json.Formatting.Indented)}");
 #endif
 
 
                         //CraftData.AddToInventory(TechType.Titanium);
                         //CraftData.AddToInventory(TechType.Copper);
-#if SUBNAUTICA_STABLE
-                        recipe = CraftDataHandler.GetTechData(entryData.blueprint);
-#elif BELOWZERO
-                        recipe = CraftDataHandler.GetRecipeData(entryData.blueprint);
-#endif
-                        if (recipe == null)
+                        baseRecipe = AgnosticGetRecipe(entryData.blueprint);
+                        if (baseRecipe == null)
                         {
 #if !RELEASE
-                            Logger.Log(Logger.Level.Debug, $"Failed to find blueprint for EntryData");
+                            Log.LogDebug($"Failed to find blueprint for EntryData");
 #endif
                             /*CraftData.AddToInventory(TechType.Titanium);
                             CraftData.AddToInventory(TechType.Titanium); // One-by-one again, as above.*/
+
+
+
                             return true;
                         }
-                        //Logger.Log(Logger.Level.Debug, $"Found recipe {recipe.ToString()}");
+                        //Log.LogDebug($"Found recipe {recipe.ToString()}");
 #if !RELEASE
-                        Logger.Log(Logger.Level.Debug, $"Using recipe from EntryData: {Json.JsonConvert.SerializeObject(recipe, Json.Formatting.Indented)}");
+                        Log.LogDebug($"Using recipe from EntryData: {Json.JsonConvert.SerializeObject(baseRecipe, Json.Formatting.Indented)}");
 #endif
                     }
                 }
 
-                for (int i = 0; i < recipe.Ingredients.Count; i++)
-                {
-                    if (PartsFromScanning.Main.config.TrySubstituteIngredient(recipe.Ingredients[i].techType, out List<Ingredient> Substitutes))
-                    {
-                        foreach (Ingredient sub in Substitutes)
-                            recipe.Ingredients.Add(sub);
-                        recipe.Ingredients.RemoveAt(i); // Remove the current ingredient...
-                        i--; // ...and make sure the loop continues at the item after this, not the one after that.
-                    }
-                }
-
+                recipe = GetSimplifiedRecipe(baseRecipe);
                 // I believe the easiest way to get a random item from the blueprint would be to make a list of techTypes; if an ingredient is used twice in the recipe, it will appear in the list twice.
                 // That way, we can generate a random number where 0<=rnd<list.count, and select that item.
-                List<TechType> bp = new List<TechType> { };
+                List<TechType> bp = new List<TechType>();
                 for (int i = 0; i < recipe.Ingredients.Count; i++)
                 {
                     for (int j = 0; j < recipe.Ingredients[i].amount; j++)
@@ -308,20 +409,20 @@ namespace PartsFromScanning.Patches
                 //Logger.Log(Logger.Level.Error, "Unidentified Vehicle Type!");
                 for (int i = 0; i < bp.Count; i++)
                 {
-                    float thisWeight = Main.config.GetWeightForTechType(bp[i]);
+                    float thisWeight = PartsFromScanningPlugin.config.GetWeightForTechType(bp[i]);
                     TotalWeight += thisWeight;
                     WeightedItem thisWeightedItem = new WeightedItem(TotalWeight, bp[i]);
 #if !RELEASE
-                    Logger.Log(Logger.Level.Debug, $"Adding item to drop list, TechType = {thisWeightedItem.tech.ToString()},   this weight = {thisWeight}, cumulative weight = {thisWeightedItem.Weight}"); 
+                    Log.LogDebug($"Adding item to drop list, TechType = {thisWeightedItem.tech.ToString()},   this weight = {thisWeight}, cumulative weight = {thisWeightedItem.Weight}"); 
 #endif
                     BlueprintPairs.Add(thisWeightedItem);
                 }
 
                 // Now we should be able to pick a few random numbers between 0 and the list's total weight, and add those. We want to remove that entry afterwards, but that's not a big ask.
                 System.Random rng = new System.Random();
-                int numIngredients = Math.Min(PartsFromScanning.Main.config.GenerateGiftValue(), BlueprintPairs.Count);
+                int numIngredients = Math.Min(PartsFromScanning.PartsFromScanningPlugin.config.GenerateGiftValue(), BlueprintPairs.Count);
 #if !RELEASE
-                Logger.Log(Logger.Level.Debug, $"Generated a value for this scan of {numIngredients} components."); 
+                Log.LogDebug($"Generated a value for this scan of {numIngredients} components."); 
 #endif
 
                 int awards = 0;
@@ -332,14 +433,14 @@ namespace PartsFromScanning.Patches
                     for (int j = 0; j < BlueprintPairs.Count; j++)
                     {
                         //                                               This part is for sanity checking
-                        //                                   ___________________________|______________________________
-                        //                                  /                                                          \
+                        //                                   ___________________________|_______________________________
+                        //                                  /                                                           \
                         if (r < BlueprintPairs[j].Weight || ((j + 1) == BlueprintPairs.Count && awards < numIngredients))
                         {
                             AddInventory(BlueprintPairs[j].tech, 1, false, true);
                             //CraftData.AddToInventory(BlueprintPairs[j].tech, 1, false, true);
                             awards++;
-                            TotalWeight -= Main.config.GetWeightForTechType(BlueprintPairs[j].tech);
+                            TotalWeight -= PartsFromScanningPlugin.config.GetWeightForTechType(BlueprintPairs[j].tech);
                             BlueprintPairs.RemoveAt(j);
                             break;
                         }
@@ -348,6 +449,79 @@ namespace PartsFromScanning.Patches
                 return false;
             }
             return true;
+        }
+
+        private static RecipeData GetSimplifiedRecipe(RecipeData baseRecipe)
+        {
+            System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            if (baseRecipe == null)
+            {
+                Log.LogError($"{thisMethod.ReflectedType.Name}.{thisMethod.Name} called with null recipe!");
+                return null;
+            }
+
+            if (baseRecipe.Ingredients == null || baseRecipe.Ingredients.Count < 1)
+            {
+                Log.LogError($"{thisMethod.ReflectedType.Name}.{thisMethod.Name} called with invalid recipe!");
+                return null;
+            }
+
+            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
+
+            var recipe = new RecipeData(baseRecipe.Ingredients);
+            recipe.craftAmount = baseRecipe.craftAmount;
+            for (int i = 0; i < recipe.Ingredients.Count; i++)
+            {
+                Ingredient baseIngredient = baseRecipe.Ingredients[i];
+                TechType item = recipe.Ingredients[i].techType;
+
+                if (blacklistedItems.Contains(item))
+                {
+                    recipe.Ingredients.RemoveAt(i--);
+                    continue;
+                }
+                if (nonSimplifyItems.Contains(item))
+                {
+                    Log.LogDebug($"Using Ingredient(techType: {item.AsString()}, amount: {baseIngredient.amount}");
+                    continue;
+                }
+
+                var subRecipe = AgnosticGetRecipe(item);
+                if (subRecipe != null)
+                {
+                    Log.LogDebug($" Found sub-recipe for techType {item.AsString()}");
+                    foreach (Ingredient I in subRecipe.Ingredients)
+                    {
+                        if (blacklistedItems.Contains(I.techType))
+                            continue;
+                        // This line doesn't work with Nautilus, as the amount property is read-only.
+                        //I.amount *= baseIngredient.amount;
+                        Log.LogDebug($"     Adding sub-Ingredient(techType: {I.techType.AsString()}, amount: {I.amount}");
+                        for(int j = 0; j < I.amount; j++)
+                            recipe.Ingredients.Add(I);
+                    }
+                    recipe.Ingredients.RemoveAt(i--);
+                }
+                else
+                {
+                    Log.LogDebug($"No sub-recipe found for Ingredient(techType: {item.AsString()}, amount: {baseIngredient.amount}");
+                }
+            }
+
+            for (int i = 0; i < recipe.Ingredients.Count; i++)
+            {
+                if (PartsFromScanning.PartsFromScanningPlugin.config.TrySubstituteIngredient(recipe.Ingredients[i].techType, out List<Ingredient> Substitutes))
+                {
+                    foreach (Ingredient sub in Substitutes)
+                    {
+                        recipe.Ingredients.Add(sub);
+                    }
+                    recipe.Ingredients.RemoveAt(i); // Remove the current ingredient...
+                    i--; // ...and make sure the loop continues at the item after this, not the one after that.
+                }
+            }
+
+            return recipe;
         }
     }
 }

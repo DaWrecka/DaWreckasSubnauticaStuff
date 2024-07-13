@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-#if SUBNAUTICA
+#if SN1
 using Sprite = Atlas.Sprite;
 #endif
 
@@ -25,8 +25,9 @@ namespace DWEquipmentBonanza
         public const string BaseHelmetsMenuName = "HelmetBlueprints";
         public static string[] BaseSuitsPath { get; } = { "Personal", BaseSuitsMenuName };
         public static string[] BaseHelmetPath { get; } = { "Personal", BaseHelmetsMenuName };
-        public static Sprite BaseSuitsIcon => SpriteUtils.Get(Main.StillSuitType, null);
+        public static Sprite BaseSuitsIcon => SpriteUtils.Get(DWEBPlugin.StillSuitType, null);
         public static Sprite BaseHelmetsIcon => SpriteUtils.Get(TechType.Rebreather, null);
         public const float newKyaniteChance = 0.85f;
     }
 }
+

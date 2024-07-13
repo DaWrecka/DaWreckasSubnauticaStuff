@@ -24,14 +24,14 @@ namespace CustomiseOxygen
 
         public static bool AllowRegenerateOxygen(Player main)
         {
-            return main.IsSwimming() || Main.config.bManualRefill;
+            return main.IsSwimming() || CustomiseOxygenPlugin.config.bManualRefill;
         }
-#if SUBNAUTICA_STABLE
+#if SN1
         // Transpiler for the SpecialtyTanks.Update() method, from the DeathRun and NitrogenMod mods. Invoked from Main.Load() using PatchIfExists from weskey007
         public static IEnumerable<CodeInstruction> SpecialtyTankUpdateTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            MethodInfo specialtyMethod = typeof(OxygenManagerPatches).GetMethod(nameof(OxygenManagerPatches.AddSpecialtyOxygen));
             MethodInfo AddOxygenMethod = typeof(OxygenManager).GetMethod(nameof(OxygenManager.AddOxygen), new Type[] { typeof(float) });
+            MethodInfo specialtyMethod = typeof(OxygenManagerPatches).GetMethod(nameof(OxygenManagerPatches.AddSpecialtyOxygen));
             MethodInfo PlayerIsSwimmingMethod = typeof(Player).GetMethod(nameof(Player.IsSwimming), new Type[] { });
             MethodInfo RegenMethod = typeof(OxygenManagerPatches).GetMethod(nameof(OxygenManagerPatches.AllowRegenerateOxygen), new Type[] { typeof(Player) });
             if (specialtyMethod == null)
@@ -84,14 +84,14 @@ namespace CustomiseOxygen
             if (bAllowAddOxygen)
                 return true;
 
-            if (Main.config.bManualRefill)
+            if (CustomiseOxygenPlugin.config.bManualRefill)
             {
                 if (sourcesInfo == null)
                     return true; // Fail safe
 
-#if SUBNAUTICA_STABLE
+#if LEGACY
                 List<Oxygen> oxySources = (List<Oxygen>)sourcesInfo.GetValue(__instance);
-#elif BELOWZERO
+#else
                 List<IOxygenSource> oxySources = (List<IOxygenSource>)sourcesInfo.GetValue(__instance);
 #endif
                 if (oxySources == null)
@@ -100,9 +100,9 @@ namespace CustomiseOxygen
                 float O2added = 0f;
                 for (int i = 0; i < oxySources.Count; i++)
                 {
-#if SUBNAUTICA_STABLE
+#if LEGACY
                     if (!oxySources[i].isPlayer)
-#elif BELOWZERO
+#else
                     if (!oxySources[i].IsPlayer())
 #endif
                         continue;

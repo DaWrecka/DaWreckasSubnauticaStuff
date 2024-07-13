@@ -53,7 +53,7 @@ namespace CustomiseOxygen.Patches
                     tanksCollection.Add((techType: testType, bUnlockAtStart: false));
             }
 
-            Main.config.defaultTankCapacities.Clear();
+            CustomiseOxygenPlugin.config.defaultTankCapacities.Clear();
 
             foreach (var tt in tanksCollection)
             {
@@ -70,11 +70,11 @@ namespace CustomiseOxygen.Patches
                     capacity = oxyComponent.oxygenCapacity;
 
                 Log.LogDebug($"uGUI_MainMenuPatches.PostMenuCoroutine(): For TechType.{tt.techType.AsString()}, got base capacity of {capacity}");
-                Main.AddTank(tt.techType, capacity, tt.bUnlockAtStart, null);
+                CustomiseOxygenPlugin.AddTank(tt.techType, capacity, tt.bUnlockAtStart, null);
             }
 
             bProcessing = false;
-            Main.OnMainMenuStarted();
+            CustomiseOxygenPlugin.OnMainMenuStarted();
             yield break;
         }
     }

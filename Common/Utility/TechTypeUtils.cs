@@ -1,4 +1,8 @@
-﻿using SMLHelper.V2.Handlers;
+﻿#if NAUTILUS
+using Nautilus.Handlers;
+#else
+using SMLHelper.V2.Handlers;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,8 +12,8 @@ namespace Common
 {
     public static class TechTypeUtils
     {
-		private static Dictionary<string, GameObject> ModPrefabs = new Dictionary<string, GameObject>();
-		private static Dictionary<string, TechType> ModTechTypes = new Dictionary<string, TechType>();
+		private static readonly Dictionary<string, GameObject> ModPrefabs = new Dictionary<string, GameObject>();
+		private static readonly Dictionary<string, TechType> ModTechTypes = new Dictionary<string, TechType>();
 
 		public static void AddModTechType(TechType tech, GameObject prefab = null)
 		{
@@ -24,7 +28,7 @@ namespace Common
 			if (ModTechTypes.ContainsKey(key))
 			{
 				// Okay, so there's two possibilities here; one, AddModTechType is being called for the same TechType, and only the TechType, multiple times, which is an error.
-				// Two, AddModTechType is being called a second time for a TechType to add a prefab. This is not an error.
+				// Two, AddModTechType is being called a second time for a TechType to add a prefab. This is *not* an error.
 				if (prefab == null)
 				{
 					Log.LogError($"AddModTechType called multiple times for key '{key}'");
@@ -58,7 +62,7 @@ namespace Common
 			return GetTechType(key);
 		}
 
-		internal static GameObject GetModPrefab(string key)
+        internal static GameObject GetModPrefab(string key)
 		{
 			string lowerKey = key.ToLower();
 			if (ModPrefabs.TryGetValue(lowerKey, out GameObject modPrefab))
@@ -85,13 +89,19 @@ namespace Common
             if (string.IsNullOrEmpty(value))
                 return TechType.None;
 
-            // Look for a known TechType
-            if (TechTypeExtensions.FromString(value, out TechType tType, true))
-                return tType;
+            TechType tt = TechType.None;
 
-            //  Not one of the known TechTypes - is it registered with SMLHelper?
-            if (TechTypeHandler.TryGetModdedTechType(value, out TechType custom))
-                return custom;
+            // Look for a known TechType
+            if (TechTypeExtensions.FromString(value, out tt, true))
+                return tt;
+
+			//  Not one of the known TechTypes - is it registered with SMLHelper/Nautilus?
+#if NAUTILUS
+			if(EnumHandler.TryGetValue<TechType>(value, out tt))
+#else
+			if (TechTypeHandler.TryGetModdedTechType(value, out tt))
+#endif
+                return tt;
 
             return TechType.None;
         }

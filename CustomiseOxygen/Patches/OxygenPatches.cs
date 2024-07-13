@@ -3,7 +3,9 @@ using HarmonyLib;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+#if QMM
 using Logger = QModManager.Utility.Logger;
+#endif
 
 namespace CustomiseOxygen.Patches
 {
@@ -24,7 +26,7 @@ namespace CustomiseOxygen.Patches
             {
                 GameObject.Destroy(this);
             }
-            else if (Main.config.bManualRefill)
+            else if (CustomiseOxygenPlugin.config.bManualRefill)
             {
                 this.oxygen.oxygenAvailable = this.oxygen.oxygenCapacity;
             }
@@ -50,9 +52,9 @@ namespace CustomiseOxygen.Patches
                 return;
             }
 
-            if (Main.config.GetCapacityOverride(this.techType, this.oxygen.oxygenCapacity, out float capacityOverride, out float capacityMultiplier))
+            if (CustomiseOxygenPlugin.config.GetCapacityOverride(this.techType, this.oxygen.oxygenCapacity, out float capacityOverride, out float capacityMultiplier))
             {
-                bool bIsManual = Main.config.bManualRefill;
+                bool bIsManual = CustomiseOxygenPlugin.config.bManualRefill;
                 Log.LogDebug($"CustomiseOxygen.Main.GetCapacityOverride returned true with values of capacityOverride={capacityOverride}, capacityMultiplier={capacityMultiplier}");
                 if (capacityOverride > 0)
                     this.oxygen.oxygenCapacity = capacityOverride;

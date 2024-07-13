@@ -1,16 +1,35 @@
-﻿using System;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.IO;
 using System.Reflection;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Assets.Gadgets;
+using Nautilus.Crafting;
+using Nautilus.Utility;
+using Nautilus.Handlers;
+using Ingredient = CraftData.Ingredient;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+#else
+using RecipeData = SMLHelper.V2.Crafting.TechData;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
-using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
+using SMLHelper.V2.Handlers;
+#endif
 using UnityEngine;
 using UWE;
-using Logger = QModManager.Utility.Logger;
-using FMODUnity;
+#if BEPINEX
+    using BepInEx;
+    using BepInEx.Logging;
+#elif QMM
+    using Logger = QModManager.Utility.Logger;
+#endif
+
+//using FMODUnity;
 using Common;
 
 namespace DWEquipmentBonanza.Equipables
@@ -38,6 +57,7 @@ namespace DWEquipmentBonanza.Equipables
             string friendlyName = "High Capacity Booster Tank",
             string description = "Booster tank with increased oxygen capacity.") : base(classId, friendlyName, description)
         {
+            //Console.WriteLine($"{this.ClassID} constructing");
             //CoroutineHost.StartCoroutine(PostPatchSetup());
             OnFinishedPatching += () =>
             {
@@ -92,6 +112,8 @@ namespace DWEquipmentBonanza.Equipables
             return icon ??= SpriteManager.Get(TechType.HighCapacityTank, null);
         }
 
+#if NAUTILUS
+#else
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             // We're not using a separate PreparePrefab() method, because this object only exists in BelowZero.
@@ -146,6 +168,7 @@ namespace DWEquipmentBonanza.Equipables
 
             gameObject.Set(prefab);
         }
+#endif
 
     }
 
@@ -157,6 +180,7 @@ namespace DWEquipmentBonanza.Equipables
 
         public IonBoosterTank() : base("IonBoosterTank", "Ion Booster Tank", "Booster tank upgraded using Architect hybrid technology; consumes less oxygen while boosting")
         {
+            //Console.WriteLine($"{this.ClassID} constructing");
 
         }
 
@@ -174,10 +198,12 @@ namespace DWEquipmentBonanza.Equipables
                 )
             };
         }
+
+#if NAUTILUS
+#else
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             // We're not using a separate PreparePrefab() method, because this object only exists in BelowZero.
-            // In the event 
 
             CoroutineTask<GameObject> task;
             Oxygen oxy;
@@ -250,6 +276,7 @@ namespace DWEquipmentBonanza.Equipables
 
             gameObject.Set(prefab);
         }
+#endif
     }
 #endif
 }

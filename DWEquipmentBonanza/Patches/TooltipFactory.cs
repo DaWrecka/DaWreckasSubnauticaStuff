@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Common;
 using System.Diagnostics;
-#if SUBNAUTICA_STABLE
+#if SN1
 using Common.Interfaces;
 #endif
 
@@ -18,7 +19,7 @@ namespace DWEquipmentBonanza.Patches
 	[HarmonyPatch(typeof(TooltipFactory))]
     public class TooltipFactoryPatches
     {
-#if SUBNAUTICA_STABLE
+#if SN1
         public static bool GetInventoryDescription(StringBuilder sb, GameObject obj)
         {
             var component = obj.GetComponent<IInventoryDescriptionSN1>();
@@ -69,8 +70,8 @@ namespace DWEquipmentBonanza.Patches
 		public static IEnumerable<CodeInstruction> ItemCommonsTranspiler(IEnumerable<CodeInstruction> instructions)
 		{
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
-#if SUBNAUTICA_STABLE
-			MethodInfo getDescription = typeof(TooltipFactoryPatches).GetMethod(nameof(TooltipFactoryPatches.GetInventoryDescription));
+#if SN1
+            MethodInfo getDescription = typeof(TooltipFactoryPatches).GetMethod(nameof(TooltipFactoryPatches.GetInventoryDescription));
 			if (getDescription == null)
 				throw new Exception("Failed to get MethodInfo for TooltipFactoryPatches.GetInventoryDescription");
 
@@ -92,11 +93,11 @@ namespace DWEquipmentBonanza.Patches
 
 			for (int i = 0; i < codes.Count; i++)
 			{
-#if SUBNAUTICA_STABLE
-				/*
+#if SN1
+                /*
 				 Our target pattern is very simple: We want to find the call to TooltipFactory.WriteTitle. That's all we need to find.
 				*/
-				if (codes[i].Calls(writeTargetMethod))
+                if (codes[i].Calls(writeTargetMethod))
 				{
 					// This is where things get a little more complicated. In effect, we need to replace:
 					//		bool flag = true;
@@ -150,7 +151,7 @@ namespace DWEquipmentBonanza.Patches
 		}
 
 #if BELOWZERO
-		[HarmonyPatch("GetBarValue")]
+		[HarmonyPatch("GetBarValue", new[] { typeof(Pickupable) } )]
 		[HarmonyTranspiler]
 		public static IEnumerable<CodeInstruction> GetBarValueTranspiler(IEnumerable<CodeInstruction> instructions)
 		{

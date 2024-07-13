@@ -119,12 +119,12 @@ namespace ConsoleBatchFiles
             string[] lines = File.ReadAllLines(filePath);
             /*foreach (string s in lines)
             {
-                //Logger.Log(Logger.Level.Debug, $"Read line '{s}' from file", null, true);
+                //Log.LogDebug($"Read line '{s}' from file", null, true);
                 //DevConsole.InternalSendConsoleCommand(s);
                 DevConsole.SendConsoleCommand(s);
             }*/
             CoroutineHost.StartCoroutine(ExecuteScript(BatchName, lines));
-            //Logger.Log(Logger.Level.Debug, $"Done reading and executing {lines.Length} lines from file {filePath}", null, true);
+            //Log.LogDebug($"Done reading and executing {lines.Length} lines from file {filePath}", null, true);
         }
 
         private static IEnumerator ExecuteScript(string filename, string[] lines)
@@ -140,7 +140,7 @@ namespace ConsoleBatchFiles
 
             foreach (string s in lines)
             {
-                //Logger.Log(Logger.Level.Debug, $"Read line '{s}' from file", null, true);
+                //Log.LogDebug($"Read line '{s}' from file", null, true);
                 ErrorMessage.AddMessage(s);
                 //DevConsole.InternalSendConsoleCommand(s);
                 string[] args = s.Split(new string[] { " " }, 2, System.StringSplitOptions.RemoveEmptyEntries);

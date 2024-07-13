@@ -1,10 +1,24 @@
 ﻿using System.Collections.Generic;
-using SMLHelper.V2.Crafting;
 using UnityEngine;
 using DWEquipmentBonanza.MonoBehaviours;
-#if SUBNAUTICA_STABLE
-    using RecipeData = SMLHelper.V2.Crafting.TechData;
-    using Sprite = Atlas.Sprite;
+using Main = DWEquipmentBonanza.DWEBPlugin;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
+using SMLHelper.V2.Assets;
+using SMLHelper.V2.Crafting;
+using SMLHelper.V2.Handlers;
+    #if SN1
+        using RecipeData = SMLHelper.V2.Crafting.TechData;
+    #endif
+#endif
+#if SN1
+using Sprite = Atlas.Sprite;
     using Object = UnityEngine.Object;
 #endif
 
@@ -15,16 +29,28 @@ namespace DWEquipmentBonanza.VehicleModules
     {
         public override EquipmentType EquipmentType => EquipmentType.SeamothModule;
         public override QuickSlotType QuickSlotType => QuickSlotType.Passive;
-        protected override TechType template => TechType.SeamothSolarCharge;
+
+#if NAUTILUS
+        protected override TechType templateType => TechType.SeamothSolarCharge;
+        protected override string templateClassId => string.Empty;
+
+        public override void FinalisePrefab(CustomPrefab prefab)
+        {
+            base.FinalisePrefab(prefab);
+            SeamothUpdater.AddChargerType(this.TechType, ChargerWeight);
+        }
+#endif
 
         public SeamothChargerModule(string classID,
             string friendlyName,
             string description) : base(classID, friendlyName, description)
         {
+#if !NAUTILUS
             OnFinishedPatching += () =>
             {
                 SeamothUpdater.AddChargerType(this.TechType, ChargerWeight);
             };
+#endif
         }
     }
 
@@ -122,4 +148,4 @@ namespace DWEquipmentBonanza.VehicleModules
         }
     }
 #endif
-                    }
+}

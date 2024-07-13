@@ -1,4 +1,8 @@
-﻿using QModManager.API.ModLoading;
+﻿using BepInEx;
+#if QMM
+	using QModManager.API.ModLoading;
+	using Logger = QModManager.Utility.Logger;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;

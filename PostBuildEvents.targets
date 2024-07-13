@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <PropertyGroup>
-    <PreBuildEvent>echo GameDir: $(GameDir)
-echo DataFolder: $(DataFolder)
-echo SMLHelperFolder: $(SMLHelperFolder)</PreBuildEvent>
-    <PostBuildEvent>echo on
-pwsh "$(SolutionDir)post-build.ps1" -Config $(ConfigurationName) -ProjectDir "$(ProjectDir)\" -GameDir "$(GameDir)" -TargetPath "$(TargetPath)" -AssemblyName "$(AssemblyName)" -SolutionDir "$(SolutionDir)"</PostBuildEvent>
-  </PropertyGroup>
+	<PropertyGroup>
+		<PreBuildEvent>
+echo GameDir: '$(GameDir)'
+echo DataFolder: '$(DataFolder)'
+echo SMLHelperFolder: '$(SMLHelperFolder)'
+echo ModBaseDir: '$(ModBaseDir)'
+echo PluginLoaderPath: '$(PluginLoaderPath)'
+echo SolutionDir: '$(SolutionDir)'
+echo UseAsync: '$(UseAsync)'
+echo UseQMM: '$(UseQMM)'
+echo UseSML: '$(UseSML)'
+		</PreBuildEvent>
+		<PostBuildEvent>
+echo on
+pwsh -ExecutionPolicy Unrestricted -file "$(SolutionDir)post-build.ps1" -Config "$(ConfigurationName)" -ProjectDir "$(ProjectDir)\" -GameDir "$(GameDir)" -TargetPath "$(TargetPath)" -AssemblyName "$(AssemblyName)" -SolutionDir "$(SolutionDir)\" -PluginLoaderPath "$(PluginLoaderPath)"
+		</PostBuildEvent>
+	</PropertyGroup>
 </Project>

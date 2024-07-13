@@ -1,14 +1,23 @@
 ﻿using Common;
 using System.Collections;
 using System.Collections.Generic;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Handlers;
-using UnityEngine;
-using Logger = QModManager.Utility.Logger;
-#if SUBNAUTICA_STABLE
-    using RecipeData = SMLHelper.V2.Crafting.TechData;
-    using Sprite = Atlas.Sprite;
+    #if SN1
+        using RecipeData = SMLHelper.V2.Crafting.TechData;
+    #endif
+#endif
+#if SN1
+using Sprite = Atlas.Sprite;
     using Object = UnityEngine.Object;
 #endif
 

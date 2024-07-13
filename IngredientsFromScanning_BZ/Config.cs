@@ -1,15 +1,26 @@
 ﻿using Common;
+#if NAUTILUS
+using Nautilus;
+using Nautilus.Json;
+using Nautilus.Options;
+using Nautilus.Options.Attributes;
+using Ingredient = CraftData.Ingredient;
+using RecipeData = Nautilus.Crafting.RecipeData;
+#else
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Json;
 using SMLHelper.V2.Options;
 using SMLHelper.V2.Options.Attributes;
 using SMLHelper.V2.Utility;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using Logger = QModManager.Utility.Logger;
-#if SUBNAUTICA_STABLE
+#if QMM
+	using Logger = QModManager.Utility.Logger;
+#endif
+#if SN1 && !NAUTILUS
 using RecipeData = SMLHelper.V2.Crafting.TechData;
 #endif
 
@@ -47,8 +58,18 @@ namespace PartsFromScanning.Configuration
 		{
 			switch (e.Id)
 			{
-				// As of the time of writing this comment, there are only two sliders, so a simple 'if/else' would suffice.
-				// I'm hedging my bets in case of adding other sliders in the future, though.
+                // As of the time of writing this comment, there are only two sliders, so a simple 'if/else' would suffice.
+                // I'm hedging my bets in case of adding other sliders in the future, though.
+#if NAUTILUS
+                case "MinComponents":
+                    if ((int)e.Value > maxComponents)
+                        maxComponents = (int)e.Value;
+                    break;
+                case "MaxComponents":
+                    if ((int)e.Value < minComponents)
+                        minComponents = (int)e.Value;
+                    break;
+#else
 				case "MinComponents":
 					if (e.IntegerValue > maxComponents)
 						maxComponents = e.IntegerValue;
@@ -57,6 +78,7 @@ namespace PartsFromScanning.Configuration
 					if (e.IntegerValue < minComponents)
 						minComponents = e.IntegerValue;
 					break;
+#endif
 			}
 		}
 
@@ -75,7 +97,7 @@ namespace PartsFromScanning.Configuration
 			maxComponents = Clamp(maxComponents, MIN_PRIZE, MAX_PRIZE);
 			minComponents = Clamp(minComponents, MIN_PRIZE, maxComponents);
 #if !RELEASE
-			Logger.Log(Logger.Level.Debug, $"Generating prize value between {minComponents} and {maxComponents}");
+			Log.LogDebug($"Generating prize value between {minComponents} and {maxComponents}");
 #endif
 			// maxComponents is intended to be inclusive, but Random.Next(1, X) will always return an integer less than X. So we need to add 1 to maxComponents here to get the results we want.
 			return rng.Next(minComponents, maxComponents + 1);
@@ -155,7 +177,7 @@ namespace PartsFromScanning.Configuration
 						else
 						{
 #if !RELEASE
-							Logger.Log(Logger.Level.Error, $"Could not parse {s.techType} as TechType; check the spelling and/or case");
+							Log.LogError($"Could not parse {s.techType} as TechType; check the spelling and/or case");
 #endif
 							outRecipe = null;
 							return false;
@@ -183,20 +205,9 @@ namespace PartsFromScanning.Configuration
 
 		public List<SSubstitutionEntry> SubstitutionList;
 
-		//private List<SSubstitutionEntry> defaultSubstitutionList
-
 		public float GetWeightForTechType(TechType tech)
 		{
 			return TechWeights.GetOrDefault(tech.ToString(), 1.0f);
-
-			/*if (TechWeights.TryGetValue(tech.ToString(), out float weight))
-			{
-				return weight;
-			}
-			else
-			{
-				return 1.0f;
-			}*/
 		}
 
 		public bool TrySubstituteIngredient(TechType tech, out List<Ingredient> Substitutes)
@@ -206,7 +217,6 @@ namespace PartsFromScanning.Configuration
 			{
 				if (tech.ToString() == SubstitutionList[i].replacedTech)
 				{
-					//for (int j = 0; j < SubstitutionList[i].replacements.Count; j++)
 					foreach (StringIngredient si in SubstitutionList[i].replacements)
 					{
 						if (Enum.TryParse<TechType>(si.techType, out TechType tt))
@@ -216,7 +226,7 @@ namespace PartsFromScanning.Configuration
 						else
 						{
 #if !RELEASE
-							Logger.Log(Logger.Level.Error, $"Failed to parse string '{si.techType}' as TechType; check to make sure the entry is spelled correctly, and using the correct case");
+							Log.LogError($"Failed to parse string '{si.techType}' as TechType; check to make sure the entry is spelled correctly, and using the correct case");
 #endif
 						}
 					}
@@ -236,14 +246,14 @@ namespace PartsFromScanning.Configuration
 			if (InitWeights() | InitRecipeOverrides() | InitSubstitutions())
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Info, "Some configuration settings have been reset to defaults.");
+				Log.LogInfo("Some configuration settings have been reset to defaults.");
 #endif
 				Save();
 			}
 			else
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, "All values present and correct");
+				Log.LogDebug("All values present and correct");
 #endif
 			}
 		}
@@ -253,7 +263,7 @@ namespace PartsFromScanning.Configuration
 			if (TechWeights == null)
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Warn, "No TechWeights found, setting default values");
+				Log.LogWarning("No TechWeights found, setting default values");
 #endif
 				TechWeights = new Dictionary<string, float>() {
 					{ "None", 0f },
@@ -422,7 +432,7 @@ namespace PartsFromScanning.Configuration
 			if (RecipeOverrides == null)
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Warn, "No RecipeOverrides found, setting default values");
+				Log.LogWarning("No RecipeOverrides found, setting default values");
 #endif
 				RecipeOverrides = new List<RecipeOverride>() {
 					new RecipeOverride(
@@ -476,7 +486,7 @@ namespace PartsFromScanning.Configuration
 					new RecipeOverride(
 						"BaseMoonpoolFragment", new List<StringIngredient>()
 						{
-#if SUBNAUTICA_STABLE
+#if SN1
 							new StringIngredient("ScrapMetal", 4),
 #elif BELOWZERO
 							new StringIngredient("ScrapMetal", 2),
@@ -496,7 +506,7 @@ namespace PartsFromScanning.Configuration
 			if (SubstitutionList == null)
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Warn, "No SubstitutionList found, setting default values");
+				Log.LogWarning("No SubstitutionList found, setting default values");
 #endif
 				SubstitutionList = new List<SSubstitutionEntry>() {
 					new SSubstitutionEntry(
@@ -509,7 +519,7 @@ namespace PartsFromScanning.Configuration
 					new SSubstitutionEntry(
 						"PlasteelIngot",
 						new List<StringIngredient>{
-#if SUBNAUTICA_STABLE
+#if SN1
 							new StringIngredient("ScrapMetal", 2),
 							new StringIngredient("Lithium", 1)
 #elif BELOWZERO
@@ -521,7 +531,7 @@ namespace PartsFromScanning.Configuration
 					new SSubstitutionEntry(
 						"TitaniumIngot",
 						new List<StringIngredient>{
-#if SUBNAUTICA_STABLE
+#if SN1
 							new StringIngredient("ScrapMetal", 2)
 #elif BELOWZERO
 							new StringIngredient("ScrapMetal", 1)
@@ -543,7 +553,7 @@ namespace PartsFromScanning.Configuration
 					new SSubstitutionEntry(
 						"Tank",
 						new List<StringIngredient>{
-#if SUBNAUTICA_STABLE
+#if SN1
 							new StringIngredient("Titanium", 3)
 #elif BELOWZERO
 							new StringIngredient("Titanium", 2),
@@ -554,7 +564,7 @@ namespace PartsFromScanning.Configuration
 					new SSubstitutionEntry(
 						"DoubleTank",
 						new List<StringIngredient>{
-#if SUBNAUTICA_STABLE
+#if SN1
 							new StringIngredient("Titanium", 7),
 							new StringIngredient("Glass", 2),
 							new StringIngredient("Silver", 1),
@@ -569,7 +579,7 @@ namespace PartsFromScanning.Configuration
 					new SSubstitutionEntry(
 						"HighCapacityTank",
 						new List<StringIngredient>{
-#if SUBNAUTICA_STABLE
+#if SN1
 							new StringIngredient("Titanium", 7),
 							new StringIngredient("Glass", 2),
 							new StringIngredient("Silver", 1),

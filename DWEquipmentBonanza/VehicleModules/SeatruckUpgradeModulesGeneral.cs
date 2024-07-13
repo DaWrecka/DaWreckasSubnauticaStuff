@@ -1,13 +1,26 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using DWEquipmentBonanza.MonoBehaviours;
 using DWEquipmentBonanza.Patches;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Nautilus.Utility;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
+using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
+#endif
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using System;
 
 namespace DWEquipmentBonanza.VehicleModules
 {
@@ -28,9 +41,9 @@ namespace DWEquipmentBonanza.VehicleModules
 
         protected static Sprite sprite;
 
-        protected virtual void OnFinishedPatch(TechType thisType)
+        protected virtual void OnFinishedPatch()
         {
-            Main.AddModTechType(thisType);
+            Main.AddModTechType(this.TechType);
         }
 
         protected override Sprite GetItemSprite()
@@ -89,7 +102,8 @@ namespace DWEquipmentBonanza.VehicleModules
 
         public SeaTruckUpgradeModule(string classId, string friendlyName, string description) : base(classId, friendlyName, description)
         {
-            OnFinishedPatching += () => this.OnFinishedPatch(this.TechType);
+            //Console.WriteLine($"{this.ClassID} constructing");
+            OnFinishedPatching += OnFinishedPatch;
         }
     }
 
@@ -132,11 +146,11 @@ namespace DWEquipmentBonanza.VehicleModules
             return newGO; // This module doesn't need to modify the prefab at all
         }
 
-        protected override void OnFinishedPatch(TechType thisType)
+        protected override void OnFinishedPatch()
         {
-            base.OnFinishedPatch(thisType);
-            bool success = SeaTruckUpdater.AddRepairModuleType(thisType);
-            Log.LogDebug(($"Finished patching {thisType.AsString()}, added successfully: {success}"));
+            base.OnFinishedPatch();
+            bool success = SeaTruckUpdater.AddRepairModuleType(this.TechType);
+            Log.LogDebug(($"Finished patching {this.TechType.AsString()}, added successfully: {success}"));
         }
 
         public SeatruckRepairModule() : base("SeatruckRepairModule", "SeaTruck Repair Module", "Passively repairs damaged Seatruck and modules for modest energy cost; in active mode, rapidly repairs damage, but at significant energy cost")
@@ -157,17 +171,18 @@ namespace DWEquipmentBonanza.VehicleModules
             return prefab; // This module doesn't need to modify the prefab at all
         }
 
-        protected override void OnFinishedPatch(TechType thisType)
+        protected override void OnFinishedPatch()
         {
-            base.OnFinishedPatch(thisType);
-            bool success = HorsepowerPatches.RegisterHorsepowerModifier(thisType, weightMultiplier);
+            base.OnFinishedPatch();
+            bool success = HorsepowerPatches.RegisterHorsepowerModifier(this.TechType, weightMultiplier);
             //Main.AddSubstitution(thisType, TechType.SeaTruckUpgradeHorsePower);
             //Main.AddUVSpeedModifier(thisType, 0f, 0f);
-            Log.LogDebug(($"Finished patching {thisType.AsString()}, added successfully: {success}"));
+            Log.LogDebug(($"Finished patching {this.TechType.AsString()}, added successfully: {success}"));
         }
 
         public SeaTruckHorsepowerUpgradeBase(string classId, string friendlyName, string description) : base(classId, friendlyName, description)
-        { }
+        {
+        }
     }
 
     internal class SeaTruckUpgradeHorsepower2 : SeaTruckHorsepowerUpgradeBase<SeaTruckUpgradeHorsepower2>

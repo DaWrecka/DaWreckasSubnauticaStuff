@@ -1,4 +1,4 @@
-﻿#if SUBNAUTICA_STABLE
+﻿#if SN1
 using System;
 using Sprite = Atlas.Sprite;
 #elif BELOWZERO
@@ -14,7 +14,7 @@ namespace Common.Utility
         {
             try
             {
-#if SUBNAUTICA_STABLE
+#if SN1
                 if (defaultSprite == null)
                     return SpriteManager.GetWithNoDefault(tt);
                 else

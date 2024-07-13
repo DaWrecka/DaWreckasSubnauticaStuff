@@ -1,9 +1,21 @@
 ﻿using Common;
 using PowerOverYourPower.Patches;
 using HarmonyLib;
-using QModManager.API.ModLoading;
+#if BEPINEX
+    using BepInEx;
+    using BepInEx.Logging;
+#elif QMM
+	using QModManager.API.ModLoading;
+	using SMLHelper.V2.Handlers;
+#endif
+#if NAUTILUS
+using Nautilus;
+using Nautilus.Options;
+using Nautilus.Handlers;
+#else
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
+#endif
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,15 +27,33 @@ using UnityEngine;
 
 namespace PowerOverYourPower
 {
-    [QModCore]
-    public class Main
+#if BEPINEX
+    [BepInPlugin(GUID, pluginName, version)]
+#if BELOWZERO
+	[BepInProcess("SubnauticaZero.exe")]
+#elif SN1
+    [BepInProcess("Subnautica.exe")]
+    public class POYPPlugin : BaseUnityPlugin
     {
+#elif QMM
+    [QModCore]
+	public static class POYPPlugin
+    {
+#endif
+        #region[Declarations]
+        public const string
+            MODNAME = "PowerOverYourPower",
+            AUTHOR = "dawrecka",
+            GUID = "com." + AUTHOR + "." + MODNAME;
+        private const string pluginName = "Power Over Your Power";
+        public const string version = "0.5.0.0";
+        #endregion
+
+        private static readonly Harmony harmony = new Harmony(GUID);
         private static Assembly myAssembly = Assembly.GetExecutingAssembly();
         private static string ModPath = Path.GetDirectoryName(myAssembly.Location);
         internal static string AssetsFolder = Path.Combine(ModPath, "Assets");
 
-        public const string version = "0.5.0.0";
-        public const string modName = "PowerOverYourPower";
         internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
 
         internal static void AddModTechType(TechType tech, GameObject prefab = null)
@@ -36,17 +66,14 @@ namespace PowerOverYourPower
             return TechTypeUtils.GetModTechType(key);
         }
 
+#if QMM
         [QModPatch]
-        public static void Load()
+#endif
+        public void Awake()
         {
             var assembly = Assembly.GetExecutingAssembly();
-            new Harmony($"DaWrecka_{assembly.GetName().Name}").PatchAll(assembly);
+            harmony.PatchAll(assembly);
             Batteries.PostPatch();
-        }
-
-        [QModPostPatch]
-        internal static void PostPatch()
-        {
         }
     }
 }

@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+#if !LEGACY
+using TMPro;
+#endif
 
 namespace ShowAltitude
 {
@@ -23,9 +26,9 @@ namespace ShowAltitude
                 int depth = int.MinValue;
                 if (Player.main != null)
                 {
-#if SUBNAUTICA
+#if LEGACY
                     depth = Mathf.FloorToInt(Ocean.main.GetOceanLevel() - Player.main.gameObject.transform.position.y);
-#elif BELOWZERO
+#else
                     depth = Mathf.FloorToInt(Ocean.GetOceanLevel() - Player.main.gameObject.transform.position.y);
 #endif
                     if (depth != LastPlayerDepth)
@@ -42,7 +45,7 @@ namespace ShowAltitude
             else if (__instance._depthMode == uGUI_DepthCompass.DepthMode.Submersible)
             {
                 int depth = 0;
-#if SUBNAUTICA_STABLE
+#if SN1
                 Vehicle vehicle = Player.main.GetVehicle();
                 if (vehicle != null)
                 {

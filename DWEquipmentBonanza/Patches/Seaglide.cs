@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
-using QModManager.Utility;
 using UnityEngine;
 using System.Reflection;
 using System.Reflection.Emit;

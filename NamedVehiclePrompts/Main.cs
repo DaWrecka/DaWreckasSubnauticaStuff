@@ -5,8 +5,8 @@ using HarmonyLib;
 using QModManager.API.ModLoading;
 //using SMLHelper.V2.Crafting;
 using System.Reflection;
-#if SUBNAUTICA_STABLE
-#elif BELOWZERO || SUBNAUTICA_EXP
+#if SN1
+#elif BELOWZERO
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -56,7 +56,7 @@ namespace NamedVehiclePrompts
                     prompt = prompt.Replace("<vehicle>", VehicleName);
 #if !RELEASE
 
-                //Logger.Log(Logger.Level.Debug, $"Main.TryGetVehiclePrompt: got prompt value of {prompt} with key {targetKey}"); 
+                //Log.LogDebug($"Main.TryGetVehiclePrompt: got prompt value of {prompt} with key {targetKey}"); 
 #endif
             }
 
@@ -80,7 +80,7 @@ namespace NamedVehiclePrompts
                 try
                 {
                     jsonData = JsonMapper.ToObject(streamReader);
-                    //Logger.Log(Logger.Level.Debug, $"Read JSON data of: {JsonConvert.SerializeObject(jsonData, Oculus.Newtonsoft.Json.Formatting.Indented)}");
+                    //Log.LogDebug($"Read JSON data of: {JsonConvert.SerializeObject(jsonData, Oculus.Newtonsoft.Json.Formatting.Indented)}");
                 }
                 catch (Exception exception)
                 {

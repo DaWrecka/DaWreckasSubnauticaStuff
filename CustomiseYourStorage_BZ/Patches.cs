@@ -1,5 +1,7 @@
 ﻿using HarmonyLib;
+#if QMM
 using Logger = QModManager.Utility.Logger;
+#endif
 using CustomiseYourStorage;
 using System.Collections.Generic;
 using System.Reflection;
@@ -34,33 +36,33 @@ namespace CustomiseYourStorage.Patches
 			string ContainerID = (techType.ToString() + "." + name).Replace("(Clone)", "");
 			string lowerID = ContainerID.ToLower();
 
-#if SUBNAUTICA_STABLE
-			if (lowerID == "escapepod.storagecontainer")
+#if SN1
+            if (lowerID == "escapepod.storagecontainer")
 #elif BELOWZERO
 			if (lowerID == "none.storagecontiner") //(sic)
 #endif
 			{
 				// Special processing for the Lifepod storage locker; Note the mis-spelling of the BZ string above.
 				//Vector2int newLifepodLockerSize = Main.config.LifepodLockerSize;
-				int X = Main.config.DroppodWidth;
-				int Y = Main.config.DroppodHeight;
+				int X = CustomiseStoragePlugin.config.DroppodWidth;
+				int Y = CustomiseStoragePlugin.config.DroppodHeight;
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Setting LifePod locker to size ({X}, {Y})");
+				Log.LogDebug($"Setting LifePod locker to size ({X}, {Y})");
 #endif
 				__instance.Resize(X, Y);
-				if (Main.config.defaultLifepodLockerInventoryTypes.Count > 0)
+				if (CustomiseStoragePlugin.config.defaultLifepodLockerInventoryTypes.Count > 0)
 				{
-					CoroutineHost.StartCoroutine(AddLifepodInventory(__instance, Main.config.defaultLifepodLockerInventoryTypes));
+					CoroutineHost.StartCoroutine(AddLifepodInventory(__instance, CustomiseStoragePlugin.config.defaultLifepodLockerInventoryTypes));
 				}
 				return;
 			}
 
-#if SUBNAUTICA_STABLE
-			if (lowerID == "none.submarine_locker_01_door")
+#if SN1
+            if (lowerID == "none.submarine_locker_01_door")
 			{
-				int x = Main.config.CyclopsWidth;
-				int y = Main.config.CyclopsHeight;
-				Logger.Log(Logger.Level.Debug, $"Setting Cyclops locker to size ({x}, {y})");
+				int x = CustomiseStoragePlugin.config.CyclopsWidth;
+				int y = CustomiseStoragePlugin.config.CyclopsHeight;
+				Log.LogDebug($"Setting Cyclops locker to size ({x}, {y})");
 				__instance.Resize(x, y);
 				return;
 			}
@@ -69,15 +71,15 @@ namespace CustomiseYourStorage.Patches
 			if (techType == TechType.None)
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Container {name} has TechType of None and is not the Lifepod locker, skipping");
+				Log.LogDebug($"Container {name} has TechType of None and is not the Lifepod locker, skipping");
 #endif
 				return;
 			}
 
-			if (Main.StorageBlacklist.Contains(techType))
+			if (CustomiseStoragePlugin.StorageBlacklist.Contains(techType))
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Container TechType {techType} present on blacklist, skipping");
+				Log.LogDebug($"Container TechType {techType} present on blacklist, skipping");
 #endif
 				return;
 			}
@@ -87,10 +89,10 @@ namespace CustomiseYourStorage.Patches
 
 			Vector2int NewSize;
 			//if (Main.config.TryGetModSize(ContainerID, out NewSize))
-			if (Main.config.TryGetModSize(lowerID, out NewSize))
+			if (CustomiseStoragePlugin.config.TryGetModSize(lowerID, out NewSize))
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Configuration for storage container {ContainerID} was found with value of ({NewSize.x}, {NewSize.y})");
+				Log.LogDebug($"Configuration for storage container {ContainerID} was found with value of ({NewSize.x}, {NewSize.y})");
 #endif
 				__instance.Resize(NewSize.x, NewSize.y);
 				return;
@@ -100,20 +102,20 @@ namespace CustomiseYourStorage.Patches
 			{
 				// TryGetModSize returned false, but with a non-zero vector; this should mean that the value was found, but with default value.
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Storage container {ContainerID} was found, but with default values; nothing to do.");
+				Log.LogDebug($"Storage container {ContainerID} was found, but with default values; nothing to do.");
 #endif
 				return;
 			}
 #if !RELEASE
 
-			Logger.Log(Logger.Level.Info, $"Storage container identifier {ContainerID} was not found in configuration settings; using default values");
+			Log.LogDebug($"Storage container identifier {ContainerID} was not found in configuration settings; using default values");
 #endif
-			Main.config.AddContainer(lowerID, __instance.width, __instance.height);
+			CustomiseStoragePlugin.config.AddContainer(lowerID, __instance.width, __instance.height);
 		}
 
 		public static IEnumerator AddLifepodInventory(StorageContainer container, List<TechType> newTechTypes)
 		{
-			if (!Main.config.useDropPodInventory)
+			if (!CustomiseStoragePlugin.config.useDropPodInventory)
 				yield break;
 
 			if (AlreadyInitialised())
@@ -122,13 +124,13 @@ namespace CustomiseYourStorage.Patches
 			foreach (TechType tt in newTechTypes)
 			{
 				Log.LogDebug($"Adding item {tt.AsString()} to drop pod locker");
-#if SUBNAUTICA_STABLE
-				GameObject go = CraftData.InstantiateFromPrefab(tt);
-				InventoryItem inventoryItem2 = new InventoryItem(go.GetComponent<Pickupable>());
-#elif BELOWZERO
-				TaskResult<GameObject> result = new TaskResult<GameObject>();
+#if ASYNC
+                TaskResult<GameObject> result = new TaskResult<GameObject>();
 				yield return CraftData.InstantiateFromPrefabAsync(tt, result, false);
 				InventoryItem inventoryItem2 = new InventoryItem(result.Get().GetComponent<Pickupable>());
+#else
+                GameObject go = CraftData.InstantiateFromPrefab(tt);
+                InventoryItem inventoryItem2 = new InventoryItem(go.GetComponent<Pickupable>());
 #endif
 
 				inventoryItem2.item.Initialize();
@@ -170,17 +172,17 @@ namespace CustomiseYourStorage.Patches
 			if (techType == TechType.None)
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Info, $"Container {name} has TechType of None and is not the Lifepod locker, skipping");
+				Log.LogDebug($"Container {name} has TechType of None and is not the Lifepod locker, skipping");
 #endif
 				return;
 			}
 
 
 			Vector2int NewSize;
-			if (Main.config.TryGetModSize(ContainerID, out NewSize))
+			if (CustomiseStoragePlugin.config.TryGetModSize(ContainerID, out NewSize))
 			{
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Configuration for items container {ContainerID} was found with value of ({NewSize.x}, {NewSize.y})");
+				Log.LogDebug($"Configuration for items container {ContainerID} was found with value of ({NewSize.x}, {NewSize.y})");
 #endif
 				__instance.container.Resize(NewSize.x, NewSize.y);
 				return;
@@ -190,15 +192,15 @@ namespace CustomiseYourStorage.Patches
 			{
 				// TryGetNewSize returned false, but with a non-zero vector; this should mean that the value was found, but with default value.
 #if !RELEASE
-				Logger.Log(Logger.Level.Debug, $"Items container {ContainerID} was found, but with default values; nothing to do.");
+				Log.LogDebug($"Items container {ContainerID} was found, but with default values; nothing to do.");
 #endif
 				return;
 			}
 #if !RELEASE
 
-			Logger.Log(Logger.Level.Info, $"Items container identifier {ContainerID} was not found in configuration settings; using default values");
+			Log.LogDebug($"Items container identifier {ContainerID} was not found in configuration settings; using default values");
 #endif
-			Main.config.AddContainer(lowerID, __instance.width, __instance.height);
+			CustomiseStoragePlugin.config.AddContainer(lowerID, __instance.width, __instance.height);
 		}
 	}
 
@@ -207,11 +209,11 @@ namespace CustomiseYourStorage.Patches
 	{
 		private static void Postfix(FiltrationMachine __instance)
 		{
-			int maxSalt = Main.config.FiltrationSalt;
-			int maxWater = Main.config.FiltrationWater;
-			Vector2int newContainerSize = new Vector2int(Main.config.FiltrationWidth, Main.config.FiltrationHeight);
+			int maxSalt = CustomiseStoragePlugin.config.FiltrationSalt;
+			int maxWater = CustomiseStoragePlugin.config.FiltrationWater;
+			Vector2int newContainerSize = new Vector2int(CustomiseStoragePlugin.config.FiltrationWidth, CustomiseStoragePlugin.config.FiltrationHeight);
 #if !RELEASE
-			Logger.Log(Logger.Level.Debug, $"Reconfiguring Filtration Machine {__instance.gameObject.name} with configuration values of: maxSalt {maxSalt}, maxWater {maxWater}, new size ({newContainerSize.x}, {newContainerSize.y})");
+			Log.LogDebug($"Reconfiguring Filtration Machine {__instance.gameObject.name} with configuration values of: maxSalt {maxSalt}, maxWater {maxWater}, new size ({newContainerSize.x}, {newContainerSize.y})");
 #endif
 
 			__instance.maxSalt = maxSalt;
@@ -229,7 +231,7 @@ namespace CustomiseYourStorage.Patches
 		private static void Postfix(BaseBioReactor __instance)
 		{
 			ItemsContainer container = (ItemsContainer)BaseBioReactor_container.GetValue(__instance);
-			container.Resize(Main.config.BioreactorWidth, Main.config.BioreactorHeight);
+			container.Resize(CustomiseStoragePlugin.config.BioreactorWidth, CustomiseStoragePlugin.config.BioreactorHeight);
 		}
 	}
 }

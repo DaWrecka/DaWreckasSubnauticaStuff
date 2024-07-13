@@ -1,11 +1,19 @@
 ﻿using Common;
 using System.Collections;
 using System.Collections.Generic;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Handlers;
+#endif
 using UnityEngine;
-using Logger = QModManager.Utility.Logger;
 
 namespace DWEquipmentBonanza.VehicleModules
 {

@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using DWEquipmentBonanza;
 using HarmonyLib;
 using System;
@@ -8,21 +9,45 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace CombinedItems.Patches
+namespace DWEquipmentBonanza.Patches
 {
-	[HarmonyPatch(typeof(DamageSystem))]
-	internal class DamageSystemPatches
+	[HarmonyPatch(typeof(DamageSystem), nameof(DamageSystem.CalculateDamage))]
+	public class DamageSystemPatches
 	{
+#if SN1
+        [HarmonyPatch(new[]
+		{
+			typeof(float), typeof(DamageType), typeof(GameObject), typeof(GameObject)
+		})]
 		[HarmonyPostfix]
-		[HarmonyPatch(nameof(DamageSystem.CalculateDamage))]
-		public static float PostCalculateDamage(float damage, DamageType type, GameObject target, GameObject dealer = null)
+		public static float PostCalculateDamage(
+			float preResult,
+			float damage,
+			DamageType type,
+			GameObject target,
+			GameObject dealer = null)
+#elif BELOWZERO
+        [HarmonyPatch(new[]
+		{
+			typeof(TechType), typeof(float), typeof(float), typeof(DamageType), typeof(GameObject), typeof(GameObject)
+		})]
+        [HarmonyPostfix]
+        public static float PostCalculateDamage(
+			float preResult,
+			TechType techType,
+			float damageModifier,
+			float damage,
+			DamageType type,
+			GameObject target,
+			GameObject dealer = null)
+#endif
 		{
 			TechType targetTT = target != null ? CraftData.GetTechType(target) : TechType.None;
 			TechType dealerTT = dealer != null ? CraftData.GetTechType(dealer) : TechType.None;
 			//Log.LogDebug($"DamageSystemPatches.PostCalculateDamage executing: parameters (damage = {damage}, DamageType = {type}, target = {targetTT.AsString()}, dealer = {dealerTT.AsString()}", null, true);
 
-			float baseDamage = damage;
-			float newDamage = damage;
+			float baseDamage = preResult;
+			float newDamage = preResult;
 			if (target == Player.main.gameObject)
 			{
 
@@ -30,7 +55,7 @@ namespace CombinedItems.Patches
 				{
 					if (Player.main.GetVehicle() != null)
 					{
-						//Logger.Log(Logger.Level.Debug, "Player in vehicle, negating damage");
+						//Log.LogDebug("Player in vehicle, negating damage");
 						if (Player.main.acidLoopingSound.playing)
 							Player.main.acidLoopingSound.Stop();
 						return 0f;
@@ -44,7 +69,7 @@ namespace CombinedItems.Patches
 				// This makes it insufficient for the Brine Suit, which has multiple components that all reduce the final damage by a fixed proportion of the original damage.
 				// There's still a workaround for this, in that a fourth DamageModifier could be added/removed when the set is completed/broken, one that does set acid damage to zero.
 
-				Equipment equipment = Inventory.main.equipment;
+				Equipment equipment = Inventory.Get().equipment;
 				Player __instance = Player.main;
 				foreach (string s in Main.playerSlots)
 				{

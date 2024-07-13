@@ -1,5 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using System.Collections.Generic;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Nautilus.Utility;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
+using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
+using SMLHelper.V2.Handlers;
+using SMLHelper.V2.Utility;
+#endif
 using DWEquipmentBonanza.MonoBehaviours;
 
 namespace DWEquipmentBonanza.VehicleModules
@@ -26,9 +40,6 @@ namespace DWEquipmentBonanza.VehicleModules
 
         public SeatruckThermalModule() : base("SeatruckThermalModule", "SeaTruck Thermal Charger", "Recharges SeaTruck power cells in hot zones. Limited stacking ability.")
         {
-            OnFinishedPatching += () =>
-            {
-            };
         }
     }
 
@@ -55,9 +66,6 @@ namespace DWEquipmentBonanza.VehicleModules
 
         public SeatruckThermalModuleMk2() : base("SeatruckThermalModuleMk2", "SeaTruck Thermal Charger Mk2", "Recharges SeaTruck power cells in hot zones, and contains an internal backup battery. Limited stacking ability.")
         {
-            OnFinishedPatching += () =>
-            {
-            };
         }
     }
 #endif

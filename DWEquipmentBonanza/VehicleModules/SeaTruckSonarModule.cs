@@ -1,11 +1,29 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using System.Collections;
 using System.Collections.Generic;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Nautilus.Utility;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Handlers;
+using SMLHelper.V2.Utility;
+#endif
 using UnityEngine;
+#if BEPINEX
+    using BepInEx;
+    using BepInEx.Logging;
+#elif QMM
 using Logger = QModManager.Utility.Logger;
+#endif
+
 using Common.Utility;
 
 namespace DWEquipmentBonanza.VehicleModules
@@ -63,13 +81,14 @@ namespace DWEquipmentBonanza.VehicleModules
             gameObject.Set(modPrefab);
         }
 
+        protected override void OnFinishedPatch()
+        {
+            base.OnFinishedPatch();
+            CraftDataHandler.SetEnergyCost(this.TechType, EnergyCost);
+        }
+
         public SeaTruckSonarModule() : base("SeaTruckSonarModule", "SeaTruck Sonar Module", "A dedicated system for detecting and displaying topographical data on the HUD.")
         {
-            OnFinishedPatching += () =>
-            {
-                Main.AddModTechType(this.TechType);
-                CraftDataHandler.SetEnergyCost(this.TechType, EnergyCost);
-            };
         }
     }
 #endif

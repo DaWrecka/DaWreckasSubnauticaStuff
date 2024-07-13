@@ -1,5 +1,5 @@
-﻿using DWEquipmentBonanza.Patches;
-using SMLHelper.V2.Assets;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using DWEquipmentBonanza.Patches;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,17 +8,36 @@ using System.Threading.Tasks;
 using UnityEngine;
 using System.Collections;
 using UWE;
-using SMLHelper.V2.Crafting;
-
-#if SUBNAUTICA_STABLE
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Assets.Gadgets;
+using Nautilus.Crafting;
+using Nautilus.Utility;
+using Nautilus.Handlers;
+using Ingredient = CraftData.Ingredient;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+#else
 using RecipeData = SMLHelper.V2.Crafting.TechData;
+using SMLHelper.V2.Assets;
+using SMLHelper.V2.Crafting;
+using SMLHelper.V2.Utility;
+using SMLHelper.V2.Handlers;
+#endif
+
+#if LEGACY
 using Sprite = Atlas.Sprite;
 using Object = UnityEngine.Object;
 using Oculus.Newtonsoft;
 using Oculus.Newtonsoft.Json;
-#elif BELOWZERO
+#else
 using Newtonsoft;
 using Newtonsoft.Json;
+#endif
+
+#if SN1
+using Sprite = Atlas.Sprite;
+using Object = UnityEngine.Object;
 #endif
 using Common.Utility;
 
@@ -31,14 +50,21 @@ namespace DWEquipmentBonanza.Equipables
 		protected static GameObject swimChargePrefab;
 		private static string friendlyName => "Ultra Glide Swim Charge Fins";
 		private static string description => "Ultra Glide Fins with the additional tool-charging circuits of the Swim Charge Fins";
+		private const float speedModifier = 3f;
 
-		public DWUltraGlideSwimChargeFins() : base("DWUltraGlideSwimChargeFins", friendlyName, description)
+#if NAUTILUS
+        protected override TechType templateType => TechType.UltraGlideFins;
+        protected override string templateClassId => string.Empty;
+#endif
+
+        public DWUltraGlideSwimChargeFins() : base("DWUltraGlideSwimChargeFins", friendlyName, description)
 		{
-			OnFinishedPatching += () =>
+            //Console.WriteLine($"{this.ClassID} constructing");
+            OnFinishedPatching += () =>
 			{
 				Main.AddModTechType(this.TechType);
 				EquipmentPatch.AddSubstitution(this.TechType, TechType.SwimChargeFins);
-				UnderwaterMotorPatches.AddSpeedModifier(this.TechType, 3f);
+				UnderwaterMotorPatches.AddSpeedModifier(this.TechType, speedModifier);
 				Reflection.AddCompoundTech(this.TechType, new List<TechType>()
 				{
 					TechType.SwimChargeFins,
@@ -80,8 +106,8 @@ namespace DWEquipmentBonanza.Equipables
 
         private IEnumerator PostPatchSetup()
 		{
-#if SUBNAUTICA_STABLE
-			while (icon == null)
+#if SN1
+            while (icon == null)
 			{
 				icon = SpriteManager.GetWithNoDefault(TechType.SwimChargeFins);
 				yield return new WaitForEndOfFrame();
@@ -95,16 +121,18 @@ namespace DWEquipmentBonanza.Equipables
 			yield break;
 		}
 
-#if SUBNAUTICA_STABLE
-		public override GameObject GetGameObject()
-        {
-			if (prefab == null)
-			{
-				prefab = PreparePrefab(CraftData.GetPrefabForTechType(TechType.UltraGlideFins));
-			}
-            return prefab;
-        }
+		public GameObject PreparePrefab(GameObject upperPrefab)
+		{
+			GameObject go = GameObject.Instantiate<GameObject>(upperPrefab);
+			go.EnsureComponent<UpdateSwimCharge>();
+
+#if !NAUTILUS
+            ModPrefabCache.AddPrefab(go, false);
 #endif
+			return go;
+		}
+#if NAUTILUS
+#elif ASYNC
 		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
 			if (prefab == null)
@@ -118,13 +146,17 @@ namespace DWEquipmentBonanza.Equipables
 			gameObject.Set(prefab);
         }
 
-		public GameObject PreparePrefab(GameObject upperPrefab)
-		{
-			GameObject go = GameObject.Instantiate<GameObject>(upperPrefab);
-			go.EnsureComponent<UpdateSwimCharge>();
+#else
+        public override GameObject GetGameObject()
+        {
+			if (prefab == null)
+			{
+				prefab = PreparePrefab(CraftData.GetPrefabForTechType(TechType.UltraGlideFins));
+			}
+            return prefab;
+        }
 
-			ModPrefabCache.AddPrefab(go, false);
-			return go;
-		}
+#endif
+
     }
 }

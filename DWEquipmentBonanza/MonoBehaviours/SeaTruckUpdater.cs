@@ -1,4 +1,5 @@
-﻿using DWEquipmentBonanza.VehicleModules;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using DWEquipmentBonanza.VehicleModules;
 using Common;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using System.Reflection;
+using Newtonsoft.Json;
 
 namespace DWEquipmentBonanza.MonoBehaviours
 {
@@ -282,8 +284,20 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		internal override void PostUpgradeModuleChange(int slotID, TechType techType, bool added, MonoBehaviour instance)
 		{
-			//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}(TechType: {techType.AsString()}) begin; repairModuleTechTypes.Contains() returns: {repairModuleTechTypes.Contains(techType)}");
+            string slot = "";
+            SeaTruckUpgrades stg = instance as SeaTruckUpgrades;
+			List<string> slots = new List<string>();
+			stg.modules.GetSlots(EquipmentType.SeaTruckModule, slots);
+			Log.LogInfo($"Got slots: {JsonConvert.SerializeObject(slots, Newtonsoft.Json.Formatting.Indented)}");
+
+			if (slotID < 0)
+			{
+				Log.LogError($"SeaTruckUpdater.PostUpgradeModuleChange: Invalid slotID for TechType {techType.AsString()} with added: {added}");
+				//return;
+			}
+
+			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}(TechType: {techType.AsString()}) begin; repairModuleTechTypes.Contains() returns: {repairModuleTechTypes.Contains(techType)}");
 			if (parentVehicle == null && instance != null)
 			{
 				parentVehicle = instance;
@@ -295,7 +309,6 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			if (techType == quantumModuleType)
 			{
 				QuantumModuleSlot = (added ? slotID : -1);
-				string slot = SeaTruckUpgrades.slotIDs[slotID];
 				VehicleQuantumLockerComponent vQL = null;
 				try
 				{
@@ -326,9 +339,15 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			}
 			else if (added && ChargerWeights.ContainsKey(techType))
 			{
+				Log.LogDebug($"Equipped charger {techType.AsString()} to slot {slotID}");
 				// We're doing this here because unlike with the regular On(Un)EquipModule methods, this is invoked after a game load.
-				SeaTruckUpgrades stg = gameObject.GetComponent<SeaTruckUpgrades>();
-				string slot = SeaTruckUpgrades.slotIDs[slotID];
+				stg = gameObject.GetComponent<SeaTruckUpgrades>();
+				if (slotID == -1)
+				{
+					CoroutineHost.StartCoroutine(this.DeferModuleLoad());
+					return;
+				}
+				slot = SeaTruckUpgrades.slotIDs[slotID];
 				InventoryItem item = stg.modules.GetItemInSlot(slot);
 
 				OnEquipModule(slot, item);
@@ -336,6 +355,36 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			base.CancelInvoke("UpdateSonar");
 			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
 		}
+
+		private bool bDeferringModules;
+		private IEnumerator DeferModuleLoad()
+		{
+			if (bDeferringModules)
+				yield break;
+
+			bDeferringModules = true;
+			yield return new WaitUntil(() => parentVehicle != null &&
+												LargeWorldStreamer.main != null &&
+												LargeWorldStreamer.main.land != null &&
+												LargeWorldStreamer.main.IsReady() &&
+												LargeWorldStreamer.main.IsWorldSettled());
+
+			SeaTruckUpgrades stg = parentVehicle as SeaTruckUpgrades;
+			if (stg != null)
+			{
+				var modules = stg.modules.GetEquipment();
+				while (modules.MoveNext())
+				{
+					InventoryItem item = modules.Current.Value;
+					if (item != null && ChargerWeights.ContainsKey(item.techType))
+					{
+						OnEquipModule(modules.Current.Key, item);
+					}
+				}
+			}
+			bDeferringModules = false;
+
+        }
 
 		internal override void PostUpgradeModuleUse(MonoBehaviour instance, TechType tt, int slotID)
 		{

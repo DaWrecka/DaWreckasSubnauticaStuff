@@ -5,23 +5,52 @@ using FuelCells.MonoBehaviours;
 using FuelCells.Patches;
 using FuelCells.Spawnables;
 using HarmonyLib;
-using QModManager.API.ModLoading;
-using SMLHelper.V2.Handlers;
-using SMLHelper.V2.Utility;
+#if BEPINEX
+    using BepInEx;
+    using BepInEx.Logging;
+#elif QMM
+	using QModManager.API.ModLoading;
+	using SMLHelper.V2.Handlers;
+#endif
+#if NAUTILUS
+    using Nautilus.Handlers;
+    using Nautilus.Utility;
+#else
+    using SMLHelper.V2.Handlers;
+    using SMLHelper.V2.Utility;
+#endif
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace FuelCells
 {
-    [QModCore]
-    public class Main
+#if BEPINEX
+    [BepInPlugin(GUID, pluginName, version)]
+    #if BELOWZERO
+	[BepInProcess("SubnauticaZero.exe")]
+    #elif SN1
+    [BepInProcess("Subnautica.exe")]
+    #endif
+    [BepInDependency("com.mrpurple6411.CustomBatteries")]
+    [BepInDependency("seraphimrisen_BiochemicalBatteries", BepInDependency.DependencyFlags.SoftDependency)]
+    public class FuelCellsPlugin : BaseUnityPlugin
     {
+#elif QMM
+    [QModCore]
+	public class FuelCellsPlugin
+    {
+#endif
+#region[Declarations]
+        public const string
+            MODNAME = "FuelCells",
+            AUTHOR = "dawrecka",
+            GUID = "com." + AUTHOR + "." + MODNAME;
+            private const string pluginName = "Fuel Cells";
+            public const string version = "0.5.0.1";
+#endregion
+        private static readonly Harmony harmony = new Harmony(GUID);
         public const string BatteryCraftTab = "BatteryTab";
         public const string PowCellCraftTab = "PowCellTab";
         public const string ElecCraftTab = "Electronics";
@@ -35,8 +64,6 @@ namespace FuelCells
         private static string ModPath = Path.GetDirectoryName(myAssembly.Location);
         internal static string AssetsFolder = Path.Combine(ModPath, "Assets");
 
-        public const string version = "0.5.0.1";
-        public const string modName = "FuelCells";
         internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
         internal static TechType plasmaCoreType;
 
@@ -51,19 +78,17 @@ namespace FuelCells
             return TechTypeUtils.GetModTechType(key);
         }
 
+#if QMM
         [QModPatch]
-        public static void Load()
+#endif
+        public void Awake()
         {
             var assembly = Assembly.GetExecutingAssembly();
-            new Harmony($"DaWrecka_{assembly.GetName().Name}").PatchAll(assembly);
+            harmony.PatchAll(assembly);
 #if BELOWZERO
             (new CoralSample()).Patch();
 #endif
             config.OnLoad();
-#if BATTERYPATCHING
-            Batteries.PostPatch();
-#endif
-
             var nBattery = new CbBattery // Calling the CustomBatteries API to patch this item as a Battery
             {
                 EnergyCapacity = (int)config.smallFuelCellCap,
@@ -134,7 +159,7 @@ namespace FuelCells
                 FlavorText = "High-capacity mobile power source",
                 CraftingMaterials = {
                     TechType.Lithium, TechType.Copper,
-#if SUBNAUTICA_STABLE
+#if SN1
                     TechType.AcidMushroom, TechType.AcidMushroom
 #elif BELOWZERO
                     TechType.GenericRibbon, TechType.GenericRibbon
@@ -155,7 +180,7 @@ namespace FuelCells
             };
             cbLithiumCell.Patch();
 
-            plasmaCoreType = GetModTechType("BioPlasmaMK2");
+            plasmaCoreType = GetModTechType("bioplasmacore");
             if (plasmaCoreType != TechType.None)
             {
                 var bioFuelBattery = new CbBattery // Calling the CustomBatteries API to patch this item as a Battery
@@ -207,8 +232,10 @@ namespace FuelCells
             obj.EnsureComponent<RegeneratingPowerSource>();
         }
 
+#if QMM
         [QModPostPatch]
-        internal static void PostPatch()
+#endif
+        internal static void Start()
         {
         }
     }

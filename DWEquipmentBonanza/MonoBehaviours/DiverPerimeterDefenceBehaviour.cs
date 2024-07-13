@@ -1,4 +1,5 @@
-﻿using DWEquipmentBonanza.Equipables;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using DWEquipmentBonanza.Equipables;
 using DWEquipmentBonanza.Patches;
 using Common;
 using System;
@@ -10,21 +11,22 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UWE;
 
-#if SUBNAUTICA_STABLE
+#if SN1
 using Common.Interfaces;
 #endif
 
 namespace DWEquipmentBonanza.MonoBehaviours
 {
 	public class DiverPerimeterDefenceBehaviour : MonoBehaviour,
-#if SUBNAUTICA_STABLE
-		IInventoryDescriptionSN1,
+#if SN1
+        IInventoryDescriptionSN1,
 #elif BELOWZERO
 		IInventoryDescription,
 #endif
 		IBattery,
 		ICraftTarget,
-		ISerializationCallbackReceiver
+		//ISerializationCallbackReceiver
+		IProtoEventListener
 	{
 		private static Dictionary<TechType, int> maxDischarges = new Dictionary<TechType, int>();
 		private static Dictionary<TechType, bool> destroyWhenDischarged = new Dictionary<TechType, bool>(); // If true, the chip is destroyed when empty. If false, the chip is just empty and can possibly be recharged
@@ -95,12 +97,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			MaxDischargeCheat = Cheat;
 		}
 
-		public void Awake()
-		{
-			CoroutineHost.StartCoroutine(GetGameObjectAsync());
-		}
-
-		private IEnumerator GetGameObjectAsync()
+		public IEnumerator Awake()
 		{
 			while (MyGO == null)
 			{
@@ -108,7 +105,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				{
 					MyGO = gameObject;
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
 					Log.LogError($"Exception while trying to retrieve GameObject:");
 					Log.LogError(ex.ToString());
@@ -118,7 +115,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			}
 			if (thisPickup == null && MyGO.TryGetComponent<Pickupable>(out Pickupable component))
 				thisPickup = component;
+			//CoroutineHost.StartCoroutine(GetGameObjectAsync());
 		}
+
+		/*private IEnumerator GetGameObjectAsync()
+		{
+		}*/
 
 		public void OnBeforeSerialize()
 		{
@@ -152,10 +154,10 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		public void OnAfterDeserialize()
 		{
-			CoroutineHost.StartCoroutine(OnAfterDeserializeCoroutine());
+			CoroutineHost.StartCoroutine(PostDeserializeCoroutine());
 		}
 
-		public IEnumerator OnAfterDeserializeCoroutine()
+		public IEnumerator PostDeserializeCoroutine()
 		{
 			if (this.techType == TechType.None)
 			{
@@ -196,10 +198,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		public void OnProtoSerialize(ProtobufSerializer serializer)
 		{
+			OnBeforeSerialize();
 		}
 
 		public void OnProtoDeserialize(ProtobufSerializer serializer)
 		{
+			CoroutineHost.StartCoroutine(PostDeserializeCoroutine());
 		}
 
 		internal static void AddChipData(TechType chip, int maxDischargeValue, bool bDestroy)
@@ -274,14 +278,11 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		protected IEnumerator AddInventoryAsync(TechType techType, IOut<GameObject> result = null)
 		{
-#if SUBNAUTICA_STABLE
-			GameObject go = CraftData.InstantiateFromPrefab(techType, false);
-#elif BELOWZERO
-			TaskResult<GameObject> instResult = new TaskResult<GameObject>();
+			return CraftData.AddToInventoryAsync(techType, result);
+			/*TaskResult<GameObject> instResult = new TaskResult<GameObject>();
 			yield return CraftData.InstantiateFromPrefabAsync(techType, instResult, false);
 
 			GameObject go = instResult.Get();
-#endif
 			Pickupable component = go?.GetComponent<Pickupable>();
 			if (component != null)
 				Inventory.main.ForcePickup(component);
@@ -292,7 +293,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 			if(result != null)
 				result.Set(go);
-			yield break;
+			yield break;*/
+
 		}
 
 		protected IEnumerator AddBattery(TechType techType, float setCharge = 0f)

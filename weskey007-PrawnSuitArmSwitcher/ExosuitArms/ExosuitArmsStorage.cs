@@ -17,7 +17,7 @@ namespace PrawnSuitArmSwitcher.ExosuitArms
         public IEnumerable<InventoryItem> GetAvailableArms()
         {
             foreach (var possibleArm in _armsContainer)
-#if SUBNAUTICA_STABLE
+#if SN1
                 if (CraftData.GetEquipmentType(possibleArm.item.GetTechType()) == EquipmentType.ExosuitArm)
 #elif BELOWZERO
                 if(TechData.GetEquipmentType(possibleArm.item.GetTechType()) == EquipmentType.ExosuitArm)

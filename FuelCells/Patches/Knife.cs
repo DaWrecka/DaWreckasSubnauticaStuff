@@ -32,7 +32,10 @@ namespace FuelCells.Patches
 				throw new Exception("Failed to get MethodInfo for UWE.Utils.TraceFPSTargetPosition!");
 
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
-			for(int i = 0; i < codes.Count; i++)
+            Log.LogInfo("Knife.OnToolUseAnim(), pre-transpiler:");
+			GeneralUtils.LogTranspiler(codes);
+
+            for (int i = 0; i < codes.Count; i++)
 			{
 				/*
 				 Our target pattern is as follows:
@@ -64,28 +67,38 @@ namespace FuelCells.Patches
 				}
 			}
 
-			return codes.AsEnumerable();
+            Log.LogInfo("Knife.OnToolUseAnim(), post-transpiler:");
+			GeneralUtils.LogTranspiler(codes);
+            return codes.AsEnumerable();
 		}
 		
 		public static bool InterceptTrace(GameObject ignoreObj, float maxDist, ref GameObject closestObj, ref Vector3 position, out Vector3 normal, bool includeUseableTriggers = true)
         {
+			Log.LogInfo("InterceptTrace running");
             bool result = UWE.Utils.TraceFPSTargetPosition(ignoreObj, maxDist, ref closestObj, ref position, out normal, includeUseableTriggers);
             TechType key = (closestObj != null ? CraftData.GetTechType(closestObj) : TechType.None);
-			if (key == TechType.None)
+            Log.LogInfo("InterceptTrace: got object TechType of " + key.AsString());
+            if (key == TechType.None)
+			{
 				return result;
+			}
 
 			if (MakeHarvestables.TryGetValue(key, out float value))
-            {
-				Log.LogDebug($"InterceptTrace found closestObj with TechType {key}");
+			{
+				Log.LogInfo($"InterceptTrace found closestObj with TechType {key}");
 				LiveMixin component = closestObj.EnsureComponent<LiveMixin>();
 				if (component.data == null)
 				{
-					Log.LogDebug($"Adding LiveMixin data to object {closestObj.GetInstanceID()} with TechType {key}", null, false);
+					Log.LogInfo($"Adding LiveMixin data to object {closestObj.GetInstanceID()} with TechType {key}", null, false);
 					component.data = new LiveMixinData();
 					component.data.maxHealth = value;
 					component.health = value;
 				}
-            }
+			}
+			else
+			{
+				Log.LogInfo("InterceptTrace: Target object not configured to be harvestable");
+			}
 
             return result;
         }

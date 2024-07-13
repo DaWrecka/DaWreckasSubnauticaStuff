@@ -1,11 +1,28 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using System.Collections;
 using System.Collections.Generic;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Nautilus.Utility;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Handlers;
+using SMLHelper.V2.Utility;
+#endif
 using UnityEngine;
-using Logger = QModManager.Utility.Logger;
+#if BEPINEX
+    using BepInEx;
+    using BepInEx.Logging;
+#elif QMM
+    using Logger = QModManager.Utility.Logger;
+#endif
 using DWEquipmentBonanza.Patches;
 using DWEquipmentBonanza.MonoBehaviours;
 using System;
@@ -34,9 +51,6 @@ namespace DWEquipmentBonanza.VehicleModules
 
         public SeatruckUnifiedChargerModule() : base("SeatruckUnifiedChargerModule", "Seatruck Unified Charger", "Recharges SeaTruck power cells in sunlight or hot areas, and has an internal backup battery. Limited stacking ability.")
         {
-            OnFinishedPatching += () =>
-            {
-            };
         }
     }
 #endif

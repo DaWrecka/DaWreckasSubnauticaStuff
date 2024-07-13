@@ -17,7 +17,7 @@ namespace TrueSolarPowerCells
                 SolarRegeneratePowerSource realSolarPower = __instance.gameObject.EnsureComponent<SolarRegeneratePowerSource>();
                 realSolarPower.powerSource = __instance;
                 component.regenerationAmount = 0f;
-                component.regenerationThreshhold = Main.config.regenerationThreshold;
+                component.regenerationThreshhold = TSPCPlugin.config.regenerationThreshold;
             }
             else
             {

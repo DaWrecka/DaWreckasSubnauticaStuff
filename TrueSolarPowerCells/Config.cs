@@ -1,14 +1,16 @@
-﻿using SMLHelper.V2.Json;
+﻿#if NAUTILUS
+using Nautilus.Json;
+using Nautilus.Options.Attributes;
+#else
+using SMLHelper.V2.Json;
+using SMLHelper.V2.Options;
 using SMLHelper.V2.Options.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SMLHelper.V2.Handlers;
+#endif
 
 namespace TrueSolarPowerCells
 {
-    public class Config : ConfigFile
+	public class Config : ConfigFile
     {
 		[Slider("Cell capacity", 10, 75, DefaultValue = 25, Id = "regenerationThreshold",
 			Step = 5,

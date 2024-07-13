@@ -1,8 +1,20 @@
-﻿using DWEquipmentBonanza.Equipables;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using DWEquipmentBonanza.Equipables;
 using Common;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Nautilus.Utility;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
+using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
+#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,19 +23,36 @@ using UnityEngine;
 using UWE;
 using Random = UnityEngine.Random;
 using DWEquipmentBonanza.MonoBehaviours;
+using Nautilus.Assets.Gadgets;
 
 namespace DWEquipmentBonanza.Spawnables
 {
     internal class PowerglideFragmentPrefab : Spawnable
     {
+#if NAUTILUS
+        protected override TechType templateType => TechType.SeaglideFragment;
+        protected override string templateClassId => string.Empty;
+        private float scanTime => 3f;
+        private int fragmentsToScan => 3;
+        private bool destroyOnScan => true;
+        public override void FinalisePrefab(CustomPrefab prefab)
+        {
+            base.FinalisePrefab(prefab);
+            ScanningGadget scanningGadget = GadgetExtensions.CreateFragment(prefab, Main.GetModTechType("DWEBPowerglide"), scanTime, fragmentsToScan, destroyAfterScan: destroyOnScan, isFragment: true);
+        }
+#else
         private static GameObject prefab;
-
+#endif
+       
         public PowerglideFragmentPrefab() : base("PowerglideFragment", "Powerglide Fragment", "Damaged Powerglide")
         {
+            //Console.WriteLine($"{this.ClassID} constructing");
+#if LEGACY
             OnFinishedPatching += () =>
             {
                 Main.AddModTechType(this.TechType);
             };
+#endif
         }
 
         public override List<LootDistributionData.BiomeData> BiomesToSpawnIn => GetBiomeDistribution();
@@ -34,7 +63,7 @@ namespace DWEquipmentBonanza.Spawnables
         {
             return new List<LootDistributionData.BiomeData>()
             {
-#if SUBNAUTICA_STABLE
+#if SN1
                 new LootDistributionData.BiomeData(){ biome = BiomeType.Dunes_TechSite, count = 1, probability = 0.04f },
                 new LootDistributionData.BiomeData(){ biome = BiomeType.Mountains_TechSite, count = 1, probability = 0.08f },
                 new LootDistributionData.BiomeData(){ biome = BiomeType.SeaTreaderPath_TechSite, count = 1, probability = 0.04f },
@@ -52,7 +81,14 @@ namespace DWEquipmentBonanza.Spawnables
             };
         }
 
-#if SUBNAUTICA_STABLE
+#if NAUTILUS
+        public override void ModPrefab(GameObject gameObject)
+        {
+            base.ModPrefab(gameObject);
+            gameObject = PreparePrefab(gameObject);
+        }
+
+#elif SN1
         public override GameObject GetGameObject()
         {
             System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
@@ -65,6 +101,7 @@ namespace DWEquipmentBonanza.Spawnables
             Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
             return prefab;
         }
+
 #elif BELOWZERO
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
@@ -88,7 +125,11 @@ namespace DWEquipmentBonanza.Spawnables
                 return null;
             }
 
+#if NAUTILUS
+            var obj = thisPrefab;
+#else
             var obj = GameObject.Instantiate(thisPrefab);
+#endif
 
             MeshRenderer[] meshRenderers = obj.GetAllComponentsInChildren<MeshRenderer>();
             SkinnedMeshRenderer[] skinnedMeshRenderers = obj.GetAllComponentsInChildren<SkinnedMeshRenderer>();
@@ -128,8 +169,10 @@ namespace DWEquipmentBonanza.Spawnables
             resourceTracker.rb = obj.GetComponent<Rigidbody>();
             resourceTracker.pickupable = pickupable;
 
+#if !NAUTILUS
             ModPrefabCache.AddPrefab(obj, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
                                                               // but it can still be instantiated. [unlike with SetActive(false)]
+#endif
 
             return obj;
         }

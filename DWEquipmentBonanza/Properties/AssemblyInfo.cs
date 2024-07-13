@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using DWEquipmentBonanza;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -32,5 +33,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion(DWEquipmentBonanza.Main.version)]
-[assembly: AssemblyFileVersion(DWEquipmentBonanza.Main.version)]
+[assembly: AssemblyVersion(DWEBPlugin.version)]
+[assembly: AssemblyFileVersion(DWEBPlugin.version)]

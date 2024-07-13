@@ -1,9 +1,19 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using Common.Interfaces;
 using ProtoBuf;
+#if NAUTILUS
+using Nautilus.Handlers;
+using Nautilus.Json.Attributes;
+using Nautilus.Json;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
 using SMLHelper.V2.Handlers;
-using SMLHelper.V2.Json;
 using SMLHelper.V2.Json.Attributes;
+using SMLHelper.V2.Json;
+#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,15 +26,16 @@ using UWE;
 namespace DWEquipmentBonanza.MonoBehaviours
 {
 	public abstract class VehicleCharger : MonoBehaviour,
-#if SUBNAUTICA_STABLE
-		IInventoryDescriptionSN1,
+#if SN1
+        IInventoryDescriptionSN1,
 #elif BELOWZERO
 		IInventoryDescription,
 #endif
-		ISerializationCallbackReceiver
+		//ISerializationCallbackReceiver
+		IProtoEventListener
 	{
 		protected IBattery _cell;
-		protected IBattery cell => _cell ??= gameObject.GetComponent<IBattery>();
+		protected IBattery cell => _cell ??= (thisGameObject != null ? thisGameObject.GetComponent<IBattery>() : null);
 		private GameObject _thisGameObject;
 		protected GameObject thisGameObject
 		{
@@ -221,25 +232,14 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			return 0f;
 		}
 
-		public bool bSerialising { get; private set; }
-
 		[ProtoBeforeSerialization]
-		public void OnBeforeSerialize()
-		{
-			bSerialising = true;
-			CoroutineHost.StartCoroutine(PreSerializeCoroutine());
-			while (bSerialising)
-			{
-			}
-		}
-
-		public IEnumerator PreSerializeCoroutine()
+		//public void OnBeforeSerialize()
+		public void OnProtoSerialize(ProtobufSerializer serializer)
 		{
 			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
 			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): begin");
 
-
-			/*if (cell == null)
+			if (cell == null)
 			{
 				Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): no battery cell found");
 				return;
@@ -255,19 +255,9 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			{
 				Log.LogError($"Invalid ID for object");
 				return;
-			}*/
-
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): Waiting for cell");
-			yield return new WaitUntil(() => cell != null);
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): Waiting for prefabIdentifier");
-			yield return new WaitUntil(() => prefabIdentifier != null);
-			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): Waiting for valid moduleID");
-			yield return new WaitUntil(() => !string.IsNullOrEmpty(moduleId));
-
+			}
 			Log.LogDebug($"Saving charge value of {cell.charge} to disk for module ID of '{moduleId}'");
 			Main.saveCache.AddModuleCharge(moduleId, cell.charge);
-			bSerialising = false;
-			yield break;
 		}
 
 		[ProtoBeforeDeserialization]
@@ -275,7 +265,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		{ }
 
 		[ProtoAfterDeserialization]
-		public void OnAfterDeserialize()
+		//public void OnAfterDeserialize()
+		public void OnProtoDeserialize(ProtobufSerializer serializer)
 		{
 			CoroutineHost.StartCoroutine(PostDeserialize());
 		}
@@ -450,8 +441,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		public string GetChargeValueText()
 		{
 			float num = this._charge / this.capacity;
-#if SUBNAUTICA_STABLE
-			return Language.main.GetFormat<float, int, float>("BatteryCharge", num, Mathf.RoundToInt(this._charge), this.capacity);
+#if SN1
+            return Language.main.GetFormat<float, int, float>("BatteryCharge", num, Mathf.RoundToInt(this._charge), this.capacity);
 #elif BELOWZERO
 			return Language.main.GetFormat<string, float, int, float>("BatteryCharge", ColorUtility.ToHtmlStringRGBA(Battery.gradient.Evaluate(num)), num, Mathf.RoundToInt(this._charge), this.capacity);
 #endif

@@ -1,15 +1,35 @@
-﻿using System;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.IO;
 using System.Reflection;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Assets.Gadgets;
+using Nautilus.Crafting;
+using Nautilus.Utility;
+using Nautilus.Handlers;
+using Ingredient = CraftData.Ingredient;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+#else
+using RecipeData = SMLHelper.V2.Crafting.TechData;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
-using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
+using SMLHelper.V2.Handlers;
+#endif
 using UnityEngine;
 using UWE;
-using Logger = QModManager.Utility.Logger;
+#if BEPINEX
+    using BepInEx;
+    using BepInEx.Logging;
+#elif QMM
+    using Logger = QModManager.Utility.Logger;
+#endif
+
+
 using Common;
 
 namespace DWEquipmentBonanza.Equipables
@@ -20,6 +40,7 @@ namespace DWEquipmentBonanza.Equipables
         private const float tempBonus = 8f;
         public ReinforcedColdGloves() : base("ReinforcedColdGloves", "Reinforced Cold Gloves", "Reinforced insulating gloves provide physical protection and insulation from extreme temperatures.")
         {
+            //Console.WriteLine($"{this.ClassID} constructing"); 
             OnFinishedPatching += () =>
             {
                 int coldResist = TechData.GetColdResistance(TechType.ColdSuitGloves);
@@ -52,6 +73,8 @@ namespace DWEquipmentBonanza.Equipables
             return SpriteManager.Get(TechType.ColdSuitGloves);
         }
 
+#if NAUTILUS
+#else
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             if (prefab == null)
@@ -66,21 +89,28 @@ namespace DWEquipmentBonanza.Equipables
             GameObject go = GameObject.Instantiate(prefab);
             gameObject.Set(go);
         }
+#endif
     }
 
     internal class ReinforcedColdSuit : Equipable
     {
         public ReinforcedColdSuit() : base("ReinforcedColdSuit", "Reinforced Cold Suit", "Reinforced, insulated diving suit providing physical protection and insulation from extreme temperatures.")
         {
+            //Console.WriteLine($"{this.ClassID} constructing");
             OnFinishedPatching += () =>
             {
                 int coldResist = TechData.GetColdResistance(TechType.ColdSuit);
+                //Console.WriteLine($"{this.ClassID} Setting cold resistance");
                 Reflection.AddColdResistance(this.TechType, System.Math.Max(50, coldResist));
+                //Console.WriteLine($"{this.ClassID} Setting item size");
                 Reflection.SetItemSize(this.TechType, 2, 3);
                 Log.LogDebug($"Finished patching {this.TechType.AsString()}, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
+                //Console.WriteLine($"{this.ClassID} Adding substitutions");
                 Main.AddSubstitution(this.TechType, TechType.ColdSuit);
                 Main.AddSubstitution(this.TechType, TechType.ReinforcedDiveSuit);
+                //Console.WriteLine($"{this.ClassID} Adding Mod TechType");
                 Main.AddModTechType(this.TechType);
+                //Console.WriteLine($"{this.ClassID} Adding compound techs");
                 Reflection.AddCompoundTech(this.TechType, new List<TechType>()
                 {
                     TechType.ReinforcedDiveSuit,

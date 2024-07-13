@@ -1,9 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using System.Collections.Generic;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Nautilus.Utility;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
+using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
+using SMLHelper.V2.Handlers;
+using SMLHelper.V2.Utility;
+#endif
 using UnityEngine;
 using DWEquipmentBonanza.MonoBehaviours;
-using SMLHelper.V2.Utility;
 using System.IO;
+using System;
 
 namespace DWEquipmentBonanza.VehicleModules
 {
@@ -12,6 +26,12 @@ namespace DWEquipmentBonanza.VehicleModules
     {
         public override EquipmentType EquipmentType => EquipmentType.SeaTruckModule;
         //public override string[] StepsToFabricatorTab => new string[] { "SeaTruckUpgrade" };
+
+        protected override void OnFinishedPatch()
+        {
+            base.OnFinishedPatch();
+            SeaTruckUpdater.AddChargerType(this.TechType, ChargerWeight);
+        }
 
         public SeatruckChargerModule(string classID,
             string friendlyName,
@@ -48,9 +68,7 @@ namespace DWEquipmentBonanza.VehicleModules
             string friendlyName = "SeaTruck Solar Charger",
             string description = "Recharges SeaTruck power cells in sunlight. Limited stacking ability.") : base(classID, friendlyName, description)
         {
-            OnFinishedPatching += () =>
-            {
-            };
+            //Console.WriteLine($"{this.ClassID} constructing"); 
         }
     }
 
@@ -75,9 +93,7 @@ namespace DWEquipmentBonanza.VehicleModules
 
         public SeatruckSolarModuleMk2() : base("SeatruckSolarModuleMk2", "Seatruck Solar Charger Mk2", "Recharges SeaTruck power cells in sunlight, and has an internal backup battery. Limited stacking ability.")
         {
-            OnFinishedPatching += () =>
-            {
-            };
+            //Console.WriteLine($"{this.ClassID} constructing");
         }
     }
 #endif

@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
-using QModManager.Utility;
 using UnityEngine;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -323,23 +322,22 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			string RCFilename;
 			if (thermalReactorCharge is null && PrefabDatabase.TryGetPrefabFilename(CraftData.GetClassIdForTechType(TechType.Exosuit), out RCFilename))
 			{
-#if SUBNAUTICA_STABLE
-
-				var gameObject1 = Resources.Load<GameObject>(RCFilename);
-				Exosuit exosuit = gameObject1?.GetComponent<Exosuit>();
-				thermalReactorCharge = exosuit?.thermalReactorCharge;
-#elif BELOWZERO
+#if ASYNC
 				AddressablesUtility.LoadAsync<GameObject>(RCFilename).Completed += (x) =>
 				{
 					GameObject gameObject1 = x.Result;
 					Exosuit exosuit = gameObject1?.GetComponent<Exosuit>();
 					thermalReactorCharge = exosuit?.thermalReactorCharge;
 				};
+#else
+                var gameObject1 = Resources.Load<GameObject>(RCFilename);
+                Exosuit exosuit = gameObject1?.GetComponent<Exosuit>();
+                thermalReactorCharge = exosuit?.thermalReactorCharge;
 #endif
-			}
+            }
 
 
-			MonoBehaviour vehicle = this.gameObject.GetComponent<Vehicle>();
+            MonoBehaviour vehicle = this.gameObject.GetComponent<Vehicle>();
 			if (vehicle != null)
 				this.Initialise(ref vehicle);
 #if BELOWZERO

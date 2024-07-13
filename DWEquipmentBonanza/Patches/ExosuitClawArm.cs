@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;

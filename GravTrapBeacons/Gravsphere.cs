@@ -23,8 +23,8 @@ namespace GravTrapBeacons
 
             // Gravtraps default to the Near celllevel, so if we want the ping to be visible from a distance greater than 50m, we need to change that.
             var lwe = __instance.gameObject.EnsureComponent<LargeWorldEntity>();
-            lwe.cellLevel = Main.GravCellLevel;
-            lwe.initialCellLevel = Main.GravCellLevel;
+            lwe.cellLevel = GravTrapBeaconPlugin.GravCellLevel;
+            lwe.initialCellLevel = GravTrapBeaconPlugin.GravCellLevel;
         }
     }
 }

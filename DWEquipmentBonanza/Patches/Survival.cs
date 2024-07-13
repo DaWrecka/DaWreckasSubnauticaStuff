@@ -15,16 +15,16 @@ namespace DWEquipmentBonanza.Patches
 	[HarmonyPatch(typeof(Survival))]
 	internal class SurvivalPatches
 	{
-		/*private const float defaultSurvivalCap = 100f;
+        /*private const float defaultSurvivalCap = 100f;
 
 		private static Dictionary<TechType, float> NeedsCapOverrides = new Dictionary<TechType, float>()
 		{
 			{ TechType.None, defaultSurvivalCap },
 			{ TechType.ColdSuit, defaultSurvivalCap },
 			{ TechType.ReinforcedDiveSuit, defaultSurvivalCap },
-#if SUBNAUTICA_STABLE
+#if SUBNAUTICA_LEGACY
 			{ TechType.Stillsuit, defaultSurvivalCap }
-#elif BELOWZERO
+#elif SUBNAUTICA_LL || BELOWZERO
 			{ TechType.WaterFiltrationSuit, defaultSurvivalCap }
 #endif
 		}; // Dictionary using suit TechTypes as keys; if the worn suit is present in the dictionary, then we override the water cap with the associated value.
@@ -175,7 +175,7 @@ namespace DWEquipmentBonanza.Patches
 			return codes.AsEnumerable();
 		}*/
 
-		private static float preHunger;
+        private static float preHunger;
 		private static float preWater;
 
 		[HarmonyPrefix]
@@ -183,9 +183,13 @@ namespace DWEquipmentBonanza.Patches
 		internal static void PreUpdateStats(Survival __instance, float timePassed)
 		{
 			bool bHasSurvivalSuit = PlayerPatch.bHasSurvivalSuit;
+#if SUBNAUTICA
 			if (bHasSurvivalSuit && GameModeUtils.RequiresSurvival() && !Player.main.IsFrozenStats())
-			{
-				preHunger = __instance.food;
+#elif BELOWZERO
+            if (bHasSurvivalSuit && GameModeManager.GetOption<bool>(GameOption.Hunger) && GameModeManager.GetOption<bool>(GameOption.Thirst) && !Player.main.IsFrozenStats())
+#endif
+            {
+                preHunger = __instance.food;
 				preWater = __instance.water;
 				float regenRate = SurvivalsuitBehaviour.SurvivalRegenRate;
 				float kMaxStat = SurvivalConstants.kMaxStat;

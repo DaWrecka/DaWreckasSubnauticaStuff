@@ -26,7 +26,7 @@
     <LangVersion>8.0</LangVersion>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Subnautica|AnyCPU'">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'SubnauticaLegacy|AnyCPU' ">
     <DefineConstants>SN1;SUBNAUTICA_STABLE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>

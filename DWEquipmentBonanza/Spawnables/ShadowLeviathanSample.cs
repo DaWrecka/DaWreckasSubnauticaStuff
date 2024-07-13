@@ -1,5 +1,14 @@
-﻿using SMLHelper.V2.Assets;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Handlers;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
+using SMLHelper.V2.Assets;
 using SMLHelper.V2.Handlers;
+#endif
 using Story;
 using System;
 using System.Collections;
@@ -48,6 +57,7 @@ namespace DWEquipmentBonanza.Spawnables
         public ShadowLeviathanSample()
             : base("ShadowLeviathanSample", "Shadow Leviathan Sample", "A sample of chitin and ichor from a deadly predator.")
         {
+            //Console.WriteLine($"{this.ClassID} constructing");
             OnFinishedPatching += () =>
             {
                 Main.AddModTechType(this.TechType);

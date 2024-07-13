@@ -5,11 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Main = DWEquipmentBonanza.DWEBPlugin;
 
 namespace DWEquipmentBonanza.MonoBehaviours
 {
-#if SUBNAUTICA
-	public class OverrideTransform : MonoBehaviour
+#if SN1
+    public class OverrideTransform : MonoBehaviour
     {
         public IEnumerator Start()
         {

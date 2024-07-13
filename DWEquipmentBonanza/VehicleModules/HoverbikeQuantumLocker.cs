@@ -1,5 +1,12 @@
 ﻿using DWEquipmentBonanza.MonoBehaviours;
+#if NAUTILUS
+using Nautilus.Crafting;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
 using SMLHelper.V2.Crafting;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;

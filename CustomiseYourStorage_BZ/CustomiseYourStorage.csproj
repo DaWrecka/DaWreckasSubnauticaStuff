@@ -16,16 +16,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Subnautica'">
   </PropertyGroup>
-  <Import Project="..\Configurations.targets" />
   <PropertyGroup Condition="$(Configuration.StartsWith('BelowZero'))">
     <AssemblyName>CustomiseYourStorage_BZ</AssemblyName>
-    <OutputPath>..\Qmods\BelowZero\CustomiseYourStorage_BZ\</OutputPath>
     <RootNamespace>CustomiseYourStorage_BZ</RootNamespace>
     <AssemblyName>CustomiseYourStorage_BZ</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="$(Configuration.StartsWith('Subnautica'))">
     <AssemblyName>CustomiseYourStorage</AssemblyName>
-    <OutputPath>..\Qmods\Subnautica\CustomiseYourStorage\</OutputPath>
     <RootNamespace>CustomiseYourStorage</RootNamespace>
     <AssemblyName>CustomiseYourStorage</AssemblyName>
   </PropertyGroup>
@@ -42,12 +39,12 @@
       <HintPath>$(GameDir)\$(DataFolder)\Managed\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="QModInstaller">
+    <Reference Include="QModInstaller" Condition="$(UseQMM)">
       <HintPath>$(GameDir)\BepInEx\plugins\QModManager\QModInstaller.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="SMLHelper">
-      <HintPath>$(GameDir)\QMods\$(SMLHelperFolder)\SMLHelper.dll</HintPath>
+      <HintPath>$(GameDir)\$(PluginLoaderPath)\$(SMLHelperFolder)\SMLHelper.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json">
@@ -90,10 +87,4 @@
   <Import Project="..\Common\Common.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\PostBuildEvents.targets" />
-  <PropertyGroup>
-    <PreBuildEvent>echo GameDir: $(GameDir)
-echo DataFolder: $(DataFolder)
-echo SMLHelperFolder: $(SMLHelperFolder)
-</PreBuildEvent>
-  </PropertyGroup>
 </Project>

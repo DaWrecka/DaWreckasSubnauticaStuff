@@ -12,8 +12,8 @@ using UnityEngine;
 namespace DWEquipmentBonanza.MonoBehaviours
 {
 	public class FlashlightHelmetComponent : MonoBehaviour,
-#if SUBNAUTICA_STABLE
-		IInventoryDescriptionSN1,
+#if SN1
+        IInventoryDescriptionSN1,
 #elif BELOWZERO
 		IInventoryDescription,
 #endif
@@ -28,7 +28,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		public Collider mainCollider { get; internal set; }
 		public GameObject thisObject { get; internal set; }
 		//public GameObject pickupableModel { get; internal set; }
-		private readonly HashSet<Renderer> pickupableModels = new HashSet<Renderer>();
+		//private readonly HashSet<Renderer> pickupableModels = new HashSet<Renderer>();
 		public GameObject storageRoot { get; internal set; }
 		//public Quaternion lastTargetRotation { get; private set; }
 		//public Quaternion lastActualRotation { get; private set; }
@@ -86,6 +86,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		{
 			Log.LogDebug($"FlashlightHelmetComponent.Start()");
 
+			//We need a StorageRoot for the EnergyMixin, which in turn is needed for the ToggleLights.
 			thisObject = this.gameObject;
 			this.storageRoot = this.gameObject.FindChild("StorageRoot") ?? new GameObject("StorageRoot", new Type[] { typeof(ChildObjectIdentifier) });
 

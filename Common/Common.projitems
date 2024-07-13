@@ -9,7 +9,14 @@
     <Import_RootNamespace>Common</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Constants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IInventoryDescriptionSN1.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NautilusHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NautilusHelper\Craftable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NautilusHelper\Equipable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NautilusHelper\ModPrefab.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NautilusHelper\PdaItem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NautilusHelper\Spawnable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\AssemblyUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\GameObjectUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility\GeneralUtils.cs" />

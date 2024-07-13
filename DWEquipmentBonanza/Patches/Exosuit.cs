@@ -1,4 +1,5 @@
-﻿using DWEquipmentBonanza;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using DWEquipmentBonanza;
 using DWEquipmentBonanza.VehicleModules;
 using DWEquipmentBonanza.MonoBehaviours;
 using Common;
@@ -8,7 +9,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
-using QModManager.Utility;
 using UnityEngine;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -178,8 +178,8 @@ namespace DWEquipmentBonanza.Patches
 
 				mixin.data.maxHealth = maxHealth;
 				mixin.health = maxHealth * instanceHealthPct;
-#if SUBNAUTICA_STABLE
-				mixin.initialHealth = defaultHealth;
+#if SN1 && LEGACY
+                mixin.initialHealth = defaultHealth;
 #endif
 			}
 

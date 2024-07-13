@@ -12,8 +12,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		private Seaglide tool;
 		private EnergyMixin power;
 
-#if SUBNAUTICA_STABLE
-		public static float powerGlideForce = 4500f;
+#if SN1
+        public static float powerGlideForce = 4500f;
 #elif BELOWZERO
 		public static float powerGlideForce = 3500f;
 #endif
@@ -34,8 +34,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				if (n.data.Count == 1)
 				{
 					string text = (string)n.data[0];
-#if SUBNAUTICA_STABLE
-					if (float.TryParse(text, out force))
+#if SN1
+                    if (float.TryParse(text, out force))
 #elif BELOWZERO
 					if (DevConsole.ParseFloat(n, 0, out force, 0f))
 #endif
@@ -52,8 +52,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				{
 					string text = (string)n.data[0];
 					string text2 = (string)n.data[1];
-#if SUBNAUTICA_STABLE
-					bool try0 = float.TryParse(text, out force);
+#if SN1
+                    bool try0 = float.TryParse(text, out force);
 					bool try1 = float.TryParse(text2, out rate);
 #elif BELOWZERO
 					bool try0 = DevConsole.ParseFloat(n, 0, out force, 0f);

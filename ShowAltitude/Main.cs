@@ -1,6 +1,9 @@
-﻿using Common;
+﻿using BepInEx;
+using Common;
 using HarmonyLib;
+#if QMM
 using QModManager.API.ModLoading;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,16 +14,37 @@ using UWE;
 
 namespace ShowAltitude
 {
-    [QModCore]
-    public class Main
+#if BEPINEX
+    [BepInPlugin(GUID, pluginName, version)]
+#if BELOWZERO
+	[BepInProcess("SubnauticaZero.exe")]
+#elif SN1
+    [BepInProcess("Subnautica.exe")]
+    public class ShowAltitudePlugin: BaseUnityPlugin
     {
+#elif QMM
+    [QModCore]
+	public static class ShowAltitudePlugin
+    {
+#endif
+        #region[Declarations]
+        public const string
+            MODNAME = "ShowAltitudePlugin",
+            AUTHOR = "dawrecka",
+            GUID = "com." + AUTHOR + "." + MODNAME;
+        private const string pluginName = "Show Altitude";
         internal const string version = "1.0.0.0";
+        #endregion
 
+        private static readonly Harmony harmony = new Harmony(GUID);
+
+#if QMM
         [QModPatch]
-        public void Load()
+#endif
+        public void Awake()
         {
             var assembly = Assembly.GetExecutingAssembly();
-            new Harmony($"DaWrecka_{assembly.GetName().Name}").PatchAll(assembly);
+            harmony.PatchAll(assembly);
         }
     }
 }

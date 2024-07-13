@@ -49,7 +49,7 @@ namespace DWEquipmentBonanza.Patches
 			TechType techTypeInSlot2 = equipment.GetTechTypeInSlot("Body");
 			inMaxSpeed += GetSpeedModifier(techTypeInSlot2);
 
-#if SUBNAUTICA_STABLE
+#if SN1
 //			float num2 = 1f;
 //			global::Utils.AdjustSpeedScalarFromWeakness(ref num2);
 //			inMaxSpeed *= num2;

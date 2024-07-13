@@ -1,6 +1,11 @@
 ﻿using Common;
 using HarmonyLib;
-using QModManager.API.ModLoading;
+#if BEPINEX
+using BepInEx;
+using BepInEx.Logging;
+#elif QMM
+	using QModManager.API.ModLoading;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,17 +16,39 @@ using UWE;
 
 namespace GravTrapBeacons
 {
-    [QModCore]
-    public class Main
+#if BEPINEX
+    [BepInPlugin(GUID, pluginName, version)]
+#if BELOWZERO
+	[BepInProcess("SubnauticaZero.exe")]
+#elif SN1
+    [BepInProcess("Subnautica.exe")]
+#endif
+    public class GravTrapBeaconPlugin: BaseUnityPlugin
     {
-        internal const LargeWorldEntity.CellLevel GravCellLevel = LargeWorldEntity.CellLevel.Global;
+#elif QMM
+    [QModCore]
+	public static class GravTrapBeaconPlugin
+    {
+#endif
+        #region[Declarations]
+        public const string
+            MODNAME = "GravTrapBeacons",
+            AUTHOR = "dawrecka",
+            GUID = "com." + AUTHOR + "." + MODNAME;
+        private const string pluginName = "Grav Trap Beacons";
         internal const string version = "1.0.0.0";
+        #endregion
 
+        private static readonly Harmony harmony = new Harmony(GUID);
+        internal const LargeWorldEntity.CellLevel GravCellLevel = LargeWorldEntity.CellLevel.Global;
+
+#if QMM
         [QModPatch]
+#endif
         public void Load()
         {
             var assembly = Assembly.GetExecutingAssembly();
-            new Harmony($"DaWrecka_{assembly.GetName().Name}").PatchAll(assembly);
+            harmony.PatchAll(assembly);
             foreach (string s in new HashSet<string>() { "Gravsphere", "GravTrapMk2" })
             {
                 TechType tt = TechTypeUtils.GetTechType(s);

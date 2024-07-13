@@ -1,11 +1,20 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using System.Collections;
 using System.Collections.Generic;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Handlers;
+#endif
 using UnityEngine;
-using Logger = QModManager.Utility.Logger;
 
 namespace DWEquipmentBonanza.VehicleModules
 {
@@ -34,10 +43,6 @@ namespace DWEquipmentBonanza.VehicleModules
 
         public HoverbikeWaterTravelModule() : base("HoverbikeWaterTravelModule", "Water Travel Module", "Increases the power of the Snowfox's hover pads, allowing travel over water in exchange for increased energy consumption.")
         {
-            OnFinishedPatching += () =>
-            {
-                Main.AddModTechType(this.TechType);
-            };
         }
     }
 #endif

@@ -1,10 +1,24 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using Common.Utility;
 using DWEquipmentBonanza.MonoBehaviours;
 using DWEquipmentBonanza.Patches;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Assets.Gadgets;
+using Nautilus.Crafting;
+using Nautilus.Utility;
+using Nautilus.Handlers;
+using Ingredient = CraftData.Ingredient;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+#else
+using RecipeData = SMLHelper.V2.Crafting.TechData;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Utility;
+using SMLHelper.V2.Handlers;
+#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,9 +29,9 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UWE;
-#if SUBNAUTICA_STABLE
-using RecipeData = SMLHelper.V2.Crafting.TechData;
+#if SN1
     using Sprite = Atlas.Sprite;
+using Nautilus.Assets.PrefabTemplates;
 #endif
 
 namespace DWEquipmentBonanza.Equipables
@@ -28,14 +42,16 @@ namespace DWEquipmentBonanza.Equipables
         protected static Sprite sprite;
         protected virtual float tempBonus => 0f;
         protected virtual TechType spriteTemplate => TechType.None;
-        protected abstract TechType prefabTemplate { get; }
-        protected abstract List<TechType> compoundTech { get; }
+#if !NAUTILUS
+        protected abstract TechType templateType { get; }
+#endif
+        //protected abstract List<TechType> compoundTech { get; }
         protected abstract List<TechType> substitutions { get; }
 
         public override EquipmentType EquipmentType => EquipmentType.Head;
         public override Vector2int SizeInInventory => new(2, 2);
         public override QuickSlotType QuickSlotType => QuickSlotType.None;
-        public override bool UnlockedAtStart => RequiredForUnlock == TechType.None && (compoundTech == null || compoundTech.Count < 2);
+        //public override bool UnlockedAtStart => RequiredForUnlock == TechType.None && (compoundTech == null || compoundTech.Count < 2);
         public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
         public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
 
@@ -62,13 +78,8 @@ namespace DWEquipmentBonanza.Equipables
             return prefab;
         }
 
-#if !ASYNC
-        public override GameObject GetGameObject()
-        {
-            return ModifyGameObject(CraftData.GetPrefabForTechType(prefabTemplate));
-        }
-#endif
-
+#if NAUTILUS
+#elif ASYNC
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             GameObject modPrefab;
@@ -77,20 +88,25 @@ namespace DWEquipmentBonanza.Equipables
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTemplate);
                 yield return task;
 
-                modPrefab = ModifyGameObject(GameObject.Instantiate(task.GetResult(), default(Vector3), default(Quaternion), false));
+                modPrefab = ModifyGameObject(GameObjectUtils.InstantiateInactive(task.GetResult()));
                 TechTypeUtils.AddModTechType(this.TechType, modPrefab);
             }
 
             gameObject.Set(modPrefab);
         }
 
+#else
+        public override GameObject GetGameObject()
+        {
+            return ModifyGameObject(CraftData.GetPrefabForTechType(prefabTemplate));
+        }
+#endif
+
         protected virtual void OnFinishedPatch()
         {
+#if !NAUTILUS
             Main.AddModTechType(this.TechType);
-            if (compoundTech != null && compoundTech.Count > 0)
-            {
-                Reflection.AddCompoundTech(this.TechType, compoundTech);
-            }
+#endif
             if (substitutions != null && substitutions.Count > 0)
             {
                 foreach (TechType tt in substitutions)
@@ -102,23 +118,29 @@ namespace DWEquipmentBonanza.Equipables
 
         public HeadwearBase(string classId, string friendlyName, string description) : base(classId, friendlyName, description)
         {
-            OnFinishedPatching += () => OnFinishedPatch();
+            //Console.WriteLine($"{this.ClassID} constructing");
+            OnFinishedPatching += OnFinishedPatch;
         }
     }
 
-#if SUBNAUTICA
+#if SN1
     public class FlashlightHelmet : HeadwearBase<FlashlightHelmet>
     {
+        internal const string friendlyName = "Headlamp";
+        internal const string desc = "Head-mounted lamp for hands-free illumination";
+#if NAUTILUS
+        protected override TechType templateType => TechType.Rebreather;
+        protected override string templateClassId => string.Empty;
+#endif
         public static GameObject flashlightHelmetPrefab { get; internal set; }
-        protected override TechType prefabTemplate => TechType.Rebreather;
 
-        protected override List<TechType> compoundTech => null;
         protected override List<TechType> substitutions => null;
         public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;
         public override TechType RequiredForUnlock => TechType.PrecursorIonCrystal;
         public override bool UnlockedAtStart => false;
         public override string[] StepsToFabricatorTab => DWConstants.BaseHelmetPath;
 
+        public static bool bPrefabsPreparing { get; private set; }
         public static bool bPrefabsPrepared { get; private set; }
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -134,7 +156,37 @@ namespace DWEquipmentBonanza.Equipables
             };
         }
 
-#if !ASYNC
+
+#if NAUTILUS
+        public override void ModifyClone(CloneTemplate clone)
+        {
+            clone.ModifyPrefabAsync += SetUpPrefabsCoroutine;
+        }
+
+#elif ASYNC
+        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+            GameObject modPrefab;
+            if (!TechTypeUtils.TryGetModPrefab(this.TechType, out modPrefab))
+            {
+                yield return FlashlightHelmet.SetUpPrefabsCoroutine();
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTemplate);
+                yield return task;
+
+                modPrefab = ModifyGameObject(task.GetResult());
+                TechTypeUtils.AddModTechType(this.TechType, modPrefab);
+
+            }
+            gameObject.Set(modPrefab);
+        }
+
+        protected override GameObject ModifyGameObject(GameObject go)
+        {
+            return FlashlightHelmet.PreparePrefab(GameObjectUtils.InstantiateInactive(go), this.ClassID);
+        }
+
+
+#else
         public override GameObject GetGameObject()
         {
             GameObject modPrefab;
@@ -150,36 +202,19 @@ namespace DWEquipmentBonanza.Equipables
 
             return modPrefab;
         }
-#endif
 
         protected override GameObject ModifyGameObject(GameObject go)
         {
             return FlashlightHelmet.PreparePrefab(GameObjectUtils.InstantiateInactive(go), this.ClassID);
         }
-
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            GameObject modPrefab;
-            if (!TechTypeUtils.TryGetModPrefab(this.TechType, out modPrefab))
-            {
-#if SUBNAUTICA
-                yield return FlashlightHelmet.SetUpPrefabsCoroutine();
 #endif
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTemplate);
-                yield return task;
-
-                modPrefab = ModifyGameObject(task.GetResult());
-                TechTypeUtils.AddModTechType(this.TechType, modPrefab);
-
-            }
-            gameObject.Set(modPrefab);
-        }
-
         public static void SetUpPrefabs()
         {
             if (bPrefabsPrepared)
                 return;
-#if ASYNC
+
+#if NAUTILUS
+#elif ASYNC
             CoroutineHost.StartCoroutine(SetUpPrefabsCoroutine());
 #else
             FlashlightHelmetComponent.SetFlashlightPrefab(CraftData.GetPrefabForTechType(TechType.Flashlight));
@@ -187,9 +222,18 @@ namespace DWEquipmentBonanza.Equipables
 #endif
         }
 
+#if NAUTILUS
+        public IEnumerator SetUpPrefabsCoroutine(GameObject gameObject)
+#else
         public static IEnumerator SetUpPrefabsCoroutine()
+#endif
         {
-            bPrefabsPrepared = true;
+            yield return new WaitUntil(() => !bPrefabsPreparing);
+            if (bPrefabsPrepared)
+                yield break;
+
+            bPrefabsPreparing = true;
+
             if (FlashlightHelmetComponent.flashlightPrefab == null)
             {
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.Flashlight);
@@ -198,14 +242,19 @@ namespace DWEquipmentBonanza.Equipables
                 FlashlightHelmetComponent.SetFlashlightPrefab(task.GetResult());
             }
 
+#if NAUTILUS
+            gameObject = FlashlightHelmet.PreparePrefab(gameObject, ClassID);
+#else
             if (FlashlightHelmet.flashlightHelmetPrefab == null)
             {
                 CoroutineTask<GameObject> prefabTask = CraftData.GetPrefabForTechTypeAsync(TechType.Rebreather);
                 yield return prefabTask;
 
-                flashlightHelmetPrefab = GameObjectUtils.InstantiateInactive(prefabTask.GetResult());
+                flashlightHelmetPrefab = prefabTask.GetResult();
             }
-
+#endif
+            bPrefabsPrepared = true;
+            bPrefabsPreparing = false;
             yield break;
         }
 
@@ -267,8 +316,9 @@ namespace DWEquipmentBonanza.Equipables
                 }
 
                 Log.LogDebug($"prefab {classID}: Setting up ToggleLights");
+                EnergyMixin power = prefabToModify.EnsureComponent<FreeEnergyMixin>();
                 headlightComponent.toggleLights = prefabToModify.EnsureComponent<ToggleLights>();
-                headlightComponent.toggleLights.energyMixin = prefabToModify.EnsureComponent<FreeEnergyMixin>();
+                headlightComponent.toggleLights.energyMixin = power;
                 headlightComponent.toggleLights.energyMixin.storageRoot = headlightComponent.storageRoot.GetComponent<ChildObjectIdentifier>();
                 headlightComponent.toggleLights.lightsParent = lightsParent;
                 Log.LogDebug($"prefab {classID}: Configuring lights on/off sounds");
@@ -284,26 +334,38 @@ namespace DWEquipmentBonanza.Equipables
         protected override void OnFinishedPatch()
         {
             base.OnFinishedPatch();
-            SetUpPrefabs();
+             SetUpPrefabs();
         }
 
-        internal const string classID = "FlashlightHelmet";
-        internal const string friendlyName = "Headlamp";
-        internal const string desc = "Head-mounted light for hands-free illumination";
+        public override void ModPrefab(GameObject gameObject)
+        {
+            base.ModPrefab(gameObject);
 
-        public FlashlightHelmet() : base(classID, friendlyName, desc)
+        }
+
+        public override void FinalisePrefab(CustomPrefab prefab)
+        {
+            base.FinalisePrefab(prefab);
+        }
+
+        public FlashlightHelmet(string classID = "FlashlightHelmet", string friendlyName = "Headlamp", string description = desc) : base(classID, friendlyName, description)
         { }
     }
 #endif
 
-    internal class IlluminatedRebreather : HeadwearBase<IlluminatedRebreather>
+    internal class IlluminatedRebreather : FlashlightHelmet
     {
-#if SUBNAUTICA
-        protected override TechType prefabTemplate => TechType.Rebreather;
-#elif BELOWZERO
-        protected override TechType prefabTemplate => TechType.FlashlightHelmet;
+
+#if NAUTILUS
+        protected override string templateClassId => string.Empty;
 #endif
-        protected override List<TechType> compoundTech => new List<TechType>
+
+#if SN1
+        protected override TechType templateType => TechType.Rebreather;
+#elif BELOWZERO
+        protected override TechType templateType => TechType.FlashlightHelmet;
+#endif
+        public override List<TechType> CompoundTechsForUnlock => new List<TechType>
         {
             TechType.Rebreather,
             Main.GetModTechType("FlashlightHelmet") // And this is why I named my SN1 version the same as the BZ version
@@ -329,7 +391,26 @@ namespace DWEquipmentBonanza.Equipables
             };
         }
 
-#if !ASYNC
+#if NAUTILUS
+#elif ASYNC
+        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+            GameObject modPrefab;
+            if (!TechTypeUtils.TryGetModPrefab(this.TechType, out modPrefab))
+            {
+#if SN1
+                yield return FlashlightHelmet.SetUpPrefabsCoroutine();
+#endif
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTemplate);
+                yield return task;
+
+                modPrefab = ModifyGameObject(task.GetResult());
+                TechTypeUtils.AddModTechType(this.TechType, modPrefab);
+
+            }
+            gameObject.Set(modPrefab);
+        }
+#else
         public override GameObject GetGameObject()
         {
             GameObject modPrefab;
@@ -343,34 +424,16 @@ namespace DWEquipmentBonanza.Equipables
         }
 #endif
 
-        protected override GameObject ModifyGameObject(GameObject go)
+        /*protected override GameObject ModifyGameObject(GameObject go)
         {
-#if SUBNAUTICA
+#if SN1
             return FlashlightHelmet.PreparePrefab(GameObjectUtils.InstantiateInactive(go), this.ClassID);
 #elif BELOWZERO
             var prefab = GameObjectUtils.InstantiateInactive(go);
             prefab.EnsureComponent<FlashlightHelmetComponent>();
             return prefab;
 #endif
-        }
-
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            GameObject modPrefab;
-            if (!TechTypeUtils.TryGetModPrefab(this.TechType, out modPrefab))
-            {
-#if SUBNAUTICA
-                yield return FlashlightHelmet.SetUpPrefabsCoroutine();
-#endif
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTemplate);
-                yield return task;
-
-                modPrefab = ModifyGameObject(task.GetResult());
-                TechTypeUtils.AddModTechType(this.TechType, modPrefab);
-
-            }
-            gameObject.Set(modPrefab);
-        }
+        }*/
 
         protected override void OnFinishedPatch()
         {
@@ -385,11 +448,14 @@ namespace DWEquipmentBonanza.Equipables
         }
     }
 
-#if SUBNAUTICA_STABLE
-    internal class LightRadHelmet : HeadwearBase<LightRadHelmet>
+#if SN1
+    internal class LightRadHelmet : FlashlightHelmet
     {
-        protected override TechType prefabTemplate => TechType.RadiationHelmet;
-        protected override List<TechType> compoundTech => new List<TechType>
+#if NAUTILUS
+        protected override TechType templateType => TechType.RadiationHelmet;
+        protected override string templateClassId => string.Empty;
+#endif
+        public override List<TechType> CompoundTechsForUnlock => new List<TechType>
         {
             TechType.RadiationSuit,
             Main.GetModTechType("FlashlightHelmet") // And this is why I named my SN1 version the same as the BZ version
@@ -414,17 +480,14 @@ namespace DWEquipmentBonanza.Equipables
             };
         }
 
-        protected override GameObject ModifyGameObject(GameObject go)
-        {
-            return FlashlightHelmet.PreparePrefab(GameObjectUtils.InstantiateInactive(go), this.ClassID);
-        }
-
+#if NAUTILUS
+#elif ASYNC
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             GameObject modPrefab;
             if (!TechTypeUtils.TryGetModPrefab(this.TechType, out modPrefab))
             {
-#if SUBNAUTICA
+#if SN1
                 yield return FlashlightHelmet.SetUpPrefabsCoroutine();
 #endif
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTemplate);
@@ -435,6 +498,14 @@ namespace DWEquipmentBonanza.Equipables
 
             }
             gameObject.Set(modPrefab);
+        }
+
+#else
+#endif
+
+        protected override GameObject ModifyGameObject(GameObject go)
+        {
+            return FlashlightHelmet.PreparePrefab(GameObjectUtils.InstantiateInactive(go), this.ClassID);
         }
 
         protected override void OnFinishedPatch()
@@ -449,8 +520,12 @@ namespace DWEquipmentBonanza.Equipables
         }
     }
 
-    internal class AcidHelmet : HeadwearBase<AcidHelmet>
+    public class AcidHelmet : HeadwearBase<AcidHelmet>
     {
+#if NAUTILUS
+        protected override TechType templateType => TechType.RadiationHelmet;
+        protected override string templateClassId => string.Empty;
+#endif
         public static class illumTextureDict
         {
             private static Dictionary<TechType, Texture2D> _illumTextureDict { get; } = new Dictionary<TechType, Texture2D>();
@@ -608,13 +683,12 @@ namespace DWEquipmentBonanza.Equipables
         }
         protected override float tempBonus => 8f;
 
-        protected override TechType prefabTemplate => TechType.Rebreather;
         protected override List<TechType> substitutions => new()
         {
             TechType.Rebreather,
             TechType.RadiationHelmet
         };
-        protected override List<TechType> compoundTech => new()
+        public override List<TechType> CompoundTechsForUnlock => new()
         {
             TechType.Rebreather,
             TechType.RadiationSuit
@@ -629,7 +703,51 @@ namespace DWEquipmentBonanza.Equipables
 
         public override Vector2int SizeInInventory => new(2, 2);
 
-#if !ASYNC
+#if NAUTILUS
+        public override void ModPrefab(GameObject gameObject)
+        {
+            base.ModPrefab(gameObject);
+            Renderer[] renderers = gameObject.GetComponentsInChildren<Renderer>();
+            Shader shader = Shader.Find("MarmosetUBER");
+            if (textureDict.TryGetValue(this.TechType, out Texture2D texture) && illumTextureDict.TryGetValue(this.TechType, out Texture2D illumTexture))
+            {
+                foreach (var renderer in renderers)
+                {
+                    foreach (Material material in renderer.materials)
+                    {
+                        material.shader = shader; // apply the shader
+                        material.mainTexture = texture; // apply the main texture
+                        material.SetTexture(ShaderPropertyID._Illum, illumTexture); // apply the illum texture
+                        material.SetTexture("_SpecTex", material.mainTexture); // apply the spec texture
+                    }
+                }
+            }
+            else
+            {
+                Log.LogWarning($"Failed to retrieve diffuse and/or illum texture for TechType {this.TechType.AsString()}");
+            }
+        }
+#else
+#if ASYNC
+        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+            GameObject modPrefab;
+            if (!TechTypeUtils.TryGetModPrefab(this.TechType, out modPrefab))
+            {
+#if SN1
+                yield return FlashlightHelmet.SetUpPrefabsCoroutine();
+#endif
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTemplate);
+                yield return task;
+
+                modPrefab = ModifyGameObject(task.GetResult());
+                TechTypeUtils.AddModTechType(this.TechType, modPrefab);
+
+            }
+            gameObject.Set(modPrefab);
+        }
+
+#else
         public override GameObject GetGameObject()
         {
             System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
@@ -646,24 +764,6 @@ namespace DWEquipmentBonanza.Equipables
             return modPrefab;
         }
 #endif
-
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            GameObject modPrefab;
-            if (!TechTypeUtils.TryGetModPrefab(this.TechType, out modPrefab))
-            {
-#if SUBNAUTICA
-                yield return FlashlightHelmet.SetUpPrefabsCoroutine();
-#endif
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTemplate);
-                yield return task;
-
-                modPrefab = ModifyGameObject(task.GetResult());
-                TechTypeUtils.AddModTechType(this.TechType, modPrefab);
-
-            }
-            gameObject.Set(modPrefab);
-        }
 
         protected override GameObject ModifyGameObject(GameObject prefab)
         {
@@ -689,6 +789,7 @@ namespace DWEquipmentBonanza.Equipables
             }
             return obj;
         }
+#endif
 
         protected override RecipeData GetBlueprintRecipe()
         {
@@ -719,9 +820,9 @@ namespace DWEquipmentBonanza.Equipables
     }
 
 #elif BELOWZERO
-    internal class InsulatedRebreather : HeadwearBase<InsulatedRebreather>
+    public class InsulatedRebreather : HeadwearBase<InsulatedRebreather>
     {
-        protected override TechType prefabTemplate => TechType.ColdSuitHelmet;
+        protected override TechType templateType => TechType.ColdSuitHelmet;
         protected override TechType spriteTemplate => TechType.ColdSuitHelmet;
         protected override float tempBonus => 8f;
 
@@ -772,6 +873,8 @@ namespace DWEquipmentBonanza.Equipables
             };
         }
 
+#if NAUTILUS
+#elif ASYNC
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             GameObject modPrefab;
@@ -786,6 +889,8 @@ namespace DWEquipmentBonanza.Equipables
 
             gameObject.Set(modPrefab);
         }
+#else
+#endif
     }
 
     internal class LightColdHelmet : HeadwearBase<LightColdHelmet>
@@ -844,6 +949,9 @@ namespace DWEquipmentBonanza.Equipables
         {
             base.OnFinishedPatch();
             TooltipFactoryPatches.AddNoBarTechType(this.TechType);
+            int coldResist = TechData.GetColdResistance(TechType.ColdSuitHelmet);
+            Reflection.AddColdResistance(this.TechType, System.Math.Max(20, coldResist));
+            Reflection.SetItemSize(this.TechType, 2, 2);
         }
 
         public LightColdHelmet() : base("LightColdHelmet", "Light Cold Helmet", "Insulated, heat-retaining helmet equipped with a hands-free lamp.")
@@ -894,6 +1002,7 @@ namespace DWEquipmentBonanza.Equipables
 
         public Blueprint_LightColdToUltimateHelmet() : base("Blueprint_LightColdToUltimateHelmet", UltimateHelmet.friendlyName, UltimateHelmet.description)
         {
+            //Console.WriteLine($"{this.ClassID} constructing");
             OnFinishedPatching += () =>
             {
                 Reflection.AddCompoundTech(this.TechType, new List<TechType>
@@ -907,9 +1016,12 @@ namespace DWEquipmentBonanza.Equipables
     }
 #endif
 
-#if SUBNAUTICA
-    internal class Blueprint_LightRebreatherPlusRad : Craftable
+    internal class Blueprint_LightRebreatherPlus : Craftable
     {
+#if NAUTILUS
+        protected override TechType templateType => TechType.Rebreather;
+        protected override string templateClassId => string.Empty;
+#endif
         protected static Sprite sprite;
         protected TechType fallbackSprite => Main.GetModTechType("UltimateHelmet");
         public override Vector2int SizeInInventory => new(2, 2);
@@ -940,8 +1052,13 @@ namespace DWEquipmentBonanza.Equipables
                 Ingredients = new List<Ingredient>()
                 {
                     new Ingredient(Main.GetModTechType("IlluminatedRebreather"), 1),
+#if SN1
                     new Ingredient(TechType.RadiationHelmet, 1),
                     new Ingredient(TechType.Benzene, 1)
+#else
+                    new Ingredient(TechType.ColdSuitHelmet, 1),
+                    new Ingredient(TechType.RadioTowerPPU, 1),
+#endif
                 }
             };
             recipe.LinkedItems = new List<TechType>
@@ -952,22 +1069,32 @@ namespace DWEquipmentBonanza.Equipables
             return recipe;
         }
 
-        public Blueprint_LightRebreatherPlusRad() : base("Blueprint_LightRebreatherPlusRad", UltimateHelmet.friendlyName, UltimateHelmet.description)
+        public Blueprint_LightRebreatherPlus() : base("Blueprint_LightRebreatherPlus", UltimateHelmet.friendlyName, UltimateHelmet.description)
         {
+            //Console.WriteLine($"{this.ClassID} constructing");
             OnFinishedPatching += () =>
             {
                 Reflection.AddCompoundTech(this.TechType, new List<TechType>
                 {
                     Main.GetModTechType("FlashlightHelmet"),
+#if SN1
                     TechType.RadiationHelmet,
+#else
+                    TechType.ColdSuitHelmet,
+#endif
                     TechType.Rebreather
                 });
             };
         }
     }
 
-    internal class Blueprint_LightRadHelmetPlusRebreather : Craftable
+#if SN1
+    public class Blueprint_LightRadHelmetPlusRebreather : Craftable
     {
+#if NAUTILUS
+        protected override TechType templateType => TechType.RadiationHelmet;
+        protected override string templateClassId => string.Empty;
+#endif
         protected static Sprite sprite;
         protected TechType fallbackSprite => Main.GetModTechType("UltimateHelmet");
         public override Vector2int SizeInInventory => new(2, 2);
@@ -1010,22 +1137,35 @@ namespace DWEquipmentBonanza.Equipables
             return recipe;
         }
 
+        public override List<TechType> CompoundTechsForUnlock => new List<TechType>
+        {
+            Main.GetModTechType("FlashlightHelmet"),
+            TechType.RadiationHelmet,
+            TechType.Rebreather
+        };
+
         public Blueprint_LightRadHelmetPlusRebreather() : base("Blueprint_LightRadHelmetPlusRebreather", UltimateHelmet.friendlyName, UltimateHelmet.description)
         {
             OnFinishedPatching += () =>
             {
+                /*
                 Reflection.AddCompoundTech(this.TechType, new List<TechType>
                 {
                     Main.GetModTechType("FlashlightHelmet"),
                     TechType.RadiationHelmet,
                     TechType.Rebreather
                 });
+                */
             };
         }
     }
 
-    internal class Blueprint_FlashlightPlusBrineHelmet : Craftable
+    public class Blueprint_FlashlightPlusBrineHelmet : Craftable
     {
+#if NAUTILUS
+        protected override TechType templateType => TechType.RadiationHelmet;
+        protected override string templateClassId => string.Empty;
+#endif
         protected static Sprite sprite;
         protected TechType fallbackSprite => Main.GetModTechType("UltimateHelmet");
         public override Vector2int SizeInInventory => new(2, 2);
@@ -1067,9 +1207,16 @@ namespace DWEquipmentBonanza.Equipables
             return recipe;
         }
 
+        public override List<TechType> CompoundTechsForUnlock => new List<TechType>
+        {
+            Main.GetModTechType("FlashlightHelmet"),
+            TechType.RadiationHelmet,
+            TechType.Rebreather
+        };
+
         public Blueprint_FlashlightPlusBrineHelmet() : base("Blueprint_LightRadHelmetToUltimateHelmet", UltimateHelmet.friendlyName, UltimateHelmet.description)
         {
-            OnFinishedPatching += () =>
+            /*OnFinishedPatching += () =>
             {
                 Reflection.AddCompoundTech(this.TechType, new List<TechType>
                 {
@@ -1077,31 +1224,35 @@ namespace DWEquipmentBonanza.Equipables
                     TechType.RadiationHelmet,
                     TechType.Rebreather
                 });
-            };
+            };*/
         }
     }
 #endif
 
-    internal class UltimateHelmet : HeadwearBase<UltimateHelmet>
+    public class UltimateHelmet : FlashlightHelmet
     {
         internal const string classId = "UltimateHelmet";
         internal const string friendlyName = "Ultimate Helmet";
-#if SUBNAUTICA
+#if SN1
         internal const string description = "The ultimate in survival headwear. An acid-resistant, radiation-proof helmet with integrated rebreather and lamp.";
 #elif BELOWZERO
         internal const string description = "The ultimate in survival headwear. An insulated helmet with integrated rebreather and lamp.";
 #endif
 
         protected override float tempBonus => 10f;
-#if SUBNAUTICA
-        protected override TechType prefabTemplate => TechType.Rebreather;
+#if SN1
+        protected override TechType templateType => TechType.Rebreather;
 #elif BELOWZERO
-        protected override TechType prefabTemplate => TechType.FlashlightHelmet;
+        protected override TechType templateType => TechType.FlashlightHelmet;
 #endif
-        protected override List<TechType> compoundTech => new List<TechType>
+
+#if NAUTILUS
+        protected override string templateClassId => string.Empty;
+#endif
+        public override List<TechType> CompoundTechsForUnlock => new List<TechType>
         {
             TechType.Rebreather,
-#if SUBNAUTICA
+#if SN1
             TechType.RadiationHelmet,
 #elif BELOWZERO
             TechType.ColdSuit,
@@ -1111,7 +1262,7 @@ namespace DWEquipmentBonanza.Equipables
 
         protected override List<TechType> substitutions => new List<TechType>()
         {
-#if SUBNAUTICA
+#if SN1
             TechType.RadiationHelmet,
 #elif BELOWZERO
             TechType.ColdSuitHelmet,
@@ -1128,7 +1279,7 @@ namespace DWEquipmentBonanza.Equipables
                 {
                     new Ingredient(Main.GetModTechType("FlashlightHelmet"), 1),
                     new Ingredient(TechType.Rebreather, 1),
-#if SUBNAUTICA
+#if SN1
                     new Ingredient(TechType.RadiationHelmet, 1),
                     new Ingredient(TechType.AdvancedWiringKit, 1),
 #elif BELOWZERO
@@ -1139,9 +1290,16 @@ namespace DWEquipmentBonanza.Equipables
             };
         }
 
+#if NAUTILUS
+        public override void ModPrefab(GameObject gameObject)
+        {
+            base.ModPrefab(gameObject);
+            gameObject.EnsureComponent<FlashlightHelmetComponent>();
+        }
+#else
         protected override GameObject ModifyGameObject(GameObject prefab)
         {
-#if SUBNAUTICA
+#if SN1
             var obj = FlashlightHelmet.PreparePrefab(GameObjectUtils.InstantiateInactive(prefab), this.ClassID);
             TechType fallback = Main.GetModTechType("AcidHelmet");
             Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
@@ -1174,7 +1332,7 @@ namespace DWEquipmentBonanza.Equipables
             GameObject modPrefab;
             if (!TechTypeUtils.TryGetModPrefab(this.TechType, out modPrefab))
             {
-#if SUBNAUTICA
+#if SN1
                 yield return FlashlightHelmet.SetUpPrefabsCoroutine();
 #endif
                 CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTemplate);
@@ -1189,16 +1347,20 @@ namespace DWEquipmentBonanza.Equipables
             gameObject.Set(modPrefab);
         }
 
+#endif
         protected override void OnFinishedPatch()
         {
             base.OnFinishedPatch();
-#if SUBNAUTICA
+#if SN1
             TechTypeUtils.AddModTechType(this.TechType);
             Main.AddDamageResist(this.TechType, DamageType.Acid, 0.25f);
             AcidHelmet.textureDict.Add(this.TechType, ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetskin.png")));
             AcidHelmet.illumTextureDict.Add(this.TechType, ImageUtils.LoadTextureFromFile(Path.Combine(Main.AssetsFolder, "AcidHelmetillum.png")));
 #elif BELOWZERO
             TooltipFactoryPatches.AddNoBarTechType(this.TechType);
+            int coldResist = TechData.GetColdResistance(TechType.ColdSuitHelmet);
+            Reflection.AddColdResistance(this.TechType, System.Math.Max(20, coldResist));
+            Reflection.SetItemSize(this.TechType, 2, 2);
 #endif
         }
 

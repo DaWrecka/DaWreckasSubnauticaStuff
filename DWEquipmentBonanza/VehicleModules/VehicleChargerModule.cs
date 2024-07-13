@@ -1,8 +1,22 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using Common.Utility;
 using DWEquipmentBonanza.MonoBehaviours;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Assets.Gadgets;
+using Nautilus.Crafting;
+using Nautilus.Utility;
+using Nautilus.Handlers;
+using Ingredient = CraftData.Ingredient;
+using Common.NautilusHelper;
+#else
+using RecipeData = SMLHelper.V2.Crafting.TechData;
 using SMLHelper.V2.Assets;
+using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Utility;
+using SMLHelper.V2.Handlers;
+#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,13 +25,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-#if SUBNAUTICA_STABLE
-    using Sprite = Atlas.Sprite;
+#if SN1
+using Sprite = Atlas.Sprite;
 #endif
 
 namespace DWEquipmentBonanza.VehicleModules
 {
-    public abstract class VehicleChargerModule<Y> : Equipable where Y : MonoBehaviour
+    public abstract class VehicleModule : Equipable
     {
         public override TechGroup GroupForPDA => TechGroup.VehicleUpgrades;
         public override TechCategory CategoryForPDA => TechCategory.VehicleUpgrades;
@@ -25,14 +39,67 @@ namespace DWEquipmentBonanza.VehicleModules
         public override CraftTree.Type FabricatorType => CraftTree.Type.SeamothUpgrades;
         public override string[] StepsToFabricatorTab => new string[] { DWConstants.ChargerMenuPath };
         public override float CraftingTime => 10f;
-        public override Vector2int SizeInInventory => new Vector2int(1, 1);
-        protected virtual TechType template => TechType.None;
+        public override Vector2int SizeInInventory => new(1, 1);
         public override QuickSlotType QuickSlotType => QuickSlotType.Passive;
         public override EquipmentType EquipmentType => EquipmentType.VehicleModule;
         protected virtual float ChargerWeight => 1f;
         protected Sprite sprite;
 
-#if SUBNAUTICA_STABLE
+        public VehicleModule(string classID,
+            string friendlyName,
+            string description) : base(classID, friendlyName, description)
+        {
+        }
+
+        public override void FinalisePrefab(CustomPrefab prefab)
+        {
+            base.FinalisePrefab(prefab);
+            prefab.SetVehicleUpgradeModule(EquipmentType, QuickSlotType)
+                .WithOnModuleAdded(OnModuleAdded)
+                .WithOnModuleRemoved(OnModuleRemoved)
+                .WithOnModuleToggled(OnModuleToggled)
+                .WithOnModuleUsed(OnModuleUsed);
+        }
+
+        protected virtual void OnModuleAdded(Vehicle inst, int slotId)
+        { }
+
+        protected virtual void OnModuleUsed(Vehicle inst, int slotID, float charge, float chargeScalar)
+        { }
+
+        // Toggled, Removed
+        protected virtual void OnModuleToggled(Vehicle inst, int slotID, float energyCost, bool state)
+        { }
+
+        protected virtual void OnModuleRemoved(Vehicle inst, int slotID)
+        { }
+    }
+
+    public abstract class VehicleChargerModule<Y> : VehicleModule where Y : MonoBehaviour
+    {
+#if NAUTILUS
+        protected override TechType templateType => TechType.SeamothSolarCharge;
+        protected override string templateClassId => string.Empty;
+
+        public override void ModPrefab(GameObject gameObject)
+        {
+            base.ModPrefab(gameObject);
+
+            gameObject.EnsureComponent<Y>();
+        }
+
+        public override void FinalisePrefab(CustomPrefab prefab)
+        {
+            base.FinalisePrefab(prefab);
+            prefab.SetVehicleUpgradeModule(EquipmentType, QuickSlotType)
+                .WithOnModuleAdded(OnModuleAdded)
+                .WithOnModuleRemoved(OnModuleRemoved)
+                .WithOnModuleToggled(OnModuleToggled)
+                .WithOnModuleUsed(OnModuleUsed);
+        }
+
+
+#elif SN1    
         public override GameObject GetGameObject()
         {
             GameObject modPrefab;
@@ -85,16 +152,21 @@ namespace DWEquipmentBonanza.VehicleModules
             return sprite;
         }
 
+#if !NAUTILUS
+        protected virtual void OnFinishedPatch()
+        {
+            Main.AddModTechType(this.TechType);
+        }
+#endif
+
         public VehicleChargerModule(string classID,
             string friendlyName,
             string description) : base(classID, friendlyName, description)
         {
-            OnFinishedPatching += () =>
-            {
-                Main.AddModTechType(this.TechType);
-                //VehicleUpdater.AddChargerType(this.TechType, ChargerWeight);
-                //SeaTruckUpgradesPatches.AddMaxModuleOverride(this.TechType, MaxSolarModules);
-            };
+            //Console.WriteLine($"{this.ClassID} constructing");
+#if !NAUTILUS
+            OnFinishedPatching += OnFinishedPatch;
+#endif
         }
     }
 }

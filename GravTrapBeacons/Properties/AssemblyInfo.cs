@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion(GravTrapBeacons.Main.version)]
-[assembly: AssemblyFileVersion(GravTrapBeacons.Main.version)]
+[assembly: AssemblyVersion(GravTrapBeacons.GravTrapBeaconPlugin.version)]
+[assembly: AssemblyFileVersion(GravTrapBeacons.GravTrapBeaconPlugin.version)]

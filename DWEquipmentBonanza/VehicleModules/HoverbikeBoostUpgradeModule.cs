@@ -1,5 +1,16 @@
-﻿using SMLHelper.V2.Assets;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
+using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
+using SMLHelper.V2.Handlers;
+#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -34,10 +45,6 @@ namespace DWEquipmentBonanza.VehicleModules
 
         public HoverbikeBoostUpgradeModule() : base("HoverbikeBoostUpgradeModule", "Snowfox Boost Upgrade", "Reworks boost system, allowing for continuous boost. Be aware of overheating.")
         {
-            OnFinishedPatching += () =>
-            {
-                Main.AddModTechType(this.TechType);
-            };
         }
     }
 #endif

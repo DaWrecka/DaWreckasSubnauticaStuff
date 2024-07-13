@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using System;
 using System.Collections;
 using System.Collections.Generic;

@@ -1,27 +1,47 @@
-﻿using System;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.IO;
 using System.Reflection;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Assets.Gadgets;
+using Nautilus.Crafting;
+using Nautilus.Utility;
+using Nautilus.Handlers;
+using Ingredient = CraftData.Ingredient;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+#else
+using RecipeData = SMLHelper.V2.Crafting.TechData;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
-using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Utility;
+using SMLHelper.V2.Handlers;
+#endif
 using UnityEngine;
 using UWE;
-using Logger = QModManager.Utility.Logger;
-using FMODUnity;
+#if BEPINEX
+    using BepInEx;
+    using BepInEx.Logging;
+#elif QMM
+	using QModManager.API.ModLoading;
+#endif
 using Common;
 using Common.Utility;
 using DWEquipmentBonanza.Patches;
 
-#if SUBNAUTICA_STABLE
-using RecipeData = SMLHelper.V2.Crafting.TechData;
+#if SN1
+using FMODUnity;
 using Sprite = Atlas.Sprite;
 using Object = UnityEngine.Object;
+#endif
+
+#if LEGACY
 using Oculus.Newtonsoft;
 using Oculus.Newtonsoft.Json;
-#elif BELOWZERO
+#else
 using Newtonsoft;
 using Newtonsoft.Json;
 #endif
@@ -31,11 +51,17 @@ namespace DWEquipmentBonanza.Equipables
     public class PlasteelHighCapTank : Equipable
     {
 
+#if NAUTILUS
+        protected override TechType templateType => TechType.PlasteelTank;
+        protected override string templateClassId => string.Empty;
+
+#endif
         protected static Sprite icon;
         protected static GameObject prefab;
 
         public PlasteelHighCapTank() : base("PlasteelHighCapTank", "Plasteel Ultra Capacity Tank", "Lightweight tank with high oxygen capacity")
         {
+            //Console.WriteLine($"{this.ClassID} constructing");
             OnFinishedPatching += () =>
             {
                 Main.AddSubstitution(this.TechType, TechType.PlasteelTank);
@@ -101,17 +127,16 @@ namespace DWEquipmentBonanza.Equipables
             return icon ??= SpriteUtils.Get(TechType.HighCapacityTank, null);
         }
 
-#if SUBNAUTICA_STABLE
-        public override GameObject GetGameObject()
+#if NAUTILUS
+#else
+        private GameObject PreparePrefab(GameObject prefab)
         {
-            if (prefab == null)
-            {
-                prefab = PreparePrefab(CraftData.GetPrefabForTechType(TechType.HighCapacityTank));
-            }
-
-            return prefab;
+            GameObject go = GameObject.Instantiate(prefab);
+            //ModPrefabCache.AddPrefab(go, false);
+            return go;
         }
-#elif BELOWZERO
+
+    #if ASYNC
         public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
         {
             if (prefab == null)
@@ -127,13 +152,17 @@ namespace DWEquipmentBonanza.Equipables
             Log.LogDebug($"GameObject created with oxygenCapacity of {oxyCap}");
             gameObject.Set(prefab);
         }
-#endif
-
-        private GameObject PreparePrefab(GameObject prefab)
+    #else
+        public override GameObject GetGameObject()
         {
-            GameObject go = GameObject.Instantiate(prefab);
-            ModPrefabCache.AddPrefab(go, false);
-            return go;
+            if (prefab == null)
+            {
+                prefab = PreparePrefab(CraftData.GetPrefabForTechType(TechType.HighCapacityTank));
+            }
+
+            return prefab;
         }
+    #endif
+#endif
     }
 }

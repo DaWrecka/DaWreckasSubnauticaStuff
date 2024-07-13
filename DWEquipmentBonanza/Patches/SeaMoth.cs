@@ -7,11 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Main = DWEquipmentBonanza.DWEBPlugin;
 
 namespace DWEquipmentBonanza.Patches
 {
-#if SUBNAUTICA_STABLE
-	[HarmonyPatch(typeof(SeaMoth))]
+#if SN1
+    [HarmonyPatch(typeof(SeaMoth))]
 	internal class SeaMothPatches
     {
 		[HarmonyPatch("Start")]
@@ -26,7 +27,11 @@ namespace DWEquipmentBonanza.Patches
 
 				mixin.data.maxHealth = maxHealth;
 				mixin.health = maxHealth * instanceHealthPct;
+#if LEGACY
 				mixin.initialHealth = defaultHealth;
+#else
+				mixin.defaultHealth = defaultHealth;
+#endif
 			}
 
 			__instance.gameObject.EnsureComponent<VehicleRepairComponent>();

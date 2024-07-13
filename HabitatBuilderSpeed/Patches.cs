@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
-using SMLHelper.V2.Handlers;
-using Logger = QModManager.Utility.Logger;
+using Main = HabitatBuilderSpeed.BuilderSpeedPlugin;
 
 namespace HabitatBuilderSpeed.Patches
 {
@@ -12,7 +11,7 @@ namespace HabitatBuilderSpeed.Patches
         {
             if (__result >= 1f)
                 __result *= Main.config.builderMultiplier;
-            //Logger.Log(Logger.Level.Debug, $"Patching GetConstructInterval using multiplier of {multiplier}, with result of {__result}");
+            //Log.LogDebug($"Patching GetConstructInterval using multiplier of {multiplier}, with result of {__result}");
         }
 	}
 }

@@ -1,11 +1,20 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using System.Collections;
 using System.Collections.Generic;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Handlers;
+#endif
 using UnityEngine;
-using Logger = QModManager.Utility.Logger;
 
 namespace DWEquipmentBonanza.VehicleModules
 {
@@ -36,10 +45,6 @@ namespace DWEquipmentBonanza.VehicleModules
 
         public HoverbikeDurabilitySystem() : base("HoverbikeDurabilitySystem", "Hoverbike Durability System", "Energy field reduces incoming damage, and nanotech repair system passively repairs damage to Snowfox systems. Consumes energy while in use.")
         {
-            OnFinishedPatching += () =>
-            {
-                Main.AddModTechType(this.TechType);
-            };
         }
     }
 #endif

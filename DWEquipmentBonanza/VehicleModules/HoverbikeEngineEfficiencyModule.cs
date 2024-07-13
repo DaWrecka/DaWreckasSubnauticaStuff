@@ -1,11 +1,20 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using System.Collections;
 using System.Collections.Generic;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+using Nautilus.Handlers;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+using Ingredient = CraftData.Ingredient;
+#else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Handlers;
+#endif
 using UnityEngine;
-using Logger = QModManager.Utility.Logger;
 using DWEquipmentBonanza.MonoBehaviours;
 
 namespace DWEquipmentBonanza.VehicleModules
@@ -34,13 +43,14 @@ namespace DWEquipmentBonanza.VehicleModules
             };
         }
 
+        protected override void OnFinishedPatch()
+        {
+            base.OnFinishedPatch();
+            HoverbikeUpdater.AddEfficiencyMultiplier(this.TechType, efficiencyModifier, maxUpgrades: maxUpgrades);
+        }
+
         public HoverbikeEngineEfficiencyModule() : base("HoverbikeEngineEfficiencyModule", "Snowfox Engine Efficiency Module", "Optimises Snowfox power use, reducing battery consumption by 35%. Stacks up to twice.")
         {
-            OnFinishedPatching += () =>
-            {
-                HoverbikeUpdater.AddEfficiencyMultiplier(this.TechType, efficiencyModifier, maxUpgrades: maxUpgrades);
-                Main.AddModTechType(this.TechType);
-            };
         }
     }
 #endif

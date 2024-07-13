@@ -8,8 +8,13 @@ using HarmonyLib;
 using Common;
 using UnityEngine;
 using UWE;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Crafting;
+#else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
+#endif
 
 namespace PowerOverYourPower.Patches
 {
@@ -37,7 +42,7 @@ namespace PowerOverYourPower.Patches
 
 		internal static void PostPatch()
 		{
-			foreach (KeyValuePair<string, float> kvp in Main.config.BatteryValues)
+			foreach (KeyValuePair<string, float> kvp in POYPPlugin.config.BatteryValues)
 			{
 				TechType tt = TechTypeUtils.GetTechType(kvp.Key);
 				if (tt == TechType.None)
@@ -123,7 +128,7 @@ namespace PowerOverYourPower.Patches
 		{
 			float batteryChargePct = (__instance.charge / __instance._capacity);
 			Log.LogDebug($"BatteryPatches.PostDeserialise: Processing battery instance {__instance.GetInstanceID()}");
-/*#if SUBNAUTICA_STABLE
+/*#if SN1
 			TechTag tt = __instance.gameObject?.GetComponent<TechTag>();
 			if(tt != null)
 #elif BELOWZERO*/

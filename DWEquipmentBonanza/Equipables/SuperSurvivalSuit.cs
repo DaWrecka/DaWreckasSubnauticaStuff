@@ -1,8 +1,23 @@
-﻿using DWEquipmentBonanza.MonoBehaviours;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using DWEquipmentBonanza.MonoBehaviours;
 using DWEquipmentBonanza.Patches;
 using Common;
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Assets.Gadgets;
+using Nautilus.Crafting;
+using Nautilus.Utility;
+using Nautilus.Handlers;
+using Ingredient = CraftData.Ingredient;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+#else
+using RecipeData = SMLHelper.V2.Crafting.TechData;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
+using SMLHelper.V2.Utility;
+using SMLHelper.V2.Handlers;
+#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,11 +27,9 @@ using System.Threading.Tasks;
 using UnityEngine;
 using System.Reflection;
 using UWE;
-#if SUBNAUTICA_STABLE
-using RecipeData = SMLHelper.V2.Crafting.TechData;
+#if SN1
     using Sprite = Atlas.Sprite;
     using Object = UnityEngine.Object;
-#elif BELOWZERO
 #endif
 
 namespace DWEquipmentBonanza.Equipables
@@ -25,54 +38,54 @@ namespace DWEquipmentBonanza.Equipables
     {
         public SuperSurvivalSuit() : base(classId: "SuperSurvivalSuit",
             friendlyName: "Ultimate Survival Suit",
-#if SUBNAUTICA_STABLE
+#if SN1
             Description: "The ultimate in survival gear. Provides protection from extreme temperatures, corrosive substances and physical harm, and reduces the need for external sustenance."
 #elif BELOWZERO
             Description: "The ultimate in survival gear. Provides protection from extreme temperatures and physical harm, and reduces the need for external sustenance."
 #endif
             )
         {
-            Log.LogDebug($"SuperSurvivalSuit(): constructor begin");
-            OnFinishedPatching += () =>
-            {
-                Log.LogDebug($"SuperSurvivalSuit(): OnFinishedPatching begin");
-                Reflection.AddCompoundTech(this.TechType, new List<TechType>()
-                {
-#if SUBNAUTICA_STABLE
-                    TechType.RadiationSuit,
-#elif BELOWZERO
-                    TechType.ColdSuit,
-#endif
-                    Main.StillSuitType,
-                    TechType.ReinforcedDiveSuit
-                });
-
-#if SUBNAUTICA_STABLE
-                Main.AddSubstitution(this.TechType, TechType.RadiationSuit);
-                Main.AddDiveSuit(this.TechType, 8000f, 0.50f, 40f);
-                /*Main.DamageResistances[this.TechType] = new List<Main.DamageInfo>()
-                {
-                    {
-                        new Main.DamageInfo(DamageType.Acid, -0.6f)
-                    }
-                };*/
-                Main.AddDamageResist(this.TechType, DamageType.Acid, 0.6f);
-                Log.LogDebug($"Finished patching {this.TechType.AsString()}");
-#elif BELOWZERO
-                int coldResist = TechData.GetColdResistance(TechType.ColdSuit);
-                Reflection.AddColdResistance(this.TechType, System.Math.Max(55, coldResist));
-                Reflection.SetItemSize(this.TechType, 2, 3);
-                Log.LogDebug($"Finished patching {this.TechType.AsString()}, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
-#endif
-
-                // the SurvivalSuit constructor will call AddModTechType already.
-                // It has also been set up to add substitutions based on the value of the 'substitutions' property below,
-                // as well as set up CompoundTech based on the value of CompoundDependencies
-                Log.LogDebug($"SuperSurvivalSuit(): OnFinishedPatching end");
-            };
             Log.LogDebug($"SuperSurvivalSuit(): constructor end");
         }
 
+        protected override void OnFinishedPatch()
+        {
+            base.OnFinishedPatch();
+            Log.LogDebug($"SuperSurvivalSuit(): OnFinishedPatching begin");
+            Reflection.AddCompoundTech(this.TechType, new List<TechType>()
+            {
+#if SN1
+                TechType.RadiationSuit,
+#elif BELOWZERO
+                TechType.ColdSuit,
+#endif
+                Main.StillSuitType,
+                TechType.ReinforcedDiveSuit
+            });
+
+#if SN1
+            Main.AddSubstitution(this.TechType, TechType.RadiationSuit);
+            Main.AddDiveSuit(this.TechType, 8000f, 0.50f, 40f);
+            /*Main.DamageResistances[this.TechType] = new List<Main.DamageInfo>()
+            {
+                {
+                    new Main.DamageInfo(DamageType.Acid, -0.6f)
+                }
+            };*/
+            Main.AddDamageResist(this.TechType, DamageType.Acid, 0.6f);
+            Log.LogDebug($"Finished patching {this.TechType.AsString()}");
+#elif BELOWZERO
+            int coldResist = TechData.GetColdResistance(TechType.ColdSuit);
+            Reflection.AddColdResistance(this.TechType, System.Math.Max(55, coldResist));
+            Reflection.SetItemSize(this.TechType, 2, 3);
+            Log.LogDebug($"Finished patching {this.TechType.AsString()}, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
+#endif
+
+            // the SurvivalSuit constructor will call AddModTechType already.
+            // It has also been set up to add substitutions based on the value of the 'substitutions' property below,
+            // as well as set up CompoundTech based on the value of CompoundDependencies
+            Log.LogDebug($"SuperSurvivalSuit(): OnFinishedPatching end");
+        }
         public override bool UnlockedAtStart => false;
         public override EquipmentType EquipmentType => EquipmentType.Body;
         [Obsolete]
@@ -80,7 +93,7 @@ namespace DWEquipmentBonanza.Equipables
         protected override float maxDepth => 8000f;
         protected override float breathMultiplier => 0.50f;
         protected override float minTempBonus => 40f;
-#if SUBNAUTICA_STABLE
+#if SN1
         protected override float DeathRunDepth => -1f;
 #elif BELOWZERO
         protected override TechType prefabTechType => TechType.ColdSuit;
@@ -97,7 +110,7 @@ namespace DWEquipmentBonanza.Equipables
                 {
                     TechType.ReinforcedDiveSuit,
                     Main.StillSuitType,
-#if SUBNAUTICA_STABLE
+#if SN1
                     TechType.RadiationSuit
 #elif BELOWZERO
                     TechType.ColdSuit,
@@ -106,7 +119,7 @@ namespace DWEquipmentBonanza.Equipables
 
         protected override RecipeData GetBlueprintRecipe()
         {
-#if SUBNAUTICA_STABLE
+#if SN1
             if (Main.HasNitrogenMod())
             {
                 return new RecipeData()
@@ -128,7 +141,7 @@ namespace DWEquipmentBonanza.Equipables
                 Ingredients = new List<Ingredient>(new Ingredient[]
                 {
                     new Ingredient(Main.GetModTechType("SurvivalSuit"), 1),
-#if SUBNAUTICA_STABLE
+#if SN1
                     new Ingredient(Main.GetModTechType("AcidSuit"), 1),
 #elif BELOWZERO
                     new Ingredient(TechType.ReinforcedDiveSuit, 1),
@@ -148,88 +161,26 @@ namespace DWEquipmentBonanza.Equipables
 
         protected override Sprite GetItemSprite()
         {
-#if SUBNAUTICA_STABLE
+#if SN1
             return SpriteManager.Get(Main.StillSuitType);
 #elif BELOWZERO
             return SpriteManager.Get(TechType.ColdSuit);
 #endif
         }
 
-        /*public override GameObject GetGameObject()
-        {
-            Log.LogDebug($"SuperSurvivalSuit.GetGameObject(): begin");
-            if (prefab == null)
-            {
-                Log.LogDebug($"SuperSurvivalSuit.GetGameObject(): caching new prefab");
-                prefab = InstantiateAndModifyGameObject(CraftData.GetPrefabForTechType(Main.StillSuitType));
-            }
-            else
-            {
-                Log.LogDebug($"SuperSurvivalSuit.GetGameObject(): using existing prefab");
-            }
-
-            Log.LogDebug($"SuperSurvivalSuit.GetGameObject(): done");
-            return prefab;
-        }
-
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
-            Stillsuit s;
-            if (prefab == null)
-            {
-                Log.LogDebug("SuperSurvivalSuit.GetGameObjectAsync(): Caching new prefab");
-#if SUBNAUTICA_STABLE
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(Main.StillSuitType, verbose: true);
-#elif BELOWZERO
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuit, verbose: true);
-#endif
-                yield return task;
-
-                prefab = InstantiateAndModifyGameObject(task.GetResult());
-            }
-            else
-            {
-                Log.LogDebug("SuperSurvivalSuit.GetGameObjectAsync(): Using existing prefab");
-            }
-
-            GameObject go = GameObject.Instantiate(prefab);
-            if(go.TryGetComponent<Stillsuit>(out s))
-                GameObject.DestroyImmediate(s);
-            gameObject.Set(go);
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
-        }
-
-        private GameObject InstantiateAndModifyGameObject(GameObject thisPrefab)
-        {
-            MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
-            GameObject obj = GameObject.Instantiate(thisPrefab);
-            Log.LogDebug($"SuperSurvivalSuit.InstantiateAndModifyGameObject(): prefab instantiated, modifying");
-            // Editing prefab
-#if SUBNAUTICA_STABLE
-            Stillsuit s = obj.GetComponent<Stillsuit>();
-            if(s != null)
-#elif BELOWZERO
-            if (obj.TryGetComponent<Stillsuit>(out Stillsuit s))
-#endif
-                GameObject.DestroyImmediate(s);
-            obj.EnsureComponent<SurvivalsuitBehaviour>();
-            Log.LogDebug($"SuperSurvivalSuit.InstantiateAndModifyGameObject(): prefab modified, invoking ModPrefabCache.AddPrefab()");
-            ModPrefabCache.AddPrefab(obj); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)] but it can still be instantiated.
-
-            Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
-            return obj;
-        }*/
     }
 
     internal abstract class SurvivalSuitBlueprint : Craftable
     {
+#if NAUTILUS
+        protected override TechType templateType => TechType.ReinforcedDiveSuit;
+        protected override string templateClassId => string.Empty;
+#endif
         public SurvivalSuitBlueprint(string classId) : base(classId,
                     "Ultimate Survival Suit",
                     "The ultimate in survival gear. Provides protection from extreme temperatures and physical harm, and reduces the need for external sustenance.")
         {
+            //Console.WriteLine($"{this.ClassID} constructing");
             OnFinishedPatching += () =>
             {
             };
@@ -253,7 +204,7 @@ namespace DWEquipmentBonanza.Equipables
                 Reflection.AddCompoundTech(this.TechType, new List<TechType>()
                 {
                     Main.StillSuitType,
-#if SUBNAUTICA_STABLE
+#if SN1
                     TechType.RadiationSuit,
 #elif BELOWZERO
                     TechType.ColdSuit,
@@ -274,7 +225,7 @@ namespace DWEquipmentBonanza.Equipables
                     {
                         new Ingredient(Main.GetModTechType("ReinforcedSurvivalSuit"), 1),
                         new Ingredient(TechType.ReinforcedGloves, 1),
-#if SUBNAUTICA_STABLE
+#if SN1
                         new Ingredient(TechType.HydrochloricAcid, 1),
                         new Ingredient(TechType.CreepvinePiece, 2),
                         new Ingredient(TechType.Aerogel, 1),
@@ -290,7 +241,7 @@ namespace DWEquipmentBonanza.Equipables
                 LinkedItems = new List<TechType>()
                 {
                     Main.GetModTechType("SuperSurvivalSuit"),
-#if SUBNAUTICA_STABLE
+#if SN1
                     Main.GetModTechType("AcidGloves"),
 #elif BELOWZERO
                     Main.GetModTechType("ReinforcedColdGloves")

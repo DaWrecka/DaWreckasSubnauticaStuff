@@ -1,19 +1,33 @@
-﻿using System.Collections.Generic;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+
+#if NAUTILUS
+using Nautilus.Assets;
+using Nautilus.Assets.Gadgets;
+using Nautilus.Crafting;
+using Nautilus.Utility;
+using Nautilus.Handlers;
+using Ingredient = CraftData.Ingredient;
+using Common.NautilusHelper;
+using RecipeData = Nautilus.Crafting.RecipeData;
+#else
+using RecipeData = SMLHelper.V2.Crafting.TechData;
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Utility;
-using UnityEngine;
 using SMLHelper.V2.Handlers;
-using Logger = QModManager.Utility.Logger;
+#endif
+using UnityEngine;
 using System.Collections;
 using DWEquipmentBonanza.Patches;
-using FMOD.Studio;
 using DWEquipmentBonanza.MonoBehaviours;
+using Common;
+using System;
 
-#if SUBNAUTICA_STABLE
-using RecipeData = SMLHelper.V2.Crafting.TechData;
+#if SN1
+using FMOD.Studio;
 using Sprite = Atlas.Sprite;
 using Object = UnityEngine.Object;
 #endif
@@ -28,9 +42,10 @@ namespace DWEquipmentBonanza
 
         public Vibroblade(string classId = "Vibroblade", string friendlyName = "Vibroblade", string description = "Hardened survival blade with high-frequency oscillator inflicts horrific damage with even glancing blows") : base(classId, friendlyName, description)
         {
+            Log.LogDebug($"{this.ClassID} constructed");
+#if !NAUTILUS
             OnFinishedPatching += () =>
             {
-#if SUBNAUTICA_STABLE
                 var diamondBlade = new RecipeData()
                 {
                     craftAmount = 1,
@@ -40,14 +55,25 @@ namespace DWEquipmentBonanza
                         new Ingredient(TechType.Diamond, 1)
                     }
                 };
+
+    #if SN1    
                 CraftDataHandler.SetTechData(TechType.DiamondBlade, diamondBlade);
                 CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.DiamondBlade, new string[] { DWConstants.KnifeMenuPath });
-#endif
+    #endif
                 Main.AddModTechType(this.TechType);
                 PlayerPatch.AddSubstitution(this.TechType, TechType.Knife);
             };
+#endif
         }
 
+#if NAUTILUS
+    #if SN1
+        protected override TechType templateType => TechType.DiamondBlade;
+    #else
+        protected override TechType templateType => TechType.Knife;
+    #endif
+        protected override string templateClassId => null;
+#endif
         public override EquipmentType EquipmentType => EquipmentType.Hand;
         public override Vector2int SizeInInventory => new Vector2int(1, 1);
         public override TechType RequiredForUnlock => TechType.Diamond;
@@ -60,7 +86,11 @@ namespace DWEquipmentBonanza
 
         private static GameObject SetupPrefab(GameObject activePrefab)
         {
+#if NAUTILUS
+            var obj = activePrefab;
+#else
             var obj = GameObject.Instantiate(activePrefab);
+#endif
             if (obj == null)
             {
                 return null;
@@ -79,7 +109,7 @@ namespace DWEquipmentBonanza
                 }
                 if (knife != null)
                 {
-#if SUBNAUTICA_STABLE
+#if SN1
                     blade.attackSound = knife.attackSound;
                     blade.underwaterMissSound = knife.underwaterMissSound;
                     blade.surfaceMissSound = knife.surfaceMissSound;
@@ -103,15 +133,42 @@ namespace DWEquipmentBonanza
             else
             {
 #if !RELEASE
-                Logger.Log(Logger.Level.Debug, $"Could not ensure VibrobladeBehaviour component in Vibroblade prefab");
+                Log.LogDebug($"Could not ensure VibrobladeBehaviour component in Vibroblade prefab");
 #endif
             }
 
+#if !NAUTILUS
             ModPrefabCache.AddPrefab(obj, false);
+#endif
             return obj;
         }
 
-#if SUBNAUTICA_STABLE
+#if NAUTILUS
+        public override void ModPrefab(GameObject gameObject)
+        {
+            base.ModPrefab(gameObject);
+            gameObject = SetupPrefab(gameObject);
+            PlayerPatch.AddSubstitution(this.TechType, TechType.Knife);
+        }
+
+#elif ASYNC
+        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+        {
+            if (prefab == null)
+            {
+                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.HeatBlade);
+                yield return task;
+                hbPrefab = task.GetResult();
+
+                task = CraftData.GetPrefabForTechTypeAsync(TechType.Knife);
+                yield return task;
+
+                prefab = SetupPrefab(task.GetResult());
+            }
+            gameObject.Set(prefab);
+        }
+
+#else
         public override GameObject GetGameObject()
         {
             if (prefab == null)
@@ -125,19 +182,6 @@ namespace DWEquipmentBonanza
             return prefab;
         }
 #endif
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.HeatBlade);
-            yield return task;
-            hbPrefab = task.GetResult();
-
-            task = CraftData.GetPrefabForTechTypeAsync(TechType.Knife);
-            yield return task;
-
-            prefab = SetupPrefab(task.GetResult());
-
-            gameObject.Set(prefab);
-        }
 
         protected override RecipeData GetBlueprintRecipe()
         {

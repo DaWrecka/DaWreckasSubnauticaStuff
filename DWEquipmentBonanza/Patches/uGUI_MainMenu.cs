@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using Main = DWEquipmentBonanza.DWEBPlugin;
+using Common;
 using HarmonyLib;
 using System;
 using System.Collections;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UWE;
+using System.Security.AccessControl;
 
 namespace DWEquipmentBonanza.Patches
 {
@@ -93,13 +95,28 @@ namespace DWEquipmentBonanza.Patches
 					{
 						Log.LogWarning($"PostMenuCoroutine(): Could not find LargeWorldEntity component in prefab for TechType {techType}");
 					}
-#if SUBNAUTICA_STABLE
-					// Since we're here, make kyanite less troll-tastic.
-					Drillable drillable = prefab.GetComponent<Drillable>();
+#if SN1
+                    // Since we're here, make kyanite less troll-tastic.
+                    Drillable drillable = prefab.GetComponent<Drillable>();
+	#if LEGACY
 					if (drillable != null && drillable.kChanceToSpawnResources < DWConstants.newKyaniteChance)
 					{
 						drillable.kChanceToSpawnResources = DWConstants.newKyaniteChance;
 					}
+	#else
+					if (drillable != null)
+					{
+						Drillable.ResourceType resource;
+						for(int i = 0; i < drillable.resources.Length; i++)
+						{
+							resource = drillable.resources[i];
+							if (resource.techType == TechType.Kyanite)
+							{
+								resource.chance = 1;
+							}
+						}
+					}
+	#endif
 #endif
 				}
 				else
@@ -110,12 +127,12 @@ namespace DWEquipmentBonanza.Patches
 
 			Log.LogDebug("PostMenuCoroutine(): Processing vehicle defaults");
 			types = new List<TechType>() {
-#if SUBNAUTICA_STABLE
-			TechType.Seamoth,
-			TechType.Cyclops,
+#if SN1
+				TechType.Seamoth,
+				TechType.Cyclops,
 #elif BELOWZERO
-			TechType.SeaTruck,
-			TechType.Hoverbike,
+				TechType.SeaTruck,
+				TechType.Hoverbike,
 #endif
 			TechType.Exosuit,
 			};
