@@ -41,48 +41,56 @@ namespace Common
 		}
 	}
 #elif BEPINEX
-        private static ManualLogSource logger;
-        private static readonly AssemblyName ModName = Assembly.GetExecutingAssembly().GetName();
+		private static ManualLogSource logger;
+		private static readonly AssemblyName ModName = Assembly.GetExecutingAssembly().GetName();
 
-        static Log()
+		static Log()
 		{
 			if(logger == null)
 				logger = BepInEx.Logging.Logger.CreateLogSource(ModName.Name);
-        }
+		}
 
 		public static void InitialiseLog(string GUID)
 		{
-            if (logger == null)
-                logger = BepInEx.Logging.Logger.CreateLogSource(GUID);
+			if (logger == null)
+				logger = BepInEx.Logging.Logger.CreateLogSource(GUID);
 
 			logger?.LogInfo("Log initialised for mod " + GUID);
 		}
 
-        public static void LogDebug(string message, Exception ex = null, bool showOnScreen = false)
-        {
+		public static void LogDebug(string message, Exception ex = null, bool bShowOnScreen = false)
+		{
 #if !RELEASE
 			logger.LogDebug(message);
 #endif
-        }
+			if (bShowOnScreen)
+				ErrorMessage.AddDebug(message);
+		}
 
-        public static void LogError(string message, Exception ex = null, bool bShowOnScreen = false)
-        {
-            logger.LogError(message);
-        }
+		public static void LogError(string message, Exception ex = null, bool bShowOnScreen = false)
+		{
+			logger.LogError(message);
+			if (bShowOnScreen)
+				ErrorMessage.AddError(message);
+		}
 
-        public static void LogWarning(string message, Exception ex = null, bool bShowOnScreen = false)
-        {
-            logger.LogWarning(message);
-        }
+		public static void LogWarning(string message, Exception ex = null, bool bShowOnScreen = false)
+		{
+			logger.LogWarning(message);
+			if (bShowOnScreen)
+				ErrorMessage.AddWarning(message);
+		}
 
-        public static void LogInfo(string message, Exception ex = null, bool bShowOnScreen = false)
-        {
+		public static void LogInfo(string message, Exception ex = null, bool bShowOnScreen = false)
+		{
 			logger.LogInfo(message);
-        }
-    }
+			if (bShowOnScreen)
+				ErrorMessage.AddMessage(message);
+		}
+	}
 #endif
 
-    public static class Extensions
+	public static class Extensions
 	{
 		public static T FindComponentInChildWithTag<T>(this GameObject parent, string tag) where T : Component
 		{
@@ -113,9 +121,9 @@ namespace Common
 	{
 		public static void LogTranspiler(List<CodeInstruction> codes)
 		{
-            for (int i = 0; i < codes.Count; i++)
-                Log.LogInfo(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
+			for (int i = 0; i < codes.Count; i++)
+				Log.LogInfo(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
 
-        }
-    }
+		}
+	}
 }

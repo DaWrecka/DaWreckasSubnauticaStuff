@@ -7,4 +7,5 @@ using UnityEngine;
 
 namespace DWEquipmentBonanza.GameObjects
 {
+	
 }

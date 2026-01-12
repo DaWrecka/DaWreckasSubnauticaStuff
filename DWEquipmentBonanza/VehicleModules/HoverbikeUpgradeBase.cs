@@ -5,7 +5,10 @@ using Nautilus.Crafting;
 using Nautilus.Handlers;
 using Common.NautilusHelper;
 using RecipeData = Nautilus.Crafting.RecipeData;
-using Ingredient = CraftData.Ingredient;
+using Nautilus.Utility;
+	#if SN1
+	//using Ingredient = CraftData\.Ingredient;
+	#endif
 #else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
@@ -23,63 +26,68 @@ using UnityEngine;
 namespace DWEquipmentBonanza.VehicleModules
 {
 #if BELOWZERO
-    internal abstract class HoverbikeUpgradeBase<T> : Equipable
-    {
-        protected static GameObject prefab;
-        protected static Sprite sprite;
-        protected virtual TechType spriteTemplate { get; }
+	internal abstract class HoverbikeUpgradeBase<T> : Equipable
+	{
+#if NAUTILUS
+		protected override string templateClassId => String.Empty;
+		protected override TechType templateType => TechType.HoverbikeJumpModule;
+#else
+		protected abstract TechType templateType { get; }
+		public override System.Collections.IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+		{
+			if (templateType == TechType.None)
+				yield break;
 
-        public override EquipmentType EquipmentType => EquipmentType.HoverbikeModule;
-        public override QuickSlotType QuickSlotType => QuickSlotType.Passive;
-        public override TechGroup GroupForPDA => TechGroup.VehicleUpgrades;
-        public override TechCategory CategoryForPDA => TechCategory.VehicleUpgrades;
-        public override TechType RequiredForUnlock => TechType.Hoverbike;
-        public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;
-        public override string[] StepsToFabricatorTab => new string[] { "Upgrades", "HoverbikeUpgrades" };
-        public override Vector2int SizeInInventory => new Vector2int(1, 1);
-        protected abstract TechType prefabTemplate { get; }
+			CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(templateType);
+			yield return task;
 
-        protected override Sprite GetItemSprite()
-        {
-            try
-            {
-                sprite ??= ImageUtils.LoadSpriteFromFile($"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/Assets/{ClassID}Icon.png") ?? SpriteManager.Get(spriteTemplate, null);
-            }
-            catch
-            {
-                sprite ??= SpriteManager.Get(spriteTemplate, null);
-            }
+			prefab = ModifyPrefab(ModPrefabCache.AddPrefabCopy(task.GetResult()));
+			gameObject.Set(prefab);
+		}
+#endif
 
-            return sprite;
-        }
+		protected static GameObject prefab;
+		protected static Sprite sprite;
+		protected abstract TechType spriteTemplate { get; }
 
-        protected virtual GameObject ModifyPrefab(GameObject original)
-        {
-            return original;
-        }
+		public override EquipmentType EquipmentType => EquipmentType.HoverbikeModule;
+		public override QuickSlotType QuickSlotType => QuickSlotType.Passive;
+		public override TechGroup GroupForPDA => TechGroup.VehicleUpgrades;
+		public override TechCategory CategoryForPDA => TechCategory.VehicleUpgrades;
+		public override TechType RequiredForUnlock => TechType.Hoverbike;
+		public override CraftTree.Type FabricatorType => CraftTree.Type.Fabricator;
+		public override string[] StepsToFabricatorTab => new string[] { "Upgrades", "HoverbikeUpgrades" };
+		public override Vector2int SizeInInventory => new Vector2int(1, 1);
 
-        public override System.Collections.IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            if (prefabTemplate == TechType.None)
-                yield break;
+		protected override Sprite GetItemSprite()
+		{
+			try
+			{
+				sprite ??= ImageUtils.LoadSpriteFromFile($"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/Assets/{ClassID}Icon.png") ?? SpriteManager.Get(spriteTemplate, null);
+			}
+			catch
+			{
+				sprite ??= SpriteManager.Get(spriteTemplate, null);
+			}
 
-            CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTemplate);
-            yield return task;
+			return sprite;
+		}
 
-            prefab = ModifyPrefab(ModPrefabCache.AddPrefabCopy(task.GetResult()));
-            gameObject.Set(prefab);
-        }
+		protected virtual GameObject ModifyPrefab(GameObject original)
+		{
+			return original;
+		}
 
-        protected virtual void OnFinishedPatch()
-        {
-            Main.AddModTechType(this.TechType);
-        }
+		protected virtual void OnFinishedPatch()
+		{
+			Main.AddModTechType(this.TechType);
+		}
 
-        public HoverbikeUpgradeBase(string classID, string Title, string Description) : base(classID, Title, Description)
-        {
-            //Console.WriteLine($"{this.ClassID} constructing");
-            OnFinishedPatching += OnFinishedPatch;
-        }
-    }
+		public HoverbikeUpgradeBase(string classID, string Title, string Description) : base(classID, Title, Description)
+		{
+			//Console.WriteLine($"{this.ClassID} constructing");
+			OnFinishedPatching += OnFinishedPatch;
+		}
+	}
 #endif
 }

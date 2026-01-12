@@ -23,7 +23,7 @@ namespace CustomiseYourStorage
 			int moduleCount = __instance.modules.GetCount(TechType.VehicleStorageModule);
 			var height = Y + (moduleCount * perModule);
 #if !RELEASE
-            Log.LogDebug($"Exosuit.UpdateStorageSize prefixed with Exosuit config of ({X}, {Y}, {perModule}); Number of VehicleStorageModule units found: {moduleCount}"); 
+			Log.LogDebug($"Exosuit.UpdateStorageSize prefixed with Exosuit config of ({X}, {Y}, {perModule}); Number of VehicleStorageModule units found: {moduleCount}"); 
 #endif
 			__instance.storageContainer.Resize(X, height);
 

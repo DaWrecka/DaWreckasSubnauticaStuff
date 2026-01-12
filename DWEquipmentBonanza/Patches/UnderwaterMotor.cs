@@ -9,25 +9,25 @@ using UnityEngine;
 
 namespace DWEquipmentBonanza.Patches
 {
-    [HarmonyPatch(typeof(UnderwaterMotor))]
-    public class UnderwaterMotorPatches
-    {
-        private static Dictionary<TechType, float> speedModifiers = new Dictionary<TechType, float>();
+	[HarmonyPatch(typeof(UnderwaterMotor))]
+	public class UnderwaterMotorPatches
+	{
+		private static Dictionary<TechType, float> speedModifiers = new Dictionary<TechType, float>();
 
-        public static float GetSpeedModifier(TechType tt)
-        {
+		public static float GetSpeedModifier(TechType tt)
+		{
 			return speedModifiers.GetOrDefault(tt, 0f);
 
 			/*if (speedModifiers.TryGetValue(tt, out float modifier))
-                return modifier;
+				return modifier;
 
-            return 0f;*/
-        }
+			return 0f;*/
+		}
 
-        public static void AddSpeedModifier(TechType tt, float modifier)
-        {
-            speedModifiers[tt] = modifier;
-        }
+		public static void AddSpeedModifier(TechType tt, float modifier)
+		{
+			speedModifiers[tt] = modifier;
+		}
 
 		[HarmonyPatch("AlterMaxSpeed")]
 		[HarmonyPrefix]

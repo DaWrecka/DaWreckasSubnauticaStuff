@@ -6,7 +6,6 @@ using System.Reflection;
 using Nautilus.Crafting;
 using Nautilus.Handlers;
 using RecipeData = Nautilus.Crafting.RecipeData;
-using Ingredient = CraftData.Ingredient;
 #else
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Handlers;
@@ -16,48 +15,52 @@ using SMLHelper.V2.Handlers;
 using BepInEx;
 using BepInEx.Logging;
 #elif QMM
-    using QModManager.API.ModLoading;
-    using Logger = QModManager.Utility.Logger;
+	using QModManager.API.ModLoading;
+	using Logger = QModManager.Utility.Logger;
 #endif
 
 #if SN1
-using Sprite = Atlas.Sprite;
+//using Sprite = Atlas.Sprite;
 using Object = UnityEngine.Object;
 #endif
 
 namespace HabitatBuilderSpeed
 {
 #if BEPINEX
-    [BepInPlugin(GUID, pluginName, version)]
-    [BepInProcess("Subnautica.exe")]
-    public class BuilderSpeedPlugin : BaseUnityPlugin
-    {
-#elif QMM
-    [QModCore]
-	public static class BuilderSpeedPlugin
-    {
+	[BepInPlugin(GUID, pluginName, version)]
+#if SN1
+	[BepInProcess("Subnautica.exe")]
+#else
+	[BepInProcess("SubnauticaZero.exe")]
 #endif
-    #region[Declarations]
-    public const string
-        MODNAME = "BuilderSpeed",
-        AUTHOR = "dawrecka",
-        GUID = "com." + AUTHOR + "." + MODNAME;
-    internal const string pluginName = "Habitat Builder Speed";
-    public const string version = "1.0.0.0";
-    #endregion
+	public class BuilderSpeedPlugin : BaseUnityPlugin
+	{
+#elif QMM
+	[QModCore]
+	public static class BuilderSpeedPlugin
+	{
+#endif
+	#region[Declarations]
+	public const string
+		MODNAME = "BuilderSpeed",
+		AUTHOR = "dawrecka",
+		GUID = "com." + AUTHOR + "." + MODNAME;
+	internal const string pluginName = "Habitat Builder Speed";
+	public const string version = "1.20.0.0";
+	#endregion
 
-    private static readonly Harmony harmony = new Harmony(GUID);
+	private static readonly Harmony harmony = new Harmony(GUID);
 
-        internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
+		internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
 
 #if QMM
-    [QModPatch]
+	[QModPatch]
 #endif
-        public void Start()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            new Harmony($"DaWrecka_{assembly.GetName().Name}").PatchAll(assembly);
-        }
-    }
+		public void Start()
+		{
+			var assembly = Assembly.GetExecutingAssembly();
+			harmony.PatchAll(assembly);
+		}
+	}
 }
 

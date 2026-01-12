@@ -18,27 +18,31 @@ using System.Reflection;
 namespace CustomiseYourStorage
 {
 #if BEPINEX
-    [BepInPlugin(GUID, pluginName, version)]
-    [BepInProcess("Subnautica.exe")]
-    [BepInDependency("com.snmodding.nautilus")]
-    public class CustomiseStoragePlugin : BaseUnityPlugin
-    {
-#elif QMM
-    [QModCore]
-	public static class CustomiseStoragePlugin
-    {
+	[BepInPlugin(GUID, pluginName, version)]
+#if BELOWZERO
+	[BepInProcess("SubnauticaZero.exe")]
+#elif SN1
+	[BepInProcess("Subnautica.exe")]
 #endif
-        #region[Declarations]
-        public const string
-            MODNAME = "CustomiseStorage",
-            AUTHOR = "dawrecka",
-            GUID = "com." + AUTHOR + "." + MODNAME;
-        private const string pluginName = "Customise Your Storage";
-        internal const string version = "1.0.0.3";
-        #endregion
+	[BepInDependency("com.snmodding.nautilus")]
+	public class CustomiseStoragePlugin : BaseUnityPlugin
+	{
+#elif QMM
+	[QModCore]
+	public static class CustomiseStoragePlugin
+	{
+#endif
+		#region[Declarations]
+		public const string
+			MODNAME = "CustomiseStorage",
+			AUTHOR = "dawrecka",
+			GUID = "com." + AUTHOR + "." + MODNAME;
+		private const string pluginName = "Customise Your Storage";
+		internal const string version = "1.20.0.3";
+		#endregion
 
-        private static readonly Harmony harmony = new Harmony(GUID);
-        
+		private static readonly Harmony harmony = new Harmony(GUID);
+		
 		internal static DWStorageConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWStorageConfig>();
 		//internal static readonly DWStorageConfigNonSML config = DWStorageConfigNonSML.LoadConfig(Path.Combine(new string[] { Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "config.json" }));
 
@@ -73,14 +77,17 @@ namespace CustomiseYourStorage
 			"AutoSorter",
 			"AutosortTarget",
 			"AutosortTargetStanding",
-			"DockedVehicleStorageAccess"
+			"DockedVehicleStorageAccess",
+			"Gravsphere",
+			"EnhancedGravSphere",
+			"AutosortUnloader"
 		};
 
 
 #if QMM
 		[QModPatch]
 #endif
-		public static void Awake()
+		public void Awake()
 		{
 		}
 
@@ -89,11 +96,11 @@ namespace CustomiseYourStorage
 #endif
 		public void Start()
 		{
-            var assembly = Assembly.GetExecutingAssembly();
-            config.Init();
-            harmony.PatchAll(assembly);
+			var assembly = Assembly.GetExecutingAssembly();
+			config.Init();
+			harmony.PatchAll(assembly);
 			Log.InitialiseLog(GUID);
-            
+			
 			foreach (string s in stringBlacklist)
 			{
 				TechType tt = TechTypeUtils.GetTechType(s);

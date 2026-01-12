@@ -9,101 +9,116 @@ using Common;
 
 namespace DWEquipmentBonanza.MonoBehaviours
 {
-    public class VibrobladeBehaviour : Knife
-    {
-        private const float FaunaDamageMultiplier = 4.5f;
-        public VFXController fxControl;
-        public override string animToolName => TechType.Knife.AsString(true);
+	public class VibrobladeBehaviour : Knife
+	{
+		internal const float FaunaDamageMultiplier = 4.5f;
+		public VFXController fxControl;
+		public override string animToolName => TechType.Knife.AsString(true);
 
-        public override int GetUsesPerHit()
-        {
-            return 3;
-        }
+		public override int GetUsesPerHit()
+		{
+			return 3;
+		}
 
-        public override void Awake()
-        {
+		public override void Awake()
+		{
 #if !RELEASE
-            
-            Log.LogDebug("VibrobladeBehaviour.Awake() executing");
+			
+			Log.LogDebug("VibrobladeBehaviour.Awake() executing");
 #endif
+			base.Awake();
 
-            this.attackDist = 2f;
-            this.bleederDamage = 90f;
-            this.damage = 20f;
+			this.attackDist = 2f;
+			this.bleederDamage = 90f;
+			this.damage = 20f;
 #if BELOWZERO
-            this.spikeyTrapDamage = 9f;
+			this.spikeyTrapDamage = 9f;
 #endif
-            this.damageType = DamageType.Normal;
-            this.socket = PlayerTool.Socket.RightHand;
-            this.ikAimRightArm = true;
-        }
+			this.damageType = DamageType.Pressure;
+			this.socket = PlayerTool.Socket.RightHand;
+			this.ikAimRightArm = true;
+		}
 
-        public override void OnToolUseAnim(GUIHand hand)
-        {
-            Vector3 position = new Vector3();
-            GameObject closestObj = null;
+		public override void OnDraw(Player p)
+		{
+			base.OnDraw(p);
+			this.attackDist = 2f;
+			this.bleederDamage = 90f;
+			this.damage = 20f;
+#if BELOWZERO
+			this.spikeyTrapDamage = 9f;
+#endif
+			this.damageType = DamageType.Pressure;
+			this.socket = PlayerTool.Socket.RightHand;
+			this.ikAimRightArm = true;
+		}
+
+		/*public override void OnToolUseAnim(GUIHand hand)
+		{
+			Vector3 position = new Vector3();
+			GameObject closestObj = null;
 #if SN1
-            UWE.Utils.TraceFPSTargetPosition(Player.main.gameObject, this.attackDist, ref closestObj, ref position);
+			UWE.Utils.TraceFPSTargetPosition(Player.main.gameObject, this.attackDist, ref closestObj, ref position);
 #elif BELOWZERO
-            Vector3 normal = new Vector3();
+			Vector3 normal = new Vector3();
 
-            UWE.Utils.TraceFPSTargetPosition(Player.main.gameObject, this.attackDist, ref closestObj, ref position, out normal);
+			UWE.Utils.TraceFPSTargetPosition(Player.main.gameObject, this.attackDist, ref closestObj, ref position, out normal);
 #endif
-            if (closestObj == null)
-            {
-                InteractionVolumeUser component = Player.main.gameObject.GetComponent<InteractionVolumeUser>();
-                if (component != null && component.GetMostRecent() != null)
-                    closestObj = component.GetMostRecent().gameObject;
-            }
+			if (closestObj == null)
+			{
+				InteractionVolumeUser component = Player.main.gameObject.GetComponent<InteractionVolumeUser>();
+				if (component != null && component.GetMostRecent() != null)
+					closestObj = component.GetMostRecent().gameObject;
+			}
 
 
 
-            if (closestObj != null)
-            {
-                LiveMixin ancestor = closestObj.FindAncestor<LiveMixin>();
-                if (Knife.IsValidTarget(ancestor))
-                {
-                    if (ancestor != null)
-                    {
-                        bool wasAlive = ancestor.IsAlive();
-                        float thisDamage = this.damage * (closestObj.GetComponent<Creature>() != null ? FaunaDamageMultiplier : 1f);
-                        ancestor.TakeDamage(thisDamage, position, this.damageType);
-                        this.GiveResourceOnDamage(closestObj, ancestor.IsAlive(), wasAlive);
-                    }
+			if (closestObj != null)
+			{
+				LiveMixin ancestor = closestObj.FindAncestor<LiveMixin>();
+				if (Knife.IsValidTarget(ancestor))
+				{
+					if (ancestor != null)
+					{
+						bool wasAlive = ancestor.IsAlive();
+						float thisDamage = this.damage * (closestObj.GetComponent<Creature>() != null ? FaunaDamageMultiplier : 1f);
+						ancestor.TakeDamage(thisDamage, position, this.damageType);
+						this.GiveResourceOnDamage(closestObj, ancestor.IsAlive(), wasAlive);
+					}
 #if SN1
-                    Utils.PlayFMODAsset(this.attackSound, this.transform);
-                    VFXSurface component = closestObj.GetComponent<VFXSurface>();
-                    Vector3 euler = MainCameraControl.main.transform.eulerAngles + new Vector3(300f, 90f, 0.0f);
-                    VFXSurfaceTypeManager.main.Play(component, this.vfxEventType, position, Quaternion.Euler(euler), Player.main.transform);
-                }
-                else
-                    closestObj = (GameObject)null;
+					Utils.PlayFMODAsset(this.attackSound, this.transform);
+					VFXSurface component = closestObj.GetComponent<VFXSurface>();
+					Vector3 euler = MainCameraControl.main.transform.eulerAngles + new Vector3(300f, 90f, 0.0f);
+					VFXSurfaceTypeManager.main.Play(component, this.vfxEventType, position, Quaternion.Euler(euler), Player.main.transform);
+				}
+				else
+					closestObj = (GameObject)null;
 #elif BELOWZERO
-                }
+				}
 
-                VFXSurface component = closestObj.GetComponent<VFXSurface>();
-                Vector3 euler = MainCameraControl.main.transform.eulerAngles + new Vector3(300f, 90f, 0.0f);
-                VFXSurfaceTypeManager.main.Play(component, this.vfxEventType, position, Quaternion.Euler(euler), Player.main.transform);
-                VFXSurfaceTypes vfxSurfaceTypes = Utils.GetObjectSurfaceType(closestObj);
-                if (vfxSurfaceTypes == VFXSurfaceTypes.none)
-                    vfxSurfaceTypes = Utils.GetTerrainSurfaceType(position, normal, VFXSurfaceTypes.sand);
-                EventInstance fmodEvent = Utils.GetFMODEvent(this.hitSound, this.transform.position);
-                int num1 = (int)fmodEvent.setParameterValueByIndex(this.surfaceParamIndex, (float)vfxSurfaceTypes);
-                int num2 = (int)fmodEvent.start();
-                int num3 = (int)fmodEvent.release();
+				VFXSurface component = closestObj.GetComponent<VFXSurface>();
+				Vector3 euler = MainCameraControl.main.transform.eulerAngles + new Vector3(300f, 90f, 0.0f);
+				VFXSurfaceTypeManager.main.Play(component, this.vfxEventType, position, Quaternion.Euler(euler), Player.main.transform);
+				VFXSurfaceTypes vfxSurfaceTypes = Utils.GetObjectSurfaceType(closestObj);
+				if (vfxSurfaceTypes == VFXSurfaceTypes.none)
+					vfxSurfaceTypes = Utils.GetTerrainSurfaceType(position, normal, VFXSurfaceTypes.sand);
+				EventInstance fmodEvent = Utils.GetFMODEvent(this.hitSound, this.transform.position);
+				int num1 = (int)fmodEvent.setParameterValueByIndex(this.surfaceParamIndex, (float)vfxSurfaceTypes);
+				int num2 = (int)fmodEvent.start();
+				int num3 = (int)fmodEvent.release();
 #endif
-            }
+			}
 
 #if SN1
-            if (!(closestObj == null) || !(hand.GetActiveTarget() == null))
-                return;
-            if (Player.main.IsUnderwater())
-                Utils.PlayFMODAsset(this.underwaterMissSound, this.transform);
-            else
-                Utils.PlayFMODAsset(this.surfaceMissSound, this.transform);
+			if (!(closestObj == null) || !(hand.GetActiveTarget() == null))
+				return;
+			if (Player.main.IsUnderwater())
+				Utils.PlayFMODAsset(this.underwaterMissSound, this.transform);
+			else
+				Utils.PlayFMODAsset(this.surfaceMissSound, this.transform);
 #elif BELOWZERO
-            Utils.PlayFMODAsset(Player.main.IsUnderwater() ? this.swingWaterSound : this.swingSound, this.transform.position);
+			Utils.PlayFMODAsset(Player.main.IsUnderwater() ? this.swingWaterSound : this.swingSound, this.transform.position);
 #endif
-        }
-    }
+		}*/
+	}
 }

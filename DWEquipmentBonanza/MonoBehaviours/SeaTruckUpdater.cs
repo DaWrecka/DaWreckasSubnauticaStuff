@@ -82,7 +82,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				stg = instance as SeaTruckUpgrades;
 
 			if (stg != null)
-                InitInternal(ref stg);
+				InitInternal(ref stg);
 			//Log.LogDebug($"{thisMethod.ReflectedType.Name}({instance.name}, {instance.GetInstanceID()}).{thisMethod.Name}() end");
 		}
 
@@ -284,8 +284,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		internal override void PostUpgradeModuleChange(int slotID, TechType techType, bool added, MonoBehaviour instance)
 		{
-            string slot = "";
-            SeaTruckUpgrades stg = instance as SeaTruckUpgrades;
+			string slot = "";
+			SeaTruckUpgrades stg = instance as SeaTruckUpgrades;
 			List<string> slots = new List<string>();
 			stg.modules.GetSlots(EquipmentType.SeaTruckModule, slots);
 			Log.LogInfo($"Got slots: {JsonConvert.SerializeObject(slots, Newtonsoft.Json.Formatting.Indented)}");
@@ -384,7 +384,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			}
 			bDeferringModules = false;
 
-        }
+		}
 
 		internal override void PostUpgradeModuleUse(MonoBehaviour instance, TechType tt, int slotID)
 		{

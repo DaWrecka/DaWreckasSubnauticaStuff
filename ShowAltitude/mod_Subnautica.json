@@ -1,19 +1,19 @@
 {
-  "Id": "ShowAltitude",
-  "DisplayName": "Show Above Sea Level",
-  "Author": "DaWrecka",
-  "Version": "1.0.0.0",
-  "LoadAfter": [
-    "SMLHelper"
-  ],
-  "VersionDependencies": {
-    "SMLHelper": "2.9.6"
-  },
-  "Game": "Subnautica",
-  "NexusId": {},
-  "AssemblyName": "ShowAltitude.dll",
-  "VersionChecker": {
-    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/ShowAltitude/mod_BelowZero.json"
-  },
-  "Enable": true
+	"Id": "ShowAltitude",
+	"DisplayName": "Show Above Sea Level",
+	"Author": "DaWrecka",
+	"Version": "1.0.0.0",
+	"LoadAfter": [
+	"SMLHelper"
+	],
+	"VersionDependencies": {
+	"SMLHelper": "2.9.6"
+	},
+	"Game": "Subnautica",
+	"NexusId": {},
+	"AssemblyName": "ShowAltitude.dll",
+	"VersionChecker": {
+	"LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/ShowAltitude/mod_BelowZero.json"
+	},
+	"Enable": true
 }

@@ -17,23 +17,26 @@ using Common.Interfaces;
 namespace DWEquipmentBonanza.Patches
 {
 	[HarmonyPatch(typeof(TooltipFactory))]
-    public class TooltipFactoryPatches
-    {
+	public class TooltipFactoryPatches
+	{
 #if SN1
-        public static bool GetInventoryDescription(StringBuilder sb, GameObject obj)
-        {
-            var component = obj.GetComponent<IInventoryDescriptionSN1>();
-            if (component != null)
-            {
-                TooltipFactory.WriteDescription(sb, component.GetInventoryDescription());
-                return false;
-            }
-            return true;
-        }
-#elif BELOWZERO
+		public static bool GetInventoryDescription(StringBuilder sb, GameObject obj)
+		{
+			var component = obj.GetComponent<IInventoryDescriptionSN1>();
+			if (component != null)
+			{
+				TooltipFactory.WriteDescription(sb, component.GetInventoryDescription());
+				return false;
+			}
+			return true;
+		}
+#endif
+
+#if BELOWZERO || !LEGACY
 		private static HashSet<TechType> noEnergyBarTypes = new HashSet<TechType>()
 		{
-			TechType.FlashlightHelmet
+			//TechType.FlashlightHelmet
+			Main.GetModTechType("FlashlightHelmet")
 		};
 
 		public static bool AddNoBarTechType(TechType type)
@@ -66,43 +69,48 @@ namespace DWEquipmentBonanza.Patches
 #endif
 
 		[HarmonyPatch("ItemCommons")]
-        [HarmonyTranspiler]
+		[HarmonyTranspiler]
 		public static IEnumerable<CodeInstruction> ItemCommonsTranspiler(IEnumerable<CodeInstruction> instructions)
 		{
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+
 #if SN1
-            MethodInfo getDescription = typeof(TooltipFactoryPatches).GetMethod(nameof(TooltipFactoryPatches.GetInventoryDescription));
+			MethodInfo getDescription = typeof(TooltipFactoryPatches).GetMethod(nameof(TooltipFactoryPatches.GetInventoryDescription));
 			if (getDescription == null)
 				throw new Exception("Failed to get MethodInfo for TooltipFactoryPatches.GetInventoryDescription");
 
-			MethodInfo writeTargetMethod = typeof(TooltipFactory).GetMethod("WriteTitle", BindingFlags.NonPublic | BindingFlags.Static);
+			MethodInfo writeTargetMethod = typeof(TooltipFactory).GetMethod("WriteDebug", BindingFlags.NonPublic | BindingFlags.Static);
 			if (writeTargetMethod == null)
-				throw new Exception("Failed to get MethodInfo for TooltipFactory.WriteTitle");
-#elif BELOWZERO
+				throw new Exception("Failed to get MethodInfo for TooltipFactory.WriteDebug");
+#endif
+
+#if BELOWZERO
 			MethodInfo shouldShowBarMethod = typeof(TooltipFactoryPatches).GetMethod(nameof(TooltipFactoryPatches.ShouldShowBar));
 			if (shouldShowBarMethod == null)
 				throw new Exception("Failed to get MethodInfo for TooltipFactoryPatches.ShouldShowBar");
 
 #endif
-			if (Main.bLogTranspilers)
-			{
-				Log.LogInfo("TooltipFactoryPatches.ItemCommons(), pre-transpiler:");
-				for (int i = 0; i < codes.Count; i++)
-					Log.LogInfo(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
-			}
+
+#if LOGTRANSPILERS
+			Log.LogInfo("TooltipFactoryPatches.ItemCommons(), pre-transpiler:");
+			for (int i = 0; i < codes.Count; i++)
+				Log.LogInfo(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
+#endif
 
 			for (int i = 0; i < codes.Count; i++)
 			{
 #if SN1
-                /*
-				 Our target pattern is very simple: We want to find the call to TooltipFactory.WriteTitle. That's all we need to find.
+				/*
+				 Our target pattern is very simple: We want to find the call to TooltipFactory.WriteDebug. That's all we need to find.
 				*/
-                if (codes[i].Calls(writeTargetMethod))
+				if (codes[i].Calls(writeTargetMethod))
 				{
 					// This is where things get a little more complicated. In effect, we need to replace:
 					//		bool flag = true;
 					// with
 					//		bool flag = TooltipFactoryPatches.GetInventoryDescription(sb, obj);
+					// This code is located *after* the call to WriteDebug.
+
 					// To do that, we need to have put the StringBuilder on the stack, then the GameObject.
 					// THEN we need to replace the ldc.i4.1 that follows with a call to our GetInventoryDescription method.
 					// After that, we leave the original method's stloc.3 in order to load the 'flag' bool with the result from our method.
@@ -112,7 +120,9 @@ namespace DWEquipmentBonanza.Patches
 					codes.Insert(i + 2, new CodeInstruction(OpCodes.Ldarg_2)); // Insert ldarg.2 after that
 					break;
 				}
-#elif BELOWZERO
+#endif
+
+#if BELOWZERO
 				/*
 				Our goal with the BZ version of this transpiler is to change this line:
 							if ((UnityEngine.Object) component5 != (UnityEngine.Object) null && techType != TechType.FlashlightHelmet)
@@ -120,14 +130,14 @@ namespace DWEquipmentBonanza.Patches
 							if ((UnityEngine.Object) component5 != (UnityEngine.Object) null && ShouldShowBar(techType))
 
 				The IL we need to change is:
-					IL_00e8: ldarg.1      // techType
-					IL_00e9: ldc.i4       533 // 0x00000215
-					IL_00ee: beq.s        IL_0117
+					IL_00e8: ldarg.1	  // techType
+					IL_00e9: ldc.i4	   533 // 0x00000215
+					IL_00ee: beq.s		IL_0117
 
 				and we want to change it to:
-					IL_00e8: ldarg.1      // techType
+					IL_00e8: ldarg.1	  // techType
 					IL_00e9: call		  ShouldShowBar
-					IL_00ee: beq.s        IL_0117
+					IL_00ee: beq.s		IL_0117
 
 				sadly, there's no conveniently-placed method call ahead of what we're trying to find, but the opcodes themselves are unique-enough to act as identifiers.
 				 */
@@ -141,16 +151,30 @@ namespace DWEquipmentBonanza.Patches
 #endif
 			}
 
-			if (Main.bLogTranspilers)
-			{
-				Log.LogInfo("TooltipFactoryPatches.ItemCommons(), post-transpiler:");
-				for (int i = 0; i < codes.Count; i++)
-					Log.LogInfo(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
-			}
+#if LOGTRANSPILERS
+			Log.LogInfo("TooltipFactoryPatches.ItemCommons(), post-transpiler:");
+			for (int i = 0; i < codes.Count; i++)
+				Log.LogInfo(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
+#endif
 			return codes.AsEnumerable();
 		}
 
-#if BELOWZERO
+#if !LEGACY
+		[HarmonyPatch("GetBarValue", new[] { typeof(Pickupable) })]
+		[HarmonyPrefix]
+		public static bool PreGetBarValue(ref float __result, Pickupable pickupable)
+		{
+			TechType tt = pickupable.GetTechType();
+			if (!ShouldShowBar(tt))
+			{
+				__result = -1f;
+				return false;
+			}
+
+			return true;
+		}
+
+#elif BELOWZERO
 		[HarmonyPatch("GetBarValue", new[] { typeof(Pickupable) } )]
 		[HarmonyTranspiler]
 		public static IEnumerable<CodeInstruction> GetBarValueTranspiler(IEnumerable<CodeInstruction> instructions)
@@ -176,14 +200,14 @@ namespace DWEquipmentBonanza.Patches
 							&& ShouldShowBar(techType))
 
 				The IL we need to change is:
-					IL_003d: ldloc.1      // techType
-					IL_003e: ldc.i4       533 // 0x00000215
-					IL_0043: beq.s        IL_006c
+					IL_003d: ldloc.1	  // techType
+					IL_003e: ldc.i4	   533 // 0x00000215
+					IL_0043: beq.s		IL_006c
 	
 				and we want to change it to:
-					IL_003d: ldloc.1      // techType
-					IL_003e: ldc.i4       533 // 0x00000215
-					IL_0043: beq.s        IL_006c
+					IL_003d: ldloc.1	  // techType
+					IL_003e: ldc.i4	   533 // 0x00000215
+					IL_0043: beq.s		IL_006c
 	
 				All of which, barring the precise position within the method, is almost exactly as it is with ItemCommons
 				 */

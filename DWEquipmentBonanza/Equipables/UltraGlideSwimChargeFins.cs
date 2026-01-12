@@ -14,7 +14,9 @@ using Nautilus.Assets.Gadgets;
 using Nautilus.Crafting;
 using Nautilus.Utility;
 using Nautilus.Handlers;
-using Ingredient = CraftData.Ingredient;
+#if SN1
+	//using Ingredient = CraftData\.Ingredient;
+#endif
 using Common.NautilusHelper;
 using RecipeData = Nautilus.Crafting.RecipeData;
 #else
@@ -26,7 +28,7 @@ using SMLHelper.V2.Handlers;
 #endif
 
 #if LEGACY
-using Sprite = Atlas.Sprite;
+//using Sprite = Atlas.Sprite;
 using Object = UnityEngine.Object;
 using Oculus.Newtonsoft;
 using Oculus.Newtonsoft.Json;
@@ -36,7 +38,7 @@ using Newtonsoft.Json;
 #endif
 
 #if SN1
-using Sprite = Atlas.Sprite;
+//using Sprite = Atlas.Sprite;
 using Object = UnityEngine.Object;
 #endif
 using Common.Utility;
@@ -44,7 +46,7 @@ using Common.Utility;
 namespace DWEquipmentBonanza.Equipables
 {
 	public class DWUltraGlideSwimChargeFins : Equipable
-    {
+	{
 		protected static GameObject prefab;
 		protected static Sprite icon;
 		protected static GameObject swimChargePrefab;
@@ -53,17 +55,17 @@ namespace DWEquipmentBonanza.Equipables
 		private const float speedModifier = 3f;
 
 #if NAUTILUS
-        protected override TechType templateType => TechType.UltraGlideFins;
-        protected override string templateClassId => string.Empty;
+		protected override TechType templateType => TechType.UltraGlideFins;
+		protected override string templateClassId => string.Empty;
 #endif
 
-        public DWUltraGlideSwimChargeFins() : base("DWUltraGlideSwimChargeFins", friendlyName, description)
+		public DWUltraGlideSwimChargeFins() : base("DWUltraGlideSwimChargeFins", friendlyName, description)
 		{
-            //Console.WriteLine($"{this.ClassID} constructing");
-            OnFinishedPatching += () =>
+			//Console.WriteLine($"{this.ClassID} constructing");
+			OnFinishedPatching += () =>
 			{
 				Main.AddModTechType(this.TechType);
-				EquipmentPatch.AddSubstitution(this.TechType, TechType.SwimChargeFins);
+				EquipmentPatches.AddSubstitution(this.TechType, TechType.SwimChargeFins);
 				UnderwaterMotorPatches.AddSpeedModifier(this.TechType, speedModifier);
 				Reflection.AddCompoundTech(this.TechType, new List<TechType>()
 				{
@@ -84,8 +86,8 @@ namespace DWEquipmentBonanza.Equipables
 		public override float CraftingTime => 5f;
 		public override QuickSlotType QuickSlotType => QuickSlotType.None;
 
-        protected override RecipeData GetBlueprintRecipe()
-        {
+		protected override RecipeData GetBlueprintRecipe()
+		{
 			return new RecipeData()
 			{
 				craftAmount = 1,
@@ -97,26 +99,26 @@ namespace DWEquipmentBonanza.Equipables
 					new Ingredient(TechType.HydrochloricAcid, 1)
 				}
 			};
-        }
+		}
 
-        protected override Sprite GetItemSprite()
-        {
-			return icon ??= SpriteUtils.Get(TechType.SwimChargeFins, null);
-        }
-
-        private IEnumerator PostPatchSetup()
+		protected override Sprite GetItemSprite()
 		{
-#if SN1
-            while (icon == null)
+			return icon ??= SpriteUtils.Get(TechType.SwimChargeFins, null);
+		}
+
+		private IEnumerator PostPatchSetup()
+		{
+/*#if SN1
+			while (icon == null)
 			{
 				icon = SpriteManager.GetWithNoDefault(TechType.SwimChargeFins);
 				yield return new WaitForEndOfFrame();
 			}
-#elif BELOWZERO
+#elif BELOWZERO*/
 			while (!SpriteManager.hasInitialized)
 				yield return new WaitForEndOfFrame();
 			icon = SpriteManager.Get(TechType.SwimChargeFins);
-#endif
+//#endif
 
 			yield break;
 		}
@@ -127,14 +129,14 @@ namespace DWEquipmentBonanza.Equipables
 			go.EnsureComponent<UpdateSwimCharge>();
 
 #if !NAUTILUS
-            ModPrefabCache.AddPrefab(go, false);
+			ModPrefabCache.AddPrefab(go, false);
 #endif
 			return go;
 		}
 #if NAUTILUS
 #elif ASYNC
 		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
+		{
 			if (prefab == null)
 			{
 				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.UltraGlideFins);
@@ -144,19 +146,19 @@ namespace DWEquipmentBonanza.Equipables
 			}
 
 			gameObject.Set(prefab);
-        }
+		}
 
 #else
-        public override GameObject GetGameObject()
-        {
+		public override GameObject GetGameObject()
+		{
 			if (prefab == null)
 			{
 				prefab = PreparePrefab(CraftData.GetPrefabForTechType(TechType.UltraGlideFins));
 			}
-            return prefab;
-        }
+			return prefab;
+		}
 
 #endif
 
-    }
+	}
 }

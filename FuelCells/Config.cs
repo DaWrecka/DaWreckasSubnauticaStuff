@@ -13,7 +13,7 @@ using SMLHelper.V2.Handlers;
 
 namespace FuelCells
 {
-    [Menu("Fuel Cells")]
+	[Menu("Fuel Cells")]
 	public class DWConfig : ConfigFile
 	{
 		private const int defaultCapacity = 400;
@@ -28,7 +28,7 @@ namespace FuelCells
 		public float smallFuelCellCap = 400f;
 		[Slider("Large Fuel Cell capacity multiplier", minMultiplier, maxMultiplier, DefaultValue = defaultMultiplier, Id = "batteryMult", Step = 0.05f, Format = "{0:F2}", Tooltip = "The capacity of the large Fuel Cell is equal to the Small Fuel Cell capacity, above, multiplied by this value.\nGame must be restarted for changes to this setting to take effect."), OnChange(nameof(OnSliderChange))]
 		public float cellMultiplier = 2.25f;
-		internal float cellCap = 900f;
+		internal float cellCap => smallFuelCellCap * cellMultiplier;
 
 		public Dictionary<string, float> BatteryValues = new Dictionary<string, float>()
 		{
@@ -47,13 +47,12 @@ namespace FuelCells
 		{
 			//if (e.Id == "batteryCap")
 			//{
-				OnLoad();
+			//	OnLoad();
 			//}
 		}
 
 		internal void OnLoad()
 		{
-			cellCap = smallFuelCellCap * cellMultiplier;
 		}
 	}
 }

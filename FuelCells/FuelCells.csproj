@@ -2,8 +2,8 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="$(SolutionDir)\GameDir.targets" />
-  <Import Project="$(SolutionDir)\References.targets" />
   <Import Project="$(SolutionDir)\Configurations.targets" />
+  <Import Project="$(SolutionDir)\References.targets" />
   <PropertyGroup>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>FuelCells</AssemblyName>
@@ -30,7 +30,6 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="MonoBehaviours\RegeneratingPowerSource.cs" />
     <Compile Include="Patches\Battery.cs" />
     <Compile Include="Patches\Knife.cs" />
     <Compile Include="Patches\Pickupable.cs" />
@@ -48,6 +47,9 @@
       <HintPath>$(GameDir)\$(PluginLoaderPath)\CustomBatteries\CustomBatteries.dll</HintPath>
       <Private>False</Private>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="MonoBehaviours\" />
   </ItemGroup>
   <Import Project="$(SolutionDir)\Common\Common.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

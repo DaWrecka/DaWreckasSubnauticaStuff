@@ -4,7 +4,9 @@ using Nautilus;
 using Nautilus.Json;
 using Nautilus.Options;
 using Nautilus.Options.Attributes;
-using Ingredient = CraftData.Ingredient;
+#if SN1
+//using Ingredient = CraftData\.Ingredient;
+#endif
 using RecipeData = Nautilus.Crafting.RecipeData;
 #else
 using SMLHelper.V2.Crafting;
@@ -58,17 +60,17 @@ namespace PartsFromScanning.Configuration
 		{
 			switch (e.Id)
 			{
-                // As of the time of writing this comment, there are only two sliders, so a simple 'if/else' would suffice.
-                // I'm hedging my bets in case of adding other sliders in the future, though.
+				// As of the time of writing this comment, there are only two sliders, so a simple 'if/else' would suffice.
+				// I'm hedging my bets in case of adding other sliders in the future, though.
 #if NAUTILUS
-                case "MinComponents":
-                    if ((int)e.Value > maxComponents)
-                        maxComponents = (int)e.Value;
-                    break;
-                case "MaxComponents":
-                    if ((int)e.Value < minComponents)
-                        minComponents = (int)e.Value;
-                    break;
+				case "MinComponents":
+					if ((int)e.Value > maxComponents)
+						maxComponents = (int)e.Value;
+					break;
+				case "MaxComponents":
+					if ((int)e.Value < minComponents)
+						minComponents = (int)e.Value;
+					break;
 #else
 				case "MinComponents":
 					if (e.IntegerValue > maxComponents)
@@ -132,7 +134,7 @@ namespace PartsFromScanning.Configuration
 
 		//
 		// Summary:
-		//     A class for representing a required ingredient in a recipe using a string instead of a TechType.
+		//	 A class for representing a required ingredient in a recipe using a string instead of a TechType.
 		public class StringIngredient
 		{
 			public StringIngredient(string techType, int amount)
@@ -599,6 +601,13 @@ namespace PartsFromScanning.Configuration
 							new StringIngredient("Lubricant", 1),
 							new StringIngredient("CopperWire", 1),
 							new StringIngredient("Titanium", 1)
+						}
+					),
+					new SSubstitutionEntry(
+						"ComputerChip",
+						new List<StringIngredient>{
+							new StringIngredient("Gold", 1),
+							new StringIngredient("Copper", 1)
 						}
 					)
 				};

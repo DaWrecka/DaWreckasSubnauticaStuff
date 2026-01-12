@@ -10,8 +10,8 @@ using UnityEngine;
 
 namespace Common
 {
-    public static class TechTypeUtils
-    {
+	public static class TechTypeUtils
+	{
 		private static readonly Dictionary<string, GameObject> ModPrefabs = new Dictionary<string, GameObject>();
 		private static readonly Dictionary<string, TechType> ModTechTypes = new Dictionary<string, TechType>();
 
@@ -62,7 +62,7 @@ namespace Common
 			return GetTechType(key);
 		}
 
-        internal static GameObject GetModPrefab(string key)
+		internal static GameObject GetModPrefab(string key)
 		{
 			string lowerKey = key.ToLower();
 			if (ModPrefabs.TryGetValue(lowerKey, out GameObject modPrefab))
@@ -85,15 +85,15 @@ namespace Common
 
 		// Useful function provided by PrimeSonic. Ta!
 		public static TechType GetTechType(string value)
-        {
-            if (string.IsNullOrEmpty(value))
-                return TechType.None;
+		{
+			if (string.IsNullOrEmpty(value))
+				return TechType.None;
 
-            TechType tt = TechType.None;
+			TechType tt = TechType.None;
 
-            // Look for a known TechType
-            if (TechTypeExtensions.FromString(value, out tt, true))
-                return tt;
+			// Look for a known TechType
+			if (TechTypeExtensions.FromString(value, out tt, true))
+				return tt;
 
 			//  Not one of the known TechTypes - is it registered with SMLHelper/Nautilus?
 #if NAUTILUS
@@ -101,9 +101,9 @@ namespace Common
 #else
 			if (TechTypeHandler.TryGetModdedTechType(value, out tt))
 #endif
-                return tt;
+				return tt;
 
-            return TechType.None;
-        }
-    }
+			return TechType.None;
+		}
+	}
 }

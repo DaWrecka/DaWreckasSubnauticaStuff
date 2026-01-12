@@ -107,33 +107,33 @@ namespace DWEquipmentBonanza
 		 * The patterns in UpdateEnergy; First:
 		 * 
 			IL_004A: ldarg.0
-			IL_004B: ldfld     bool Seaglide::powerGlideActive
+			IL_004B: ldfld	 bool Seaglide::powerGlideActive
 			IL_0050: brfalse.s IL_0079
-			IL_0052: ldc.r4    1
+			IL_0052: ldc.r4	1
 
 		 * and second:
 			IL_00A9: ldarg.0
 			IL_00AA: ldarg.0
-			IL_00AB: ldfld     float32 Seaglide::powerGlideForce
+			IL_00AB: ldfld	 float32 Seaglide::powerGlideForce
 			IL_00B0: ldarg.0
-			IL_00B1: ldfld     bool Seaglide::powerGlideActive
+			IL_00B1: ldfld	 bool Seaglide::powerGlideActive
 			IL_00B6: brtrue.s  IL_00BF
-			IL_00B8: ldc.r4    0.0
-			IL_00BD: br.s      IL_00C4
-			IL_00BF: ldc.r4    50000
-			IL_00C4: call      float32 [UnityEngine.CoreModule]UnityEngine.Time::get_deltaTime()
-			IL_00C9: ldc.r4    20000
+			IL_00B8: ldc.r4	0.0
+			IL_00BD: br.s	  IL_00C4
+			IL_00BF: ldc.r4	50000
+			IL_00C4: call	  float32 [UnityEngine.CoreModule]UnityEngine.Time::get_deltaTime()
+			IL_00C9: ldc.r4	20000
 			IL_00CE: mul
-			IL_00CF: call      float32 [UnityEngine.CoreModule]UnityEngine.Mathf::Lerp(float32, float32, float32)
-			IL_00D4: stfld     float32 Seaglide::powerGlideForce
+			IL_00CF: call	  float32 [UnityEngine.CoreModule]UnityEngine.Mathf::Lerp(float32, float32, float32)
+			IL_00D4: stfld	 float32 Seaglide::powerGlideForce
 			IL_00D9: ret
 
 		 * The FixedUpdate pattern:
 			IL_0000: ldarg.0
-			IL_0001: ldfld     bool Seaglide::powerGlideActive
+			IL_0001: ldfld	 bool Seaglide::powerGlideActive
 			IL_0006: brfalse.s IL_0038
 
-			IL_0008: ldsfld    class Player Player::main
+			IL_0008: ldsfld	class Player Player::main
 			IL_000D: callvirt  instance class [UnityEngine.CoreModule]UnityEngine.GameObject [UnityEngine.CoreModule]UnityEngine.Component::get_gameObject()
 			IL_0012: callvirt  instance !!0 [UnityEngine.CoreModule]UnityEngine.GameObject::GetComponent<class [UnityEngine.PhysicsModule]UnityEngine.Rigidbody>()
 
@@ -155,21 +155,21 @@ namespace DWEquipmentBonanza
 			int maxIndex = codes.Count - 15;
 			for (int i = 0; i < codes.Count; i++)
 			{
-				if (codes[i].opcode == OpCodes.Ldarg_0                                                     // IL_00A9: ldarg.0
-					&& codes[i + 1].opcode == OpCodes.Ldarg_0                                               // IL_00AA: ldarg.0
-					&& codes[i + 2].opcode == OpCodes.Ldfld                                                 // IL_00AB: ldfld     float32 Seaglide::powerGlideForce
-					&& codes[i + 3].opcode == OpCodes.Ldarg_0                                               // IL_00B0: ldarg.0
-					&& codes[i + 4].opcode == OpCodes.Ldfld                                                 // IL_00B1: ldfld     bool Seaglide::powerGlideActive
+				if (codes[i].opcode == OpCodes.Ldarg_0													 // IL_00A9: ldarg.0
+					&& codes[i + 1].opcode == OpCodes.Ldarg_0											   // IL_00AA: ldarg.0
+					&& codes[i + 2].opcode == OpCodes.Ldfld												 // IL_00AB: ldfld	 float32 Seaglide::powerGlideForce
+					&& codes[i + 3].opcode == OpCodes.Ldarg_0											   // IL_00B0: ldarg.0
+					&& codes[i + 4].opcode == OpCodes.Ldfld												 // IL_00B1: ldfld	 bool Seaglide::powerGlideActive
 					&& (codes[i + 5].opcode == OpCodes.Brtrue || codes[i + 5].opcode == OpCodes.Brtrue_S)   // IL_00B6: brtrue.s  IL_00BF
-					&& codes[i + 6].opcode == OpCodes.Ldc_R4                                                // IL_00B8: ldc.r4    0.0
-					&& (codes[i + 7].opcode == OpCodes.Br || codes[i + 7].opcode == OpCodes.Br_S)           // IL_00BD: br.s      IL_00C4
-					&& codes[i + 8].opcode == OpCodes.Ldc_R4                                                // IL_00BF: ldc.r4    50000
-					&& codes[i + 9].opcode == OpCodes.Call                                                  // IL_00C4: call      float32 [UnityEngine.CoreModule]UnityEngine.Time::get_deltaTime()
-					&& codes[i + 10].opcode == OpCodes.Ldc_R4                                               // IL_00C9: ldc.r4    20000
-					&& codes[i + 11].opcode == OpCodes.Mul                                                  // IL_00CE: mul
-					&& codes[i + 12].opcode == OpCodes.Call                                                 // IL_00CF: call      float32 [UnityEngine.CoreModule]UnityEngine.Mathf::Lerp(float32, float32, float32)
-					&& codes[i + 13].opcode == OpCodes.Stfld                                                // IL_00D4: stfld     float32 Seaglide::powerGlideForce
-					&& codes[i + 14].opcode == OpCodes.Ret)                                                 // IL_00D9: ret
+					&& codes[i + 6].opcode == OpCodes.Ldc_R4												// IL_00B8: ldc.r4	0.0
+					&& (codes[i + 7].opcode == OpCodes.Br || codes[i + 7].opcode == OpCodes.Br_S)		   // IL_00BD: br.s	  IL_00C4
+					&& codes[i + 8].opcode == OpCodes.Ldc_R4												// IL_00BF: ldc.r4	50000
+					&& codes[i + 9].opcode == OpCodes.Call												  // IL_00C4: call	  float32 [UnityEngine.CoreModule]UnityEngine.Time::get_deltaTime()
+					&& codes[i + 10].opcode == OpCodes.Ldc_R4											   // IL_00C9: ldc.r4	20000
+					&& codes[i + 11].opcode == OpCodes.Mul												  // IL_00CE: mul
+					&& codes[i + 12].opcode == OpCodes.Call												 // IL_00CF: call	  float32 [UnityEngine.CoreModule]UnityEngine.Mathf::Lerp(float32, float32, float32)
+					&& codes[i + 13].opcode == OpCodes.Stfld												// IL_00D4: stfld	 float32 Seaglide::powerGlideForce
+					&& codes[i + 14].opcode == OpCodes.Ret)												 // IL_00D9: ret
 
 				{
 					int index = i + 8;
@@ -210,12 +210,12 @@ namespace DWEquipmentBonanza
 			int maxIndex = codes.Count - 6;
 			for (int i = 0; i < codes.Count; i++)
 			{
-				if (codes[i].opcode == OpCodes.Ldarg_0                                                      // IL_0000: ldarg.0
-					&& codes[i + 1].opcode == OpCodes.Ldfld                                                 // IL_0001: ldfld     bool Seaglide::powerGlideActive
+				if (codes[i].opcode == OpCodes.Ldarg_0													  // IL_0000: ldarg.0
+					&& codes[i + 1].opcode == OpCodes.Ldfld												 // IL_0001: ldfld	 bool Seaglide::powerGlideActive
 					&& (codes[i + 2].opcode == OpCodes.Brfalse || codes[i + 2].opcode == OpCodes.Brfalse_S) // IL_0006: brfalse.s IL_0038
-					&& codes[i + 3].opcode == OpCodes.Ldsfld                                                // IL_0008: ldsfld    class Player Player::main
-					&& codes[i + 4].opcode == OpCodes.Callvirt                                              // IL_000D: callvirt  instance class [UnityEngine.CoreModule]UnityEngine.GameObject [UnityEngine.CoreModule]UnityEngine.Component::get_gameObject()
-					&& codes[i + 5].opcode == OpCodes.Callvirt)                                             // IL_0012: callvirt  instance !!0 [UnityEngine.CoreModule]UnityEngine.GameObject::GetComponent<class [UnityEngine.PhysicsModule]UnityEngine.Rigidbody>()
+					&& codes[i + 3].opcode == OpCodes.Ldsfld												// IL_0008: ldsfld	class Player Player::main
+					&& codes[i + 4].opcode == OpCodes.Callvirt											  // IL_000D: callvirt  instance class [UnityEngine.CoreModule]UnityEngine.GameObject [UnityEngine.CoreModule]UnityEngine.Component::get_gameObject()
+					&& codes[i + 5].opcode == OpCodes.Callvirt)											 // IL_0012: callvirt  instance !!0 [UnityEngine.CoreModule]UnityEngine.GameObject::GetComponent<class [UnityEngine.PhysicsModule]UnityEngine.Rigidbody>()
 				{
 					// We want to change that Ldfld into a Call pointing to our method
 					codes[i + 1] = new CodeInstruction(OpCodes.Callvirt, activeMethod);

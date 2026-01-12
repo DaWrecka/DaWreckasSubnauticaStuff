@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 
 namespace FuelCells.Patches
 {
-    [HarmonyPatch(typeof(Pickupable))]
-    internal class Pickupables
-    {
+	[HarmonyPatch(typeof(Pickupable))]
+	internal class Pickupables
+	{
 #if BATTERYPATCHING
-        [HarmonyPatch(nameof(Pickupable.Awake))]
-        [HarmonyPostfix]
-        internal static void PostAwake(Pickupable __instance)
-        {
-            if (__instance.gameObject != null && __instance.gameObject.TryGetComponent<Battery>(out Battery b))
-                Batteries.AddPendingBattery(ref b);
-        }
+		[HarmonyPatch(nameof(Pickupable.Awake))]
+		[HarmonyPostfix]
+		internal static void PostAwake(Pickupable __instance)
+		{
+			if (__instance.gameObject != null && __instance.gameObject.TryGetComponent<Battery>(out Battery b))
+				Batteries.AddPendingBattery(ref b);
+		}
 #endif
-    }
+	}
 }

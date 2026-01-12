@@ -1,19 +1,19 @@
 {
-  "Id": "NoTriggerFullPlanters",
-  "DisplayName": "No Triggering Full Planters",
-  "Author": "DaWrecka",
-  "Version": "1.0.0.0",
-  "Dependencies": [
-    "SMLHelper"
-  ],
-  "Game": "Subnautica",
-  "AssemblyName": "NoTriggerFullPlanters.dll",
-  "VersionDependencies": {
-    "SMLHelper": "2.9"
-  },
-  "VersionChecker": {
-    "LatestVersionUrl": ""
-  },
-  "NexusId": {},
-  "Enable": true
+	"Id": "NoTriggerFullPlanters",
+	"DisplayName": "No Triggering Full Planters",
+	"Author": "DaWrecka",
+	"Version": "1.0.0.0",
+	"Dependencies": [
+	"SMLHelper"
+	],
+	"Game": "Subnautica",
+	"AssemblyName": "NoTriggerFullPlanters.dll",
+	"VersionDependencies": {
+	"SMLHelper": "2.9"
+	},
+	"VersionChecker": {
+	"LatestVersionUrl": ""
+	},
+	"NexusId": {},
+	"Enable": true
 }

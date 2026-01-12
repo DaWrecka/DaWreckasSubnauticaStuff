@@ -11,9 +11,9 @@ using UnityEngine;
 
 namespace FuelCells.Patches
 {
-    [HarmonyPatch(typeof(Knife))]
-    public static class KnifePatches
-    {
+	[HarmonyPatch(typeof(Knife))]
+	public static class KnifePatches
+	{
 		public static Dictionary<TechType, float> MakeHarvestables { get; private set; } = new Dictionary<TechType, float>();
 		internal static void AddHarvestable(TechType ObjectToBeKnifed, float LiveMixinHealth)
 		{
@@ -32,10 +32,10 @@ namespace FuelCells.Patches
 				throw new Exception("Failed to get MethodInfo for UWE.Utils.TraceFPSTargetPosition!");
 
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
-            Log.LogInfo("Knife.OnToolUseAnim(), pre-transpiler:");
-			GeneralUtils.LogTranspiler(codes);
+			//Log.LogInfo("Knife.OnToolUseAnim(), pre-transpiler:");
+			//GeneralUtils.LogTranspiler(codes);
 
-            for (int i = 0; i < codes.Count; i++)
+			for (int i = 0; i < codes.Count; i++)
 			{
 				/*
 				 Our target pattern is as follows:
@@ -44,15 +44,15 @@ namespace FuelCells.Patches
 					IL_0002: initobj   [UnityEngine.CoreModule]UnityEngine.Vector3
 					IL_0008: ldnull
 					IL_0009: stloc.2
-					IL_000A: ldsfld    class Player Player::main
+					IL_000A: ldsfld	class Player Player::main
 					IL_000F: callvirt  instance class [UnityEngine.CoreModule]UnityEngine.GameObject [UnityEngine.CoreModule]UnityEngine.Component::get_gameObject()
 					IL_0014: ldarg.0
-					IL_0015: ldfld     float32 Knife::attackDist
+					IL_0015: ldfld	 float32 Knife::attackDist
 					IL_001A: ldloca.s  V_2
 					IL_001C: ldloca.s  V_1
 					IL_001E: ldloca.s  V_3
 					IL_0020: ldc.i4.1
-					IL_0021: call      bool ['Assembly-CSharp-firstpass']UWE.Utils::TraceFPSTargetPosition(class [UnityEngine.CoreModule]UnityEngine.GameObject, float32, class [UnityEngine.CoreModule]UnityEngine.GameObject&, valuetype [UnityEngine.CoreModule]UnityEngine.Vector3&, valuetype [UnityEngine.CoreModule]UnityEngine.Vector3&, bool)
+					IL_0021: call	  bool ['Assembly-CSharp-firstpass']UWE.Utils::TraceFPSTargetPosition(class [UnityEngine.CoreModule]UnityEngine.GameObject, float32, class [UnityEngine.CoreModule]UnityEngine.GameObject&, valuetype [UnityEngine.CoreModule]UnityEngine.Vector3&, valuetype [UnityEngine.CoreModule]UnityEngine.Vector3&, bool)
 				The call is all we need to change.
 				*/
 				//if(codes[i].opcode == OpCodes.Call && object.Equals(TraceMethod, codes[i].operand))
@@ -60,36 +60,36 @@ namespace FuelCells.Patches
 
 				// And then it turns out we can do it so much more easily!
 				if(codes[i].Calls(TraceMethod))
-                {
-                    Log.LogDebug($"ToolUseTranspiler found Call in IL at index {i}");
-                    codes[i] = new CodeInstruction(OpCodes.Call, interceptMethod);
+				{
+					//Log.LogDebug($"ToolUseTranspiler found Call in IL at index {i}");
+					codes[i] = new CodeInstruction(OpCodes.Call, interceptMethod);
 					break;
 				}
 			}
 
-            Log.LogInfo("Knife.OnToolUseAnim(), post-transpiler:");
-			GeneralUtils.LogTranspiler(codes);
-            return codes.AsEnumerable();
+			//Log.LogInfo("Knife.OnToolUseAnim(), post-transpiler:");
+			//GeneralUtils.LogTranspiler(codes);
+			return codes.AsEnumerable();
 		}
 		
 		public static bool InterceptTrace(GameObject ignoreObj, float maxDist, ref GameObject closestObj, ref Vector3 position, out Vector3 normal, bool includeUseableTriggers = true)
-        {
-			Log.LogInfo("InterceptTrace running");
-            bool result = UWE.Utils.TraceFPSTargetPosition(ignoreObj, maxDist, ref closestObj, ref position, out normal, includeUseableTriggers);
-            TechType key = (closestObj != null ? CraftData.GetTechType(closestObj) : TechType.None);
-            Log.LogInfo("InterceptTrace: got object TechType of " + key.AsString());
-            if (key == TechType.None)
+		{
+			//Log.LogInfo("InterceptTrace running");
+			bool result = UWE.Utils.TraceFPSTargetPosition(ignoreObj, maxDist, ref closestObj, ref position, out normal, includeUseableTriggers);
+			TechType key = (closestObj != null ? CraftData.GetTechType(closestObj) : TechType.None);
+			//Log.LogInfo("InterceptTrace: got object TechType of " + key.AsString());
+			if (key == TechType.None)
 			{
 				return result;
 			}
 
 			if (MakeHarvestables.TryGetValue(key, out float value))
 			{
-				Log.LogInfo($"InterceptTrace found closestObj with TechType {key}");
+				//Log.LogInfo($"InterceptTrace found closestObj with TechType {key}");
 				LiveMixin component = closestObj.EnsureComponent<LiveMixin>();
 				if (component.data == null)
 				{
-					Log.LogInfo($"Adding LiveMixin data to object {closestObj.GetInstanceID()} with TechType {key}", null, false);
+					//Log.LogInfo($"Adding LiveMixin data to object {closestObj.GetInstanceID()} with TechType {key}", null, false);
 					component.data = new LiveMixinData();
 					component.data.maxHealth = value;
 					component.health = value;
@@ -97,10 +97,10 @@ namespace FuelCells.Patches
 			}
 			else
 			{
-				Log.LogInfo("InterceptTrace: Target object not configured to be harvestable");
+				//Log.LogInfo("InterceptTrace: Target object not configured to be harvestable");
 			}
 
-            return result;
-        }
-    }
+			return result;
+		}
+	}
 }

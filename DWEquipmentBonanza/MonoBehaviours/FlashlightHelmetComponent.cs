@@ -13,14 +13,14 @@ namespace DWEquipmentBonanza.MonoBehaviours
 {
 	public class FlashlightHelmetComponent : MonoBehaviour,
 #if SN1
-        IInventoryDescriptionSN1,
-#elif BELOWZERO
+		IInventoryDescriptionSN1,
+#else
 		IInventoryDescription,
 #endif
 		IEquippable
 	{
 		public static GameObject flashlightPrefab { get; internal set; }
-		public static GameObject lightsParent { get; internal set; }
+		public GameObject lightsParent { get; internal set; }
 		private const float eyeOffset = 0.1f;
 		//public Light pointLight { get; internal set; }
 		//public Light spotLight { get; internal set; }
@@ -82,19 +82,21 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			this.lightSocket = Inventory.main.cameraSocket.gameObject;
 		}
 
-		public void Start()
+		public IEnumerator Start()
 		{
 			Log.LogDebug($"FlashlightHelmetComponent.Start()");
 
 			//We need a StorageRoot for the EnergyMixin, which in turn is needed for the ToggleLights.
+			yield return new WaitUntil(() => (this.gameObject != null && Player.main.gameObject != null));
+
 			thisObject = this.gameObject;
 			this.storageRoot = this.gameObject.FindChild("StorageRoot") ?? new GameObject("StorageRoot", new Type[] { typeof(ChildObjectIdentifier) });
 
-			var lightsParent = FlashlightHelmetComponent.lightsParent ??= Player.main.gameObject.FindChild("HeadFlashlightParent") ?? new GameObject("HeadFlashlightParent");
-			lightsParent.transform.SetParent(Player.main.gameObject.transform);
-			lightsParent.name = "HeadLampParent";
-			var spotLightObject = lightsParent.FindChild("HeadFlashLight_spot") ?? new GameObject("HeadFlashLight_spot", new Type[] { typeof(Light) });
-			spotLightObject.transform.SetParent(lightsParent.transform);
+			this.lightsParent ??= Player.main.gameObject.FindChild("HeadFlashlightParent") ?? new GameObject("HeadFlashlightParent");
+			this.lightsParent.transform.SetParent(Player.main.gameObject.transform);
+			this.lightsParent.name = "HeadLampParent";
+			var spotLightObject = this.lightsParent.FindChild("HeadFlashLight_spot") ?? new GameObject("HeadFlashLight_spot", new Type[] { typeof(Light) });
+			spotLightObject.transform.SetParent(this.lightsParent.transform);
 			var spotLight = spotLightObject.EnsureComponent<Light>();
 			if (spotLight == null)
 			{
@@ -111,8 +113,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				spotLight.shadows = LightShadows.Hard;
 			}
 
-			var pointLightObject = lightsParent.FindChild("HeadFlashLight_point") ?? new GameObject("HeadFlashLight_point", new Type[] { typeof(Light) });
-			pointLightObject.transform.SetParent(lightsParent.transform);
+			var pointLightObject = this.lightsParent.FindChild("HeadFlashLight_point") ?? new GameObject("HeadFlashLight_point", new Type[] { typeof(Light) });
+			pointLightObject.transform.SetParent(this.lightsParent.transform);
 			var pointLight = pointLightObject.EnsureComponent<Light>();
 			if (pointLight == null)
 			{
@@ -130,12 +132,13 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			this.toggleLights.energyMixin = this.gameObject.EnsureComponent<EnergyMixin>();
 			this.toggleLights.energyMixin.storageRoot = this.storageRoot.GetComponent<ChildObjectIdentifier>();
 			this.toggleLights.energyMixin.OnCraftEnd(TechType.None);
-			this.toggleLights.lightsParent = FlashlightHelmetComponent.lightsParent;
+			this.toggleLights.lightsParent = this.lightsParent;
 			var toggleLightsPrefab = FlashlightHelmetComponent.flashlightPrefab.GetComponent<ToggleLights>();
 			this.toggleLights.lightsOnSound = toggleLightsPrefab.lightsOnSound;
 			this.toggleLights.lightsOffSound = toggleLightsPrefab.lightsOffSound;
 			this.toggleLights.energyPerSecond = 0f;
 			this.mainCollider = gameObject.GetComponent<BoxCollider>();
+			
 		}
 
 		public void OnEquip(GameObject sender, string slot)
@@ -154,8 +157,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				Log.LogError($"toggleLights is null!");
 			else
 			{
-				this.toggleLights.SetLightsActive(false);
 				this.toggleLights.SetLightsActive(true);
+				this.toggleLights.SetLightsActive(false);
 			}
 
 			foreach (Renderer R in this.gameObject.GetComponentsInChildren<Renderer>())

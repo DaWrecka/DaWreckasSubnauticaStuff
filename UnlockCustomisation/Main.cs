@@ -28,36 +28,42 @@ using UWE;
 namespace UnlockCustomisation
 {
 #if BEPINEX
-    [BepInPlugin(GUID, pluginName, version)]
-    [BepInProcess("Subnautica.exe")]
-    public class UnlockCustomisationPlugin : BaseUnityPlugin
-    {
-#elif QMM
-    [QModCore]
-	public static class UnlockCustomisationPlugin
-    {
+	[BepInPlugin(GUID, pluginName, version)]
+#if SN1
+	[BepInProcess("Subnautica.exe")]
+#elif BELOWZERO
+	[BepInProcess("SubnauticaZero.exe")]
 #endif
-#region[Declarations]
-        public const string
-            MODNAME = "UnlockCustomisation",
-            AUTHOR = "dawrecka",
-            GUID = "com." + AUTHOR + "." + MODNAME;
-        private const string pluginName = "Unlock Customisation";
-        public const string version = "1.0.0.0";
+	public class UnlockCustomisationPlugin : BaseUnityPlugin
+	{
+#elif QMM
+	[QModCore]
+	public static class UnlockCustomisationPlugin
+	{
+#endif
+	#region[Declarations]
+	public const string
+			MODNAME = "UnlockCustomisation",
+			AUTHOR = "dawrecka",
+			GUID = "com." + AUTHOR + "." + MODNAME;
+		private const string pluginName = "Unlock Customisation";
+		public const string version = "1.20.0.0";
 #endregion
 
-        private static readonly Harmony harmony = new Harmony(GUID);
-        public static UCConfig config { get; } = OptionsPanelHandler.RegisterModOptions<UCConfig>();
-        private static readonly Assembly myAssembly = Assembly.GetExecutingAssembly();
+		private static readonly Harmony harmony = new Harmony(GUID);
+		public static UCConfig config { get; } = OptionsPanelHandler.RegisterModOptions<UCConfig>();
+		private static readonly Assembly myAssembly = Assembly.GetExecutingAssembly();
 
 #if QMM
-        [QModPatch]
+		[QModPatch]
 #endif
-        public static void Start()
-        {
-            harmony.PatchAll(myAssembly);
-            config.Patch();
-        }
-    }
+		public void Start()
+		{
+			Log.InitialiseLog(GUID);
+			Log.LogInfo("UnlockCustomisation version " + version + " initialised");
+			harmony.PatchAll(myAssembly);
+			config.Patch();
+		}
+	}
 
 }

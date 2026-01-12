@@ -66,19 +66,19 @@ namespace CustomiseYourTools
 
 
         // Exosuit Prop Cannon
-        [Slider(DefaultValue = 50f, Step = 0.5f, Format = "{0:F1}", Label = "Exosuit Prop Cannon shoot force", Max = 200f, Min = 10f, Tooltip = "Force applied to objects fired from the handheld Propulsion Cannon")]
+        [Slider(DefaultValue = 50f, Step = 0.5f, Format = "{0:F1}", Label = "Exosuit Prop Cannon shoot force", Max = 200f, Min = 10f, Tooltip = "Force applied to objects fired from the Exosuit Propulsion Cannon")]
         public float ExosuitPropCannonShootForce = 50f;
 
-        [Slider(DefaultValue = 140f, Step = 0.5f, Format = "{0:F1}", Label = "Exosuit Prop Cannon attract force", Max = 400f, Min = 35f, Tooltip = "Force applied to objects as they are pulled towards the handheld Propulsion Cannon muzzle")]
+        [Slider(DefaultValue = 140f, Step = 0.5f, Format = "{0:F1}", Label = "Exosuit Prop Cannon attract force", Max = 400f, Min = 35f, Tooltip = "Force applied to objects as they are pulled towards the Exosuit Propulsion Cannon muzzle")]
         public float ExosuitPropCannonAttractionForce = 140f;
 
-        [Slider(DefaultValue = 0.02f, Step = 0.002f, Format = "{0:F3}", Label = "Exosuit Prop Cannon mass scaling factor", Max = 1f, Min = 0.001f, Tooltip = "Objects picked up by the handheld Propulsion Cannon have their mass multiplied by that value")]
+        [Slider(DefaultValue = 0.02f, Step = 0.002f, Format = "{0:F3}", Label = "Exosuit Prop Cannon mass scaling factor", Max = 1f, Min = 0.001f, Tooltip = "Objects picked up by the Exosuit Propulsion Cannon have their mass multiplied by that value")]
         public float ExosuitPropCannonMassScalingFactor = 0.02f;
 
-        [Slider(DefaultValue = 18f, Step = 1f, Format = "{0:F0}", Label = "Exosuit Prop Cannon pickup distance", Max = 72f, Min = 6f, Tooltip = "handheld Propulsion Cannon maximum pickup range, in metres")]
+        [Slider(DefaultValue = 18f, Step = 1f, Format = "{0:F0}", Label = "Exosuit Prop Cannon pickup distance", Max = 72f, Min = 6f, Tooltip = "Exosuit Propulsion Cannon maximum pickup range, in metres")]
         public float ExosuitPropCannonPickupDistance = 18f;
 
-        [Slider(DefaultValue = 1200f, Step = 5f, Format = "{0:F0}", Label = "Exosuit Prop Cannon max mass", Max = 4800f, Min = 300f, Tooltip = "Objects with a mass greater than this value cannot be picked up using the handheld Propulsion Cannon")]
+        [Slider(DefaultValue = 1200f, Step = 5f, Format = "{0:F0}", Label = "Exosuit Prop Cannon max mass", Max = 4800f, Min = 300f, Tooltip = "Objects with a mass greater than this value cannot be picked up using the Exosuit Propulsion Cannon")]
         public float ExosuitPropCannonMaxMass = 0.02f;
 
         [Slider(DefaultValue = 120f, Step = 1f, Format = "{0:F0}", Label = "Exosuit Prop Cannon max AABB volume", Max = 480f, Min = 30f, Tooltip = "Unknown")]

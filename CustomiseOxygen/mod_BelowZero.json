@@ -4,15 +4,15 @@
   "Author": "DaWrecka",
   "Version": "1.1.0.0",
   "Dependencies": [
-    "SMLHelper"
+	"SMLHelper"
   ],
   "Game": "BelowZero",
   "AssemblyName": "CustomiseOxygen.dll",
   "VersionDependencies": {
-    "SMLHelper": "2.9.6"
+	"SMLHelper": "2.9.6"
   },
   "VersionChecker": {
-    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/CustomiseOxygen/mod_BelowZero.json"
+	"LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/CustomiseOxygen/mod_BelowZero.json"
   },
   "NexusId": {},
   "Enable": true

@@ -8,7 +8,9 @@ using Nautilus.Json.Attributes;
 using Nautilus.Json;
 using Common.NautilusHelper;
 using RecipeData = Nautilus.Crafting.RecipeData;
-using Ingredient = CraftData.Ingredient;
+#if SN1
+	//using Ingredient = CraftData\.Ingredient;
+#endif
 #else
 using SMLHelper.V2.Handlers;
 using SMLHelper.V2.Json.Attributes;
@@ -27,11 +29,11 @@ namespace DWEquipmentBonanza.MonoBehaviours
 {
 	public abstract class VehicleCharger : MonoBehaviour,
 #if SN1
-        IInventoryDescriptionSN1,
+		IInventoryDescriptionSN1,
 #elif BELOWZERO
 		IInventoryDescription,
 #endif
-		//ISerializationCallbackReceiver
+		ISerializationCallbackReceiver,
 		IProtoEventListener
 	{
 		protected IBattery _cell;
@@ -390,11 +392,21 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 			return String.Join("\n", args);
 		}
+
+		public void OnBeforeSerialize()
+		{
+			this.OnProtoSerialize(null);
+		}
+
+		public void OnAfterDeserialize()
+		{
+			this.OnProtoDeserialize(null);
+		}
 	}
 
 	public class VehicleThermalChargerMk1 : VehicleCharger
 	{
-        protected override Dictionary<string, float> difficultyKeyedSolarChargeRates { get; } = new Dictionary<string, float>();
+		protected override Dictionary<string, float> difficultyKeyedSolarChargeRates { get; } = new Dictionary<string, float>();
 		protected override Dictionary<string, float> difficultyKeyedThermalChargeRates { get; } = new Dictionary<string, float>()
 		{
 			{ "Easy", 0.75f },
@@ -442,15 +454,15 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		{
 			float num = this._charge / this.capacity;
 #if SN1
-            return Language.main.GetFormat<float, int, float>("BatteryCharge", num, Mathf.RoundToInt(this._charge), this.capacity);
+			return Language.main.GetFormat<float, int, float>("BatteryCharge", num, Mathf.RoundToInt(this._charge), this.capacity);
 #elif BELOWZERO
 			return Language.main.GetFormat<string, float, int, float>("BatteryCharge", ColorUtility.ToHtmlStringRGBA(Battery.gradient.Evaluate(num)), num, Mathf.RoundToInt(this._charge), this.capacity);
 #endif
 
 		}
 
-        public override IEnumerator PostDeserialize()
-        {
+		public override IEnumerator PostDeserialize()
+		{
 			yield return base.PostDeserialize();
 			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
 			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.name}): begin");
@@ -464,9 +476,9 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				Log.LogWarning($"VehicleCharger.OnAfterDeserialize({this.name}) Failed to retrieve charge value from disk for module ID of '{moduleId}'; is this a new module?");
 
 			yield break;
-        }
+		}
 
-        public override void Init(MonoBehaviour vehicle)
+		public override void Init(MonoBehaviour vehicle)
 		{
 			//this.cell = this;
 			base.Init(vehicle);
@@ -507,9 +519,9 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		protected override float baseCapacity => 20f;
 		private Dictionary<string, float> capacityMultipliers { get; } = new Dictionary<string, float>()
 		{
-			{ "Easy", 6f },
-			{ "Hard", 4f },
-			{ "Ridiculous", 3f },
+			{ "Easy", 8f },
+			{ "Hard", 6f },
+			{ "Ridiculous", 4f },
 			{ "Insane", 2f }
 		};
 		protected override Dictionary<string, float> difficultyTypedCapacityMultipliers => capacityMultipliers;

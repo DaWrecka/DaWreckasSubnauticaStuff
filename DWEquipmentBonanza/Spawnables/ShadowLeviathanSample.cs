@@ -4,7 +4,9 @@ using Nautilus.Assets;
 using Nautilus.Handlers;
 using Common.NautilusHelper;
 using RecipeData = Nautilus.Crafting.RecipeData;
-using Ingredient = CraftData.Ingredient;
+#if SN1
+	//using Ingredient = CraftData\.Ingredient;
+#endif
 #else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Handlers;
@@ -21,50 +23,53 @@ using UnityEngine;
 namespace DWEquipmentBonanza.Spawnables
 {
 #if BELOWZERO
-    internal class ShadowLeviathanSample : Spawnable
-    {
-        protected static Sprite sprite;
-        protected static GameObject prefab;
+	internal class ShadowLeviathanSample : Spawnable
+	{
+#if NAUTILUS
+		protected override string templateClassId => String.Empty;
+		protected override TechType templateType => TechType.FrozenCreatureAntidote;
+#else
+		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+		{
+			if (prefab == null)
+			{
+				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.FrozenCreatureAntidote);
+				yield return task;
 
-        protected override Sprite GetItemSprite()
-        {
-            if (sprite == null || sprite == SpriteManager.defaultSprite)
-            {
-                sprite = SpriteManager.Get(TechType.FrozenCreatureAntidote);
-            }
+				prefab = GameObject.Instantiate(task.GetResult());
+				if(prefab.TryGetComponent<CompleteGoalOnExamine>(out CompleteGoalOnExamine cgoe))
+					GameObject.DestroyImmediate(cgoe);
+				ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
+														 // but it can still be instantiated. [unlike with SetActive(false)]
+			}
 
-            return sprite;
-        }
+			var obj = GameObject.Instantiate(prefab);
+			gameObject.Set(obj);
+		}
+#endif
+		protected static Sprite sprite;
 
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            if (prefab == null)
-            {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.FrozenCreatureAntidote);
-                yield return task;
+		protected override Sprite GetItemSprite()
+		{
+			if (sprite == null || sprite == SpriteManager.defaultSprite)
+			{
+				sprite = SpriteManager.Get(TechType.FrozenCreatureAntidote);
+			}
 
-                prefab = GameObject.Instantiate(task.GetResult());
-                if(prefab.TryGetComponent<CompleteGoalOnExamine>(out CompleteGoalOnExamine cgoe))
-                    GameObject.DestroyImmediate(cgoe);
-                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
-                                                         // but it can still be instantiated. [unlike with SetActive(false)]
-            }
+			return sprite;
+		}
 
-            var obj = GameObject.Instantiate(prefab);
-            gameObject.Set(obj);
-        }
-
-        public ShadowLeviathanSample()
-            : base("ShadowLeviathanSample", "Shadow Leviathan Sample", "A sample of chitin and ichor from a deadly predator.")
-        {
-            //Console.WriteLine($"{this.ClassID} constructing");
-            OnFinishedPatching += () =>
-            {
-                Main.AddModTechType(this.TechType);
-                CraftDataHandler.SetHarvestOutput(TechType.ShadowLeviathan, this.TechType);
-                CraftDataHandler.SetHarvestType(TechType.ShadowLeviathan, HarvestType.DamageAlive);
-            };
-        }
-    }
+		public ShadowLeviathanSample()
+			: base("ShadowLeviathanSample", "Shadow Leviathan Sample", "A sample of chitin and ichor from a deadly predator.")
+		{
+			//Console.WriteLine($"{this.ClassID} constructing");
+			OnFinishedPatching += () =>
+			{
+				Main.AddModTechType(this.TechType);
+				CraftDataHandler.SetHarvestOutput(TechType.ShadowLeviathan, this.TechType);
+				CraftDataHandler.SetHarvestType(TechType.ShadowLeviathan, HarvestType.DamageAlive);
+			};
+		}
+	}
 #endif
 }

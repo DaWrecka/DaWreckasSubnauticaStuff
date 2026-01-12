@@ -18,7 +18,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 #if SN1
-using Sprite = Atlas.Sprite;
+//using Sprite = Atlas.Sprite;
 using Object = UnityEngine.Object;
 #endif
 
@@ -104,27 +104,27 @@ namespace CustomiseOxygen
 		}
 
 #if ASYNC
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            GameObject prefab;
+		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+		{
+			GameObject prefab;
 
-            if (!prefabs.TryGetValue(this.TechType, out prefab))
-            {
-                //var task = CraftData.GetPrefabForTechTypeAsync(TechType.Tank);
-                var task = CraftData.GetPrefabForTechTypeAsync(thisBaseTank);
-                yield return task;
+			if (!prefabs.TryGetValue(this.TechType, out prefab))
+			{
+				//var task = CraftData.GetPrefabForTechTypeAsync(TechType.Tank);
+				var task = CraftData.GetPrefabForTechTypeAsync(thisBaseTank);
+				yield return task;
 
-                prefab = task.GetResult();
-                //prefab.EnsureComponent<AutoRemover>();
-                prefabs.Add(this.TechType, prefab);
-                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
-                                                         // but it can still be instantiated. [unlike with SetActive(false)]
-            }
+				prefab = task.GetResult();
+				//prefab.EnsureComponent<AutoRemover>();
+				prefabs.Add(this.TechType, prefab);
+				ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
+														 // but it can still be instantiated. [unlike with SetActive(false)]
+			}
 
-            gameObject.Set(GameObject.Instantiate(prefab));
-        }
+			gameObject.Set(GameObject.Instantiate(prefab));
+		}
 #else
-        public override GameObject GetGameObject()
+		public override GameObject GetGameObject()
 		{
 			GameObject prefab;
 
@@ -144,7 +144,7 @@ namespace CustomiseOxygen
 		}
 #endif
 
-        public override TechType RequiredForUnlock => GetRequiredUnlock(this.TechType);
+		public override TechType RequiredForUnlock => GetRequiredUnlock(this.TechType);
 	}
 #endif
 }

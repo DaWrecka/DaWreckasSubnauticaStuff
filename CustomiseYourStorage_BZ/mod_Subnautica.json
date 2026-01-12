@@ -1,19 +1,19 @@
 {
-  "Id": "CustomiseYourStorage",
-  "DisplayName": "Customise Your Storage",
-  "Author": "DaWrecka",
-  "Version": "1.0.0.3",
-  "Dependencies": [
-    "SMLHelper"
-  ],
-  "Game": "Subnautica",
-  "AssemblyName": "CustomiseYourStorage.dll",
-  "VersionDependencies": {
-    "SMLHelper": "2.9"
-  },
-  "VersionChecker": {
-    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/CustomiseYourStorage/mod_Subnautica.json"
-  },
-  "NexusId": {},
-  "Enable": true
+	"Id": "CustomiseYourStorage",
+	"DisplayName": "Customise Your Storage",
+	"Author": "DaWrecka",
+	"Version": "1.0.0.3",
+	"Dependencies": [
+	"SMLHelper"
+	],
+	"Game": "Subnautica",
+	"AssemblyName": "CustomiseYourStorage.dll",
+	"VersionDependencies": {
+	"SMLHelper": "2.9"
+	},
+	"VersionChecker": {
+	"LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/CustomiseYourStorage/mod_Subnautica.json"
+	},
+	"NexusId": {},
+	"Enable": true
 }

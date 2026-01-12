@@ -15,33 +15,37 @@ namespace DWEquipmentBonanza.MonoBehaviours
 {
 	internal class ExosuitUpdater : VehicleUpdater, ISerializationCallbackReceiver
 	{
+		/*
 		private float GroundSprintMult = 1.25f; // Base force multiplier applied when using the Sprint Module on ground
 		private float WaterSprintMult = 1.1f; // Base force multiplier applied when using the Sprint Module while jumping.
 		private float JetUpgradeMult = 1.1f; // Additional multiplier applied to the above if the jump jet upgrade is installed.
 		private float fLastForce = 1f;
 		protected float defaultForwardForce;
+		*/
 		//protected Exosuit parentVehicle;
-		protected bool bJetsUpgraded;
+		protected Exosuit parentExosuit => parentVehicle as Exosuit;
+		protected static readonly Dictionary<Exosuit, bool> bJetsUpgraded = new();
 		//protected Equipment exosuitModules => parentVehicle != null ? parentVehicle.modules : null;
 
 
-		[NonSerialized]
-		private Vector3 lastMoveDirection;
+		/*[NonSerialized]
+		private Vector3 lastMoveDirection;*/
+		protected static TechType grappleUpgradeType => DWEBPlugin.GetModTechType("ExosuitGrappleUpgradeModule");
 
-        protected override void Start()
-        {
-            base.Start();
-        }
+		/*protected override void Start()
+		{
+			base.Start();
+		}
 
-        public override void Initialise(ref MonoBehaviour vehicle)
+		public override void Initialise(ref MonoBehaviour vehicle)
 		{
 			base.Initialise(ref vehicle);
 			if (vehicle is Exosuit exosuit)
 			{
 				parentVehicle = vehicle;
-				defaultForwardForce = exosuit.forwardForce;
+				//defaultForwardForce = exosuit.forwardForce;
 			}
-		}
+		}*/
 
 		public override int GetModuleCount(TechType techType)
 		{
@@ -51,18 +55,18 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			return 0;
 		}
 
-		internal float GetForceMultiplier(bool bSprinting, bool bUnderwaterJumping)
+		/*internal float GetForceMultiplier(bool bSprinting, bool bUnderwaterJumping)
 		{
-			if (bSprinting && ExosuitPatches.GetThrustPower(parentVehicle as Exosuit) > 0f)
+			if (bSprinting && ExosuitPatches.GetThrustPower(parentExosuit) > 0f)
 			{
 				if (bUnderwaterJumping)
-					return WaterSprintMult * (bJetsUpgraded ? JetUpgradeMult : 1f);
+					return WaterSprintMult * (bJetsUpgraded.GetOrDefault(parentExosuit, false) ? JetUpgradeMult : 1f);
 
-				return GroundSprintMult * (bJetsUpgraded ? JetUpgradeMult : 1f);
+				return GroundSprintMult * (bJetsUpgraded.GetOrDefault(parentExosuit, false) ? JetUpgradeMult : 1f);
 			}
 
 			return 1f;
-		}
+		}*/
 
 		public override void OnAfterDeserialize()
 		{
@@ -74,28 +78,28 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			if (parentVehicle == null)
 				parentVehicle = __instance;
 
-			if (parentVehicle is Exosuit parentExosuit && Player.main.currentMountedVehicle == parentExosuit)
+			/*if (parentExosuit != null && Player.main.currentMountedVehicle == parentExosuit)
 			{
-				lastMoveDirection = AvatarInputHandler.main.IsEnabled() ? GameInput.GetMoveDirection() : Vector3.zero;
+				//lastMoveDirection = AvatarInputHandler.main.IsEnabled() ? GameInput.GetMoveDirection() : Vector3.zero;
 
-				bool bExosuitSprint = ExosuitPatches.ExosuitIsSprinting(parentExosuit, lastMoveDirection);
+				//bool bExosuitSprint = ExosuitPatches.ExosuitIsSprinting(parentExosuit, lastMoveDirection);
 				//float forceMultiplier = 1f * (bExosuitSprint ? (bJetsUpgraded ? 2.5f : 2f) : 1f); // These constants will likely be tweaked, but they're here for testing
-				float forceMultiplier = GetForceMultiplier(bExosuitSprint, ExosuitPatches.ExosuitIsJumping(parentExosuit, lastMoveDirection) && parentExosuit.IsUnderwater());
-				parentExosuit.forwardForce = defaultForwardForce * forceMultiplier;
-				fLastForce = forceMultiplier;
-			}
+				//float forceMultiplier = GetForceMultiplier(bExosuitSprint, ExosuitPatches.ExosuitIsJumping(parentExosuit, lastMoveDirection) && parentExosuit.IsUnderwater());
+				//parentExosuit.forwardForce = defaultForwardForce * forceMultiplier;
+				//fLastForce = forceMultiplier;
+			}*/
 		}
 
 		internal override void PostOverrideAcceleration(ref Vector3 acceleration)
 		{
-			Exosuit parentExosuit = parentVehicle as Exosuit;
+			/*Exosuit parentExosuit = parentVehicle as Exosuit;
 
 			if (ExosuitPatches.ExosuitIsSprinting(parentExosuit, lastMoveDirection))
 			{
 				float thrust = GetForceMultiplier(true, ExosuitPatches.ExosuitIsJumping(parentExosuit, lastMoveDirection) && parentExosuit.IsUnderwater());
 				acceleration.x *= thrust;
 				acceleration.z *= thrust;
-			}
+			}*/
 		}
 
 		internal override void ApplyPhysicsMove()
@@ -109,11 +113,15 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		internal override void PostUpgradeModuleChange(int slotID, TechType techType, bool added, MonoBehaviour instance)
 		{
 			base.PostUpgradeModuleChange(slotID, techType, added, instance);
-			if (instance is Vehicle v)
+			if (instance is Exosuit e)
 			{
-				defaultForwardForce = v.forwardForce;
-				if (techType == TechType.ExosuitJetUpgradeModule)
-					bJetsUpgraded = GetModuleCount(TechType.ExosuitJetUpgradeModule) > 0;
+				//defaultForwardForce = e.forwardForce;
+				//if (techType == TechType.ExosuitJetUpgradeModule)
+				//	bJetsUpgraded[e] = GetModuleCount(TechType.ExosuitJetUpgradeModule) > 0;
+#if BELOWZERO
+				if (techType == grappleUpgradeType)
+					ExosuitGrapplingArmPatches.UpdateGrappleUpgradeState(e, (added || GetModuleCount(ExosuitUpdater.grappleUpgradeType) > 0));
+#endif
 			}
 		}
 	}

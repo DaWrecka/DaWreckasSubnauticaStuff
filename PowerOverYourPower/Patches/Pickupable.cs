@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace PowerOverYourPower.Patches
 {
-    [HarmonyPatch(typeof(Pickupable))]
-    internal class Pickupables
-    {
-        [HarmonyPatch(nameof(Pickupable.Awake))]
-        [HarmonyPostfix]
-        internal static void PostAwake(Pickupable __instance)
-        {
-            if (__instance.gameObject != null && __instance.gameObject.TryGetComponent<Battery>(out Battery b))
-                Batteries.AddPendingBattery(ref b);
-        }
-    }
+	[HarmonyPatch(typeof(Pickupable))]
+	internal class Pickupables
+	{
+		[HarmonyPatch(nameof(Pickupable.Awake))]
+		[HarmonyPostfix]
+		internal static void PostAwake(Pickupable __instance)
+		{
+			if (__instance.gameObject != null && __instance.gameObject.TryGetComponent<Battery>(out Battery b))
+				Batteries.AddPendingBattery(ref b);
+		}
+	}
 }

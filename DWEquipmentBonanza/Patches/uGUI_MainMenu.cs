@@ -16,12 +16,12 @@ namespace DWEquipmentBonanza.Patches
 	[HarmonyPatch(typeof(uGUI_MainMenu))]
 	public class uGUI_MainMenuPatches
 	{
-        [HarmonyPatch("Start")]
-        [HarmonyPostfix]
-        public static void PostStart()
-        {
+		[HarmonyPatch("Start")]
+		[HarmonyPostfix]
+		public static void PostStart()
+		{
 			CoroutineHost.StartCoroutine(PostMenuCoroutine());
-        }
+		}
 
 		internal static IEnumerator PostMenuCoroutine()
 		{
@@ -52,9 +52,11 @@ namespace DWEquipmentBonanza.Patches
 				{ "DrillableSulphur", "697beac5-e39a-4809-854d-9163da9f997e" }
 			};
 
-			for (int i = 0; i < types.Count; i++)
+			//for (int i = 0; i < types.Count; i++)
+			//{
+			//	TechType tt = types[i];
+			foreach(TechType tt in types)
 			{
-				TechType tt = types[i];
 				string classid = CraftData.GetClassIdForTechType(tt);
 				if (String.IsNullOrEmpty(classid))
 				{
@@ -96,8 +98,8 @@ namespace DWEquipmentBonanza.Patches
 						Log.LogWarning($"PostMenuCoroutine(): Could not find LargeWorldEntity component in prefab for TechType {techType}");
 					}
 #if SN1
-                    // Since we're here, make kyanite less troll-tastic.
-                    Drillable drillable = prefab.GetComponent<Drillable>();
+					// Since we're here, make kyanite less troll-tastic.
+					Drillable drillable = prefab.GetComponent<Drillable>();
 	#if LEGACY
 					if (drillable != null && drillable.kChanceToSpawnResources < DWConstants.newKyaniteChance)
 					{
@@ -128,13 +130,13 @@ namespace DWEquipmentBonanza.Patches
 			Log.LogDebug("PostMenuCoroutine(): Processing vehicle defaults");
 			types = new List<TechType>() {
 #if SN1
-				TechType.Seamoth,
 				TechType.Cyclops,
 #elif BELOWZERO
 				TechType.SeaTruck,
 				TechType.Hoverbike,
 #endif
-			TechType.Exosuit,
+				TechType.Seamoth,
+				TechType.Exosuit,
 			};
 
 			for (int i = 0; i < types.Count; i++)
@@ -186,11 +188,11 @@ namespace DWEquipmentBonanza.Patches
 
 				if (request.TryGetPrefab(out GameObject prefab))
 				{
-					Log.LogDebug($"    Successfully retrieved a prefab for the classID {classid}");
+					Log.LogDebug($"	Successfully retrieved a prefab for the classID {classid}");
 				}
 				if (PrefabDatabase.TryGetPrefabFilename(classid, out string filename))
 				{
-					Log.LogDebug($"    Got a prefab filename of '{filename}' for the classID {classid}");
+					Log.LogDebug($"	Got a prefab filename of '{filename}' for the classID {classid}");
 				}
 			}
 #endif

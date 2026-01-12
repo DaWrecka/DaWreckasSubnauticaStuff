@@ -24,6 +24,7 @@ using System;
 	using Newtonsoft.Json.Serialization;
 	using Newtonsoft.Json.Converters;
 using Nautilus.Utility;
+using DWEquipmentBonanza.Patches;
 #endif
 
 namespace DWEquipmentBonanza
@@ -112,7 +113,7 @@ namespace DWEquipmentBonanza
 		public float ExosuitHealthMult = 1f;
 
 #if SN1
-        [Slider("SeaMoth health multiplier", VEHICLE_HEALTH_MIN, VEHICLE_HEALTH_MAX, DefaultValue = 1f, Id = "SeaMothHealthMult",
+		[Slider("SeaMoth health multiplier", VEHICLE_HEALTH_MIN, VEHICLE_HEALTH_MAX, DefaultValue = 1f, Id = "SeaMothHealthMult",
 			Step = 0.05f, Format = "{0:F2}",
 			Tooltip = "Maximum health of SeaMoth; The default health of 200 is multiplied by this value.\nThe game must be restarted for this change to take effect.")]
 		public float SeaMothHealthMult = 1f;
@@ -205,15 +206,18 @@ namespace DWEquipmentBonanza
 			Step = 1f, Format = "{0:F0}",
 			Tooltip = "Amount of energy consumed per second by Durability Upgrade while recharging, as a percentage of the recharge rate. A value of 100 means that one unit of energy is consumed for every point of shield strength recharged."), OnChange(nameof(OnSliderChange))]
 		public float SnowfoxShieldEnergyRate = 25f;
+
+		[Slider("Drillable drill damage", DefaultValue = 5f, Format = "{0:F1}", Id = "DrillableDamage", Min = 5f, Max = 50f, Step = 0.1f, Tooltip = "Damage done to drillables by the Exosuit or Seatruck drill arms (UWE default 5)"), OnChange(nameof(OnSliderChange))]
+		public float DrillableDamage = 5f;
 #endif
 		public delegate void OnConfigChange(DWConfig config, bool isEvent = false);
 		public delegate void OnQuit(DWConfig config);
 
 		public DWConfig() : base()
 		{
-            if (this.OnQuitEvent != null)
+			if (this.OnQuitEvent != null)
 #if NAUTILUS
-                SaveUtils.RegisterOnQuitEvent(this.OnQuitEvent);
+				SaveUtils.RegisterOnQuitEvent(this.OnQuitEvent);
 #else
 			
 				IngameMenuHandler.RegisterOnQuitEvent(this.OnQuitEvent);
@@ -228,6 +232,9 @@ namespace DWEquipmentBonanza
 		{
 			if (onOptionChanged != null)
 				onOptionChanged.Invoke(this);
+
+			if (e.Id == "DrillableDamage")
+				DrillablePatches.ExosuitDrillDamage = e.Value;
 		}
 
 		/*

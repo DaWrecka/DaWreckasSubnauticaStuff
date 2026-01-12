@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Constants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interfaces\IInventoryDescriptionSN1.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MonoBehaviours\RegeneratingPowerSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NautilusHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NautilusHelper\Craftable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NautilusHelper\Equipable.cs" />

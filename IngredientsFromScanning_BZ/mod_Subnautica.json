@@ -1,19 +1,19 @@
 {
-  "Id": "PartsFromScanning",
-  "DisplayName": "Parts From Scanning",
-  "Author": "DaWrecka w/ MrPurple6411",
-  "Version": "1.0.1.1",
-  "Dependencies": [
-    "SMLHelper"
-  ],
-  "Game": "Subnautica",
-  "AssemblyName": "PartsFromScanning.dll",
-  "VersionDependencies": {
-    "SMLHelper": "2.9.6"
-  },
-  "VersionChecker": {
-    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/IngredientsFromScanning/mod_Subnautica.json"
-  },
-  "NexusId": {},
-  "Enable": true
+	"Id": "PartsFromScanning",
+	"DisplayName": "Parts From Scanning",
+	"Author": "DaWrecka w/ MrPurple6411",
+	"Version": "1.0.1.1",
+	"Dependencies": [
+	"SMLHelper"
+	],
+	"Game": "Subnautica",
+	"AssemblyName": "PartsFromScanning.dll",
+	"VersionDependencies": {
+	"SMLHelper": "2.9.6"
+	},
+	"VersionChecker": {
+	"LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/IngredientsFromScanning/mod_Subnautica.json"
+	},
+	"NexusId": {},
+	"Enable": true
 }

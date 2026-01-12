@@ -12,9 +12,9 @@ using Main = DWEquipmentBonanza.DWEBPlugin;
 namespace DWEquipmentBonanza.Patches
 {
 #if SN1
-    [HarmonyPatch(typeof(SeaMoth))]
+	[HarmonyPatch(typeof(SeaMoth))]
 	internal class SeaMothPatches
-    {
+	{
 		[HarmonyPatch("Start")]
 		[HarmonyPostfix]
 		public static void PostStart(SeaMoth __instance)
@@ -61,6 +61,32 @@ namespace DWEquipmentBonanza.Patches
 		public static void PostOnPilotEnd(SeaMoth __instance)
 		{
 			__instance.gameObject.EnsureComponent<SeamothUpdater>()?.PostOnPilotEnd();
+		}
+
+		[HarmonyPrefix]
+		[HarmonyPatch(nameof(SeaMoth.GetHUDValues))]
+		public static bool PreGetHudValues(SeaMoth __instance, out float health, out float power)
+		{
+			if (__instance is null)
+			{
+				health = 0f;
+				power = 0f;
+				return true;
+			}
+
+			if (Main.config.bHUDAbsoluteValues)
+			{
+				health = Mathf.Floor(__instance.liveMixin.health) * 0.01f;  // uGUI_SeamothHUD assumes these values are fractions, and so will multiply both of these values by 100 before displaying them.
+				__instance.GetEnergyValues(out power, out float num);
+				power *= 0.01f;
+			}
+			else
+			{
+				__instance.GetHUDValues(out health, out power);
+				health = Mathf.Floor(health);
+			}
+
+			return false;
 		}
 	}
 #endif

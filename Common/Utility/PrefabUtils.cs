@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Common.Utility
 {
-    static class PrefabUtils
-    {
-    }
+	static class PrefabUtils
+	{
+	}
 }

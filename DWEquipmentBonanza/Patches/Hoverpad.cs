@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 namespace DWEquipmentBonanza.Patches
 {
 #if BELOWZERO
-    [HarmonyPatch(typeof(Hoverpad))]
-    public class HoverpadPatches
-    {
-        [HarmonyPatch(nameof(Hoverpad.Start))]
-        [HarmonyPostfix]
-        public static void PostStart(Hoverpad __instance)
-        {
-            __instance.gameObject.EnsureComponent<HoverpadUpdater>();
-        }
-    }
+	[HarmonyPatch(typeof(Hoverpad))]
+	public class HoverpadPatches
+	{
+		[HarmonyPatch(nameof(Hoverpad.Start))]
+		[HarmonyPostfix]
+		public static void PostStart(Hoverpad __instance)
+		{
+			__instance.gameObject.EnsureComponent<HoverpadUpdater>();
+		}
+	}
 #endif
 }

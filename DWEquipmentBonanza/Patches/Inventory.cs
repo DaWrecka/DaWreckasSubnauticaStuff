@@ -12,9 +12,11 @@ namespace DWEquipmentBonanza.Patches
 	[HarmonyPatch]
 	internal static class InventoryPatches
 	{
+
 		private static TechType cachedBatteryType; // Filled in by ConsumeResourcesPrefix
 		private static float cachedBatteryCharge; // Filled in by ConsumeResourcesPostfix
 		private static HashSet<TechType> chipTechTypes = new HashSet<TechType>(); // HashSet of the TechTypes of all tiers of Diver Perimeter Defence Chips
+		[Obsolete]
 		private static HashSet<TechType> chipRecharges = new HashSet<TechType>(); // Hashset of TechTypes which are recharge recipes, and not actually chips themselves.
 		private static HashSet<TechType> chipRechargeables = new HashSet<TechType>(); // HashSet of the chips which can be recharged.
 		private static float lastChipCharge; // Charge of the battery in the last-consumed chip.
@@ -25,7 +27,10 @@ namespace DWEquipmentBonanza.Patches
 			if (bRechargeable)
 			{
 				if (!chipRechargeables.Contains(newChip))
+				{
 					chipRechargeables.Add(newChip);
+					BatteryChargerPatches.AddAllowedTech(EquipmentType.BatteryCharger, newChip);
+				}
 			}
 
 			if (chipTechTypes.Contains(newChip))
@@ -34,6 +39,7 @@ namespace DWEquipmentBonanza.Patches
 			chipTechTypes.Add(newChip);
 		}
 
+		[Obsolete]
 		internal static void AddChipRecharge(TechType techType)
 		{
 			if (!chipRecharges.Contains(techType))
@@ -109,7 +115,7 @@ namespace DWEquipmentBonanza.Patches
 		internal static void PostRemoveItem(ItemsContainer __instance, TechType techType)
 		{
 #if SN1
-            float lastRemovedBatteryCharge = 1f; // SN1 has no routines for storing the charge of consumed batteries, at least not in vanilla. So we're going to use vanilla assumptions, and assume full charge.
+			float lastRemovedBatteryCharge = 1f; // SN1 has no routines for storing the charge of consumed batteries, at least not in vanilla. So we're going to use vanilla assumptions, and assume full charge.
 #elif BELOWZERO
 			float lastRemovedBatteryCharge = __instance == null ? -1f : __instance.lastRemovedBatteryCharge;
 #endif

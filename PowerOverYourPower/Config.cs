@@ -13,7 +13,7 @@ using SMLHelper.V2.Handlers;
 
 namespace PowerOverYourPower
 {
-    //[Menu("Power Over Your Power")]
+	//[Menu("Power Over Your Power")]
 	public class DWConfig : ConfigFile
 	{
 		//public float BatteryValue = 100f;

@@ -13,17 +13,19 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		private EnergyMixin power;
 
 #if SN1
-        public static float powerGlideForce = 4500f;
+		public static float powerGlideForce = 4500f;
 #elif BELOWZERO
 		public static float powerGlideForce = 3500f;
 #endif
 		public static float powerLerpRate = 900f;
 		public float powerSeaglideForce;
-		public static Color PowerGlideColour = new Color(1f, 0f, 1f);
+		public static Color PowerGlideColour { get; } = new Color(1f, 0f, 1f);
 
-		public bool bIsUnderwater { get; private set; }
-		public bool bhasEnergy { get; private set; }
-		public bool bInputHeld { get; private set; }
+		public bool bIsUnderwater => Player.main.IsUnderwaterForSwimming();
+		public bool bIsMovingForward => GameInput.GetButtonHeld(GameInput.Button.MoveForward);
+
+		public bool bhasEnergy => tool != null ? tool.HasEnergy() : false;
+		public bool bInputHeld => GameInput.GetButtonHeld(GameInput.Button.MoveForward) && GameInput.GetButtonHeld(GameInput.Button.Sprint);
 
 		private void OnConsoleCommand_powerglideforce(NotificationCenter.Notification n)
 		{
@@ -35,7 +37,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				{
 					string text = (string)n.data[0];
 #if SN1
-                    if (float.TryParse(text, out force))
+					if (float.TryParse(text, out force))
 #elif BELOWZERO
 					if (DevConsole.ParseFloat(n, 0, out force, 0f))
 #endif
@@ -53,7 +55,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 					string text = (string)n.data[0];
 					string text2 = (string)n.data[1];
 #if SN1
-                    bool try0 = float.TryParse(text, out force);
+					bool try0 = float.TryParse(text, out force);
 					bool try1 = float.TryParse(text2, out rate);
 #elif BELOWZERO
 					bool try0 = DevConsole.ParseFloat(n, 0, out force, 0f);
@@ -97,14 +99,6 @@ namespace DWEquipmentBonanza.MonoBehaviours
 					return;
 			}
 
-			/*
-		public bool bBoostActive { get; private set; }
-		public bool bhasEnergy { get; private set; }
-		public bool bInputHeld { get; private set; }
-			 */
-			bIsUnderwater = Player.main.IsUnderwaterForSwimming();
-			bhasEnergy = tool.HasEnergy();
-			bInputHeld = GameInput.GetButtonHeld(GameInput.Button.Sprint);
 			bool powerGlideActive = bIsUnderwater && bhasEnergy && bInputHeld;
 			
 			tool.powerGlideParam = Mathf.Lerp(tool.powerGlideParam, powerGlideActive ? 1f : 0f, Time.deltaTime * 3f);

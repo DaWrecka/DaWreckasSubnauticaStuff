@@ -15,36 +15,37 @@ using UWE;
 namespace ShowAltitude
 {
 #if BEPINEX
-    [BepInPlugin(GUID, pluginName, version)]
-#if BELOWZERO
+	[BepInPlugin(GUID, pluginName, version)]
+	#if BELOWZERO
 	[BepInProcess("SubnauticaZero.exe")]
-#elif SN1
-    [BepInProcess("Subnautica.exe")]
-    public class ShowAltitudePlugin: BaseUnityPlugin
-    {
+	#elif SN1
+	[BepInProcess("Subnautica.exe")]
+	#endif
+	public class ShowAltitudePlugin: BaseUnityPlugin
+	{
 #elif QMM
-    [QModCore]
+	[QModCore]
 	public static class ShowAltitudePlugin
-    {
+	{
 #endif
-        #region[Declarations]
-        public const string
-            MODNAME = "ShowAltitudePlugin",
-            AUTHOR = "dawrecka",
-            GUID = "com." + AUTHOR + "." + MODNAME;
-        private const string pluginName = "Show Altitude";
-        internal const string version = "1.0.0.0";
-        #endregion
+		#region[Declarations]
+		public const string
+			MODNAME = "ShowAltitudePlugin",
+			AUTHOR = "dawrecka",
+			GUID = "com." + AUTHOR + "." + MODNAME;
+		private const string pluginName = "Show Altitude";
+		internal const string version = "1.20.0.0";
+		#endregion
 
-        private static readonly Harmony harmony = new Harmony(GUID);
+		private static readonly Harmony harmony = new Harmony(GUID);
 
 #if QMM
-        [QModPatch]
+		[QModPatch]
 #endif
-        public void Awake()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            harmony.PatchAll(assembly);
-        }
-    }
+		public void Awake()
+		{
+			var assembly = Assembly.GetExecutingAssembly();
+			harmony.PatchAll(assembly);
+		}
+	}
 }

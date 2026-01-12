@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="$(SolutionDir)\GameDir.targets" />
   <Import Project="$(SolutionDir)\Configurations.targets" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Subnautica</Configuration>
@@ -15,7 +16,6 @@
     <Deterministic>true</Deterministic>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
-    <LangVersion>8.0</LangVersion>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'BelowZero|AnyCPU'">
@@ -27,7 +27,6 @@
   <PropertyGroup>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\References.targets" />
   <ItemGroup>
@@ -81,7 +80,7 @@
     <Compile Include="Config.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Patches\BlueprintHandTarget.cs" />
-    <Compile Include="Patches\CSVEntitySpawner.cs" />
+    <Compile Include="CSVEntitySpawner.cs" />
     <Compile Include="Patches\CraftData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -92,21 +91,4 @@
   <Import Project="$(SolutionDir)\Common\Common.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\PostBuildEvents.targets" />
-  <PropertyGroup>
-    <PreBuildEvent>echo GameDir: '$(GameDir)'
-echo DataFolder: '$(DataFolder)'
-echo SMLHelperFolder: '$(SMLHelperFolder)'
-echo ModBaseDir: '$(ModBaseDir)'
-echo PluginLoaderPath: '$(PluginLoaderPath)'
-echo SolutionDir: '$(SolutionDir)'
-echo UseAsync: '$(UseAsync)'
-echo UseQMM: '$(UseQMM)'
-echo UseSML: '$(UseSML)'
-</PreBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PostBuildEvent>echo on
-pwsh -ExecutionPolicy Unrestricted -file "$(SolutionDir)post-build.ps1" -Config "$(ConfigurationName)" -ProjectDir "$(ProjectDir)\" -GameDir "$(GameDir)" -TargetPath "$(TargetPath)" -AssemblyName "$(AssemblyName)" -SolutionDir "$(SolutionDir)\" -PluginLoaderPath "$(PluginLoaderPath)"
-		</PostBuildEvent>
-  </PropertyGroup>
 </Project>

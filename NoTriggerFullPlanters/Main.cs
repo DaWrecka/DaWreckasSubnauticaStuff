@@ -6,8 +6,8 @@ using HarmonyLib;
 using BepInEx;
 using BepInEx.Logging;
 #elif QMM
-    using QModManager.API.ModLoading;
-    using Logger = QModManager.Utility.Logger;
+	using QModManager.API.ModLoading;
+	using Logger = QModManager.Utility.Logger;
 #endif
 //using SMLHelper.V2.Crafting;
 using System.Reflection;
@@ -24,87 +24,120 @@ using UnityEngine;
 namespace NoTriggerFullPlanters
 {
 #if BEPINEX
-    [BepInPlugin(GUID, pluginName, version)]
-    [BepInProcess("Subnautica.exe")]
-    public class NoTriggerPlanterPlugin : BaseUnityPlugin
-    {
+	[BepInPlugin(GUID, pluginName, version)]
+#if BELOWZERO
+	[BepInProcess("SubnauticaZero.exe")]
+#elif SN1
+	[BepInProcess("Subnautica.exe")]
+#endif
+	public class NoTriggerPlanterPlugin : BaseUnityPlugin
+	{
 #elif QMM
-    [QModCore]
+	[QModCore]
 	public static class NoTriggerPlanterPlugin
-    {
-        [QModPatch]
+	{
+		[QModPatch]
 #endif
-        public void Start()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-           harmony.PatchAll(assembly);
-        }
+		public void Start()
+		{
+			var assembly = Assembly.GetExecutingAssembly();
+			harmony.PatchAll(assembly);
+		}
 
-        #region[Declarations]
-        public const string
-            MODNAME = "NoPlanterTrigger",
-            AUTHOR = "dawrecka",
-            GUID = "com." + AUTHOR + "." + MODNAME;
-        internal const string pluginName = "No Trigger Full Planters";
-        public const string version = "1.1.0.0";
-        #endregion
+		#region[Declarations]
+		public const string
+			MODNAME = "NoPlanterTrigger",
+			AUTHOR = "dawrecka",
+			GUID = "com." + AUTHOR + "." + MODNAME;
+		internal const string pluginName = "No Trigger Full Planters";
+		public const string version = "1.22.0.0";
+		#endregion
 
-        private static readonly Harmony harmony = new Harmony(GUID);
-    }
+		private static readonly Harmony harmony = new Harmony(GUID);
+	}
 
-    [HarmonyPatch(typeof(StorageContainer))]
-    public static class StorageContainerPatches
-    {
-        [HarmonyPatch(nameof(StorageContainer.OnHandClick))]
-        [HarmonyPrefix]
-        public static bool PreHandClick(StorageContainer __instance)
-        {
-            if (__instance.gameObject.GetComponent<Planter>() != null)
-            {
-                return __instance.container != null && __instance.container.HasRoomFor(1, 1);
-            }
+	[HarmonyPatch(typeof(StorageContainer))]
+	public static class StorageContainerPatches
+	{
+		[HarmonyPatch(nameof(StorageContainer.OnHandClick))]
+		[HarmonyPrefix]
+		public static bool PreHandClick(StorageContainer __instance, GUIHand guiHand)
+		{
+			if (__instance.gameObject.GetComponent<Planter>() != null)
+			{
+				if (GameInput.GetButtonHeld(GameInput.Button.Sprint))
+				{
+					var prefabs = __instance.gameObject.GetAllComponentsInChildren<PickPrefab>();
 
-            return true;
-        }
+					// When a planter has multiple PickPrefabs, such as in the case of Chinese Potato plants, activating the first one disables all the others
+					// For this reason, we iterate through the array backwards
+					for(int i = prefabs.Length - 1; i >= 0;	i--)
+					//foreach (var pickup in __instance.gameObject.GetAllComponentsInChildren<Pickupable>())
+					//foreach (var grownPlant in __instance.gameObject.GetAllComponentsInChildren<GrownPlant>())
+					{
+						var pickPrefab = prefabs[i];
+						if (pickPrefab == null)
+							continue;
 
-        [HarmonyPatch(nameof(StorageContainer.OnHandHover))]
-        [HarmonyPrefix]
-        public static bool PreHandHover(StorageContainer __instance, GUIHand hand)
-        {
-            if (!__instance.enabled)
-            {
-                return false;
-            }
+						if (Inventory.main.HasRoomFor(pickPrefab.pickTech))
+							pickPrefab.OnHandClick(guiHand);
+						//if (Inventory.main.HasRoomFor(grownPlant.seed.pickupable))
+						//	grownPlant.OnHandClick(guiHand);
+						else
+						{
+							ErrorMessage.AddError(Language.main.Get("InventoryFull"));
+							break;
+						}
+					}
+					return false;
+				}
+				else
+					return __instance.container != null && __instance.container.HasRoomFor(1, 1);
+			}
 
-            // I've tried to order these checks in order from least-expensive to most-expensive, as I'm not sure whether this method is executed just once, when the hand first hovers over the planter,
-            // or every frame.
-            if (__instance.container == null)
-                return true;
+			return true;
+		}
 
-            if (__instance.container.HasRoomFor(1, 1))
-                return true;
+		[HarmonyPatch(nameof(StorageContainer.OnHandHover))]
+		[HarmonyPrefix]
+		public static bool PreHandHover(StorageContainer __instance, GUIHand hand)
+		{
+			if (!__instance.enabled)
+			{
+				return false;
+			}
 
-            Constructable component = __instance.gameObject.GetComponent<Constructable>();
-            if (!component || component.constructed)
-            {
-                if (__instance.gameObject.GetComponent<Planter>() == null)
-                    return true;
+			// I've tried to order these checks in order from least-expensive to most-expensive, as I'm not sure whether this method is executed just once, when the hand first hovers over the planter,
+			// or every frame.
+			if (__instance.container == null)
+				return true;
+
+			if (__instance.container.HasRoomFor(1, 1))
+				return true;
+
+			Constructable component = __instance.gameObject.GetComponent<Constructable>();
+			if (!component || component.constructed)
+			{
+				if (__instance.gameObject.GetComponent<Planter>() == null)
+					return true;
 
 #if LEGACY
-                HandReticle.main.SetInteractText("RegenPowerCell", format, true, false, HandReticle.Hand.None);
+				HandReticle.main.SetInteractText("RegenPowerCell", format, true, false, HandReticle.Hand.None);
+				HandReticle.main.SetInteractText(__instance.hoverText, string.Empty);
 #else
-                //HandReticle.main.SetInteractText("RegenPowerCell", format, true, false, HandReticle.Hand.None);
-                HandReticle.main.SetText(HandReticle.TextType.Hand, "RegenPowerCell", true);
+				//HandReticle.main.SetInteractText("RegenPowerCell", format, true, false, HandReticle.Hand.None);
+				HandReticle.main.SetText(HandReticle.TextType.Hand, "RegenPowerCell", true);
+				HandReticle.main.SetText(HandReticle.TextType.Hand, __instance.hoverText, true);
+	#if SN1
+				HandReticle.main.SetText(HandReticle.TextType.HandSubscript, "Harvest all (" + GameInput.FormatButton(GameInput.Button.Sprint) + " + " + GameInput.FormatButton(GameInput.Button.LeftHand)+")", false);
+	#elif BELOWZERO
+				
+	#endif
 #endif
-#if LEGACY
-                HandReticle.main.SetInteractText(__instance.hoverText, string.Empty);
-#else
-                HandReticle.main.SetText(HandReticle.TextType.Hand, __instance.hoverText, true);
-#endif
-                HandReticle.main.SetIcon(HandReticle.IconType.HandDeny, 1f);
-            }
+				HandReticle.main.SetIcon(HandReticle.IconType.HandDeny, 1f);
+			}
 
-            return false;
-        }
-    }
+			return false;
+		}
+	}
 }

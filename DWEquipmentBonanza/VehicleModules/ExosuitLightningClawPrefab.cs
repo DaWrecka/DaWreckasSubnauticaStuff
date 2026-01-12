@@ -7,142 +7,144 @@ using Nautilus.Crafting;
 using Nautilus.Handlers;
 using Common.NautilusHelper;
 using RecipeData = Nautilus.Crafting.RecipeData;
-using Ingredient = CraftData.Ingredient;
+#if SN1
+	//using Ingredient = CraftData\.Ingredient;
+#endif
 #else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
 using SMLHelper.V2.Handlers;
-    #if SN1
-        using RecipeData = SMLHelper.V2.Crafting.TechData;
-    #endif
+	#if SN1
+		using RecipeData = SMLHelper.V2.Crafting.TechData;
+	#endif
 #endif
 #if SN1
-using Sprite = Atlas.Sprite;
-    using Object = UnityEngine.Object;
+//using Sprite = Atlas.Sprite;
+	using Object = UnityEngine.Object;
 #endif
 
 namespace DWEquipmentBonanza.VehicleModules
 {
 #if BELOWZERO
-    /*
-    internal class ExosuitLightningClawPrefab : Equipable
-    {
-        public override EquipmentType EquipmentType => EquipmentType.ExosuitArm;
-        public override QuickSlotType QuickSlotType => QuickSlotType.Selectable;
-        public override TechGroup GroupForPDA => TechGroup.VehicleUpgrades;
-        public override TechCategory CategoryForPDA => TechCategory.VehicleUpgrades;
-        public override TechType RequiredForUnlock => TechType.BaseUpgradeConsole;
-        public override CraftTree.Type FabricatorType => CraftTree.Type.None;
-        //public override string[] StepsToFabricatorTab => new string[] { "ExosuitModules" };
-        public override float CraftingTime => 10f;
-        public override Vector2int SizeInInventory => new Vector2int(1, 2);
+	/*
+	internal class ExosuitLightningClawPrefab : Equipable
+	{
+		public override EquipmentType EquipmentType => EquipmentType.ExosuitArm;
+		public override QuickSlotType QuickSlotType => QuickSlotType.Selectable;
+		public override TechGroup GroupForPDA => TechGroup.VehicleUpgrades;
+		public override TechCategory CategoryForPDA => TechCategory.VehicleUpgrades;
+		public override TechType RequiredForUnlock => TechType.BaseUpgradeConsole;
+		public override CraftTree.Type FabricatorType => CraftTree.Type.None;
+		//public override string[] StepsToFabricatorTab => new string[] { "ExosuitModules" };
+		public override float CraftingTime => 10f;
+		public override Vector2int SizeInInventory => new Vector2int(1, 2);
 
-        private static GameObject prefab;
+		private static GameObject prefab;
 
-        protected override RecipeData GetBlueprintRecipe()
-        {
-            return new RecipeData()
-            {
-                // Disabled this in favour of the Lightning Claw Generator Module, which augments the standard claw.
+		protected override RecipeData GetBlueprintRecipe()
+		{
+			return new RecipeData()
+			{
+				// Disabled this in favour of the Lightning Claw Generator Module, which augments the standard claw.
 
-                //craftAmount = 1,
-                //Ingredients = new List<Ingredient>(new Ingredient[]
-                //    {
-                //        new Ingredient(TechType.Polyaniline, 1),
-                //        new Ingredient(TechType.WiringKit, 1),
-                //        new Ingredient(TechType.Battery, 1),
-                //        new Ingredient(TechType.AluminumOxide, 1)
-                //    }
-                //)
-            };
-        }
+				//craftAmount = 1,
+				//Ingredients = new List<Ingredient>(new Ingredient[]
+				//	{
+				//		new Ingredient(TechType.Polyaniline, 1),
+				//		new Ingredient(TechType.WiringKit, 1),
+				//		new Ingredient(TechType.Battery, 1),
+				//		new Ingredient(TechType.AluminumOxide, 1)
+				//	}
+				//)
+			};
+		}
 
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            if (prefab == null)
-            {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ExosuitDrillArmModule);
-                yield return task;
-                prefab = GameObject.Instantiate<GameObject>(task.GetResult());
+		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+		{
+			if (prefab == null)
+			{
+				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ExosuitDrillArmModule);
+				yield return task;
+				prefab = GameObject.Instantiate<GameObject>(task.GetResult());
 
-                // Adapted from Senna's SeaTruckArms mod
-                task = CraftData.GetPrefabForTechTypeAsync(TechType.Exosuit, verbose: true);
-                yield return task;
-                if (task.GetResult().TryGetComponent<Exosuit>(out Exosuit exosuit))
-                {
-                    GameObject armPrefab = null;
-                    for (int i = 0; i < exosuit.armPrefabs.Length; i++)
-                    {
-                        if (exosuit.armPrefabs[i].techType == TechType.ExosuitClawArmModule)
-                        {
-                            //Log.LogDebug($"Found claw arm prefab in Exosuit armPrefabs at index {i}");
-                            armPrefab = exosuit.armPrefabs[i].prefab;
-                            break;
-                        }
-                    }
+				// Adapted from Senna's SeaTruckArms mod
+				task = CraftData.GetPrefabForTechTypeAsync(TechType.Exosuit, verbose: true);
+				yield return task;
+				if (task.GetResult().TryGetComponent<Exosuit>(out Exosuit exosuit))
+				{
+					GameObject armPrefab = null;
+					for (int i = 0; i < exosuit.armPrefabs.Length; i++)
+					{
+						if (exosuit.armPrefabs[i].techType == TechType.ExosuitClawArmModule)
+						{
+							//Log.LogDebug($"Found claw arm prefab in Exosuit armPrefabs at index {i}");
+							armPrefab = exosuit.armPrefabs[i].prefab;
+							break;
+						}
+					}
 
-                    if (armPrefab != null)
-                    {
-                        SkinnedMeshRenderer smr = armPrefab.GetComponentInChildren<SkinnedMeshRenderer>();
-                        Mesh clawMesh = smr.sharedMesh;
+					if (armPrefab != null)
+					{
+						SkinnedMeshRenderer smr = armPrefab.GetComponentInChildren<SkinnedMeshRenderer>();
+						Mesh clawMesh = smr.sharedMesh;
 
-                        MeshFilter mf = prefab.GetComponentInChildren<MeshFilter>();
-                        mf.sharedMesh = Object.Instantiate(clawMesh);
-                        mf.sharedMesh.name = "exosuit_lightningclaw_hand_geo";
+						MeshFilter mf = prefab.GetComponentInChildren<MeshFilter>();
+						mf.sharedMesh = Object.Instantiate(clawMesh);
+						mf.sharedMesh.name = "exosuit_lightningclaw_hand_geo";
 
-                        MeshRenderer mr = prefab.GetComponentInChildren<MeshRenderer>();
-                        mr.materials = (Material[])smr.materials.Clone();
+						MeshRenderer mr = prefab.GetComponentInChildren<MeshRenderer>();
+						mr.materials = (Material[])smr.materials.Clone();
 
-                        prefab.transform.Find("model/exosuit_rig_armLeft:exosuit_drill_geo").gameObject.name = "exosuit_lightningclaw_arm_geo";
+						prefab.transform.Find("model/exosuit_rig_armLeft:exosuit_drill_geo").gameObject.name = "exosuit_lightningclaw_arm_geo";
 
-                        Object.Destroy(prefab.GetComponentInChildren<CapsuleCollider>());
+						Object.Destroy(prefab.GetComponentInChildren<CapsuleCollider>());
 
-                        BoxCollider bc_1 = prefab.FindChild("collider").AddComponent<BoxCollider>();
+						BoxCollider bc_1 = prefab.FindChild("collider").AddComponent<BoxCollider>();
 
-                        bc_1.size = new Vector3(1.29f, 0.33f, 0.42f);
-                        bc_1.center = new Vector3(-0.53f, 0f, 0.04f);
+						bc_1.size = new Vector3(1.29f, 0.33f, 0.42f);
+						bc_1.center = new Vector3(-0.53f, 0f, 0.04f);
 
-                        GameObject collider2 = new GameObject("collider2");
-                        collider2.transform.SetParent(prefab.transform, false);
-                        collider2.transform.localPosition = new Vector3(-1.88f, 0.07f, 0.50f);
-                        collider2.transform.localRotation = Quaternion.Euler(0, 34, 0);
+						GameObject collider2 = new GameObject("collider2");
+						collider2.transform.SetParent(prefab.transform, false);
+						collider2.transform.localPosition = new Vector3(-1.88f, 0.07f, 0.50f);
+						collider2.transform.localRotation = Quaternion.Euler(0, 34, 0);
 
-                        BoxCollider bc_2 = collider2.AddComponent<BoxCollider>();
-                        bc_2.size = new Vector3(1.06f, 0.23f, 0.31f);
-                        bc_2.center = new Vector3(0, -0.08f, 0);
+						BoxCollider bc_2 = collider2.AddComponent<BoxCollider>();
+						bc_2.size = new Vector3(1.06f, 0.23f, 0.31f);
+						bc_2.center = new Vector3(0, -0.08f, 0);
 
-                        prefab.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
+						prefab.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
 
-                        GameObject.DestroyImmediate(prefab.GetComponent<ExosuitClawArm>());
-                        GameObject.DestroyImmediate(prefab.GetComponent<ExosuitDrillArm>());
-                        prefab.AddComponent<ExosuitLightningClaw>();
-                    }
-                    else
-                        Log.LogDebug($"Failed to find arm prefab in Exosuit prefab");
+						GameObject.DestroyImmediate(prefab.GetComponent<ExosuitClawArm>());
+						GameObject.DestroyImmediate(prefab.GetComponent<ExosuitDrillArm>());
+						prefab.AddComponent<ExosuitLightningClaw>();
+					}
+					else
+						Log.LogDebug($"Failed to find arm prefab in Exosuit prefab");
 
-                    ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
-                                                             // but it can still be instantiated. [unlike with SetActive(false)]
-                }
-                else
-                    Log.LogDebug($"Failed to find Exosuit prefab");
-            }
+					ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
+															 // but it can still be instantiated. [unlike with SetActive(false)]
+				}
+				else
+					Log.LogDebug($"Failed to find Exosuit prefab");
+			}
 
-            gameObject.Set(GameObject.Instantiate(prefab));
-        }
+			gameObject.Set(GameObject.Instantiate(prefab));
+		}
 
-        protected override Sprite GetItemSprite()
-        {
-            return SpriteManager.Get(TechType.ExosuitClawArmModule);
-        }
+		protected override Sprite GetItemSprite()
+		{
+			return SpriteManager.Get(TechType.ExosuitClawArmModule);
+		}
 
-        public ExosuitLightningClawPrefab() : base("ExosuitLightningClawArm", "Exosuit Lightning Claw", "Lightning Claw upgrade adds an electrical generator to the claw, delivering an electrical jolt to anything struck by it.")
-        {
-            OnFinishedPatching += () =>
-            {
-                Main.AddModTechType(this.TechType);
-            };
-        }
-    }
-    */
+		public ExosuitLightningClawPrefab() : base("ExosuitLightningClawArm", "Exosuit Lightning Claw", "Lightning Claw upgrade adds an electrical generator to the claw, delivering an electrical jolt to anything struck by it.")
+		{
+			OnFinishedPatching += () =>
+			{
+				Main.AddModTechType(this.TechType);
+			};
+		}
+	}
+	*/
 #endif
 }

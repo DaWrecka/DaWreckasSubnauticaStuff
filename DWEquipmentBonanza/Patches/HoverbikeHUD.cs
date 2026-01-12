@@ -9,22 +9,22 @@ using System.Threading.Tasks;
 namespace DWEquipmentBonanza.Patches
 {
 #if BELOWZERO
-    [HarmonyPatch(typeof(HoverbikeHUD))]
-    public class HoverbikeHUDPatches
-    {
-        public static bool bHasUpdater { get; private set; }
+	[HarmonyPatch(typeof(HoverbikeHUD))]
+	public class HoverbikeHUDPatches
+	{
+		public static bool bHasUpdater { get; private set; }
 
-        [HarmonyPatch(nameof(HoverbikeHUD.Update))]
-        [HarmonyPrefix]
-        public static bool PreUpdate(HoverbikeHUD __instance)
-        {
-            HoverbikeUpdater updater = __instance.hoverbike.GetComponentInParent<HoverbikeUpdater>();
-            bHasUpdater = updater != null;
-            if (!bHasUpdater)
-                return true;
+		[HarmonyPatch(nameof(HoverbikeHUD.Update))]
+		[HarmonyPrefix]
+		public static bool PreUpdate(HoverbikeHUD __instance)
+		{
+			HoverbikeUpdater updater = __instance.hoverbike.GetComponentInParent<HoverbikeUpdater>();
+			bHasUpdater = updater != null;
+			if (!bHasUpdater)
+				return true;
 
-            return updater.HUDUpdate(__instance);
-        }
-    }
+			return updater.HUDUpdate(__instance);
+		}
+	}
 #endif
 }

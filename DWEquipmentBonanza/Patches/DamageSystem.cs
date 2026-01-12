@@ -8,17 +8,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using DWEquipmentBonanza.MonoBehaviours;
 
 namespace DWEquipmentBonanza.Patches
 {
-	[HarmonyPatch(typeof(DamageSystem), nameof(DamageSystem.CalculateDamage))]
+	[HarmonyPatch(typeof(DamageSystem))]
 	public class DamageSystemPatches
 	{
+		//public static GameObject lastCyclopsDamager { get; private set; }
+
+		[HarmonyPatch(nameof(DamageSystem.CalculateDamage))]
 #if SN1
-        [HarmonyPatch(new[]
+		[HarmonyPatch(new[]
 		{
 			typeof(float), typeof(DamageType), typeof(GameObject), typeof(GameObject)
 		})]
+		[HarmonyPriority(Priority.Last)]
 		[HarmonyPostfix]
 		public static float PostCalculateDamage(
 			float preResult,
@@ -27,12 +32,12 @@ namespace DWEquipmentBonanza.Patches
 			GameObject target,
 			GameObject dealer = null)
 #elif BELOWZERO
-        [HarmonyPatch(new[]
+		[HarmonyPatch(new[]
 		{
 			typeof(TechType), typeof(float), typeof(float), typeof(DamageType), typeof(GameObject), typeof(GameObject)
 		})]
-        [HarmonyPostfix]
-        public static float PostCalculateDamage(
+		[HarmonyPostfix]
+		public static float PostCalculateDamage(
 			float preResult,
 			TechType techType,
 			float damageModifier,
@@ -48,11 +53,12 @@ namespace DWEquipmentBonanza.Patches
 
 			float baseDamage = preResult;
 			float newDamage = preResult;
-			if (target == Player.main.gameObject)
+			if (targetTT == TechType.Player)
 			{
 
 				if (type == DamageType.Acid)
 				{
+					// In vanilla, there is a bug where if a player is in acid, taking damage, and gets into a vehicle without leaving acid - the vehicle is within the acid too - they will continue to take damage.
 					if (Player.main.GetVehicle() != null)
 					{
 						//Log.LogDebug("Player in vehicle, negating damage");
@@ -70,7 +76,6 @@ namespace DWEquipmentBonanza.Patches
 				// There's still a workaround for this, in that a fourth DamageModifier could be added/removed when the set is completed/broken, one that does set acid damage to zero.
 
 				Equipment equipment = Inventory.Get().equipment;
-				Player __instance = Player.main;
 				foreach (string s in Main.playerSlots)
 				{
 					TechType techTypeInSlot = equipment.GetTechTypeInSlot(s);
@@ -78,7 +83,10 @@ namespace DWEquipmentBonanza.Patches
 					newDamage -= damageMod;
 				}
 
+
+
 				// This is to cover the instances where the player is in acid, gets in a vehicle - sound is stopped by above - and then gets out again.
+				// It needs to run after damage is modified in order to determine whether or not the player is taking acid damage; if they are, the acid sound needs to be played again
 				if (type == DamageType.Acid)
 				{
 					if (newDamage > 0f)
@@ -89,9 +97,33 @@ namespace DWEquipmentBonanza.Patches
 					else if (Player.main.acidLoopingSound.playing)
 						Player.main.acidLoopingSound.Stop();
 				}
+
+				var shields = target.GetComponentsInChildren<HazardShieldComponent>(true);
+				//Log.LogDebug($"DamageSystemPatches.PostCalculateDamage found {shields.Length}x Hazard Shield components");
+
+				for (int i = 0; i < shields.Length; i++)
+				//foreach(var shield in target.GetComponentsInChildren<HazardShieldComponent>(true))
+				{
+					var shield = shields[i];
+					float absorbed = shield.AbsorbDamage(newDamage, type);
+					newDamage -= absorbed;
+					//Log.LogDebug($"DamageSystemPatches.PostCalculateDamage; shield chip {i} absorbed {absorbed} damage");
+				}
+			}
+			else if (dealerTT == TechType.Player && type == DamageType.Pressure)
+			{
+				damage *= VibrobladeBehaviour.FaunaDamageMultiplier;
+
 			}
 
-			return System.Math.Max(newDamage, 0f);
+			newDamage = System.Math.Max(newDamage, 0f);
+			/*if (target == Player.mainObject && shieldedDamageType.Contains(type))
+			{
+				ErrorMessage.AddMessage($"Damage taken: Type {type.ToString()}, unmodified amount {damage}, modified amount {newDamage}");
+				return 0f;
+			}*/
+
+			return newDamage;
 		}
 	}
 }

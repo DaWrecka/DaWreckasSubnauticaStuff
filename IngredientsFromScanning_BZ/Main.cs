@@ -32,24 +32,24 @@ namespace PartsFromScanning
 		[BepInProcess("Subnautica.exe")]
 	#endif
 	[BepInDependency("com.snmodding.nautilus")]
-    public class PartsFromScanningPlugin: BaseUnityPlugin
-    {
+	public class PartsFromScanningPlugin: BaseUnityPlugin
+	{
 #elif QMM
-    [QModCore]
+	[QModCore]
 	public static class PartsFromScanningPlugin
-    {
+	{
 #endif
 #region[Declarations]
-        public const string
-            MODNAME = "PartsFromScanning",
-            AUTHOR = "dawrecka",
-            GUID = "com." + AUTHOR + "." + MODNAME;
-        private const string pluginName = "Parts from Scanning";
-        public const string version = "1.0.1.1";
+		public const string
+			MODNAME = "PartsFromScanning",
+			AUTHOR = "dawrecka",
+			GUID = "com." + AUTHOR + "." + MODNAME;
+		private const string pluginName = "Parts from Scanning";
+		public const string version = "1.20.1.1";
 #endregion
 
-        private static readonly Harmony harmony = new Harmony(GUID);
-        internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
+		private static readonly Harmony harmony = new Harmony(GUID);
+		internal static DWConfig config { get; } = OptionsPanelHandler.RegisterModOptions<DWConfig>();
 #if QMM
 		[QModPatch]
 #endif

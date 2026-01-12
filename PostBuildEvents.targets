@@ -15,7 +15,7 @@ echo UseSML: '$(UseSML)'
 		</PreBuildEvent>
 		<PostBuildEvent>
 echo on
-pwsh -ExecutionPolicy Unrestricted -file "$(SolutionDir)post-build.ps1" -Config "$(ConfigurationName)" -ProjectDir "$(ProjectDir)\" -GameDir "$(GameDir)" -TargetPath "$(TargetPath)" -AssemblyName "$(AssemblyName)" -SolutionDir "$(SolutionDir)\" -PluginLoaderPath "$(PluginLoaderPath)"
+pwsh -ExecutionPolicy Unrestricted -file "$(SolutionDir)post-build.ps1" -Config "$(ConfigurationName)" -ProjectDir "$(ProjectDir)\" -GameDir "$(GameDir)" -TargetPath "$(TargetPath)" -AssemblyName "$(AssemblyName)" -SolutionDir "$(SolutionDir)\" -UseQMM "$(UseQMM)" -PluginLoaderPath "$(PluginLoaderPath)"
 		</PostBuildEvent>
 	</PropertyGroup>
 </Project>

@@ -21,11 +21,15 @@ namespace DWEquipmentBonanza.MonoBehaviours
 	public abstract class VehicleUpdater : MonoBehaviour, ISerializationCallbackReceiver
 	{
 		[SerializeField]
-		protected HashSet<VehicleCharger> activeChargers = new HashSet<VehicleCharger>();
+		protected HashSet<VehicleCharger> activeChargers = new();
 		protected VehicleRepairComponent repairComponent;
 
 		protected const float ChargerWeightLimit = 4.5f; // Maximum value of connected chargers. If a new charger would take the weight above this limit, it will not be allowed.
-		protected static Dictionary<TechType, float> ChargerWeights = new Dictionary<TechType, float>();
+		protected static Dictionary<TechType, float> ChargerWeights = new()
+		{
+			{ TechType.SeamothSolarCharge, 1f },
+			{ TechType.ExosuitThermalReactorModule, 1f }
+		};
 		protected float chargerWeightCumulative = 0f;
 		protected const float InvokeInterval = 0.5f;
 		protected int repairSlotID = -1;
@@ -42,12 +46,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			set
 			{
 #if BELOWZERO
-				if (value is SeaTruckUpgrades || value is SeaTruckMotor stm)
+				if (value is SeaTruckUpgrades || value is SeaTruckMotor)
 					_parent = value;
 				else
 #endif
-				if (value is Vehicle v)
-					_parent = v;
+				if (value is Vehicle)
+					_parent = value;
 				else if (value == null)
 					_parent = null;
 			}
@@ -62,8 +66,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				return false;
 			}
 
-			if (repairModuleTechTypes == null)
-				repairModuleTechTypes = new HashSet<TechType>();
+			repairModuleTechTypes ??= new HashSet<TechType>();
 
 			//Log.LogError($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}(): attempting to register repair module TechType {newRepairModule.AsString()}");
 			return repairModuleTechTypes.Add(newRepairModule);
@@ -113,14 +116,12 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		public void Awake()
 		{
-			if (repairModuleTechTypes == null)
-				repairModuleTechTypes = new();
+			repairModuleTechTypes ??= new();
 		}
 
 		public virtual void Initialise(ref MonoBehaviour vehicle)
 		{
-			if (repairModuleTechTypes == null)
-				repairModuleTechTypes = new();
+			repairModuleTechTypes ??= new();
 
 			if (vehicle != null && vehicle is Vehicle V)
 			{
@@ -135,15 +136,6 @@ namespace DWEquipmentBonanza.MonoBehaviours
 					//Log.LogDebug($"{thisMethod.ReflectedType.Name}({vehicle.name}, {vehicle.GetInstanceID()}).{thisMethod.Name}() executing, invoked by: '{callingMethod.ReflectedType.Name}.{callingMethod.Name}'");
 
 					parentVehicle = vehicle;
-					if (vehicle is SeaMoth)
-					{
-						ChargerWeights[TechType.SeamothSolarCharge] = 1f;
-					}
-					else if (vehicle is Exosuit)
-					{
-						ChargerWeights[TechType.ExosuitThermalReactorModule] = 1f;
-					}
-
 					V.onToggle -= OnToggle;
 					V.onSelect -= OnSelect;
 					V.modules.onEquip -= OnEquipModule;
@@ -190,8 +182,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		protected virtual void OnUnequipModule(string slot, InventoryItem item)
 		{
-			string memberName = new StackFrame(1)?.GetMethod().Name;
-			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
+			//string memberName = new StackFrame(1)?.GetMethod().Name;
+			//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
 			//Log.LogDebug($"{thisMethod.ReflectedType.Name}({this.GetInstanceID()}).{thisMethod.Name}({slot}, item TechType: {item.item.GetTechType().AsString()}, item ID {item.item.GetInstanceID()}) base executing, invoked by: '{memberName}'");
 			Pickupable pickup = item.item;
 		
@@ -199,7 +191,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			//ErrorMessage.AddMessage($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({slot}, {item.item.name}): item TechType {moduleType.AsString()}");
 			if (ChargerWeights.TryGetValue(moduleType, out float weight))
 			{
-				chargerWeightCumulative -= weight;
+				chargerWeightCumulative = System.Math.Max(chargerWeightCumulative - weight, 0);
 				//ErrorMessage.AddMessage($"Attempting to find VehicleCharger component");
 				VehicleCharger component = pickup.gameObject.GetComponent<VehicleCharger>();
 				if (component != null && activeChargers.Contains(component))
@@ -243,13 +235,11 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			TechType tt = CraftData.GetTechType(pickupable.gameObject);
 			if (tt != TechType.None)
 			{
-				string m;
-				bool a;
-				bool b = this.AllowedToAdd(tt, out a, out m);
+				bool allowed = this.AllowedToAdd(tt, out _, out string m);
 				if (!String.IsNullOrEmpty(m))
 					ErrorMessage.AddMessage(m);
 
-				return this.AllowedToAdd(tt, out b, out m);
+				return allowed;
 			}
 
 			return true;
@@ -279,7 +269,6 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			return true;
 		}
 
-
 		protected virtual void OnDestroy()
 		{
 			//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
@@ -296,7 +285,6 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() end");
 		}
-
 
 		public static bool AddChargerType(TechType chargerType, float chargerWeight)
 		{
@@ -319,8 +307,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			//System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
 			//Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}() executing");
 
-			string RCFilename;
-			if (thermalReactorCharge is null && PrefabDatabase.TryGetPrefabFilename(CraftData.GetClassIdForTechType(TechType.Exosuit), out RCFilename))
+			if (thermalReactorCharge is null && PrefabDatabase.TryGetPrefabFilename(CraftData.GetClassIdForTechType(TechType.Exosuit), out string RCFilename))
 			{
 #if ASYNC
 				AddressablesUtility.LoadAsync<GameObject>(RCFilename).Completed += (x) =>
@@ -330,14 +317,14 @@ namespace DWEquipmentBonanza.MonoBehaviours
 					thermalReactorCharge = exosuit?.thermalReactorCharge;
 				};
 #else
-                var gameObject1 = Resources.Load<GameObject>(RCFilename);
-                Exosuit exosuit = gameObject1?.GetComponent<Exosuit>();
-                thermalReactorCharge = exosuit?.thermalReactorCharge;
+				var gameObject1 = Resources.Load<GameObject>(RCFilename);
+				Exosuit exosuit = gameObject1?.GetComponent<Exosuit>();
+				thermalReactorCharge = exosuit?.thermalReactorCharge;
 #endif
-            }
+			}
 
 
-            MonoBehaviour vehicle = this.gameObject.GetComponent<Vehicle>();
+			MonoBehaviour vehicle = this.gameObject.GetComponent<Vehicle>();
 			if (vehicle != null)
 				this.Initialise(ref vehicle);
 #if BELOWZERO

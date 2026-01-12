@@ -17,7 +17,7 @@ namespace CustomiseYourStorage
 			int X = CustomiseStoragePlugin.config.InvWidth;
 			int Y = CustomiseStoragePlugin.config.InvHeight;
 #if !RELEASE
-            Log.LogDebug($"Inventory.Awake() postfix: Resizing with values of ({X}, {Y})"); 
+			Log.LogDebug($"Inventory.Awake() postfix: Resizing with values of ({X}, {Y})"); 
 #endif
 			__instance.container.Resize(X, Y);
 			__instance.container.onResize += OnInventoryResize;

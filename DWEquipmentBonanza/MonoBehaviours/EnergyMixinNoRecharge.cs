@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace CombinedItems.MonoBehaviors
 {
-    class EnergyMixinNoRecharge : EnergyMixin
-    {
-        new public float ModifyCharge(float amount)
-        {
-            return 0f;
-        }
+	class EnergyMixinNoRecharge : EnergyMixin
+	{
+		new public float ModifyCharge(float amount)
+		{
+			return 0f;
+		}
 
-        new public bool AddEnergy(float amount)
-        {
-            return false;
-        }
-    }
+		new public bool AddEnergy(float amount)
+		{
+			return false;
+		}
+	}
 }

@@ -1,20 +1,20 @@
 {
-  "Id": "GravTrapBeacons",
-  "DisplayName": "Grav Trap Beacons",
-  "Author": "DaWrecka",
-  "Version": "1.0.0.0",
-  "LoadAfter": [
-    "SMLHelper",
-    "GravTrapImproved"
-  ],
-  "VersionDependencies": {
-    "SMLHelper": "2.9.6"
-  },
-  "Game": "Subnautica",
-  "NexusId": {},
-  "AssemblyName": "GravTrapBeacons.dll",
-  "VersionChecker": {
-    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/GravTrapBeacons/mod_Subnautica.json"
-  },
-  "Enable": true
+	"Id": "GravTrapBeacons",
+	"DisplayName": "Grav Trap Beacons",
+	"Author": "DaWrecka",
+	"Version": "1.0.0.0",
+	"LoadAfter": [
+	"SMLHelper",
+	"GravTrapImproved"
+	],
+	"VersionDependencies": {
+	"SMLHelper": "2.9.6"
+	},
+	"Game": "Subnautica",
+	"NexusId": {},
+	"AssemblyName": "GravTrapBeacons.dll",
+	"VersionChecker": {
+	"LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/GravTrapBeacons/mod_Subnautica.json"
+	},
+	"Enable": true
 }

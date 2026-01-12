@@ -8,7 +8,9 @@ using Nautilus.Assets.Gadgets;
 using Nautilus.Crafting;
 using Nautilus.Utility;
 using Nautilus.Handlers;
-using Ingredient = CraftData.Ingredient;
+#if SN1
+	//using Ingredient = CraftData\.Ingredient;
+#endif
 using Common.NautilusHelper;
 using RecipeData = Nautilus.Crafting.RecipeData;
 #else
@@ -23,7 +25,7 @@ using DWEquipmentBonanza.Patches;
 using Common;
 using Common.Utility;
 #if SN1
-using Sprite = Atlas.Sprite;
+//using Sprite = Atlas.Sprite;
 #endif
 
 #if !LEGACY
@@ -35,11 +37,11 @@ using System;
 
 namespace DWEquipmentBonanza.Equipables
 {
-    class DWEBPowerglide: Equipable
+	class DWEBPowerglide: Equipable
 	{
 #if NAUTILUS
-        protected override TechType templateType => TechType.Seaglide;
-        protected override string templateClassId => string.Empty;
+		protected override TechType templateType => TechType.Seaglide;
+		protected override string templateClassId => string.Empty;
 #endif
 
 		protected static Sprite icon;
@@ -48,8 +50,8 @@ namespace DWEquipmentBonanza.Equipables
 
 		public DWEBPowerglide() : base("DWEBPowerglide", friendlyName, description)
 		{
-            //Console.WriteLine($"{this.ClassID} constructing");
-            OnFinishedPatching += () =>
+			//Console.WriteLine($"{this.ClassID} constructing");
+			OnFinishedPatching += () =>
 			{
 				Main.AddModTechType(this.TechType);
 				PlayerToolPatches.AddToolSubstitution(this.TechType, TechType.Seaglide);
@@ -66,9 +68,9 @@ namespace DWEquipmentBonanza.Equipables
 		public override string[] StepsToFabricatorTab => new string[] { "Machines" };
 		public override float CraftingTime => 5f;
 		public override QuickSlotType QuickSlotType => QuickSlotType.Selectable;
-        //public override TechType RequiredForUnlock => Main.powerglideFrag.TechType;
-        public override TechType RequiredForUnlock => Main.GetModTechType("PowerglideFragment");
-        public override string DiscoverMessage => $"{this.FriendlyName} Unlocked!";
+		//public override TechType RequiredForUnlock => Main.powerglideFrag.TechType;
+		public override TechType RequiredForUnlock => Main.GetModTechType("PowerglideFragment");
+		public override string DiscoverMessage => $"{this.FriendlyName} Unlocked!";
 		//public override bool AddScannerEntry => true;
 		public override int FragmentsToScan => 4;
 		public override float TimeToScanFragment => 5f;
@@ -98,8 +100,13 @@ namespace DWEquipmentBonanza.Equipables
 		}
 
 #if NAUTILUS
+		public override void ModPrefab(GameObject gameObject)
+		{
+			base.ModPrefab(gameObject);
+			gameObject.EnsureComponent<PowerglideBehaviour>();
+		}
 #elif ASYNC
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
 		{
 			if (prefab == null)
 			{
@@ -119,7 +126,7 @@ namespace DWEquipmentBonanza.Equipables
 
 #else
 		public override GameObject GetGameObject()
-        {
+		{
 			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
 			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
 			if (prefab == null)
@@ -132,8 +139,8 @@ namespace DWEquipmentBonanza.Equipables
 			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
 
 			return prefab;
-        }
+		}
 
 #endif
-    }
+	}
 }

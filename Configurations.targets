@@ -58,7 +58,7 @@
 		</ReferencePath>
 	</PropertyGroup>
 	<PropertyGroup>
-		<OutputPath>$(GameDir)\$(PluginLoaderPath)\$(Configuration)\$(AssemblyName)\</OutputPath>
+		<OutputPath>$(GameDir)\$(PluginLoaderPath)\$(AssemblyName)\</OutputPath>
 		<ModBaseDir>$(GameDir)\$(PluginLoaderPath)</ModBaseDir>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<PlatformTarget>x64</PlatformTarget>

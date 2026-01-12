@@ -1,5 +1,4 @@
-﻿using Main = DWEquipmentBonanza.DWEBPlugin;
-using DWEquipmentBonanza.Equipables;
+﻿using DWEquipmentBonanza.Equipables;
 using DWEquipmentBonanza.Patches;
 using Common;
 using System;
@@ -10,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UWE;
+using ProtoBuf;
 
 #if SN1
 using Common.Interfaces;
@@ -19,28 +19,25 @@ namespace DWEquipmentBonanza.MonoBehaviours
 {
 	public class DiverPerimeterDefenceBehaviour : MonoBehaviour,
 #if SN1
-        IInventoryDescriptionSN1,
+		IInventoryDescriptionSN1,
 #elif BELOWZERO
 		IInventoryDescription,
 #endif
 		IBattery,
 		ICraftTarget,
-		//ISerializationCallbackReceiver
+		ISerializationCallbackReceiver,
 		IProtoEventListener
 	{
-		private static Dictionary<TechType, int> maxDischarges = new Dictionary<TechType, int>();
-		private static Dictionary<TechType, bool> destroyWhenDischarged = new Dictionary<TechType, bool>(); // If true, the chip is destroyed when empty. If false, the chip is just empty and can possibly be recharged
+		private static readonly Dictionary<TechType, int> maxDischarges = new Dictionary<TechType, int>();
+		private static readonly Dictionary<TechType, bool> destroyWhenDischarged = new Dictionary<TechType, bool>(); // If true, the chip is destroyed when empty. If false, the chip is just empty and can possibly be recharged
 
 		protected const float JuicePerDischarge = 100f; // Units of energy consumed by a perimeter discharge.
 		protected static int MaxDischargeCheat = 0;
-		[SerializeField]
-		protected float _charge;
-		[SerializeField]
-		protected TechType techType;
+		protected float _charge = -1f;
 		protected Pickupable thisPickup;
 		protected bool bDestroyWhenEmpty;
 		protected int _maxDischarges;
-		protected GameObject MyGO;
+		private TechType _techType;
 		protected virtual int MaxDischarges
 		{
 			get
@@ -71,6 +68,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			get { return _charge; }
 			set { _charge = Mathf.Clamp(value, 0f, capacity); }
 		}
+
+		public TechType techType => _techType;
 		public float capacity
 		{
 			get
@@ -78,28 +77,19 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				return MaxDischarges * JuicePerDischarge;
 			}
 		}
-		protected virtual float DischargeDamage
-		{
-			get { return 10f; }
-		}
-		protected virtual string brokenTechString
-		{
-			get
-			{ return "DiverPerimeterDefenceChip_Broken"; }
-		}
-		protected virtual int MaxCharge
-		{
-			get { return 1; }
-		}
+		protected virtual float DischargeDamage => 10f;
+		protected virtual string brokenTechString => "DiverPerimeterDefenceChip_Broken";
+
+		protected virtual int MaxCharge => 1;
 
 		public void RuntimeDischargeCheat(int Cheat)
 		{
 			MaxDischargeCheat = Cheat;
 		}
 
-		public IEnumerator Awake()
+		public IEnumerator Start()
 		{
-			while (MyGO == null)
+			/*while (MyGO == null)
 			{
 				try
 				{
@@ -112,8 +102,9 @@ namespace DWEquipmentBonanza.MonoBehaviours
 					yield break;
 				}
 				yield return new WaitForEndOfFrame();
-			}
-			if (thisPickup == null && MyGO.TryGetComponent<Pickupable>(out Pickupable component))
+			}*/
+			yield return new WaitUntil(() => gameObject != null);
+			if (thisPickup == null && gameObject.TryGetComponent<Pickupable>(out Pickupable component))
 				thisPickup = component;
 			//CoroutineHost.StartCoroutine(GetGameObjectAsync());
 		}
@@ -122,13 +113,14 @@ namespace DWEquipmentBonanza.MonoBehaviours
 		{
 		}*/
 
+		[ProtoBeforeSerialization]
 		public void OnBeforeSerialize()
 		{
 			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
 			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): begin");
 			try
 			{
-				if (MyGO == null)
+				if (gameObject == null)
 				{
 					Log.LogError($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}) gameObject is null!");
 					return;
@@ -141,17 +133,18 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				return;
 			}
 
-			string moduleId = MyGO.GetComponent<PrefabIdentifier>()?.id;
+			string moduleId = gameObject.GetComponent<PrefabIdentifier>()?.id;
 			if (string.IsNullOrEmpty(moduleId))
 			{
 
-				Log.LogError($"Cannot save charge value; Invalid ID for object");
+				Log.LogError($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): Cannot save charge value; Invalid ID for object");
 				return;
 			}
-			Log.LogDebug($"Saving charge value of {this.charge} to disk for module ID of '{moduleId}'");
-			Main.saveCache.AddModuleCharge(moduleId, this.charge);
+			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}({this.GetInstanceID()}): Saving charge value of {this.charge} to disk for module ID of '{moduleId}'");
+			DWEBPlugin.saveCache.AddModuleCharge(moduleId, this.charge);
 		}
 
+		[ProtoAfterDeserialization]
 		public void OnAfterDeserialize()
 		{
 			CoroutineHost.StartCoroutine(PostDeserializeCoroutine());
@@ -159,6 +152,15 @@ namespace DWEquipmentBonanza.MonoBehaviours
 
 		public IEnumerator PostDeserializeCoroutine()
 		{
+			if (this.techType == TechType.None)
+			{
+				yield return new WaitUntil(() =>
+				{
+					this._techType = CraftData.GetTechType(gameObject);
+					return this._techType != TechType.None;
+				});
+			}
+
 			if (this.techType == TechType.None)
 			{
 				Log.LogError($"DiverPerimeterDefenceBehaviour deserialised with null TechType!");
@@ -174,26 +176,30 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			if (thisPickup == null && gameObject.TryGetComponent<Pickupable>(out Pickupable pickupable))
 				thisPickup = pickupable;
 
-			PrefabIdentifier pId = gameObject?.GetComponent<PrefabIdentifier>();
-			while (pId == null)
+			PrefabIdentifier pId = null;
+			yield return new WaitUntil(() =>
 			{
-				yield return new WaitForEndOfFrame();
 				pId = gameObject?.GetComponent<PrefabIdentifier>();
-			}
+				return pId != null;
+			});
 
-			string moduleId = pId.id;
-			while(string.IsNullOrEmpty(moduleId = pId.id))
+			string moduleId = "";
+			yield return new WaitUntil(() =>
 			{
-				yield return new WaitForEndOfFrame();
 				moduleId = pId.id;
-			}
+				return !string.IsNullOrEmpty(moduleId);
+
+			});
 			
-			if (Main.saveCache.TryGetModuleCharge(moduleId, out float charge))
+			if (DWEBPlugin.saveCache.TryGetModuleCharge(moduleId, out float charge))
 			{
 				Log.LogDebug($"DiverPerimeterDefenceBehaviour.OnAfterDeserialize(): Retrieved charge value of {charge} from disk for module ID of '{moduleId}'");
 				this.charge = charge;
 			}
-			Main.saveCache.RegisterReceiver(this);
+			else
+				Log.LogDebug($"DiverPerimeterDefenceBehaviour.OnAfterDeserialize(): Failed to retrieve charge value for module ID of '{moduleId}'. Is this a new chip?");
+
+			DWEBPlugin.saveCache.RegisterReceiver(this);
 		}
 
 		public void OnProtoSerialize(ProtobufSerializer serializer)
@@ -271,7 +277,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			Equipment e = Inventory.main.equipment;
 			e.RemoveItem(thisPickup != null ? thisPickup : gameObject.GetComponent<Pickupable>());
 			//TaskResult<GameObject> result = new TaskResult<GameObject>();
-			yield return AddInventoryAsync(Main.GetModTechType(brokenTechString)); //, result);
+			yield return AddInventoryAsync(DWEBPlugin.GetModTechType(brokenTechString)); //, result);
 			GameObject.Destroy(gameObject);
 			yield break;
 		}
@@ -332,7 +338,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 				return;
 			}
 
-			this.techType = craftedTechType;
+			this._techType = craftedTechType;
 			this._maxDischarges = returnValue.discharges;
 			this.bDestroyWhenEmpty = returnValue.bDestroy;
 

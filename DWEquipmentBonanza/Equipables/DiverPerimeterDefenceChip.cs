@@ -11,7 +11,9 @@ using Nautilus.Assets.Gadgets;
 using Nautilus.Crafting;
 using Nautilus.Utility;
 using Nautilus.Handlers;
-using Ingredient = CraftData.Ingredient;
+#if SN1
+	//using Ingredient = CraftData\.Ingredient;
+#endif
 using Common.NautilusHelper;
 using RecipeData = Nautilus.Crafting.RecipeData;
 #else
@@ -29,7 +31,7 @@ using DWEquipmentBonanza.MonoBehaviours;
 using System.Diagnostics;
 using Common.Utility;
 #if SN1
-using Sprite = Atlas.Sprite;
+//using Sprite = Atlas.Sprite;
 using Object = UnityEngine.Object;
 #endif
 
@@ -47,10 +49,10 @@ namespace DWEquipmentBonanza.Equipables
 	{
 		private static bool bWaiting;
 #if NAUTILUS
-        protected override TechType templateType => TechType.MapRoomHUDChip;
-        protected override string templateClassId => string.Empty;
+		protected override TechType templateType => TechType.MapRoomHUDChip;
+		protected override string templateClassId => string.Empty;
 #endif
-        public static Sprite icon { get; private set; }
+		public static Sprite icon { get; private set; }
 		public static GameObject prefab { get; private set; }
 
 		public DiverPerimeterDefenceChip_Broken() : base("DiverPerimeterDefenceChip_Broken", "Diver Perimeter System (damaged)", $"Protects a diver from hostile fauna using electrical discouragement.\n\nChip has been discharged and is non-functional.")
@@ -103,7 +105,7 @@ namespace DWEquipmentBonanza.Equipables
 
 #if NAUTILUS
 #elif ASYNC
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
 		{
 			if (prefab == null)
 			{
@@ -119,7 +121,7 @@ namespace DWEquipmentBonanza.Equipables
 
 #else
 		public override GameObject GetGameObject()
-        {
+		{
 			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
 			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
 			if (prefab == null)
@@ -129,7 +131,7 @@ namespace DWEquipmentBonanza.Equipables
 
 			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: end");
 			return prefab;
-        }
+		}
 #endif
 	}
 
@@ -145,10 +147,10 @@ namespace DWEquipmentBonanza.Equipables
 #if NAUTILUS
 		protected override TechType templateType =>
 #else
-        public virtual TechType templateType =>
+		public virtual TechType templateType =>
 #endif
 #if SN1
-            TechType.SeamothElectricalDefense;
+			TechType.SeamothElectricalDefense;
 #elif BZ
 			TechType.SeaTruckUpgradePerimeterDefense;
 #endif
@@ -184,8 +186,8 @@ namespace DWEquipmentBonanza.Equipables
 			string friendlyName,
 			string description) : base(classId, friendlyName, description)
 		{
-            //Console.WriteLine($"{this.ClassID} constructing");
-            OnFinishedPatching += () =>
+			//Console.WriteLine($"{this.ClassID} constructing");
+			OnFinishedPatching += () =>
 			{
 				DWEBPlugin.AddModTechType(this.TechType);
 				InventoryPatches.AddChip(this.TechType, !this.bDestroyedOnDischarge);
@@ -203,12 +205,12 @@ namespace DWEquipmentBonanza.Equipables
 		}
 
 #if NAUTILUS
-        public override void ModPrefab(GameObject gameObject)
-        {
-            base.ModPrefab(gameObject);
+		public override void ModPrefab(GameObject gameObject)
+		{
+			base.ModPrefab(gameObject);
 			var behaviour = gameObject.EnsureComponent<DiverPerimeterDefenceBehaviour>();
 			behaviour.Initialise(this.TechType);
-        }
+		}
 #else
 #if ASYNC
 		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
@@ -241,7 +243,7 @@ namespace DWEquipmentBonanza.Equipables
 			return prefab;
 		}
 #endif
-        public virtual GameObject PreparePrefab(GameObject prefab)
+		public virtual GameObject PreparePrefab(GameObject prefab)
 		{
 			System.Reflection.MethodBase thisMethod = System.Reflection.MethodBase.GetCurrentMethod();
 			Log.LogDebug($"{thisMethod.ReflectedType.Name}.{thisMethod.Name}: begin");
@@ -257,7 +259,7 @@ namespace DWEquipmentBonanza.Equipables
 #endif
 
 
-        protected override Sprite GetItemSprite()
+		protected override Sprite GetItemSprite()
 		{
 			icon ??= (templateType != TechType.None ? SpriteUtils.Get(templateType, null) : null);
 			return icon;
@@ -295,17 +297,13 @@ namespace DWEquipmentBonanza.Equipables
 	public class DiverPerimeterDefenceChipItem : DiverPerimeterDefenceChipItemBase<DiverPerimeterDefenceChipItem>
 	{
 #if NAUTILUS
-        protected override TechType templateType => TechType.MapRoomHUDChip;
-        protected override string templateClassId => string.Empty;
+		protected override TechType templateType => TechType.MapRoomHUDChip;
+		protected override string templateClassId => string.Empty;
 #endif
-        public DiverPerimeterDefenceChipItem(string classId = "DiverPerimeterDefenceChipItem",
+		public DiverPerimeterDefenceChipItem(string classId = "DiverPerimeterDefenceChipItem",
 			string friendlyName = "Diver Perimeter Defence System",
 			string description = "Protects a diver from hostile fauna using electrical discouragement. Discharge damages the chip beyond repair.") : base(classId, friendlyName, description)
 		{
-			OnFinishedPatching += () =>
-			{
-				CoroutineHost.StartCoroutine(PostPatchSetup());
-			};
 		}
 
 		public override EquipmentType EquipmentType => EquipmentType.Chip;
@@ -332,10 +330,10 @@ namespace DWEquipmentBonanza.Equipables
 	public class DiverDefenceSystemMk2 : DiverPerimeterDefenceChipItemBase<DiverDefenceSystemMk2>
 	{
 #if NAUTILUS
-        protected override TechType templateType => TechType.MapRoomHUDChip;
-        protected override string templateClassId => string.Empty;
+		protected override TechType templateType => TechType.MapRoomHUDChip;
+		protected override string templateClassId => string.Empty;
 #endif
-        public DiverDefenceSystemMk2(string classId = "DiverDefenceSystemMk2",
+		public DiverDefenceSystemMk2(string classId = "DiverDefenceSystemMk2",
 			string friendlyName = "Diver Defence System Mk2",
 			string description = "Protects a diver from hostile fauna using electrical discouragement. Can be recharged multiple times.") : base(classId, friendlyName, description)
 		{
@@ -378,9 +376,9 @@ namespace DWEquipmentBonanza.Equipables
 #endif
 						new Ingredient(TechType.Nickel, 1),
 						new Ingredient(TechType.Battery, 1),
-                        new Ingredient(DWEBPlugin.GetModTechType("DiverPerimeterDefenceChipItem"), 1),
-                    }
-                )
+						new Ingredient(DWEBPlugin.GetModTechType("DiverPerimeterDefenceChipItem"), 1),
+					}
+				)
 			};
 		}
 	}
@@ -388,20 +386,20 @@ namespace DWEquipmentBonanza.Equipables
 	public class DiverDefenceMk2_FromBrokenChip : Craftable
 	{
 #if NAUTILUS
-        protected override TechType templateType => TechType.MapRoomHUDChip;
-        protected override string templateClassId => string.Empty;
+		protected override TechType templateType => TechType.MapRoomHUDChip;
+		protected override string templateClassId => string.Empty;
 #endif
-        public DiverDefenceMk2_FromBrokenChip() : base("DiverDefenceMk2_FromBrokenChip", "Diver Defence System Mk2", "Protects a diver from hostile fauna using electrical discouragement. Can be recharged multiple times.")
+		public DiverDefenceMk2_FromBrokenChip() : base("DiverDefenceMk2_FromBrokenChip", "Diver Defence System Mk2", "Protects a diver from hostile fauna using electrical discouragement. Can be recharged multiple times.")
 		{
 			OnFinishedPatching += () =>
 			{
-                DWEBPlugin.AddModTechType(this.TechType);
+				DWEBPlugin.AddModTechType(this.TechType);
 			};
 		}
 
-        public override TechType RequiredForUnlock => DWEBPlugin.GetModTechType("DiverPerimeterDefenceChip_Broken");
+		public override TechType RequiredForUnlock => DWEBPlugin.GetModTechType("DiverPerimeterDefenceChip_Broken");
 
-        protected override RecipeData GetBlueprintRecipe()
+		protected override RecipeData GetBlueprintRecipe()
 		{
 			return new RecipeData()
 			{
@@ -420,7 +418,7 @@ namespace DWEquipmentBonanza.Equipables
 				),
 				LinkedItems = new List<TechType>()
 				{
-                    DWEBPlugin.GetModTechType("DiverDefenceSystemMk2")
+					DWEBPlugin.GetModTechType("DiverDefenceSystemMk2")
 				}
 			};
 		}
@@ -429,10 +427,10 @@ namespace DWEquipmentBonanza.Equipables
 	public class DiverDefenceSystemMk3 : DiverPerimeterDefenceChipItemBase<DiverDefenceSystemMk3>
 	{
 #if NAUTILUS
-        protected override TechType templateType => TechType.MapRoomHUDChip;
-        protected override string templateClassId => string.Empty;
+		protected override TechType templateType => TechType.MapRoomHUDChip;
+		protected override string templateClassId => string.Empty;
 #endif
-        public DiverDefenceSystemMk3() : base("DiverDefenceSystemMk3", "Diver Defence System Mk3", "Protects a diver from hostile fauna using electrical discouragement. Can discharge multiple times per charge, and can be recharged multiple times.")
+		public DiverDefenceSystemMk3() : base("DiverDefenceSystemMk3", "Diver Defence System Mk3", "Protects a diver from hostile fauna using electrical discouragement. Can discharge multiple times per charge, and can be recharged multiple times.")
 		{
 		}
 
@@ -471,9 +469,9 @@ namespace DWEquipmentBonanza.Equipables
 						new Ingredient(TechType.PrecursorIonBattery, 1),
 #endif
 						new Ingredient(DWEBPlugin.GetModTechType("DiverDefenceSystemMk2"), 1),
-                        new Ingredient(TechType.Nickel, 1),
-                    }
-                )
+						new Ingredient(TechType.Nickel, 1),
+					}
+				)
 			};
 		}
 	}

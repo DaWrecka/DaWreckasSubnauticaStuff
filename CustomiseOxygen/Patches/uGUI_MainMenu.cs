@@ -11,71 +11,71 @@ using UWE;
 
 namespace CustomiseOxygen.Patches
 {
-    [HarmonyPatch(typeof(uGUI_MainMenu))]
-    public class uGUI_MainMenuPatches
-    {
-        public static bool bProcessing { get; private set; }
+	[HarmonyPatch(typeof(uGUI_MainMenu))]
+	public class uGUI_MainMenuPatches
+	{
+		public static bool bProcessing { get; private set; }
 
-        [HarmonyPatch(nameof(uGUI_MainMenu.Start))]
-        [HarmonyPostfix]
-        public static void PostStart()
-        {
-            CoroutineHost.StartCoroutine(PostMenuCoroutine());
-        }
+		[HarmonyPatch(nameof(uGUI_MainMenu.Start))]
+		[HarmonyPostfix]
+		public static void PostStart()
+		{
+			CoroutineHost.StartCoroutine(PostMenuCoroutine());
+		}
 
-        private static IEnumerator PostMenuCoroutine()
-        {
-            if (bProcessing)
-                yield break;
+		private static IEnumerator PostMenuCoroutine()
+		{
+			if (bProcessing)
+				yield break;
 
-            bProcessing = true;
+			bProcessing = true;
 
-            var tanksCollection = new List<(TechType techType, bool bUnlockAtStart)>()
-            {
-                (TechType.Tank, true),
-                (TechType.DoubleTank, false),
+			var tanksCollection = new List<(TechType techType, bool bUnlockAtStart)>()
+			{
+				(TechType.Tank, true),
+				(TechType.DoubleTank, false),
 #if BELOWZERO
-                (TechType.SuitBoosterTank, false),
+				(TechType.SuitBoosterTank, false),
 #endif
-                (TechType.PlasteelTank, false),
-                (TechType.HighCapacityTank, false),
-            };
-            foreach (string testString in new string[]
-            {
-                "photosynthesistank",
-                "photosynthesissmalltank",
-                "chemosynthesistank"
-            })
-            {
-                //TechType testType = TechTypeUtils.GetModTechType(testString);
-                //if (testType != TechType.None)
-                if(TechTypeUtils.TryGetModTechType(testString, out TechType testType))
-                    tanksCollection.Add((techType: testType, bUnlockAtStart: false));
-            }
+				(TechType.PlasteelTank, false),
+				(TechType.HighCapacityTank, false),
+			};
+			foreach (string testString in new string[]
+			{
+				"photosynthesistank",
+				"photosynthesissmalltank",
+				"chemosynthesistank"
+			})
+			{
+				//TechType testType = TechTypeUtils.GetModTechType(testString);
+				//if (testType != TechType.None)
+				if(TechTypeUtils.TryGetModTechType(testString, out TechType testType))
+					tanksCollection.Add((techType: testType, bUnlockAtStart: false));
+			}
 
-            CustomiseOxygenPlugin.config.defaultTankCapacities.Clear();
+			CustomiseOxygenPlugin.config.defaultTankCapacities.Clear();
 
-            foreach (var tt in tanksCollection)
-            {
-                Log.LogDebug($"uGUI_MainMenuPatches.PostMenuCoroutine(): Initial processing, TechType.{tt.techType.AsString()}, bUnlockAtStart: {tt.bUnlockAtStart}");
-                float capacity = -1f;
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(tt.techType);
-                yield return task;
+			foreach (var tt in tanksCollection)
+			{
+				Log.LogDebug($"uGUI_MainMenuPatches.PostMenuCoroutine(): Initial processing, TechType.{tt.techType.AsString()}, bUnlockAtStart: {tt.bUnlockAtStart}");
+				float capacity = -1f;
+				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(tt.techType);
+				yield return task;
 
-                GameObject prefab = task.GetResult();
-                Oxygen oxyComponent = null;
-                if (prefab != null)
-                    oxyComponent = prefab.GetComponent<Oxygen>();
-                if (oxyComponent != null)
-                    capacity = oxyComponent.oxygenCapacity;
+				GameObject prefab = task.GetResult();
+				Oxygen oxyComponent = null;
+				if (prefab != null)
+					oxyComponent = prefab.GetComponent<Oxygen>();
+				if (oxyComponent != null)
+					capacity = oxyComponent.oxygenCapacity;
 
-                Log.LogDebug($"uGUI_MainMenuPatches.PostMenuCoroutine(): For TechType.{tt.techType.AsString()}, got base capacity of {capacity}");
-                CustomiseOxygenPlugin.AddTank(tt.techType, capacity, tt.bUnlockAtStart, null);
-            }
+				Log.LogDebug($"uGUI_MainMenuPatches.PostMenuCoroutine(): For TechType.{tt.techType.AsString()}, got base capacity of {capacity}");
+				CustomiseOxygenPlugin.AddTank(tt.techType, capacity, tt.bUnlockAtStart, null);
+			}
 
-            bProcessing = false;
-            CustomiseOxygenPlugin.OnMainMenuStarted();
-            yield break;
-        }
-    }
+			bProcessing = false;
+			CustomiseOxygenPlugin.OnMainMenuStarted();
+			yield break;
+		}
+	}
 }

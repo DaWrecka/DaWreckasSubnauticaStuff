@@ -54,14 +54,13 @@ namespace DWEquipmentBonanza.Patches
 			int i = -1;
 			int maxIndex = codes.Count - 6;
 
-			if (Main.bLogTranspilers)
-			{
-				Log.LogDebug("Dump of ExosuitClawArm.OnHit method, pre-transpiler:");
-				for (i = 0; i < codes.Count; i++)
-					Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
+#if LOGTRANSPILERS
+			Log.LogDebug("Dump of ExosuitClawArm.OnHit method, pre-transpiler:");
+			for (i = 0; i < codes.Count; i++)
+				Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
 
-				i = -1;
-			}
+			i = -1;
+#endif
 
 			while (++i < maxIndex)
 			{
@@ -96,14 +95,14 @@ namespace DWEquipmentBonanza.Patches
 				}
 			}
 
-			if (Main.bLogTranspilers)
-			{
-				Log.LogDebug("Dump of ExosuitClawArm.OnHit method, post-transpiler:");
-				for (i = 0; i < codes.Count; i++)
-					Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
+#if LOGTRANSPILERS
+			Log.LogDebug("Dump of ExosuitClawArm.OnHit method, post-transpiler:");
+			for (i = 0; i < codes.Count; i++)
+				Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
 
-				i = -1;
-			}
+			i = -1;
+#endif
+			
 			return codes.AsEnumerable();
 		}
 	}

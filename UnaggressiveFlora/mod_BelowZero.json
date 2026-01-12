@@ -1,15 +1,15 @@
 {
-  "Id": "UnaggressiveFlora",
-  "DisplayName": "Unaggressive Flora",
-  "Author": "DaWrecka",
-  "Version": "1.0.0.0",
-  "Dependencies": [],
-  "Game": "BelowZero",
-  "AssemblyName": "UnaggressiveFlora.dll",
-  "VersionDependencies": {},
-  "VersionChecker": {
-    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/UnaggressiveSpikyTrapss/master/mod_BelowZero.json"
-  },
-  "NexusId": {},
-  "Enable": true
+	"Id": "UnaggressiveFlora",
+	"DisplayName": "Unaggressive Flora",
+	"Author": "DaWrecka",
+	"Version": "1.0.0.0",
+	"Dependencies": [],
+	"Game": "BelowZero",
+	"AssemblyName": "UnaggressiveFlora.dll",
+	"VersionDependencies": {},
+	"VersionChecker": {
+	"LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/UnaggressiveSpikyTrapss/master/mod_BelowZero.json"
+	},
+	"NexusId": {},
+	"Enable": true
 }

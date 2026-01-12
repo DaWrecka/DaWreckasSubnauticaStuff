@@ -44,8 +44,9 @@ namespace UnlockCustomisation
 				return;
 			}
 
+			Log.LogDebug($"Adding compoundTech for TechType {techType.AsString()}");
 			pendingCompoundTech.Add(techType, dependencies);
-			//CoroutineHost.StartCoroutine(ProcessPendingCompounds(bForce));
+			CoroutineHost.StartCoroutine(ProcessPendingCompounds(bForce));
 		}
 
 		[HarmonyPostfix]
@@ -76,11 +77,11 @@ namespace UnlockCustomisation
 				bProcessingCompounds = false;
 				yield break;
 			}
-
+			bProcessingCompounds = true;
+			
 			yield return new WaitUntil(() => KnownTechInitialised());
 
 			Log.LogDebug("ProcessPendingCompounds executing");
-			bProcessingCompounds = true;
 
 			int tries = 0;
 			while (pendingCompoundTech.Count > 0)

@@ -2,20 +2,20 @@
   "Author": "DaWrecka",
   "DisplayName": "Console Batch Commands",
   "VersionDependencies": {
-    "SMLHelper": "2.9"
+	"SMLHelper": "2.9"
   },
   "Id": "ConsoleBatchFiles",
   "AssemblyName": "ConsoleBatchFiles.dll",
   "Version": "1.1.0.5",
   "Enable": true,
   "NexusId": {
-    "Subnautica": "610"
+	"Subnautica": "610"
   },
   "Game": "Subnautica",
   "VersionChecker": {
-    "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/ConsoleBatchFiles/mod_Subnautica.json"
+	"LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/ConsoleBatchFiles/mod_Subnautica.json"
   },
   "Dependencies": [
-    "SMLHelper"
+	"SMLHelper"
   ]
 }

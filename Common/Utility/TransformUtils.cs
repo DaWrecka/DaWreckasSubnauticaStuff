@@ -8,7 +8,7 @@ using UWE;
 namespace Common
 {
 	static class TransformUtils
-    {
+	{
 		public static GameObject FindDeepChild(GameObject parent, string childName)
 		{
 			Queue<Transform> queue = new Queue<Transform>();

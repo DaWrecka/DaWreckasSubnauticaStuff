@@ -63,6 +63,11 @@ namespace PowerOverYourPower.Patches
 			if (bProcessingBatteries)
 				yield break;
 
+			if (pendingBatteryList == null)
+			{
+				throw new Exception("pendingBatteryList is null!");
+			}
+
 			if (pendingBatteryList.Count < 1)
 				yield break;
 
@@ -75,7 +80,7 @@ namespace PowerOverYourPower.Patches
 				var pendingCopy = new HashSet<Battery>(pendingBatteryList);
 				foreach (Battery b in pendingCopy)
 				{
-					GameObject go = b.gameObject;
+					GameObject go = b?.gameObject;
 
 					if (go == null)
 						continue;

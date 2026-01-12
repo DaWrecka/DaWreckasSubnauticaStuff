@@ -2,28 +2,28 @@
   "Author": "DaWrecka",
   "DisplayName": "DW's Equipment Bonanza",
   "VersionDependencies": {
-    "SMLHelper": "2.10.1",
-    "CustomDataboxesBZ": "1.2"
+	"SMLHelper": "2.10.1",
+	"CustomDataboxesBZ": "1.2"
   },
   "Id": "DWEquipmentBonanza",
   "AssemblyName": "DWEquipmentBonanza.dll",
-  "Version": "0.20.0.0",
+  "Version": "0.22.0.0",
   "Enable": true,
   "NexusId": {},
   "Game": "BelowZero",
   "LoadAfter": [
-    "SMLHelper",
-    "CustomDataboxes",
-    "BioChemBatteriesMK2",
-    "CustomBatteries",
-    "CustomiseOxygen",
-    "FuelCells",
-    "MidGameBatteries",
-    "NuclearBatteries",
-    "EasyCraft_BZ"
+	"SMLHelper",
+	"CustomDataboxes",
+	"BioChemBatteriesMK2",
+	"CustomBatteries",
+	"CustomiseOxygen",
+	"FuelCells",
+	"MidGameBatteries",
+	"NuclearBatteries",
+	"EasyCraft_BZ"
   ],
   "VersionChecker": {
-    "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/DWEquipmentBonanza/mod_BelowZero.json"
+	"LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/DWEquipmentBonanza/mod_BelowZero.json"
   },
   "Dependencies": []
 }

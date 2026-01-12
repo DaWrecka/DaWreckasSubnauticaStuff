@@ -10,8 +10,8 @@ using UnityEngine.UI;
 
 namespace FabricatorsResumeFromLast.Patches
 {
-    [HarmonyPatch(typeof(uGUI_CraftingMenu), nameof(uGUI_CraftingMenu.Open))]
-    class uGUI_CraftingMenu_Patch
-    {
-    }
+	[HarmonyPatch(typeof(uGUI_CraftingMenu), nameof(uGUI_CraftingMenu.Open))]
+	class uGUI_CraftingMenu_Patch
+	{
+	}
 }

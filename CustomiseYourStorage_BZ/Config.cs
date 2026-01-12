@@ -38,14 +38,14 @@ namespace CustomiseYourStorage.Configuration
 	internal class DWStorageConfig : ConfigFile
 	{
 #if LEGACY
-        private const string AdvancedInventoryAssembly = "AdvancedInventory";
+		private const string AdvancedInventoryAssembly = "AdvancedInventory";
 #elif BEPINEX
-        private const string AdvancedInventoryAssembly = "sn.advancedinventory.mod";
+		private const string AdvancedInventoryAssembly = "sn.advancedinventory.mod";
 #elif BELOWZERO
 		private const string AdvancedInventoryAssembly = "AdvancedInventory_BZ";
 #endif
 
-        private static readonly HashSet<string> heightSliders = new HashSet<string>() { "DroppodHeight", "ExosuitHeight", "ExosuitModuleHeight", "FiltrationHeight", "InvHeight", "BioreactorHeight", "CyclopsHeight" };
+		private static readonly HashSet<string> heightSliders = new HashSet<string>() { "DroppodHeight", "ExosuitHeight", "ExosuitModuleHeight", "FiltrationHeight", "InvHeight", "BioreactorHeight", "CyclopsHeight" };
 #if QMM
 		private static bool bHasAdvancedInventory => QModManager.API.QModServices.Main.ModPresent(AdvancedInventoryAssembly);
 #elif BEPINEX
@@ -135,38 +135,23 @@ namespace CustomiseYourStorage.Configuration
 		private Dictionary<TechType, int> unlockedBlueprints = new Dictionary<TechType, int>(); // This set is used to tell whether or not we've unlocked a blueprint already, and therefore whether or not an entry is duplicated.
 
 #if SN1
-        private const string PodName = "LifePod";
+		private const string PodName = "LifePod";
 #elif BELOWZERO
 		private const string PodName = "Drop pod";
 #endif
 
-        //public Vector2int LifepodLockerSize = new Vector2int(0, 0);
-#if SN1
-        [Slider("LifePod locker width", 4, 8, DefaultValue = 4, Id = nameof(DroppodWidth),
-			Step = 1f,
-			Tooltip = "Width of the LifePod locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
-		public int DroppodWidth = 4;
-#elif BELOWZERO
-		[Slider("Droppod locker width", 4, 8, DefaultValue = 6, Id = nameof(DroppodWidth),
-			Step = 1f,
-			Tooltip = "Width of the Droppod locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
+		//public Vector2int LifepodLockerSize = new Vector2int(0, 0);
+		[Slider("LifePod locker width", 4, 8, DefaultValue = 4, Id = nameof(DroppodWidth), Step = 1f, 
+			Tooltip = "Width of the " + PodName + " locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int DroppodWidth = 6;
-#endif
+
+		[Slider("LifePod locker height", 4, 8, DefaultValue = 6, Id = nameof(DroppodHeight),
+			Step = 1f,
+			Tooltip = "Width of the " + PodName + " lockerlocker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
+		public int DroppodHeight = 8;
 
 #if SN1
-        [Slider("LifePod locker height", 4, 8, DefaultValue = 6, Id = nameof(DroppodHeight),
-			Step = 1f,
-			Tooltip = "Width of the LifePod locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
-		public int DroppodHeight = 8;
-#elif BELOWZERO
-		[Slider("Droppod locker height", 4, 8, DefaultValue = 8, Id = nameof(DroppodHeight),
-			Step = 1f,
-			Tooltip = "Height of the Droppod locker, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
-		public int DroppodHeight = 8;
-#endif
-
-#if SN1
-        [Slider("Cyclops locker width", 4, 8, DefaultValue = 3, Id = nameof(CyclopsWidth),
+		[Slider("Cyclops locker width", 4, 8, DefaultValue = 3, Id = nameof(CyclopsWidth),
 			Step = 1f,
 			Tooltip = "Width of the Cyclops lockers, in inventory units"), OnChange(nameof(OnSliderChange)), OnGameObjectCreated(nameof(GameOptionCreated))]
 		public int CyclopsWidth = 3;
@@ -315,9 +300,9 @@ namespace CustomiseYourStorage.Configuration
 				}
 			}
 
-            // Couldn't find a value for this identifier, so:
+			// Couldn't find a value for this identifier, so:
 #if !RELEASE
-            Log.LogDebug("Could not find " + (bHasDefault ? "" : "default or ") + "configured values for the identifier " + Identifier);
+			Log.LogDebug("Could not find " + (bHasDefault ? "" : "default or ") + "configured values for the identifier " + Identifier);
 #endif
 			return false;
 		}

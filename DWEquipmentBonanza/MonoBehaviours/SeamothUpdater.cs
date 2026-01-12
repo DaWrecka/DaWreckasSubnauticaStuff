@@ -15,8 +15,8 @@ using Main = DWEquipmentBonanza.DWEBPlugin;
 namespace DWEquipmentBonanza.MonoBehaviours
 {
 #if SN1
-    public class SeamothUpdater : VehicleUpdater
-    {
+	public class SeamothUpdater : VehicleUpdater
+	{
 		protected static TechType repairModuleTechType => Main.GetModTechType("VehicleRepairModule");
 
 		protected override void Start()
@@ -138,13 +138,13 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			return false;
 		}
 
-        public override int GetModuleCount(TechType techType)
-        {
+		public override int GetModuleCount(TechType techType)
+		{
 			if (parentVehicle is Vehicle V)
 				return V.modules.GetCount(techType);
 
 			return 0;
-        }
-    }
+		}
+	}
 #endif
 }

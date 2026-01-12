@@ -1,19 +1,19 @@
 {
-  "Id": "UnlockCustomisation",
-  "DisplayName": "Unlock Customisation",
-  "Author": "DaWrecka",
-  "Version": "1.0.0.0",
-  "Dependencies": [
-    "SMLHelper"
-  ],
-  "Game": "BelowZero",
-  "AssemblyName": "UnlockCustomisation.dll",
-  "VersionDependencies": {
-    "SMLHelper": "2.9"
-  },
-  "VersionChecker": {
-    "LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/UnlockCustomisation/master/mod_Subnautica.json"
-  },
-  "NexusId": {},
-  "Enable": true
+	"Id": "UnlockCustomisation",
+	"DisplayName": "Unlock Customisation",
+	"Author": "DaWrecka",
+	"Version": "1.0.0.0",
+	"Dependencies": [
+	"SMLHelper"
+	],
+	"Game": "BelowZero",
+	"AssemblyName": "UnlockCustomisation.dll",
+	"VersionDependencies": {
+	"SMLHelper": "2.9"
+	},
+	"VersionChecker": {
+	"LatestVersionURL": "https://raw.githubusercontent.com/DaWrecka/UnlockCustomisation/master/mod_Subnautica.json"
+	},
+	"NexusId": {},
+	"Enable": true
 }

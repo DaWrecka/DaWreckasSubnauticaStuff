@@ -346,3 +346,4 @@ CustomiseYourStorage_BZ/BZ/*
 *.bak
 *.bak
 Binaries/
+BepInEx/

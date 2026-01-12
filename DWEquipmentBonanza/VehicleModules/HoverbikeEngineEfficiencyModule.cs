@@ -8,7 +8,9 @@ using Nautilus.Crafting;
 using Nautilus.Handlers;
 using Common.NautilusHelper;
 using RecipeData = Nautilus.Crafting.RecipeData;
-using Ingredient = CraftData.Ingredient;
+#if SN1
+	//using Ingredient = CraftData\.Ingredient;
+#endif
 #else
 using SMLHelper.V2.Assets;
 using SMLHelper.V2.Crafting;
@@ -20,38 +22,38 @@ using DWEquipmentBonanza.MonoBehaviours;
 namespace DWEquipmentBonanza.VehicleModules
 {
 #if BELOWZERO
-    internal class HoverbikeEngineEfficiencyModule : HoverbikeUpgradeBase<HoverbikeEngineEfficiencyModule>
-    {
-        private const float efficiencyModifier = 0.65f;
-        private const int maxUpgrades = 2;
-        protected override TechType spriteTemplate => TechType.SeaTruckUpgradeEnergyEfficiency; // Placeholder
-        protected override TechType prefabTemplate => TechType.HoverbikeJumpModule;
+	internal class HoverbikeEngineEfficiencyModule : HoverbikeUpgradeBase<HoverbikeEngineEfficiencyModule>
+	{
+		private const float efficiencyModifier = 0.65f;
+		private const int maxUpgrades = 2;
+		protected override TechType spriteTemplate => TechType.SeaTruckUpgradeEnergyEfficiency; // Placeholder
+		protected override TechType templateType => TechType.HoverbikeJumpModule;
 
-        //private GameObject prefab;
+		//private GameObject prefab;
 
-        protected override RecipeData GetBlueprintRecipe()
-        {
-            return new RecipeData()
-            {
-                craftAmount = 1,
-                Ingredients = new List<Ingredient>(new Ingredient[]
-                    {
-                        new Ingredient(TechType.AdvancedWiringKit, 1),
-                        new Ingredient(TechType.Polyaniline, 1)
-                    }
-                )
-            };
-        }
+		protected override RecipeData GetBlueprintRecipe()
+		{
+			return new RecipeData()
+			{
+				craftAmount = 1,
+				Ingredients = new List<Ingredient>(new Ingredient[]
+					{
+						new Ingredient(TechType.AdvancedWiringKit, 1),
+						new Ingredient(TechType.Polyaniline, 1)
+					}
+				)
+			};
+		}
 
-        protected override void OnFinishedPatch()
-        {
-            base.OnFinishedPatch();
-            HoverbikeUpdater.AddEfficiencyMultiplier(this.TechType, efficiencyModifier, maxUpgrades: maxUpgrades);
-        }
+		protected override void OnFinishedPatch()
+		{
+			base.OnFinishedPatch();
+			HoverbikeUpdater.AddEfficiencyMultiplier(this.TechType, efficiencyModifier, maxUpgrades: maxUpgrades);
+		}
 
-        public HoverbikeEngineEfficiencyModule() : base("HoverbikeEngineEfficiencyModule", "Snowfox Engine Efficiency Module", "Optimises Snowfox power use, reducing battery consumption by 35%. Stacks up to twice.")
-        {
-        }
-    }
+		public HoverbikeEngineEfficiencyModule() : base("HoverbikeEngineEfficiencyModule", "Snowfox Engine Efficiency Module", "Optimises Snowfox power use, reducing battery consumption by 35%. Stacks up to twice.")
+		{
+		}
+	}
 #endif
 }

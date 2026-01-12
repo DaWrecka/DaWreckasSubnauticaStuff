@@ -11,7 +11,9 @@ using Nautilus.Assets.Gadgets;
 using Nautilus.Crafting;
 using Nautilus.Utility;
 using Nautilus.Handlers;
-using Ingredient = CraftData.Ingredient;
+#if SN1
+	//using Ingredient = CraftData\.Ingredient;
+#endif
 using Common.NautilusHelper;
 using RecipeData = Nautilus.Crafting.RecipeData;
 #else
@@ -25,327 +27,329 @@ using UnityEngine;
 using UWE;
 using DWEquipmentBonanza.MonoBehaviours;
 using DWEquipmentBonanza.Patches;
-#if SN1
-    using Sprite = Atlas.Sprite;
-    using Object = UnityEngine.Object;
 using Nautilus.Assets.PrefabTemplates;
+#if SN1
+	//using Sprite = Atlas.Sprite;
+	using Object = UnityEngine.Object;
 #endif
 
 namespace DWEquipmentBonanza.Equipables
 {
-    abstract public class SurvivalSuitBase<T> : Equipable
-    {
+	abstract public class SurvivalSuitBase<T> : Equipable
+	{
 #if NAUTILUS
-        protected override TechType templateType => TechType.ReinforcedDiveSuit;
-        protected override string templateClassId => string.Empty;
+		protected override TechType templateType => TechType.ReinforcedDiveSuit;
+		protected override string templateClassId => string.Empty;
 #endif
 
-        public SurvivalSuitBase(string classId,
-                string friendlyName,
-                string Description) : base(classId, friendlyName, Description)
-        {
-            Log.LogDebug($"{this.ClassID} constructing");
-            OnFinishedPatching += OnFinishedPatch;
-        }
+		public SurvivalSuitBase(string classId,
+				string friendlyName,
+				string Description) : base(classId, friendlyName, Description)
+		{
+			Log.LogDebug($"{this.ClassID} constructing");
+			OnFinishedPatching += OnFinishedPatch;
+		}
 
-        public override Vector2int SizeInInventory => new(2, 3);
+		public override Vector2int SizeInInventory => new(2, 3);
 
-        [Obsolete]
-        protected virtual float SurvivalCapOverride { get; }
-        protected abstract float maxDepth { get; }
-        protected abstract float breathMultiplier { get; }
-        protected abstract float minTempBonus { get; }
+		protected abstract float SurvivalCapOverride { get; }
+		protected abstract float maxDepth { get; }
+		protected abstract float breathMultiplier { get; }
+		protected abstract float minTempBonus { get; }
 #if SN1
-        protected abstract float DeathRunDepth { get; }
+		protected abstract float DeathRunDepth { get; }
 #endif
-        protected virtual TechType[] substitutions => new TechType[] { Main.StillSuitType };
-        protected virtual TechType prefabTechType => Main.StillSuitType;
-        protected virtual List<TechType> CompoundDependencies => new List<TechType>();
-        protected static GameObject prefab;
-        public override QuickSlotType QuickSlotType => QuickSlotType.None;
-        public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
-        public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
+		protected virtual TechType[] substitutions => new TechType[] { Main.StillSuitType };
+		protected virtual TechType prefabTechType => Main.StillSuitType;
+		protected virtual List<TechType> CompoundDependencies => new List<TechType>();
+		protected static GameObject prefab;
+		public override QuickSlotType QuickSlotType => QuickSlotType.None;
+		public override CraftTree.Type FabricatorType => CraftTree.Type.Workbench;
+		public override string[] StepsToFabricatorTab => new string[] { DWConstants.BodyMenuPath };
 
-        protected virtual void OnFinishedPatch()
-        {
-            //Console.WriteLine($"{this.ClassID} OnFinishedPatch begin");
-            //Console.WriteLine($"{this.ClassID} calling AddModTechType");
-            Main.AddModTechType(this.TechType);
-            //Console.WriteLine($"{this.ClassID} PlayerPatch.AddSurvivalSuit()");
-            PlayerPatch.AddSurvivalSuit(this.TechType);
-            //Main.AddSubstitution(this.TechType, Main.StillSuitType);
-            foreach (TechType tt in substitutions)
-            {
-                //Console.WriteLine($"{this.ClassID} AddSubstitution({tt.AsString()}");
-                Main.AddSubstitution(this.TechType, tt);
-            }
+		public virtual void OnFinishedPatch()
+		{
+			Log.LogDebug($"{this.ClassID} OnFinishedPatch begin");
+			Log.LogDebug($"{this.ClassID} calling AddModTechType");
+			Main.AddModTechType(this.TechType);
+			Log.LogDebug($"{this.ClassID} PlayerPatch.AddSurvivalSuit()");
+			PlayerPatch.AddSurvivalSuit(this.TechType);
+			Main.AddSubstitution(this.TechType, Main.StillSuitType);
+			foreach (TechType tt in substitutions)
+			{
+				Log.LogDebug($"{this.ClassID} AddSubstitution({tt.AsString()})");
+				Main.AddSubstitution(this.TechType, tt);
+			}
 
-            if (CompoundDependencies.Count > 0)
-            {
-                //Console.WriteLine($"{this.ClassID} AddCompoundTech");
-                Reflection.AddCompoundTech(this.TechType, CompoundDependencies);
-            }
-            //SurvivalPatches.AddNeedsCapOverride(this.TechType, SurvivalCapOverride);
-            //Console.WriteLine($"{this.ClassID} AddDiveSuit");
-            Main.AddDiveSuit(this.TechType, maxDepth, breathMultiplier, minTempBonus);
-        }
+			if (CompoundDependencies.Count > 0)
+			{
+				Log.LogDebug($"{this.ClassID} AddCompoundTech");
+				Reflection.AddCompoundTech(this.TechType, CompoundDependencies);
+			}
+			SurvivalPatches.AddNeedsTimeOverride(this.TechType, SurvivalCapOverride);
+			Log.LogDebug($"{this.ClassID} AddDiveSuit");
+			Main.AddDiveSuit(this.TechType, maxDepth, breathMultiplier, minTempBonus);
+		}
 
 #if NAUTILUS
-        public override void ModifyClone(CloneTemplate clone)
-        {
-            clone.ModifyPrefab += PrepareGameObject;
-        }
+		public override void ModifyClone(CloneTemplate clone)
+		{
+			clone.ModifyPrefab += PrepareGameObject;
+		}
 
 #elif ASYNC
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            if (prefab == null)
-            {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTechType, verbose: true);
-                yield return task;
+		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+		{
+			if (prefab == null)
+			{
+				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(prefabTechType, verbose: true);
+				yield return task;
 
-                prefab = PrepareGameObject(task.GetResult());
-            }
-            gameObject.Set(prefab);
+				prefab = PrepareGameObject(task.GetResult());
+			}
+			gameObject.Set(prefab);
 
-            yield break;
-        }
+			yield break;
+		}
 
 #else
-        public override GameObject GetGameObject()
-        {
-            if (prefab == null)
-            {
-                prefab = PrepareGameObject(CraftData.GetPrefabForTechType(prefabTechType));
-            }
+		public override GameObject GetGameObject()
+		{
+			if (prefab == null)
+			{
+				prefab = PrepareGameObject(CraftData.GetPrefabForTechType(prefabTechType));
+			}
 
-            return prefab;
-        }
+			return prefab;
+		}
 #endif
 
 #if NAUTILUS
-        public void PrepareGameObject(GameObject prefab)
-        {
-            if (prefab.TryGetComponent<Stillsuit>(out Stillsuit s))
-                GameObject.DestroyImmediate(s);
-            prefab.EnsureComponent<SurvivalsuitBehaviour>();
-        }
+		public void PrepareGameObject(GameObject prefab)
+		{
+			if (prefab.TryGetComponent<Stillsuit>(out Stillsuit s))
+				GameObject.DestroyImmediate(s);
+			prefab.EnsureComponent<SurvivalsuitBehaviour>();
+		}
 #else
-        protected virtual GameObject PrepareGameObject(GameObject prefab)
-        {
-            GameObject obj = GameObject.Instantiate<GameObject>(prefab);
+		protected virtual GameObject PrepareGameObject(GameObject prefab)
+		{
+			GameObject obj = GameObject.Instantiate<GameObject>(prefab);
 
-            if (obj.TryGetComponent<Stillsuit>(out Stillsuit s))
-                GameObject.DestroyImmediate(s);
-            obj.EnsureComponent<SurvivalsuitBehaviour>();
-            ModPrefabCache.AddPrefab(obj, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it;
-                                                  // the prefab doesn't show up in the world [as with SetActive(false)] but because it's not been set inactive, it can instantiate active GameObjects immediately.
-            return obj;
-        }
+			if (obj.TryGetComponent<Stillsuit>(out Stillsuit s))
+				GameObject.DestroyImmediate(s);
+			obj.EnsureComponent<SurvivalsuitBehaviour>();
+			ModPrefabCache.AddPrefab(obj, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it;
+												  // the prefab doesn't show up in the world [as with SetActive(false)] but because it's not been set inactive, it can instantiate active GameObjects immediately.
+			return obj;
+		}
 #endif
-    }
+	}
 
-    public class SurvivalSuit : SurvivalSuitBase<SurvivalSuit>
-    {
-        public SurvivalSuit(string classId = "SurvivalSuit",
-                string friendlyName = "Survival Suit",
-                string Description = "Enhanced survival suit provides passive replenishment of calories and fluids, reducing the need for external sources of sustenance.") : base(classId, friendlyName, Description)
-        {
-        }
+	public class SurvivalSuit : SurvivalSuitBase<SurvivalSuit>
+	{
+		public SurvivalSuit(string classId = "SurvivalSuit",
+				string friendlyName = "Survival Suit",
+				string Description = "Enhanced survival suit provides passive replenishment of calories and fluids, reducing the need for external sources of sustenance.") : base(classId, friendlyName, Description)
+		{
+		}
 
-        protected override float maxDepth => 1300f;
-        protected override float breathMultiplier => 0.90f;
-        protected override float minTempBonus => 5f;
+		protected override float maxDepth => 1300f;
+		protected override float breathMultiplier => 0.90f;
+		protected override float minTempBonus => 5f;
 #if SN1
-        protected override float DeathRunDepth => 800f;
+		protected override float DeathRunDepth => 800f;
 #endif
-        protected override TechType[] substitutions => new TechType[] { Main.StillSuitType };
-        public override EquipmentType EquipmentType => EquipmentType.Body;
-        public override TechType RequiredForUnlock => Main.StillSuitType;
-        public override Vector2int SizeInInventory => new(2, 2);
+		protected override TechType[] substitutions => new TechType[] { Main.StillSuitType };
+		public override EquipmentType EquipmentType => EquipmentType.Body;
+		public override TechType RequiredForUnlock => Main.StillSuitType;
+		public override Vector2int SizeInInventory => new(2, 2);
+		protected override float SurvivalCapOverride => 85f;
 
-        protected override RecipeData GetBlueprintRecipe()
-        {
-            return new RecipeData()
-            {
-                craftAmount = 0,
-                Ingredients = new List<Ingredient>(new Ingredient[]
-                    {
-                        new Ingredient(Main.StillSuitType, 1),
-                        new Ingredient(TechType.AdvancedWiringKit, 1),
-                        new Ingredient(TechType.JellyPlant, 1),
+		protected override RecipeData GetBlueprintRecipe()
+		{
+			return new RecipeData()
+			{
+				craftAmount = 0,
+				Ingredients = new List<Ingredient>(new Ingredient[]
+					{
+						new Ingredient(Main.StillSuitType, 1),
+						new Ingredient(TechType.AdvancedWiringKit, 1),
+						new Ingredient(TechType.JellyPlant, 1),
 #if SN1
-                        new Ingredient(TechType.KooshChunk, 1)
+						new Ingredient(TechType.KooshChunk, 1)
 #elif BELOWZERO
-                        new Ingredient(TechType.KelpRootPustule, 1)
+						new Ingredient(TechType.KelpRootPustule, 1)
 #endif
-                    }
-                ),
-                LinkedItems = new List<TechType>()
-                {
-                    Main.GetModTechType("SurvivalSuit")
-                }
-            };
-        }
+					}
+				),
+				LinkedItems = new List<TechType>()
+				{
+					Main.GetModTechType("SurvivalSuit")
+				}
+			};
+		}
 
-        protected override Sprite GetItemSprite()
-        {
-            return SpriteManager.Get(Main.StillSuitType);
-        }
-    }
+		protected override Sprite GetItemSprite()
+		{
+			return SpriteManager.Get(Main.StillSuitType);
+		}
+	}
 
-    public class ReinforcedSurvivalSuit : SurvivalSuitBase<ReinforcedSurvivalSuit>
-    {
-        protected override float maxDepth => 1300f;
-        protected override float breathMultiplier => 0.80f;
-        protected override float minTempBonus => 35f;
+	public class ReinforcedSurvivalSuit : SurvivalSuitBase<ReinforcedSurvivalSuit>
+	{
+		protected override float maxDepth => 1300f;
+		protected override float breathMultiplier => 0.80f;
+		protected override float minTempBonus => 35f;
 #if SN1
-        protected override float DeathRunDepth => -1f;
+		protected override float DeathRunDepth => -1f;
 #endif
-        public ReinforcedSurvivalSuit(string classId = "ReinforcedSurvivalSuit",
-                string friendlyName = "Reinforced Survival Suit",
-                string Description = "Enhanced survival suit with reinforcing fibres provides passive primary needs reduction and protection from physical force and high temperatures") : base(classId, friendlyName, Description)
-        {
-        }
+		protected override float SurvivalCapOverride => 85f;
+		public ReinforcedSurvivalSuit(string classId = "ReinforcedSurvivalSuit",
+				string friendlyName = "Reinforced Survival Suit",
+				string Description = "Enhanced survival suit with reinforcing fibres provides passive primary needs reduction and protection from physical force and high temperatures") : base(classId, friendlyName, Description)
+		{
+		}
 
-        protected override List<TechType> CompoundDependencies
-        {
-            get
-            {
-                return new List<TechType>()
-                {
-                    Main.StillSuitType,
-                    TechType.ReinforcedDiveSuit
-                };
-            }
-        }
-        protected override TechType[] substitutions
-        {
-            get
-            {
-                return new TechType[] { Main.StillSuitType, TechType.ReinforcedDiveSuit };
-            }
-        }
-        public override EquipmentType EquipmentType => EquipmentType.Body;
+		protected override List<TechType> CompoundDependencies
+		{
+			get
+			{
+				return new List<TechType>()
+				{
+					Main.StillSuitType,
+					TechType.ReinforcedDiveSuit
+				};
+			}
+		}
+		protected override TechType[] substitutions
+		{
+			get
+			{
+				return new TechType[] { Main.StillSuitType, TechType.ReinforcedDiveSuit };
+			}
+		}
+		public override EquipmentType EquipmentType => EquipmentType.Body;
 
-        protected override RecipeData GetBlueprintRecipe()
-        {
-            return new RecipeData()
-            {
-                craftAmount = 1,
-                Ingredients = new List<Ingredient>(new Ingredient[]
-                    {
-                        new Ingredient(Main.GetModTechType("SurvivalSuit"), 1),
-                        new Ingredient(TechType.ReinforcedDiveSuit, 1),
-                        new Ingredient(TechType.AramidFibers, 1)
-                    }
-                ),
-                LinkedItems = new List<TechType>()
-            };
-        }
+		protected override RecipeData GetBlueprintRecipe()
+		{
+			return new RecipeData()
+			{
+				craftAmount = 1,
+				Ingredients = new List<Ingredient>(new Ingredient[]
+					{
+						new Ingredient(Main.GetModTechType("SurvivalSuit"), 1),
+						new Ingredient(TechType.ReinforcedDiveSuit, 1),
+						new Ingredient(TechType.AramidFibers, 1)
+					}
+				),
+				LinkedItems = new List<TechType>()
+			};
+		}
 
-        protected override Sprite GetItemSprite()
-        {
-            return SpriteManager.Get(Main.StillSuitType);
-        }
-    }
+		protected override Sprite GetItemSprite()
+		{
+			return SpriteManager.Get(Main.StillSuitType);
+		}
+	}
 
 
 #if BELOWZERO
-    public class SurvivalColdSuit : SurvivalSuitBase<SurvivalColdSuit>
-    {
-        public SurvivalColdSuit(string classId = "SurvivalColdSuit",
-                string friendlyName = "Insulated Survival Suit",
-                string Description = "Enhanced survival suit provides passive primary needs reduction and protection from extreme cold.") : base(classId, friendlyName, Description)
-        {
-            //Console.WriteLine($"{this.ClassID} constructing");
-        }
+	public class SurvivalColdSuit : SurvivalSuitBase<SurvivalColdSuit>
+	{
+		public SurvivalColdSuit(string classId = "SurvivalColdSuit",
+				string friendlyName = "Insulated Survival Suit",
+				string Description = "Enhanced survival suit provides passive primary needs reduction and protection from extreme cold.") : base(classId, friendlyName, Description)
+		{
+			//Console.WriteLine($"{this.ClassID} constructing");
+		}
 
-        protected override float maxDepth => 1300f;
-        protected override float breathMultiplier => 0.80f;
-        protected override float minTempBonus => 40f;
-        protected override TechType[] substitutions
-        {
-            get
-            {
-                return new TechType[] { TechType.ColdSuit };
-            }
-        }
+		protected override float maxDepth => 1300f;
+		protected override float breathMultiplier => 0.80f;
+		protected override float minTempBonus => 40f;
+		protected override float SurvivalCapOverride => 85f;
+		protected override TechType[] substitutions
+		{
+			get
+			{
+				return new TechType[] { TechType.ColdSuit };
+			}
+		}
 
-        public override EquipmentType EquipmentType => EquipmentType.Body;
+		public override EquipmentType EquipmentType => EquipmentType.Body;
 
-        protected override List<TechType> CompoundDependencies
-        {
-            get
-            {
-                return new List<TechType>()
-                {
-                    Main.GetModTechType("SurvivalSuit"),
-                    TechType.ColdSuit
-                };
-            }
-        }
+		protected override List<TechType> CompoundDependencies
+		{
+			get
+			{
+				return new List<TechType>()
+				{
+					Main.GetModTechType("SurvivalSuit"),
+					TechType.ColdSuit
+				};
+			}
+		}
 
-        protected override void OnFinishedPatch()
-        {
-            base.OnFinishedPatch();
+		public override void OnFinishedPatch()
+		{
+			base.OnFinishedPatch();
 
-            int coldResist = TechData.GetColdResistance(TechType.ColdSuit);
-            Reflection.AddColdResistance(this.TechType, System.Math.Max(55, coldResist));
-            Reflection.SetItemSize(this.TechType, 2, 3);
-            Log.LogDebug($"Finished patching {this.TechType.AsString()}, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
-        }
+			int coldResist = TechData.GetColdResistance(TechType.ColdSuit);
+			Reflection.AddColdResistance(this.TechType, System.Math.Max(55, coldResist));
+			Reflection.SetItemSize(this.TechType, 2, 3);
+			Log.LogDebug($"Finished patching {this.TechType.AsString()}, found source cold resist of {coldResist}, cold resistance for techtype {this.TechType.AsString()} = {TechData.GetColdResistance(this.TechType)}");
+		}
 
-        protected override RecipeData GetBlueprintRecipe()
-        {
-            return new RecipeData()
-            {
-                craftAmount = 1,
-                Ingredients = new List<Ingredient>(new Ingredient[]
-                    {
-                        new Ingredient(Main.GetModTechType("SurvivalSuit"), 1),
-                        new Ingredient(TechType.ColdSuit, 1)
-                    }
-                ),
-                LinkedItems = new List<TechType>()
-            };
-        }
+		protected override RecipeData GetBlueprintRecipe()
+		{
+			return new RecipeData()
+			{
+				craftAmount = 1,
+				Ingredients = new List<Ingredient>(new Ingredient[]
+					{
+						new Ingredient(Main.GetModTechType("SurvivalSuit"), 1),
+						new Ingredient(TechType.ColdSuit, 1)
+					}
+				),
+				LinkedItems = new List<TechType>()
+			};
+		}
 
 #if NAUTILUS
 #elif ASYNC
-        public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-        {
-            Stillsuit s;
-            if (prefab == null)
-            {
-                CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuit, verbose: true);
-                yield return task;
+		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
+		{
+			Stillsuit s;
+			if (prefab == null)
+			{
+				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuit, verbose: true);
+				yield return task;
 
-                prefab = task.GetResult();
+				prefab = task.GetResult();
 
-                // Editing prefab
-                if(prefab.TryGetComponent<Stillsuit>(out s))
-                    GameObject.DestroyImmediate(s);
-                prefab.EnsureComponent<SurvivalsuitBehaviour>();
+				// Editing prefab
+				if(prefab.TryGetComponent<Stillsuit>(out s))
+					GameObject.DestroyImmediate(s);
+				prefab.EnsureComponent<SurvivalsuitBehaviour>();
 
-                ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
-                                                         // but it can still be instantiated. [unlike with SetActive(false)]
-            }
+				ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
+														 // but it can still be instantiated. [unlike with SetActive(false)]
+			}
 
-            // Despite the component being removed from the prefab above, testing shows that the Survival Suits still add the water packs when they shouldn't.
-            // So we're going to force-remove it here, to be safe.
-            GameObject go = GameObject.Instantiate(prefab);
-            if (go.TryGetComponent<Stillsuit>(out s))
-                GameObject.DestroyImmediate(s);
-            gameObject.Set(go);
-        }
+			// Despite the component being removed from the prefab above, testing shows that the Survival Suits still add the water packs when they shouldn't.
+			// So we're going to force-remove it here, to be safe.
+			GameObject go = GameObject.Instantiate(prefab);
+			if (go.TryGetComponent<Stillsuit>(out s))
+				GameObject.DestroyImmediate(s);
+			gameObject.Set(go);
+		}
 
 #else
 #endif
-        protected override Sprite GetItemSprite()
-        {
-            return SpriteManager.Get(Main.StillSuitType);
-        }
-    }
+		protected override Sprite GetItemSprite()
+		{
+			return SpriteManager.Get(Main.StillSuitType);
+		}
+	}
 #endif
 }

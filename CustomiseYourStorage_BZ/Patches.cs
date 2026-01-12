@@ -37,7 +37,7 @@ namespace CustomiseYourStorage.Patches
 			string lowerID = ContainerID.ToLower();
 
 #if SN1
-            if (lowerID == "escapepod.storagecontainer")
+			if (lowerID == "escapepod.storagecontainer")
 #elif BELOWZERO
 			if (lowerID == "none.storagecontiner") //(sic)
 #endif
@@ -58,7 +58,7 @@ namespace CustomiseYourStorage.Patches
 			}
 
 #if SN1
-            if (lowerID == "none.submarine_locker_01_door")
+			if (lowerID == "none.submarine_locker_01_door")
 			{
 				int x = CustomiseStoragePlugin.config.CyclopsWidth;
 				int y = CustomiseStoragePlugin.config.CyclopsHeight;
@@ -125,12 +125,12 @@ namespace CustomiseYourStorage.Patches
 			{
 				Log.LogDebug($"Adding item {tt.AsString()} to drop pod locker");
 #if ASYNC
-                TaskResult<GameObject> result = new TaskResult<GameObject>();
+				TaskResult<GameObject> result = new TaskResult<GameObject>();
 				yield return CraftData.InstantiateFromPrefabAsync(tt, result, false);
 				InventoryItem inventoryItem2 = new InventoryItem(result.Get().GetComponent<Pickupable>());
 #else
-                GameObject go = CraftData.InstantiateFromPrefab(tt);
-                InventoryItem inventoryItem2 = new InventoryItem(go.GetComponent<Pickupable>());
+				GameObject go = CraftData.InstantiateFromPrefab(tt);
+				InventoryItem inventoryItem2 = new InventoryItem(go.GetComponent<Pickupable>());
 #endif
 
 				inventoryItem2.item.Initialize();

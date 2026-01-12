@@ -2,7 +2,7 @@
   "Author": "DaWrecka",
   "DisplayName": "Console Batch Commands",
   "VersionDependencies": {
-    "SMLHelper": "2.9.6"
+	"SMLHelper": "2.9.6"
   },
   "Id": "ConsoleBatchFiles",
   "AssemblyName": "ConsoleBatchFiles.dll",
@@ -11,9 +11,9 @@
   "NexusId": {},
   "Game": "BelowZero",
   "VersionChecker": {
-    "LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/ConsoleBatchFiles/mod_BelowZero.json"
+	"LatestVersionUrl": "https://raw.githubusercontent.com/DaWrecka/DaWreckasSubnauticaStuff/master/ConsoleBatchFiles/mod_BelowZero.json"
   },
   "Dependencies": [
-    "SMLHelper"
+	"SMLHelper"
   ]
 }

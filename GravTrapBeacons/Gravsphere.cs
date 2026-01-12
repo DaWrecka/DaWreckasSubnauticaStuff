@@ -7,24 +7,27 @@ using System.Threading.Tasks;
 
 namespace GravTrapBeacons
 {
-    [HarmonyPatch(typeof(Gravsphere))]
-    class GravspherePatches
-    {
-        [HarmonyPatch(nameof(Gravsphere.Start))]
-        [HarmonyPostfix]
-        internal static void PostStart(Gravsphere __instance)
-        {
-            var obj = __instance.gameObject;
+	[HarmonyPatch(typeof(Gravsphere))]
+	class GravspherePatches
+	{
+		[HarmonyPatch(nameof(Gravsphere.Start))]
+		[HarmonyPostfix]
+		internal static void PostStart(Gravsphere __instance)
+		{
+			var obj = __instance.gameObject;
 
-            var ping = __instance.gameObject.EnsureComponent<PingInstance>();
-            ping.pingType = PingType.Signal; // u can make one with SML
-            ping.origin = obj.transform;
-            ping.SetLabel("GravTrap");
+			var ping = __instance.gameObject.EnsureComponent<PingInstance>();
+			ping.pingType = PingType.Signal; // u can make one with SML
+			ping.origin = obj.transform;
+			ping.SetLabel("GravTrap");
 
-            // Gravtraps default to the Near celllevel, so if we want the ping to be visible from a distance greater than 50m, we need to change that.
-            var lwe = __instance.gameObject.EnsureComponent<LargeWorldEntity>();
-            lwe.cellLevel = GravTrapBeaconPlugin.GravCellLevel;
-            lwe.initialCellLevel = GravTrapBeaconPlugin.GravCellLevel;
-        }
-    }
+			// Gravtraps default to the Near celllevel, so if we want the ping to be visible from a distance greater than 50m, we need to change that.
+			var lwe = __instance.gameObject.EnsureComponent<LargeWorldEntity>();
+			lwe.cellLevel = GravTrapBeaconPlugin.GravCellLevel;
+			lwe.initialCellLevel = GravTrapBeaconPlugin.GravCellLevel;
+
+			var damageMod = __instance.gameObject.EnsureComponent<GravTrapModifier>();
+			damageMod.enabled = true;
+		}
+	}
 }
