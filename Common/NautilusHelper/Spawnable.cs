@@ -211,10 +211,15 @@ namespace Common.NautilusHelper
 				throw new ArgumentException($"Error patching Spawnable: no valid template specified for {this.ClassID}");
 			}
 
+#if NAUTILUS
+            prefabInfo = PrefabInfo.WithTechType(this.ClassID, techTypeOwner: Mod)
+                .WithIcon(this.GetItemSprite());
+#else
 			prefabInfo = PrefabInfo.WithTechType(this.ClassID, this.FriendlyName, this.Description, "English", techTypeOwner: Mod)
 				.WithIcon(this.GetItemSprite());
+#endif
 
-			customPrefab = new CustomPrefab(prefabInfo);
+            customPrefab = new CustomPrefab(prefabInfo);
 
 			CloneTemplate clone;
 
