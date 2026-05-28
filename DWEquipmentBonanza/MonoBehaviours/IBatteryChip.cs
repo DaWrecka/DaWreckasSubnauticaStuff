@@ -7,12 +7,24 @@ using UnityEngine;
 
 namespace DWEquipmentBonanza.MonoBehaviours
 {
-	internal interface IBatteryChip
+	internal class BatteryChip : MonoBehaviour,
+		IBattery
 	{
-		internal abstract float charge { get; set; }
-		internal abstract TechType techType { get; }
-		internal abstract float capacity { get; }
+		public float charge {
+			get
+			{
+				return 1f;
+			}
+			set { }
+		}
+		internal TechType techType { get; }
+		public float capacity => 1f;
 
-		internal abstract void Initialise(TechType newTechType);
+		internal virtual void Initialise(TechType newTechType) { }
+
+		public string GetChargeValueText()
+		{
+			return String.Empty;
+		}
 	}
 }

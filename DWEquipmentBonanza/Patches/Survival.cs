@@ -1,5 +1,6 @@
 ﻿//#define LOGTRANSPILERS
 using Common;
+using Main = DWEquipmentBonanza.DWEBPlugin;
 using DWEquipmentBonanza.MonoBehaviours;
 using HarmonyLib;
 using System;
@@ -19,7 +20,8 @@ namespace DWEquipmentBonanza.Patches
 	{
 		private static float defaultMultiplier = 100f;
 
-		private static Dictionary<TechType, float> NeedsOverrides = new Dictionary<TechType, float>(); // Dictionary using suit TechTypes as keys; if the worn suit is present in the dictionary, then we override the water cap with the associated value.
+		private static Dictionary<TechType, float> NeedsOverrides = new Dictionary<TechType, float>(); // Dictionary using suit TechTypes as keys; if the worn suit is present in the dictionary, then we override the
+																									   // needs multiplier like so.
 		private static TechType cachedSuitType = TechType.None; // if the equipped body suit is this, we don't need to check the dictionary.
 		private static float cachedOverride = defaultMultiplier;
 
@@ -66,69 +68,35 @@ namespace DWEquipmentBonanza.Patches
 			int i;
 			int maxIndex = codes.Count - 8;
 
-	#if LOGTRANSPILERS
-			Log.LogDebug("Survival.UpdateStats(), pre-transpiler:");
+			if (Main.config.bLogTranspilers)
+			{
+				Log.LogDebug("Survival.UpdateStats(), pre-transpiler:");
 				for (i = 0; i < codes.Count; i++)
 					Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
-	#endif
-
-			i = -1;
-			while (++i < maxIndex)
-			{
-				//Our first target pattern is as follows:
-				//IL_001f: ldarg.1      // timePassed
-				//IL_0020: ldc.r4       2520
-				//IL_0025: div
-				//IL_0026: ldc.r4       100
-				//IL_002b: mul
-				//IL_002c: stloc.3      // num2
-
-
-				//The second pattern is:
-				//IL_0064: ldarg.1      // timePassed
-				//IL_0065: ldc.r4       1800
-				//IL_006a: div
-				//IL_006b: ldc.r4       100
-				//IL_0070: mul
-				//IL_0071: stloc.s      num3
-
-				//That 'ldc.r4 100' is what we want to change; it loads 100 on the stack as a constant, which is the 'maximum' value passed to Clamp. We want, instead, to put our value on the stack.
-
-				// The lines of C# where this value is used are:
-				//float num2 = (float)((double)timePassed / 2520.0 * 100.0);
-				//[...]
-				//float num3 = (float)((double)timePassed / 1800.0 * 100.0);
-				// num2 and num3 are the amounts that should be subtracted from the food and water values; by replacing them with a lower value, we reduce the rate at which primary needs deplete.
-
-				#if LOGTRANSPILERS
-				/*
-				Log.LogDebug(String.Format("0x{0:X4}", i));
-				if (codes[i].opcode == OpCodes.Ldarg_1
-					&& codes[i + 1].opcode == OpCodes.Ldc_R4)
-				{
-					Log.LogDebug("	codes[i + 1].operand == " + Convert.ToDouble(codes[i + 1].operand).ToString());
-				}*/
-				#endif
-				if (codes[i].opcode == OpCodes.Ldarg_1
-					&& codes[i + 1].opcode == OpCodes.Ldc_R4 && ((double)(codes[i + 1].operand) == 2520f || (double)(codes[i + 1].operand) == 1800f)
-					&& codes[i + 2].opcode == OpCodes.Div
-					&& codes[i + 3].opcode == OpCodes.Ldc_R4 && (float)(codes[i + 3].operand) == 100f
-					&& codes[i + 4].opcode == OpCodes.Mul)
-				{
-					#if LOGTRANSPILERS
-						Log.LogDebug("Code found at index " + String.Format("0x{0:X4}", i) + ", replacing");
-					#endif
-					codes[i + 3] = new CodeInstruction(OpCodes.Callvirt, getPrimaryNeedsOverride);
-				}
 			}
 
-	#if LOGTRANSPILERS
-			Log.LogDebug("Survival.UpdateStats(), post-transpiler:");
-			for (i = 0; i < codes.Count; i++)
-				Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
-	#endif
-				
-			return codes.AsEnumerable();
+			var matcher = new CodeMatcher(instructions);
+			matcher.MatchForward(true,
+				new CodeMatch(OpCodes.Ldc_R4, 2520f),
+				new CodeMatch(OpCodes.Div),
+				new CodeMatch(OpCodes.Ldc_R4, 100f)); // Due to setting useEnd in the MatchForward call to TRUE, the CodeMatch(Opcodes.Ldc_R4, 100f) will place the cursor at the position of that instruction.
+				// useEnd: false would put the cursor on the ldc.r4 2520f
+			matcher.SetInstruction(CodeInstruction.Call(typeof(SurvivalPatches), nameof(SurvivalPatches.GetPrimaryNeedsMult)));
+			matcher.MatchForward(true,
+				new CodeMatch(OpCodes.Ldc_R4, 1800f),
+				new CodeMatch(OpCodes.Div),
+				new CodeMatch(OpCodes.Ldc_R4, 100f));
+			matcher.SetInstruction(CodeInstruction.Call(typeof(SurvivalPatches), nameof(SurvivalPatches.GetPrimaryNeedsMult)));
+
+			if (Main.config.bLogTranspilers)
+			{
+				Log.LogDebug("Survival.UpdateStats(), post-transpiler:");
+				codes = matcher.Instructions();
+				for (i = 0; i < codes.Count; i++)
+					Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
+			}
+			return matcher.InstructionEnumeration(); // Disabling this while I make sure that the matcher works the way intended
+			//return instructions.AsEnumerable();
 		}
 #elif BELOWZERO
 
@@ -141,18 +109,21 @@ namespace DWEquipmentBonanza.Patches
 
 			int i;
 			int maxIndex = codes.Count - 4;
-#if LOGTRANSPILERS
+			if (Main.config.bLogTranspilers)
+			{
 			Log.LogDebug("Survival.UpdateFoodStatsTranspiler(): getPrimaryNeedsOverride " + (getPrimaryNeedsOverride == null ? "is" : "is not") + " null; maxIndex = 0x" + String.Format("0x{0:X4}", maxIndex), null, true);
 			Log.LogDebug("Survival.UpdateFoodStatsTranspiler(), pre-transpiler:");
 				for (i = 0; i < codes.Count; i++)
 					Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
-#endif
+			}
+			/*
 			i = 0;
 			while (++i < maxIndex)
 			{
-#if LOGTRANSPILERS
-				Log.LogDebug(String.Format("0x{0:X4}", i));
-#endif
+				if (Main.config.bLogTranspilers)
+				{
+					Log.LogDebug(String.Format("0x{0:X4}", i));
+				}
 				//Our food target pattern is as follows:
 				//IL_001c: stloc.1      // food
 				//IL_001d: ldarg.1      // timePassed
@@ -179,12 +150,28 @@ namespace DWEquipmentBonanza.Patches
 				}
 			}
 
-#if LOGTRANSPILERS
-			Log.LogDebug("Survival.UpdateFoodStatsTranspiler(), post-transpiler:");
+			if (Main.config.bLogTranspilers)
+			{
+				Log.LogDebug("Survival.UpdateFoodStatsTranspiler(), post-transpiler:");
 				for (i = 0; i < codes.Count; i++)
 					Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
-#endif
-			return codes.AsEnumerable();
+			}
+			return codes.AsEnumerable();*/
+
+			var matcher = new CodeMatcher(instructions);
+			matcher.MatchForward(true,
+				new CodeMatch(OpCodes.Ldc_R4, 2520f),
+				new CodeMatch(OpCodes.Div),
+				new CodeMatch(OpCodes.Ldc_R4, 100f));
+			matcher.SetInstruction(CodeInstruction.Call(typeof(SurvivalPatches), nameof(SurvivalPatches.GetPrimaryNeedsMult)));
+
+			if (Main.config.bLogTranspilers)
+			{
+				codes = matcher.Instructions();
+				for (i = 0; i < codes.Count; i++)
+					Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
+			}
+			return matcher.InstructionEnumeration();
 		}
 
 		[HarmonyTranspiler]
@@ -197,14 +184,15 @@ namespace DWEquipmentBonanza.Patches
 			int i;
 			int maxIndex = codes.Count - 4;
 
-#if LOGTRANSPILERS
-			Log.LogDebug($"Survival.UpdateWaterStatsTranspiler(): getPrimaryNeedsOverride " + (getPrimaryNeedsOverride == null ? "is" : "is not") + " null");
-			Log.LogDebug("Survival.UpdateWaterStatsTranspiler(), pre-transpiler:");
+			if (Main.config.bLogTranspilers)
+			{
+				Log.LogDebug($"Survival.UpdateWaterStatsTranspiler(): getPrimaryNeedsOverride " + (getPrimaryNeedsOverride == null ? "is" : "is not") + " null");
+				Log.LogDebug("Survival.UpdateWaterStatsTranspiler(), pre-transpiler:");
 				for (i = 0; i < codes.Count; i++)
 					Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
-#endif
+			}
 
-			i = 0;
+			/*i = 0;
 			while (++i < maxIndex)
 			{
 				//Our water target pattern is as follows:
@@ -224,24 +212,43 @@ namespace DWEquipmentBonanza.Patches
 				// num2 and num3 are the amounts that should be subtracted from the food and water values; by replacing them with a lower value, we reduce the rate at which primary needs deplete.
 
 
+
 				if (codes[i - 1].opcode == OpCodes.Stloc_1
-					&& codes[i].opcode == OpCodes.Ldarg_1
-					&& codes[i + 1].opcode == OpCodes.Ldc_R4// && (double)codes[i + 1].operand == 1800f
-					&& codes[i + 2].opcode == OpCodes.Div
-					&& codes[i + 3].opcode == OpCodes.Ldc_R4 && (float)codes[i + 3].operand == 100f
-					&& codes[i + 4].opcode == OpCodes.Mul)
+				&& codes[i].opcode == OpCodes.Ldarg_1
+				&& codes[i + 1].opcode == OpCodes.Ldc_R4// && (double)codes[i + 1].operand == 1800f
+				&& codes[i + 2].opcode == OpCodes.Div
+				&& codes[i + 3].opcode == OpCodes.Ldc_R4 && (float)codes[i + 3].operand == 100f
+				&& codes[i + 4].opcode == OpCodes.Mul)
 				{
 					codes[i + 3] = new CodeInstruction(OpCodes.Callvirt, getPrimaryNeedsOverride);
 					break;
 				}
-			}
 
-#if LOGTRANSPILERS
-			Log.LogDebug("Survival.UpdateWaterStatsTranspiler(), post-transpiler:");
+			}
+			if (Main.config.bLogTranspilers)
+			{
+				Log.LogDebug("Survival.UpdateWaterStatsTranspiler(), post-transpiler:");
 				for (i = 0; i < codes.Count; i++)
 					Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
-#endif
+			}
 			return codes.AsEnumerable();
+			*/
+
+			var matcher = new CodeMatcher(instructions);
+			matcher.MatchForward(true,
+				new CodeMatch(OpCodes.Ldc_R4, 1800f),
+				new CodeMatch(OpCodes.Div),
+				new CodeMatch(OpCodes.Ldc_R4, 100f));
+			matcher.SetInstruction(CodeInstruction.Call(typeof(SurvivalPatches), nameof(SurvivalPatches.GetPrimaryNeedsMult)));
+
+			if (Main.config.bLogTranspilers)
+			{
+				codes = matcher.Instructions();
+				for(i = 0; i < codes.Count; i++)
+					Log.LogDebug(String.Format("0x{0:X4}", i) + $" : {codes[i].opcode.ToString()}	{(codes[i].operand != null ? codes[i].operand.ToString() : "")}");
+			}
+
+			return matcher.InstructionEnumeration();
 		}
 #endif
 
@@ -255,7 +262,7 @@ namespace DWEquipmentBonanza.Patches
 			int i;
 			int maxIndex = codes.Count - 8;
 
-			if (Main.bLogTranspilers)
+			if (Main.config.bLogTranspilers)
 			{
 				Log.LogDebug("Survival.Eat(), pre-transpiler:");
 				for (i = 0; i < codes.Count; i++)
@@ -293,7 +300,7 @@ namespace DWEquipmentBonanza.Patches
 				}
 			}
 
-			if (Main.bLogTranspilers)
+			if (Main.config.bLogTranspilers)
 			{
 				Log.LogDebug("Survival.Eat(), post-transpiler:");
 				for (i = 0; i < codes.Count; i++)

@@ -80,6 +80,10 @@ namespace DWEquipmentBonanza
 			Tooltip = "Base damage dealt by Heatblade. (UWE default: 20.0)\nNote that this will affect how many times a harvestable plant can be struck with a HeatBlade before it is destroyed, and thus how many resources you will get.")]
 		public float HeatbladeDamage = HEATBLADE_DAMAGE_DEFAULT;
 
+		// This option for internal use
+		[Toggle("Log transpilers", Tooltip = "For debugging use. Unless you are told otherwise, you should keep this disabled.")] 
+		public bool bLogTranspilers = false;
+
 #if BELOWZERO
 		[Keybind("Snowfox Quantum Storage trigger key")]
 		public KeyCode SnowfoxQuantumTrigger = KeyCode.C;
@@ -219,7 +223,6 @@ namespace DWEquipmentBonanza
 #if NAUTILUS
 				SaveUtils.RegisterOnQuitEvent(this.OnQuitEvent);
 #else
-			
 				IngameMenuHandler.RegisterOnQuitEvent(this.OnQuitEvent);
 #endif
 			if (string.IsNullOrEmpty(ChargeDifficulty))

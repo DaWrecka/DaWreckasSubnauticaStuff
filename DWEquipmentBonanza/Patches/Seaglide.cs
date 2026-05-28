@@ -58,11 +58,11 @@ namespace DWEquipmentBonanza
 		}
 #endif
 
-		// I initially implemented my Powerglide code as a function of the default Seaglide.
-		// When I decided it worked better as a separate unit due to being a bit too OP to be available right from the start, much of the below code was moved to a separate component.
+        // I initially implemented my Powerglide code as a function of the default Seaglide.
+        // When I decided it worked better as a separate unit due to being a bit too OP to be available right from the start, much of the below code was moved to a separate component.
 
 
-		/*private static float powerGlideForce = 3000f;
+        /*private static float powerGlideForce = 3000f;
 		private static float powerLerpRate = 1200f;
 
 		public static bool PowerGlideActive(Seaglide instance = null)
@@ -93,7 +93,7 @@ namespace DWEquipmentBonanza
 			PowerGlideActive(__instance);
 		}*/
 
-		/* There are two regions we want to check:
+        /* There are two regions we want to check:
 		 *  in FixedUpdate(), we want to change "if (this.powerGlideActive)" to "if( DWEquipmentBonanza.Patches.PowerGlideActive() )"
 		 *  in UpdateEnergy(), we want to change:
 		 *			if(this.powerGlideActive)
@@ -139,13 +139,13 @@ namespace DWEquipmentBonanza
 
 		 */
 
-		/*[HarmonyTranspiler]
+        /*[HarmonyTranspiler]
 		[HarmonyPatch("UpdateEnergy")]
 		public static IEnumerable<CodeInstruction> UpdateEnergyTranspiler(IEnumerable<CodeInstruction> instructions)
 		{
 			MethodInfo activeMethod = typeof(SeaglidePatches).GetMethod(nameof(SeaglidePatches.PowerGlideActive));
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
-			if (Main.bLogTranspilers)
+			if (Main.config.bLogTranspilers)
 			{
 				Log.LogDebug("Seaglide.UpdateEnergy(), pre-transpiler:");
 				for (int i = 0; i < codes.Count; i++)
@@ -179,7 +179,7 @@ namespace DWEquipmentBonanza
 				}
 			}
 
-			if (Main.bLogTranspilers)
+			if (Main.config.bLogTranspilers)
 			{
 				Log.LogDebug("Seaglide.UpdateEnergy(), post-transpiler:");
 				for (int i = 0; i < codes.Count; i++)
@@ -188,20 +188,20 @@ namespace DWEquipmentBonanza
 			return codes.AsEnumerable();
 		}*/
 
-		/*[HarmonyPatch("UpdateEnergy")]
+        /*[HarmonyPatch("UpdateEnergy")]
 		[HarmonyPostfix]
 		public static void PostUpdateEnergy(Seaglide __instance)
 		{
 			__instance.powerGlideForce = Mathf.Lerp(__instance.powerGlideForce, __instance.powerGlideActive ? powerGlideForce : 0f, Time.deltaTime * powerLerpRate);
 		}*/
 
-		/*[HarmonyTranspiler]
+        /*[HarmonyTranspiler]
 		[HarmonyPatch("FixedUpdate")]
 		public static IEnumerable<CodeInstruction> FixedUpdateTranspiler(IEnumerable<CodeInstruction> instructions)
 		{
 			MethodInfo activeMethod = typeof(SeaglidePatches).GetMethod(nameof(SeaglidePatches.PowerGlideActive)); 
 			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
-			if (Main.bLogTranspilers)
+			if (Main.config.bLogTranspilers)
 			{
 				Log.LogDebug("Seaglide.FixedUpdate(), pre-transpiler:");
 				for (int i = 0; i < codes.Count; i++)
@@ -223,7 +223,7 @@ namespace DWEquipmentBonanza
 				}
 			}
 
-			if (Main.bLogTranspilers)
+			if (Main.config.bLogTranspilers)
 			{
 				Log.LogDebug("Seaglide.FixedUpdate(), post-transpiler:");
 				for (int i = 0; i < codes.Count; i++)
@@ -232,5 +232,5 @@ namespace DWEquipmentBonanza
 
 			return codes.AsEnumerable();
 		}*/
-	}
+    }
 }

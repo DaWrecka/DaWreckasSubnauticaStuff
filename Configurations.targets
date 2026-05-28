@@ -1,20 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DependsOnTargets="ProcessSteamLibraryPaths">
 	<Import Project="$(SolutionDir)\GameDir.targets" />
-	<!--<PropertyGroup>
-		<UseQMM>true</UseQMM>
-		<UseBepInEx>false</UseBepInEx>
-		<IsLegacy>false</IsLegacy>
-		<UseAsync>false</UseAsync>
-		<UseSML>true</UseSML>
-	</PropertyGroup>-->
-
 	<PropertyGroup Condition="'$(Configuration)' == 'BelowZeroLegacy'">
 		<DefineConstants>BZ;BELOWZERO;ASYNC;QMM;SMLHELPER</DefineConstants>
 		<UseQMM>true</UseQMM>
 		<UseBepInEx>false</UseBepInEx>
 		<IsLegacy>true</IsLegacy>
-		<PluginLoaderPath>QMods</PluginLoaderPath>
+		<ReferencePath>$(GameDir)\BepInEx\core\;$(GameDir)\BepInEx\plugins\;$(GameDir)\BepInEx\plugins\$(SMLHelperFolder)\;$(GameDir)\BepInEx\plugins\QModManager\;$(GameDir)\Qmods\$(SMLHelperFolder)\;$(GameDir)\$(DataFolder)\Managed\publicized_assemblies\;$(GameDir)\$(DataFolder)\Managed\;$(GameDir)\BepInEx\plugins\Nautilus\</ReferencePath>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)' == 'BelowZero'">
 		<DefineConstants>BZ;BELOWZERO;ASYNC;BEPINEX;NAUTILUS</DefineConstants>
@@ -46,19 +38,17 @@
 		<DataFolder>SubnauticaZero_Data</DataFolder>
 		<SMLHelperFolder>SMLHelper_BZ</SMLHelperFolder>
 		<GameDir>$(CommonDir)\SubnauticaZero</GameDir>
-		<ReferencePath>$(GameDir)\BepInEx\core\;$(GameDir)\BepInEx\plugins\;$(GameDir)\BepInEx\plugins\$(SMLHelperFolder)\;$(GameDir)\BepInEx\plugins\QModManager\;$(GameDir)\Qmods\$(SMLHelperFolder)\;$(GameDir)\$(DataFolder)\Managed\publicized_assemblies\;$(GameDir)\$(DataFolder)\Managed\;$(GameDir)\BepInEx\plugins\Nautilus\
-		</ReferencePath>
+		<ReferencePath>$(GameDir)\BepInEx\core\;$(GameDir)\BepInEx\plugins\;$(GameDir)\$(DataFolder)\Managed\publicized_assemblies\;$(GameDir)\$(DataFolder)\Managed\;$(GameDir)\BepInEx\plugins\Nautilus\</ReferencePath>
 	</PropertyGroup>
 	<PropertyGroup Condition="$(Configuration.StartsWith('Subnautica'))">
 		<GameName>Subnautica</GameName>
 		<DataFolder>Subnautica_Data</DataFolder>
 		<SMLHelperFolder>Modding Helper</SMLHelperFolder>
 		<GameDir>$(CommonDir)\Subnautica</GameDir>
-		<ReferencePath>$(GameDir)\BepInEx\core\;$(GameDir)\BepInEx\plugins\;$(GameDir)\BepInEx\plugins\$(SMLHelperFolder)\;$(GameDir)\BepInEx\plugins\QModManager\;$(GameDir)\Qmods\$(SMLHelperFolder)\;$(GameDir)\$(DataFolder)\Managed\publicized_assemblies\;$(GameDir)\$(DataFolder)\Managed\;$(GameDir)\BepInEx\plugins\Nautilus\
-		</ReferencePath>
+		<ReferencePath>$(GameDir)\BepInEx\core\;$(GameDir)\BepInEx\plugins\;$(GameDir)\$(DataFolder)\Managed\publicized_assemblies\;$(GameDir)\$(DataFolder)\Managed\;$(GameDir)\BepInEx\plugins\Nautilus\</ReferencePath>
 	</PropertyGroup>
 	<PropertyGroup>
-		<OutputPath>$(GameDir)\$(PluginLoaderPath)\$(AssemblyName)\</OutputPath>
+		<OutputPath>$(GameDir)\$(PluginLoaderPath)\.\$(AssemblyName)\</OutputPath>
 		<ModBaseDir>$(GameDir)\$(PluginLoaderPath)</ModBaseDir>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<PlatformTarget>x64</PlatformTarget>

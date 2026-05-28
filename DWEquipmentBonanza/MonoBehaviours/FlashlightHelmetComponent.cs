@@ -129,7 +129,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			}
 
 			this.toggleLights = this.gameObject.EnsureComponent<ToggleLights>();
-			this.toggleLights.energyMixin = this.gameObject.EnsureComponent<EnergyMixin>();
+			this.toggleLights.energyMixin = this.gameObject.EnsureComponent<EnergyMixin>();                   
 			this.toggleLights.energyMixin.storageRoot = this.storageRoot.GetComponent<ChildObjectIdentifier>();
 			this.toggleLights.energyMixin.OnCraftEnd(TechType.None);
 			this.toggleLights.lightsParent = this.lightsParent;

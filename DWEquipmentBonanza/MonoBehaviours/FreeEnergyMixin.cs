@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UWE;
+using Main = DWEquipmentBonanza.DWEBPlugin;
 
 namespace DWEquipmentBonanza.MonoBehaviours
 {
@@ -19,8 +20,8 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			var storageObject = gameObject.FindChild("Inventory Storage") ?? new GameObject("Inventory Storage");
 			storageObject.transform.SetParent(gameObject.transform);
 			this.storageRoot ??= storageObject.GetComponent<ChildObjectIdentifier>();
-			this.defaultBattery = TechType.PrecursorIonBattery;
-			this.compatibleBatteries = new List<TechType>() { TechType.PrecursorIonBattery };
+			this.defaultBattery = Main.GetModTechType("FlashlightBattery");
+			this.compatibleBatteries = new List<TechType>() { Main.GetModTechType("FlashlightBattery") };
 			this.allowBatteryReplacement = false;
 		}
 
@@ -29,7 +30,7 @@ namespace DWEquipmentBonanza.MonoBehaviours
 			base.Start();
 			if (this.battery == null)
 			{
-				this.defaultBattery = TechType.PrecursorIonBattery;
+				this.defaultBattery = Main.GetModTechType("FlashlightBattery");
 #if ASYNC
 				CoroutineHost.StartCoroutine(this.SpawnDefaultAsync(1f, DiscardTaskResult<bool>.Instance));
 #else

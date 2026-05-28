@@ -80,13 +80,12 @@ namespace DWEquipmentBonanza
 			AUTHOR = "dawrecka",
 			GUID = "com." + AUTHOR + "." + MODNAME;
 			private const string pluginName = "DW's Equipment Bonanza";
-			internal const string version = "1.20.1.0";
+			internal const string version = "1.20.3.0";
 		//private const string CustomOxygenGUID = "com." + AUTHOR + "." + "CustomiseOxygen";
 #endregion
 
 		private static readonly Harmony harmony = new Harmony(GUID);
 		internal const bool bVerboseLogging = true;
-		internal const bool bLogTranspilers = false;
 #if SN1
 		public static bool bInAcid { get; internal set; } = false; // Whether or not the player is currently immersed in acid
 #endif
@@ -377,43 +376,43 @@ namespace DWEquipmentBonanza
 			}
 #else
 			Log.InitialiseLog(GUID);
-#if NAUTILUS
-            LanguageHandler.RegisterLocalizationFolder();
-#endif
-#if SN1
-            Log.LogDebug("Checking for Nitrogen mod");
-#if QMM
+	#if NAUTILUS
+			LanguageHandler.RegisterLocalizationFolder();
+	#endif
+	#if SN1
+			Log.LogDebug("Checking for Nitrogen mod");
+		#if QMM
 			bHasN2 = QModServices.Main.ModPresent("NitrogenMod");
 			bHasDeathrun = QModServices.Main.ModPresent("DeathRun");
 			//string sStatus = "Nitrogen mod " + (bHasN2 ? "" : "not ") + "present";
 			Log.LogDebug("Nitrogen mod " + (bHasN2 ? "" : "not ") + "present; DeathRun mod " + (bHasDeathrun ? "" : "not ") + "present");
-#endif
-#endif
-            // We're going to try and remove crafting nodes from the root of the workbench menu and move them into tabs.
-            //Console.WriteLine($"{thisName} Reordering Workbench");
-            // Knives
-            //Console.WriteLine($"{thisName} Creating Knife Upgrades tab");
-#if NAUTILUS
-            CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.KnifeMenuPath, Language.main.Get("Node_KnifeUpgrades"), SpriteManager.Get(SpriteManager.Group.Category, "workbench_knifemenu"));
-#else
+		#endif
+	#endif
+			// We're going to try and remove crafting nodes from the root of the workbench menu and move them into tabs.
+			//Console.WriteLine($"{thisName} Reordering Workbench");
+			// Knives
+			//Console.WriteLine($"{thisName} Creating Knife Upgrades tab");
+	#if NAUTILUS
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.KnifeMenuPath, Language.main.Get("Node_KnifeUpgrades"), SpriteManager.Get(SpriteManager.Group.Category, "workbench_knifemenu"));
+	#else
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.KnifeMenuPath, "Knife Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_knifemenu"));
-#endif
-            //Console.WriteLine($"{thisName} Removing existing Heatblade node");
-            CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HeatBlade" });
+	#endif
+			//Console.WriteLine($"{thisName} Removing existing Heatblade node");
+			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HeatBlade" });
 			//Console.WriteLine($"{thisName} Creating new Heatblade node");
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.HeatBlade, new string[] { DWConstants.KnifeMenuPath });
 
 			// Tanks
 			//Console.WriteLine($"{thisName} Removing existing HighCapacityTank node");
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "HighCapacityTank" });
-            //Console.WriteLine($"{thisName} Creating Tank Upgrades node");
-#if NAUTILUS
-            CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.TankMenuPath, Language.main.Get("Node_TankUpgrades"), SpriteManager.Get(TechType.HighCapacityTank));
-#else
+			//Console.WriteLine($"{thisName} Creating Tank Upgrades node");
+	#if NAUTILUS
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.TankMenuPath, Language.main.Get("Node_TankUpgrades"), SpriteManager.Get(TechType.HighCapacityTank));
+	#else
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.TankMenuPath, "Tank Upgrades", SpriteManager.Get(TechType.HighCapacityTank));
-#endif
-            //Console.WriteLine($"{thisName} Adding Plasteel Tank node");
-            CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.PlasteelTank, new string[] { DWConstants.TankMenuPath });
+	#endif
+			//Console.WriteLine($"{thisName} Adding Plasteel Tank node");
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.PlasteelTank, new string[] { DWConstants.TankMenuPath });
 			//Console.WriteLine($"{thisName} Setting Plasteel Tank recipe");
 			SetTechData(TechType.PlasteelTank, new RecipeData()
 				{
@@ -448,33 +447,33 @@ namespace DWEquipmentBonanza
 			);
 			//Console.WriteLine($"{thisName} Setting AnalysisTechEntry for UltraGlideFins");
 			KnownTechHandler.SetAnalysisTechEntry(TechType.SwimChargeFins, new TechType[] { TechType.UltraGlideFins });
-            //Console.WriteLine($"{thisName} Creating Fin Upgrades tab");
-#if NAUTILUS
-            CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.FinsMenuPath, Language.main.Get("Node_FinUpgrades"), SpriteManager.Get(SpriteManager.Group.Category, "workbench_finsmenu"));
-#else
+			//Console.WriteLine($"{thisName} Creating Fin Upgrades tab");
+	#if NAUTILUS
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.FinsMenuPath, Language.main.Get("Node_FinUpgrades"), SpriteManager.Get(SpriteManager.Group.Category, "workbench_finsmenu"));
+	#else
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.FinsMenuPath, "Fin Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_finsmenu"));
-#endif
-            //Console.WriteLine($"{thisName} Adding crafting node for UltraGlideFins");
-            CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.UltraGlideFins, new string[] { DWConstants.FinsMenuPath });
+	#endif
+			//Console.WriteLine($"{thisName} Adding crafting node for UltraGlideFins");
+			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.UltraGlideFins, new string[] { DWConstants.FinsMenuPath });
 
 			//Console.WriteLine($"{thisName} Removing existing SwimChargeFins node");
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "SwimChargeFins" });
 			//Console.WriteLine($"{thisName} Creating new SwimChargeFins crafting node");
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.SwimChargeFins, new string[] { DWConstants.FinsMenuPath });
 
-            // Exosuit Upgrades
-            //Console.WriteLine($"{thisName} Creating Exosuit Upgrades tab");
-#if NAUTILUS
-            CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "ExosuitMenu", Language.main.Get("Node_ExosuitUpgrades"), SpriteManager.Get(SpriteManager.Group.Category, "workbench_exosuitmenu"));
-#else
+			// Exosuit Upgrades
+			//Console.WriteLine($"{thisName} Creating Exosuit Upgrades tab");
+	#if NAUTILUS
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "ExosuitMenu", Language.main.Get("Node_ExosuitUpgrades"), SpriteManager.Get(SpriteManager.Group.Category, "workbench_exosuitmenu"));
+	#else
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, "ExosuitMenu", "Exosuit Upgrades", SpriteManager.Get(SpriteManager.Group.Category, "workbench_exosuitmenu"));
-#endif
-            //Console.WriteLine($"{thisName} Removing existing ExoHullModule2 node");
-            CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "ExoHullModule2" });
+	#endif
+			//Console.WriteLine($"{thisName} Removing existing ExoHullModule2 node");
+			CraftTreeHandler.RemoveNode(CraftTree.Type.Workbench, new string[] { "ExoHullModule2" });
 			//Console.WriteLine($"{thisName} Creating new ExoHullModule2 node");
 			CraftTreeHandler.AddCraftingNode(CraftTree.Type.Workbench, TechType.ExoHullModule2, new string[] { "ExosuitMenu" });
 
-#if BELOWZERO
+	#if BELOWZERO
 			// Now our custom stuff
 			//Console.WriteLine($"{thisName} Removing existing HoverbikeSilentModule node");
 			CraftTreeHandler.RemoveNode(CraftTree.Type.Fabricator, new string[] { "Machines", "HoverbikeSilentModule" });
@@ -503,13 +502,13 @@ namespace DWEquipmentBonanza
 			//Console.WriteLine($"{thisName} Setting VehicleArmorPlating AnalysisTechEntry");
 			KnownTechHandler.SetAnalysisTechEntry(TechType.Exosuit, new TechType[] { TechType.VehicleArmorPlating });
 			CraftTreeHandler.AddTabNode(CraftTree.Type.SeaTruckFabricator, DWConstants.ChipsMenuPath, "Chips", SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
-#endif
-#if NAUTILUS
-            CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.BodyMenuPath, Language.main.Get("Node_SuitUpgrades"), SpriteManager.Get(Main.StillSuitType));
-            CraftTreeHandler.AddTabNode(CraftTree.Type.SeamothUpgrades, DWConstants.ChargerMenuPath, Language.main.Get("Node_VehicleChargers"), SpriteManager.Get(TechType.ExosuitThermalReactorModule));
-            CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.ChipsMenuPath, Language.main.Get("Node_Chips"), SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
-            CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.BaseHelmetsMenuName, Language.main.Get("Node_Headwear"), DWConstants.BaseHelmetsIcon, new string[] { "Personal" });
-#else
+	#endif
+	#if NAUTILUS
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.BodyMenuPath, Language.main.Get("Node_SuitUpgrades"), SpriteManager.Get(Main.StillSuitType));
+			CraftTreeHandler.AddTabNode(CraftTree.Type.SeamothUpgrades, DWConstants.ChargerMenuPath, Language.main.Get("Node_VehicleChargers"), SpriteManager.Get(TechType.ExosuitThermalReactorModule));
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.ChipsMenuPath, Language.main.Get("Node_Chips"), SpriteManager.Get(TechType.MapRoomHUDChip), new string[] { "Personal" });
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.BaseHelmetsMenuName, Language.main.Get("Node_Headwear"), DWConstants.BaseHelmetsIcon, new string[] { "Personal" });
+	#else
 			//Console.WriteLine($"{thisName} Adding Suit Upgrades tab node");
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Workbench, DWConstants.BodyMenuPath, "Suit Upgrades", SpriteManager.Get(Main.StillSuitType));
 			//Console.WriteLine($"{thisName} Adding Vehicle Chargers tab node");
@@ -520,7 +519,7 @@ namespace DWEquipmentBonanza
 			//Console.WriteLine($"{thisName} Adding Headwear tab node");
 //			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, "TankRefill", "Tank Refills", SpriteManager.Get(TechType.DoubleTank), new string[] { "Personal" });
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.BaseHelmetsMenuName, "Headwear", DWConstants.BaseHelmetsIcon, new string[] { "Personal" });
-#endif
+	#endif
 #endif
 
 			foreach (TechType tt in new List<TechType>()
@@ -536,12 +535,12 @@ namespace DWEquipmentBonanza
 				//Console.WriteLine($"{thisName} Adding new {tt.AsString()} node");
 				CraftTreeHandler.AddCraftingNode(CraftTree.Type.Fabricator, tt, DWConstants.BaseHelmetPath);
 			}
-#if NAUTILUS
-            CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.BaseSuitsMenuName, Language.main.Get("Node_Bodywear"), DWConstants.BaseSuitsIcon, new string[] { "Personal" });
-#else
+	#if NAUTILUS
+			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.BaseSuitsMenuName, Language.main.Get("Node_Bodywear"), DWConstants.BaseSuitsIcon, new string[] { "Personal" });
+	#else
 			CraftTreeHandler.AddTabNode(CraftTree.Type.Fabricator, DWConstants.BaseSuitsMenuName, "Bodywear", DWConstants.BaseSuitsIcon, new string[] { "Personal" });
-#endif
-            foreach (TechType tt in new List<TechType>()
+	#endif
+			foreach (TechType tt in new List<TechType>()
 			{
 				Main.StillSuitType,
 				TechType.ReinforcedDiveSuit,
@@ -572,6 +571,7 @@ namespace DWEquipmentBonanza
 			prefabs.Add(new SeamothThermalModule());
 			prefabs.Add(new SeamothThermalModuleMk2());
 			prefabs.Add(new SeamothUnifiedChargerModule());
+			prefabs.Add(new FlashlightBattery());
 			prefabs.Add(new FlashlightHelmet());
 			prefabs.Add(new IlluminatedRebreather());
 			prefabs.Add(new LightRadHelmet());
@@ -643,7 +643,7 @@ namespace DWEquipmentBonanza
 					Log.LogDebug($"Load(): Could not find TechType for Nitrogen class ID {sTechType}");
 				}
 			}
-#if NAUTILUS
+	#if NAUTILUS
 			if (bHasN2)
 			{
 				if (DeathrunAPI == null)
@@ -664,7 +664,7 @@ namespace DWEquipmentBonanza
 				}
 			}
 
-#else
+	#else
 			if (bHasN2)
 			{
 				if (DeathRunMain == null && NitrogenMain == null)
@@ -684,7 +684,7 @@ namespace DWEquipmentBonanza
 					prefabs.Add(new Blueprint_ReinforcedMk3toBrineMk3());
 				}
 			}
-#endif
+	#endif
 #endif
 
 			// These may depend on Nitrogen, or they may not; but if they do they must be loaded afterwards.
@@ -705,31 +705,31 @@ namespace DWEquipmentBonanza
 				SecondaryDescription = DWEBPowerglide.description,
 				TechTypeToUnlock = GetModTechType("DWEBPowerglide"),
 #if LEGACY
-#if SN1
+	#if SN1
 				CoordinatedSpawns = new List<Spawnable.SpawnLocation>()
 				{
 					new Spawnable.SpawnLocation(new Vector3(-1407.51f, -332.47f, 740.66f), new Vector3(6.93f, 275.67f, 0.00f)),
 					//new Spawnable.SpawnLocation(new Vector3(-1384.79f, -330.18f, 718.84f), new Vector3(1.22f, 194.60f, 357.64f))
 				}
-#elif BELOWZERO
+	#elif BELOWZERO
 				CoordinatedSpawns = new List<Spawnable.SpawnLocation>()
 				{
 					new Spawnable.SpawnLocation(new Vector3(285f, -242.07f, -1299f), new Vector3(344f, 3.77f, 14f))
 				}
-#endif
+	#endif
 #else
-#if SN1
+	#if SN1
 				CoordinatedSpawns = new List<SpawnLocation>()
 				{
 					new SpawnLocation(new Vector3(-1407.51f, -332.47f, 740.66f), new Vector3(6.93f, 275.67f, 0.00f)),
 					//new Spawnable.SpawnLocation(new Vector3(-1384.79f, -330.18f, 718.84f), new Vector3(1.22f, 194.60f, 357.64f))
 				}
-#elif BELOWZERO
+	#elif BELOWZERO
 				CoordinatedSpawns = new List<SpawnLocation>()
 				{
 					new SpawnLocation(new Vector3(285f, -242.07f, -1299f), new Vector3(344f, 3.77f, 14f))
 				}
-#endif
+	#endif
 #endif
 			};
 			powerglideDatabox.Patch();

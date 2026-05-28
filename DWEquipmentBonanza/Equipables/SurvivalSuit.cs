@@ -315,37 +315,6 @@ namespace DWEquipmentBonanza.Equipables
 			};
 		}
 
-#if NAUTILUS
-#elif ASYNC
-		public override IEnumerator GetGameObjectAsync(IOut<GameObject> gameObject)
-		{
-			Stillsuit s;
-			if (prefab == null)
-			{
-				CoroutineTask<GameObject> task = CraftData.GetPrefabForTechTypeAsync(TechType.ColdSuit, verbose: true);
-				yield return task;
-
-				prefab = task.GetResult();
-
-				// Editing prefab
-				if(prefab.TryGetComponent<Stillsuit>(out s))
-					GameObject.DestroyImmediate(s);
-				prefab.EnsureComponent<SurvivalsuitBehaviour>();
-
-				ModPrefabCache.AddPrefab(prefab, false); // This doesn't actually do any caching, but it does disable the prefab without "disabling" it - the prefab doesn't show up in the world [as with SetActive(false)]
-														 // but it can still be instantiated. [unlike with SetActive(false)]
-			}
-
-			// Despite the component being removed from the prefab above, testing shows that the Survival Suits still add the water packs when they shouldn't.
-			// So we're going to force-remove it here, to be safe.
-			GameObject go = GameObject.Instantiate(prefab);
-			if (go.TryGetComponent<Stillsuit>(out s))
-				GameObject.DestroyImmediate(s);
-			gameObject.Set(go);
-		}
-
-#else
-#endif
 		protected override Sprite GetItemSprite()
 		{
 			return SpriteManager.Get(Main.StillSuitType);

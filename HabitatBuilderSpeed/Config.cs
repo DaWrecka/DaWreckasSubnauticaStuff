@@ -10,6 +10,7 @@ using SMLHelper.V2.Options.Attributes;
 using SMLHelper.V2.Handlers;
 #endif
 using UnityEngine;
+using System;
 
 namespace HabitatBuilderSpeed.Configuration
 {

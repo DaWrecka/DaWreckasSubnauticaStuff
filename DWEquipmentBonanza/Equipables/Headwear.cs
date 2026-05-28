@@ -35,6 +35,8 @@ using UWE;
 	//using Sprite = Atlas.Sprite;
 using Nautilus.Assets.PrefabTemplates;
 using System.Runtime.CompilerServices;
+using DWEquipmentBonanza.Spawnables;
+
 #endif
 
 namespace DWEquipmentBonanza.Equipables
@@ -195,7 +197,6 @@ namespace DWEquipmentBonanza.Equipables
 
 				FlashlightHelmetComponent.SetFlashlightPrefab(task.GetResult());
 			}
-
 
 			FlashlightHelmetComponent headlightComponent = prefabToModify.EnsureComponent<FlashlightHelmetComponent>();
 			if (headlightComponent != null)

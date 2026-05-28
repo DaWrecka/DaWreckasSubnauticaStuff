@@ -1,144 +1,145 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0BBEDB12-642C-47EE-A14D-3F581B0038B8}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DWEquipmentBonanza</RootNamespace>
-    <AssemblyName>DWEquipmentBonanza</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Subnautica</Configuration>
-  </PropertyGroup>
-  <Import Project="$(SolutionDir)\GameDir.targets" />
-  <Import Project="$(SolutionDir)\Configurations.targets" />
-  <Import Project="$(SolutionDir)\References.targets" />
-  <ItemGroup>
-    <Compile Include="Config.cs" />
-    <Compile Include="Constants.cs" />
-    <Compile Include="Equipables\DiverPerimeterDefenceChip.cs" />
-    <Compile Include="Equipables\BrineSuit.cs" />
-    <Compile Include="Equipables\Blades.cs" />
-    <Compile Include="Equipables\HazardShieldItem.cs" />
-    <Compile Include="Equipables\Headwear.cs" />
-    <Compile Include="Equipables\LightweightHighCapTank.cs" />
-    <Compile Include="Equipables\PowerglideEquipable.cs" />
-    <Compile Include="Equipables\HighCapacityBooster.cs" />
-    <Compile Include="Equipables\ReinforcedColdSuit.cs" />
-    <Compile Include="Equipables\SuperSurvivalSuit.cs" />
-    <Compile Include="Equipables\SurvivalSuit.cs" />
-    <Compile Include="Equipables\UltraGlideSwimChargeFins.cs" />
-    <Compile Include="GameObjects\ResourceMagnet.cs" />
-    <Compile Include="MonoBehaviours\DiverPerimeterDefenceBehaviour.cs" />
-    <Compile Include="MonoBehaviours\ExosuitPropulsionArmCollector.cs" />
-    <Compile Include="MonoBehaviours\FlashlightHelmetComponent.cs" />
-    <Compile Include="MonoBehaviours\FlashlightEnablerBZ.cs" />
-    <Compile Include="MonoBehaviours\FreeEnergyMixin.cs" />
-    <Compile Include="MonoBehaviours\HazardShieldComponent.cs" />
-    <Compile Include="MonoBehaviours\HoverbikeStructuralIntegrityModifier.cs" />
-    <Compile Include="MonoBehaviours\HoverbikeUpdater.cs" />
-    <Compile Include="MonoBehaviours\HoverpadUpdater.cs" />
-    <Compile Include="MonoBehaviours\IBatteryChip.cs" />
-    <Compile Include="MonoBehaviours\OverrideTransform.cs" />
-    <Compile Include="MonoBehaviours\Powerglide.cs" />
-    <Compile Include="MonoBehaviours\SeamothUpdater.cs" />
-    <Compile Include="MonoBehaviours\VehicleQuantumLockerComponent.cs" />
-    <Compile Include="MonoBehaviours\SeaTruckUpdater.cs" />
-    <Compile Include="MonoBehaviours\SurvivalsuitBehaviour.cs" />
-    <Compile Include="MonoBehaviours\VehicleCharger.cs" />
-    <Compile Include="MonoBehaviours\VehicleGravsphere.cs" />
-    <Compile Include="MonoBehaviours\VehicleRepairComponent.cs" />
-    <Compile Include="MonoBehaviours\VehicleUpdater.cs" />
-    <Compile Include="MonoBehaviours\VibrobladeBehaviour.cs" />
-    <Compile Include="Patches\BatteryCharger.cs" />
-    <Compile Include="Patches\DamageSystem.cs" />
-    <Compile Include="Patches\DealDamageOnImpactPatches.cs" />
-    <Compile Include="Patches\Drillable.cs" />
-    <Compile Include="Patches\ExosuitClawArm.cs" />
-    <Compile Include="Patches\ExosuitGrapplingArm.cs" />
-    <Compile Include="Patches\PropulsionCannon.cs" />
-    <Compile Include="Patches\Hoverbike.cs" />
-    <Compile Include="Patches\HoverbikeHUD.cs" />
-    <Compile Include="Patches\Hoverpad.cs" />
-    <Compile Include="Patches\Inventory.cs" />
-    <Compile Include="Patches\MeleeAttackPatches.cs" />
-    <Compile Include="Patches\PlayerTool.cs" />
-    <Compile Include="Patches\Seaglide.cs" />
-    <Compile Include="Patches\SeaMoth.cs" />
-    <Compile Include="Patches\Seatruck.cs" />
-    <Compile Include="Patches\SpikeyTrap.cs" />
-    <Compile Include="Patches\SubRootPatches.cs" />
-    <Compile Include="Patches\Survival.cs" />
-    <Compile Include="Patches\TechTypeExtensions.cs" />
-    <Compile Include="Patches\TooltipFactory.cs" />
-    <Compile Include="Patches\uGUI_Equipment.cs" />
-    <Compile Include="Patches\uGUI_MainMenu.cs" />
-    <Compile Include="Patches\UnderwaterMotor.cs" />
-    <Compile Include="Patches\HorsepowerPatches.cs" />
-    <Compile Include="Patches\VehicleDockingBayPatches.cs" />
-    <Compile Include="Spawnables\PowerglideFragmentPrefab.cs" />
-    <Compile Include="Spawnables\ShadowLeviathanSample.cs" />
-    <Compile Include="VehicleModules\ExosuitChargingModules.cs" />
-    <Compile Include="VehicleModules\ExosuitGrappleUpgradeModule.cs" />
-    <Compile Include="VehicleModules\ExosuitLightningClawGeneratorModule.cs" />
-    <Compile Include="VehicleModules\HoverbikeBoostUpgradeModule.cs" />
-    <Compile Include="VehicleModules\HoverbikeDurabilitySystem.cs" />
-    <Compile Include="VehicleModules\HoverbikeQuantumLocker.cs" />
-    <Compile Include="VehicleModules\HoverbikeSelfRepairModule.cs" />
-    <Compile Include="VehicleModules\SeamothChargers.cs" />
-    <Compile Include="VehicleModules\SeaTruckQuantumLocker.cs" />
-    <Compile Include="VehicleModules\VehicleRepairModule.cs" />
-    <Compile Include="VehicleModules\SeatruckUnifiedModule.cs" />
-    <Compile Include="VehicleModules\SeaTruckSonarModule.cs" />
-    <Compile Include="VehicleModules\SeatruckUpgradeModulesGeneral.cs" />
-    <Compile Include="VehicleModules\SeatruckThermalModules.cs" />
-    <Compile Include="VehicleModules\SeatruckSolarModules.cs" />
-    <Compile Include="VehicleModules\ExosuitSprintModule.cs" />
-    <Compile Include="MonoBehaviours\ExosuitLightningClaw.cs" />
-    <Compile Include="VehicleModules\ExosuitLightningClawPrefab.cs" />
-    <Compile Include="Main.cs" />
-    <Compile Include="MonoBehaviours\ExosuitUpdater.cs" />
-    <Compile Include="Patches\Exosuit.cs" />
-    <Compile Include="Patches\Plantable.cs" />
-    <Compile Include="Patches\Player.cs" />
-    <Compile Include="Patches\Equipment.cs" />
-    <Compile Include="Patches\Vehicle.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VehicleModules\HoverbikeMobilityUpgrade.cs" />
-    <Compile Include="VehicleModules\HoverbikeSpeedModule.cs" />
-    <Compile Include="VehicleModules\HoverbikeSolarChargerModule.cs" />
-    <Compile Include="VehicleModules\HoverbikeStructuralIntegrityModule.cs" />
-    <Compile Include="VehicleModules\HoverbikeEngineEfficiencyModule.cs" />
-    <Compile Include="VehicleModules\HoverbikeUpgradeBase.cs" />
-    <Compile Include="VehicleModules\HoverbikeWaterTravelModule.cs" />
-    <Compile Include="VehicleModules\VehicleChargerModule.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="mod_Subnautica.json" />
-    <None Include="mod_BelowZero.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="CustomDataboxes" Condition="$(Configuration.StartsWith('BelowZero'))">
-      <HintPath>$(ModBaseDir)\CustomDataboxesBZ\CustomDataboxesBz.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="CustomDataboxes" Condition="$(Configuration.StartsWith('Subnautica'))">
-      <HintPath>$(ModBaseDir)\CustomDataboxes\CustomDataboxes.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="DWEquipmentBonanza.user" />
-  </ItemGroup>
-  <Import Project="$(SolutionDir)\Common\Common.projitems" Label="Shared" />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\PostBuildEvents.targets" />
+	<Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+	<PropertyGroup>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<AppDesignerFolder>Properties</AppDesignerFolder>
+		<AssemblyName>DWEquipmentBonanza</AssemblyName>
+		<Deterministic>true</Deterministic>
+		<FileAlignment>512</FileAlignment>
+		<Optimize>true</Optimize>
+		<OutputType>Library</OutputType>
+		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+		<PlatformTarget>x64</PlatformTarget>
+		<ProjectGuid>{0BBEDB12-642C-47EE-A14D-3F581B0038B8}</ProjectGuid>
+		<RootNamespace>DWEquipmentBonanza</RootNamespace>
+		<TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+	</PropertyGroup>
+	<PropertyGroup>
+		<Configuration Condition=" '$(Configuration)' == '' ">Subnautica</Configuration>
+	</PropertyGroup>
+	<Import Project="$(SolutionDir)\GameDir.targets" />
+	<Import Project="$(SolutionDir)\Configurations.targets" />
+	<Import Project="$(SolutionDir)\References.targets" />
+	<ItemGroup>
+		<Compile Include="Config.cs" />
+		<Compile Include="Constants.cs" />
+		<Compile Include="Equipables\DiverPerimeterDefenceChip.cs" />
+		<Compile Include="Equipables\BrineSuit.cs" />
+		<Compile Include="Equipables\Blades.cs" />
+		<Compile Include="Equipables\HazardShieldItem.cs" />
+		<Compile Include="Equipables\Headwear.cs" />
+		<Compile Include="Equipables\LightweightHighCapTank.cs" />
+		<Compile Include="Equipables\PowerglideEquipable.cs" />
+		<Compile Include="Equipables\HighCapacityBooster.cs" />
+		<Compile Include="Equipables\ReinforcedColdSuit.cs" />
+		<Compile Include="Equipables\SuperSurvivalSuit.cs" />
+		<Compile Include="Equipables\SurvivalSuit.cs" />
+		<Compile Include="Equipables\UltraGlideSwimChargeFins.cs" />
+		<Compile Include="GameObjects\ResourceMagnet.cs" />
+		<Compile Include="MonoBehaviours\DiverPerimeterDefenceBehaviour.cs" />
+		<Compile Include="MonoBehaviours\ExosuitPropulsionArmCollector.cs" />
+		<Compile Include="MonoBehaviours\FlashlightHelmetComponent.cs" />
+		<Compile Include="MonoBehaviours\FlashlightEnablerBZ.cs" />
+		<Compile Include="MonoBehaviours\FreeEnergyMixin.cs" />
+		<Compile Include="MonoBehaviours\HazardShieldComponent.cs" />
+		<Compile Include="MonoBehaviours\HoverbikeStructuralIntegrityModifier.cs" />
+		<Compile Include="MonoBehaviours\HoverbikeUpdater.cs" />
+		<Compile Include="MonoBehaviours\HoverpadUpdater.cs" />
+		<Compile Include="MonoBehaviours\IBatteryChip.cs" />
+		<Compile Include="MonoBehaviours\OverrideTransform.cs" />
+		<Compile Include="MonoBehaviours\Powerglide.cs" />
+		<Compile Include="MonoBehaviours\SeamothUpdater.cs" />
+		<Compile Include="MonoBehaviours\VehicleQuantumLockerComponent.cs" />
+		<Compile Include="MonoBehaviours\SeaTruckUpdater.cs" />
+		<Compile Include="MonoBehaviours\SurvivalsuitBehaviour.cs" />
+		<Compile Include="MonoBehaviours\VehicleCharger.cs" />
+		<Compile Include="MonoBehaviours\VehicleGravsphere.cs" />
+		<Compile Include="MonoBehaviours\VehicleRepairComponent.cs" />
+		<Compile Include="MonoBehaviours\VehicleUpdater.cs" />
+		<Compile Include="MonoBehaviours\VibrobladeBehaviour.cs" />
+		<Compile Include="Patches\BatteryCharger.cs" />
+		<Compile Include="Patches\DamageSystem.cs" />
+		<Compile Include="Patches\DealDamageOnImpactPatches.cs" />
+		<Compile Include="Patches\Drillable.cs" />
+		<Compile Include="Patches\ExosuitClawArm.cs" />
+		<Compile Include="Patches\ExosuitGrapplingArm.cs" />
+		<Compile Include="Patches\PropulsionCannon.cs" />
+		<Compile Include="Patches\Hoverbike.cs" />
+		<Compile Include="Patches\HoverbikeHUD.cs" />
+		<Compile Include="Patches\Hoverpad.cs" />
+		<Compile Include="Patches\Inventory.cs" />
+		<Compile Include="Patches\MeleeAttackPatches.cs" />
+		<Compile Include="Patches\PlayerTool.cs" />
+		<Compile Include="Patches\Seaglide.cs" />
+		<Compile Include="Patches\SeaMoth.cs" />
+		<Compile Include="Patches\Seatruck.cs" />
+		<Compile Include="Patches\SpikeyTrap.cs" />
+		<Compile Include="Patches\SubRootPatches.cs" />
+		<Compile Include="Patches\Survival.cs" />
+		<Compile Include="Patches\TechTypeExtensions.cs" />
+		<Compile Include="Patches\TooltipFactory.cs" />
+		<Compile Include="Patches\uGUI_Equipment.cs" />
+		<Compile Include="Patches\uGUI_MainMenu.cs" />
+		<Compile Include="Patches\UnderwaterMotor.cs" />
+		<Compile Include="Patches\HorsepowerPatches.cs" />
+		<Compile Include="Patches\VehicleDockingBayPatches.cs" />
+		<Compile Include="Spawnables\FlashlightBattery.cs" />
+		<Compile Include="Spawnables\PowerglideFragmentPrefab.cs" />
+		<Compile Include="Spawnables\ShadowLeviathanSample.cs" />
+		<Compile Include="VehicleModules\ExosuitChargingModules.cs" />
+		<Compile Include="VehicleModules\ExosuitGrappleUpgradeModule.cs" />
+		<Compile Include="VehicleModules\ExosuitLightningClawGeneratorModule.cs" />
+		<Compile Include="VehicleModules\HoverbikeBoostUpgradeModule.cs" />
+		<Compile Include="VehicleModules\HoverbikeDurabilitySystem.cs" />
+		<Compile Include="VehicleModules\HoverbikeQuantumLocker.cs" />
+		<Compile Include="VehicleModules\HoverbikeSelfRepairModule.cs" />
+		<Compile Include="VehicleModules\SeamothChargers.cs" />
+		<Compile Include="VehicleModules\SeaTruckQuantumLocker.cs" />
+		<Compile Include="VehicleModules\VehicleRepairModule.cs" />
+		<Compile Include="VehicleModules\SeatruckUnifiedModule.cs" />
+		<Compile Include="VehicleModules\SeaTruckSonarModule.cs" />
+		<Compile Include="VehicleModules\SeatruckUpgradeModulesGeneral.cs" />
+		<Compile Include="VehicleModules\SeatruckThermalModules.cs" />
+		<Compile Include="VehicleModules\SeatruckSolarModules.cs" />
+		<Compile Include="VehicleModules\ExosuitSprintModule.cs" />
+		<Compile Include="MonoBehaviours\ExosuitLightningClaw.cs" />
+		<Compile Include="VehicleModules\ExosuitLightningClawPrefab.cs" />
+		<Compile Include="Main.cs" />
+		<Compile Include="MonoBehaviours\ExosuitUpdater.cs" />
+		<Compile Include="Patches\Exosuit.cs" />
+		<Compile Include="Patches\Plantable.cs" />
+		<Compile Include="Patches\Player.cs" />
+		<Compile Include="Patches\Equipment.cs" />
+		<Compile Include="Patches\Vehicle.cs" />
+		<Compile Include="Properties\AssemblyInfo.cs" />
+		<Compile Include="VehicleModules\HoverbikeMobilityUpgrade.cs" />
+		<Compile Include="VehicleModules\HoverbikeSpeedModule.cs" />
+		<Compile Include="VehicleModules\HoverbikeSolarChargerModule.cs" />
+		<Compile Include="VehicleModules\HoverbikeStructuralIntegrityModule.cs" />
+		<Compile Include="VehicleModules\HoverbikeEngineEfficiencyModule.cs" />
+		<Compile Include="VehicleModules\HoverbikeUpgradeBase.cs" />
+		<Compile Include="VehicleModules\HoverbikeWaterTravelModule.cs" />
+		<Compile Include="VehicleModules\VehicleChargerModule.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="mod_Subnautica.json" />
+		<None Include="mod_BelowZero.json" />
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Include="CustomDataboxes" Condition="$(Configuration.StartsWith('BelowZero'))">
+			<HintPath>$(ModBaseDir)\CustomDataboxesBZ\CustomDataboxesBz.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="CustomDataboxes" Condition="$(Configuration.StartsWith('Subnautica'))">
+			<HintPath>$(ModBaseDir)\CustomDataboxes\CustomDataboxes.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="DWEquipmentBonanza.user" />
+	</ItemGroup>
+	<Import Project="$(SolutionDir)\Common\Common.projitems" Label="Shared" />
+	<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+	<Import Project="$(SolutionDir)\PostBuildEvents.targets" />
 </Project>

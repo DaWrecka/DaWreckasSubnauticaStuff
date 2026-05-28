@@ -133,7 +133,7 @@ namespace DWEquipmentBonanza.Patches
 			int wasOnGroundIndex = -1;
 			int boostIndex = -1;
 
-			if (Main.bLogTranspilers)
+			if (Main.config.bLogTranspilers)
 			{
 				Log.LogDebug("Dump of Hoverbike.HoverEngines method, pre-transpiler:");
 				Log.LogInfo("Dump of Hoverbike.HoverEngines method, pre-transpiler:");
@@ -152,12 +152,17 @@ namespace DWEquipmentBonanza.Patches
 				 * IL_0087: ldc.i4.1
 				 * IL_0088: stfld	 bool Hoverbike::overWater
 				 */
-				if (overWaterIndex == -1 && codes[i].opcode == OpCodes.Ldc_R4 && codes[i + 1].opcode == OpCodes.Add && (codes[i + 2].opcode == OpCodes.Bge_Un || codes[i + 2].opcode == OpCodes.Bge_Un_S)
-					&& codes[i + 3].opcode == OpCodes.Ldarg_0 && codes[i + 4].opcode == OpCodes.Ldc_I4_1 && codes[i + 5].opcode == OpCodes.Stfld)
+				if (overWaterIndex == -1
+					&& codes[i].opcode == OpCodes.Ldc_R4
+					&& codes[i + 1].opcode == OpCodes.Add
+					&& (codes[i + 2].opcode == OpCodes.Bge_Un || codes[i + 2].opcode == OpCodes.Bge_Un_S)
+					&& codes[i + 3].opcode == OpCodes.Ldarg_0
+					&& codes[i + 4].opcode == OpCodes.Ldc_I4_1
+					&& codes[i + 5].opcode == OpCodes.Stfld)
 				{
 					overWaterIndex = i + 4;
 
-					if (Main.bLogTranspilers) 
+					if (Main.config.bLogTranspilers) 
 						Log.LogDebug($"Located overWater segment at {String.Format("0x{0:X4}", overWaterIndex)}");
 					//codes[flag2index + 2] = new CodeInstruction(OpCodes.Callvirt, usingJumpjetsMethod);
 					codes[overWaterIndex] = new CodeInstruction(OpCodes.Callvirt, waterHoverMethod);
@@ -181,7 +186,8 @@ namespace DWEquipmentBonanza.Patches
 				 * IL_00D6: ldc.i4.0
 				 * IL_00D7: stfld	 bool Hoverbike::jumpReset
 				 */
-				else if (overWaterIndex != -1 && wasOnGroundIndex == -1 && codes[i + 0].opcode == OpCodes.Stloc_0   // * IL_00AD: stloc.0
+				else if (overWaterIndex != -1 && wasOnGroundIndex == -1
+					&& codes[i + 0].opcode == OpCodes.Stloc_0   // * IL_00AD: stloc.0
 					&& codes[i + 1].opcode == OpCodes.Ldloc_0   // * IL_00AE: ldloc.0
 					&& codes[i + 2].opcode == OpCodes.Brfalse   // * IL_00AF: brfalse IL_015D
 					&& codes[i + 3].opcode == OpCodes.Ldarg_0   // * IL_00B4: ldarg.0
@@ -197,9 +203,9 @@ namespace DWEquipmentBonanza.Patches
 					&& codes[i + 13].opcode == OpCodes.Ldc_I4_0  // * IL_00D6: ldc.i4.0
 					&& codes[i + 14].opcode == OpCodes.Stfld)	// * IL_00D7: stfld	 bool Hoverbike::jumpReset
 				{
-					// We're going to replace the codes at i+6 to i+7 with ldc.i4.1 and nop, placing 1 (true) on the stack instead of the result of the wasOnGround() method
+					// We're going to replace the codes at i+6 to i+7 with ldc.i4.1 and nop, placing 1 (true) on the stack instead of the result of the wasOnGround field
 					wasOnGroundIndex = i + 6;
-					if (Main.bLogTranspilers) 
+					if (Main.config.bLogTranspilers) 
 						Log.LogDebug($"Located wasOnGround segment at {String.Format("0x{0:X4}", wasOnGroundIndex)}");
 					codes[wasOnGroundIndex + 0] = new CodeInstruction(OpCodes.Ldc_I4_1);
 					codes[wasOnGroundIndex + 1] = new CodeInstruction(OpCodes.Nop);
@@ -248,10 +254,9 @@ namespace DWEquipmentBonanza.Patches
 				}
 			}
 
-			if (Main.bLogTranspilers)
+			if (Main.config.bLogTranspilers)
 			{
 				Log.LogDebug("Dump of Hoverbike.HoverEngines method, post-transpiler:");
-				Log.LogInfo("Dump of Hoverbike.HoverEngines method, post-transpiler:");
 				GeneralUtils.LogTranspiler(codes);
 
 				i = -1;

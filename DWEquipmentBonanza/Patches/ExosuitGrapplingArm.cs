@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
 using UnityEngine;
+using Main = DWEquipmentBonanza.DWEBPlugin;
 
 namespace DWEquipmentBonanza.Patches
 {
@@ -34,14 +35,15 @@ namespace DWEquipmentBonanza.Patches
 		{
 			//MethodInfo hookSpeedMethod = typeof(ExosuitGrapplingArmPatches).GetMethod(nameof(ExosuitGrapplingArmPatches.GetHookSpeed), BindingFlags.Static | BindingFlags.Public);
 
-#if LOGTRANSPILER
-			List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
+			if (Main.config.bLogTranspilers)
+			{
+				List<CodeInstruction> codes = new List<CodeInstruction>(instructions);
 
-			Log.LogDebug("ExosuitGrapplingArm.OnHit(), pre-transpiler:");
-			for (int index = 0; index < codes.Count; index++)
-				Log.LogDebug(String.Format("0x{0:X4}", index) + $" : {codes[index].opcode.ToString()}	{(codes[index].operand != null ? codes[index].operand.ToString() : "")}");
+				Log.LogDebug("ExosuitGrapplingArm.OnHit(), pre-transpiler:");
+				for (int index = 0; index < codes.Count; index++)
+					Log.LogDebug(String.Format("0x{0:X4}", index) + $" : {codes[index].opcode.ToString()}	{(codes[index].operand != null ? codes[index].operand.ToString() : "")}");
+			}
 
-#endif
 			CodeMatch codeMatch = new(i => i.opcode == OpCodes.Ldc_R4 && ((float)i.operand == basicGrappleHookSpeed));
 			var newInstructions = new CodeMatcher(instructions)
 				.MatchForward(false, codeMatch)
@@ -52,12 +54,13 @@ namespace DWEquipmentBonanza.Patches
 					m.SetInstruction(Transpilers.EmitDelegate(ExosuitGrapplingArmPatches.GetHookSpeed));
 				});
 
-#if LOGTRANSPILER
-			var enumeration = new List<CodeInstruction>(newInstructions.InstructionEnumeration());
-			Log.LogDebug($"ExosuitGrapplingArm.OnHit(), post-transpiler: {String.Format("0x{0:X4}", enumeration.Count)} CodeInstructions in collection");
-			for (int index = 0; index < enumeration.Count; index++)
-				Log.LogDebug(String.Format("0x{0:X4}", index) + $" : {enumeration[index].opcode.ToString()}	{(enumeration[index].operand != null ? enumeration[index].operand.ToString() : "")}");
-#endif
+			if (Main.config.bLogTranspilers)
+			{
+				var enumeration = new List<CodeInstruction>(newInstructions.InstructionEnumeration());
+				Log.LogDebug($"ExosuitGrapplingArm.OnHit(), post-transpiler: {String.Format("0x{0:X4}", enumeration.Count)} CodeInstructions in collection");
+				for (int index = 0; index < enumeration.Count; index++)
+					Log.LogDebug(String.Format("0x{0:X4}", index) + $" : {enumeration[index].opcode.ToString()}	{(enumeration[index].operand != null ? enumeration[index].operand.ToString() : "")}");
+			}
 			return newInstructions.InstructionEnumeration();
 			//return codes.AsEnumerable();
 		}
@@ -135,6 +138,6 @@ namespace DWEquipmentBonanza.Patches
 			return (!(String.IsNullOrEmpty(id)) && bGrappleUpgradeInstalled.GetOrDefault(id, false)) ? upgradedGrappleHookRange : basicGrappleHookRange;
 
 		}
-#endif
 	}
+#endif
 }
