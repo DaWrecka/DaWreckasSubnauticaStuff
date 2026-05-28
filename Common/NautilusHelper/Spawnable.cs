@@ -143,8 +143,17 @@ namespace Common.NautilusHelper
 				throw new ArgumentException($"Error patching Spawnable");
 			}
 
-			FriendlyName = friendlyName;
-			Description = description;
+			// 2026-05-27; Post-localisation update.
+			// FriendlyName and Description will be populated using the localisation code.
+			// If no value can be found using Language, then the friendlyName and description passed as arguments are used instead
+			FriendlyName = Language.main.Get(classId);
+			if(FriendlyName == classId) // the Get method returns the key as its result if it can't find the localised string.
+				FriendlyName = friendlyName;
+
+			string key = "Tooltip_" + classId;
+			Description = Language.main.Get(key);
+			if(Description == key)
+				Description = description;
 		}
 
 #if BELOWZERO
